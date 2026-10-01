@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.22)
+project(PixAuraAndroid LANGUAGES C CXX)
+set(BUILD_TESTING OFF CACHE BOOL "Host tests not executable on Android" FORCE)
+add_subdirectory(../../../ core)
+add_library(pixaura_bridge SHARED bridge.cpp)
+target_link_libraries(pixaura_bridge PRIVATE pixaura_core)
+pixaura_strict(pixaura_bridge)

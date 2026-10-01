@@ -1,0 +1,80 @@
+name: Foundation boundaries
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  workflow-lint:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Download verified actionlint 1.7.12 and validate workflow
+        run: |
+          mkdir -p build/tools
+          curl --fail --location --retry 3 https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz -o build/tools/actionlint.tar.gz
+          printf '%s  %s\n' '8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8' 'build/tools/actionlint.tar.gz' | sha256sum --check
+          tar -xzf build/tools/actionlint.tar.gz -C build/tools
+          build/tools/actionlint -pyflakes= .github/workflows/foundation.yml
+  portable:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - run: node --version
+      - run: node --test tests/foundation.test.mjs tests/ci-tools.test.mjs
+      - run: cmake -S . -B build/host -DCMAKE_BUILD_TYPE=Debug
+      - run: cmake --build build/host --config Debug
+      - run: ctest --test-dir build/host -C Debug --output-on-failure
+  apple-boundary:
+    runs-on: macos-26
+    timeout-minutes: 30
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: macOS core, Swift C ABI, unsigned iOS build and simulator tests
+        run: bash scripts/check-apple.sh
+      - name: Preserve Apple test evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: apple-boundary-evidence
+          path: |
+            build/apple-host/Testing/
+            build/apple-devices.json
+            build/apple-results.*/
+          if-no-files-found: warn
+          retention-days: 14
+  sanitizer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Execute ASan and UBSan tests and prove active instrumentation
+        run: bash scripts/check-sanitizers.sh
+      - name: Preserve sanitizer diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sanitizer-evidence
+          path: |
+            build/sanitize/Testing/
+            build/sanitize/test-logs/
+          if-no-files-found: warn
+          retention-days: 14
+  android-boundary:
+    strategy:
+      fail-fast: false
+      matrix:
+        abi: [arm64-v8a, armeabi-v7a]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - run: '"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;28.2.13676358"'
+      - run: cmake -S platforms/android/native -B build/android -DCMAKE_TOOLCHAIN_FILE="$ANDROID_HOME/ndk/28.2.13676358/build/cmake/android.toolchain.cmake" -DANDROID_ABI=${{ matrix.abi }} -DANDROID_PLATFORM=android-26
+      - run: cmake --build build/android

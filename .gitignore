@@ -1,0 +1,15 @@
+/build/
+/.gradle/
+**/.build/
+**/.swiftpm/
+**/DerivedData/
+local.properties
+.DS_Store
+*.user
+*.keystore
+*.jks
+*.p12
+*.mobileprovision
+.env
+models/*.onnx
+models/*.tflite

@@ -1,0 +1,11 @@
+* text=auto
+*.md text eol=lf
+*.mjs text eol=lf
+*.h text eol=lf
+*.cpp text eol=lf
+*.c text eol=lf
+*.swift text eol=lf
+*.sh text eol=lf
+*.cmake text eol=lf
+*.yml text eol=lf
+*.ps1 text eol=crlf

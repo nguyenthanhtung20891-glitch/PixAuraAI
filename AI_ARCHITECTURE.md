@@ -1,0 +1,20 @@
+# Local AI architecture
+
+## Separation of responsibilities
+Advisor emits explanations and suggestions. Planner emits typed, bounded EditPlan against a base revision. Operator validates and executes a plan through the same operation registry as manual edits. These roles are services, not unrestricted agents. No role gets network, arbitrary code execution, billing, media deletion or filesystem paths as tools.
+
+Intent -> local analysis (histogram, clipping, illumination, optional segmentation) -> planner -> schema and semantic validation -> resource admission -> candidate render -> preview -> explicit approval transaction. Cancellation/error drops candidate assets; approved state is untouched. Refine invalidates previous candidate and uses an explicit base revision. A changed manual revision makes an old plan stale and requires re-planning.
+
+## Plan contract
+Required: schema version, plan ID, base revision ID, intent summary, ordered registered operation IDs with versioned parameters, asset/mask references, estimated memory/time, explanation and capability requirements. Validate operation allowlist, ranges, finite numbers, mask ownership, graph complexity and device budget. Unknown operation/schema rejects safely. Executor records actual tool versions, provider/model hashes, input revision, parameter values, mask provenance, duration and status in local audit history. Do not record chain-of-thought; explanations are concise user-facing justifications.
+
+## MVP intelligence
+Auto Enhance and Smart Lighting first use deterministic image statistics and bounded rule-based planning. A local intent parser supports documented commands; unsupported language returns suggestions instead of guessing. Optional compact intent model can be added after evaluation. Subject features use segmentation; masks remain editable. A language model is not required to operate manual tools or basic enhancement. Never regenerate pixels where a registered deterministic operation suffices.
+
+## Runtime and model strategy
+Provider-neutral inference interface: load verified package, report supported operators, infer with bounded tensor sizes, cancel, release. ONNX is canonical interchange for evaluated compact vision models; initially ONNX Runtime CPU/XNNPACK fallback and Core ML provider on iOS. Android GPU acceleration may use a separately converted LiteRT artifact when benchmarked operator coverage and output parity justify it. NNAPI is not a foundational dependency: [Android deprecated it in Android 15](https://developer.android.com/ndk/guides/neuralnetworks/migration-guide). Actual provider availability and partition overhead must be measured, not inferred from a device brand. [ONNX mobile guidance](https://onnxruntime.ai/docs/tutorials/mobile/) describes available providers and unsupported-operator partitioning risk.
+
+Model packages carry task/version, license, SHA-256, signed manifest, tensor shapes, normalization, label semantics, compatible runtime/operators, quantization, size and golden fixtures. Keep source/export provenance and validate ONNX-to-Core ML/LiteRT parity. Float32 CPU is reference; float16/int8 only after task-quality validation. Weights are not present in Phase 0. Model selection and redistribution rights are Phase 5 acceptance items. No arbitrary downloaded models. Bundle a small approved baseline if size permits; optional quality packs download only on explicit request, with no photo upload and integrity checks. Downloads cannot be required for core manual editing.
+
+## Evaluation and failure behavior
+Measure intent-to-tool accuracy, out-of-scope rejection, clipped-pixel change, segmentation boundary quality and subgroup/skin-tone performance on licensed fixtures. Set task thresholds before model selection; do not promote on throughput alone. Provider failure retries bounded CPU/lower tier once, then explains unavailability. AI suggestions never claim objective beauty or guaranteed reconstruction. Input text/image metadata cannot override tool/security policy. Consent and audit remain local.

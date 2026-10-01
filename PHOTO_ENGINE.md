@@ -1,0 +1,20 @@
+# Non-destructive photo engine
+
+## Source and graph
+Import copies to immutable private storage and records SHA-256, dimensions, orientation, source color profile and codec. External URI is provenance only, not the editable source. Source files are opened read-only. Immutable operation graph nodes contain stable IDs, operation version, validated parameters, parent/input references and optional masks. Ordered edits are never reordered implicitly. Revision identifies graph root; branching after undo preserves approved historical revisions until explicit pruning.
+
+Manual commits and approved AI batches call one command service. Parameter gestures render transient candidates; one gesture commits one history item. Undo/redo moves the active revision rather than applying inverse math. AI candidates do not enter approved history until approval. Audit stores actor and plan link; users inspect the actual tool list. Persist current revision and redo path atomically.
+
+## Pixel semantics
+Normalize EXIF orientation once into source coordinate space. Convert embedded profile to linear sRGB float working values for SDR MVP, with defined clamping at output; premultiplied alpha for compositing. Operations specify whether they act in linear luminance or perceptual space; no implicit platform-dependent defaults. Parameter units, valid ranges, kernel edges and operation order are versioned before Phase 2 implementation. Resize uses deterministic reference resampling; GPU approximations require measured tolerance. Export embeds sRGB profile and strips location metadata by default. Source profile and metadata remain with private original. Wide gamut/HDR require separate validated working-space ADR before support.
+
+## Render pipeline
+Bounded decode -> orientation/color conversion -> operation graph evaluation -> display transform -> native texture. Preview uses reduced resolution; export renders selected approved revision in tiles at requested resolution. Tile halos cover blur/sharpen kernels and stitch without seams; global statistics are a separate bounded reduction pass. Segmentation masks have declared source coordinates and geometry transforms. Cache keyed by source hash, operation version, parameters, model/mask hash and resolution; invalidated on relevant changes.
+
+GPU backends share semantic fixtures with CPU reference. CPU tiling remains functional on low-tier devices. Estimate peak live buffers before starting; checked arithmetic, maximum dimensions/decoded bytes, job cancellation and memory-pressure downgrade are required. No full-resolution intermediate chain retained unnecessarily. Jobs run off the UI thread; only newest candidate can publish preview. Engine jobs retain resources until completion, even after cancellation, then release exactly once.
+
+## Export and recovery
+Reserve a new media destination, write temporary output, flush/close and atomically finalize where platform APIs allow; Android pending MediaStore entry and iOS add-only photo-library API provide platform-specific completion. On failure remove only the newly created incomplete output. Reject source/destination identity. Imported source checksum must survive edit/export tests. JPEG/PNG export validates dimensions, quality and color/alpha behavior. Project crash recovery replays last committed revision; rendering never changes persisted history.
+
+## Phase 0 boundary
+Only ABI/version contract exists. Codec, graph, tools, GPU kernels and export are specified here and must not be represented as implemented.
