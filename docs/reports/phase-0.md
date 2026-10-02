@@ -2,6 +2,8 @@
 
 Updated: 2026-10-02. Initial foundation run: 2026-10-01.
 
+Historical evidence snapshot: this report predates remote publication and subsequent CI. The Phase 1 user instruction states all Phase 0 GitHub Actions boundaries passed and authorizes advancement. Current repository now has an origin remote and commit 5462e36. No authenticated run evidence was available during Phase 1; see [Phase 1 report](phase-1.md) for current status. The original observed evidence below is retained unchanged.
+
 Status: **CONDITIONAL PASS / READY FOR CI**, not FULLY PASSED. All mandatory locally executable Phase 0 gates have passed, including actual AddressSanitizer execution and a negative probe inside the shared core. macOS/iOS execution is the only remaining mandatory platform gap. No CI job has executed; no remote is configured. Phase 1 is explicitly prohibited and has not started.
 
 ## Repository inspection

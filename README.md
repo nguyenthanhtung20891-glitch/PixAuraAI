@@ -1,11 +1,11 @@
 # PixAuraAI
 
-Local-first mobile photo editor. Phase 0 foundation; no mobile application or editing feature is implemented yet. Start with [PRODUCT_SPEC.md](PRODUCT_SPEC.md), [ARCHITECTURE.md](ARCHITECTURE.md), [QUALITY_GATES.md](QUALITY_GATES.md) and [ROADMAP.md](ROADMAP.md).
+Local-first mobile photo editor. Phase 1 includes minimal Android Compose and iOS SwiftUI shells with a shared C++17 ABI probe. No photo-engine feature is implemented. Start with [PRODUCT_SPEC.md](PRODUCT_SPEC.md), [ARCHITECTURE.md](ARCHITECTURE.md), [QUALITY_GATES.md](QUALITY_GATES.md) and [ROADMAP.md](ROADMAP.md).
 
 ## Foundation checks
 Node 22+ with built-in test runner:
 ```
-node --test tests/foundation.test.mjs tests/ci-tools.test.mjs
+node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs
 ```
 Windows with Visual Studio C++ workload:
 ```
@@ -43,4 +43,21 @@ Android NDK boundary (replace placeholder with installed NDK):
 cmake -S platforms/android/native -B build/android -DCMAKE_TOOLCHAIN_FILE=<NDK>/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-26
 cmake --build build/android
 ```
-No Gradle/Xcode app exists until Phase 1. The native Android library is only a JNI version probe; the Swift module is only an ABI boundary probe. Phase 0 is CONDITIONAL PASS / READY FOR CI, not FULLY PASSED. CI config is not proof of execution. See [Phase 0 report](docs/reports/phase-0.md) for observed checks and the required human action to run Apple validation. Phase 1 remains prohibited.
+## Native application shells
+
+Open platforms/android in Cursor/Android Studio, or set ANDROID_HOME to the installed SDK and run:
+```
+cd platforms/android
+./gradlew assembleDebug assembleRelease testDebugUnitTest lintDebug lintRelease assembleDebugAndroidTest
+./gradlew connectedDebugAndroidTest
+```
+On Windows use gradlew.bat. JDK 21.0.10, SDK 36, build tools 35.0.0, NDK 28.2.13676358 and CMake 3.22.1 are the pinned baseline. The connected test requires a booted device/emulator. Dependency locks and SHA-256 verification are enforced by default; do not regenerate them during ordinary verification.
+
+On macOS open platforms/ios/PixAuraAI.xcodeproj in Xcode. The shared PixAuraAI scheme builds a real application and its Swift/unit/UI test targets. The package reference resolves directly to packages/core; no external Apple dependency. Run from repository root:
+```
+bash scripts/check-apple.sh
+bash scripts/check-ios-shell.sh
+```
+The latter builds Debug/Release unsigned iOS device apps and executes simulator app/C ABI/UI tests. The committed Xcode project is generated with `node scripts/generate-ios-project.mjs`; source tests require deterministic output. Shell checks do not certify photo editing, GPU performance, physical accessibility or signing.
+
+CI workflows: **Foundation boundaries** and **Native application shells**. See [Phase 1 report](docs/reports/phase-1.md) for exact local evidence and mandatory unobserved macOS gates. Phase 0 completion was user-attested at Phase 1 authorization; the [Phase 0 report](docs/reports/phase-0.md) preserves its earlier evidence snapshot. No unobserved iOS build is PASS. Do not begin Phase 2 or push without explicit approval.

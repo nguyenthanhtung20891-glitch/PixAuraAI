@@ -1,6 +1,6 @@
 package ai.pixaura.bridge
 
-// Boundary probe only. Phase 1 packages the libraries in a real Android app.
+// Harmless, versioned boundary probe. No photo processing in Kotlin.
 class CoreProbe {
     companion object {
         init {

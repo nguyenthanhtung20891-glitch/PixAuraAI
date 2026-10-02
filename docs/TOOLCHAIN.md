@@ -1,6 +1,6 @@
 # Foundation toolchain and provenance
 
-Shipping mobile toolchain locks are a Phase 1 deliverable. Phase 0 runtime/core has no third-party library dependencies.
+Shipping mobile toolchain locks are implemented for Phase 1. Phase 0 runtime/core has no third-party library dependencies; the shared core remains dependency-free. Android: Gradle 8.13, AGP 8.13.2, Kotlin/Compose compiler 2.2.21, Compose BOM 2025.12.00, JDK 21.0.10 (bytecode 17), compile/target SDK 36, min SDK 26, build tools 35.0.0, NDK 28.2.13676358, CMake 3.22.1. iOS: existing macos-26/Xcode 26.6 CI baseline, Swift language mode 5 with package tools minimum 5.9, iOS 16 minimum. See [dependency review](DEPENDENCIES.md) and [Phase 1 report](reports/phase-1.md). Full versions are pinned in project/wrapper manifests; resolved Maven versions/checksums are committed.
 
 Observed on this Windows host: Node 24.14.0, Git 2.55.0.windows.2, Java 21.0.10, Android CMake 3.22.1 and NDK 28.2.13676358 (Clang 19.0.1). SDK tools are installed under I:/AndroidStudioSDKdata and are not on PATH. Android baseline compile target API 26. Existing Visual Studio 18.7 installation is incomplete (missing vcvarsall and C++ headers); host MSVC checks require workload repair.
 
@@ -13,7 +13,7 @@ SHA-256: 554f5378228923ffd558eac35e21af020c73789d87afeabf4bfd16f2e6feed2c
 
 Digest provenance: [official download index](https://ziglang.org/download/index.json). Zig is MIT licensed; bundled LLVM/Clang/libc components have their own notices retained in the extracted tool distribution. This fallback is not used to ship binaries or establish the release MSVC toolchain. Download/extract/cache under ignored build/tools; do not commit the archive or compiler. Run `powershell -NoProfile -File scripts/check-native-zig.ps1 -ZigPath <absolute-zig.exe>` after integrity verification. Compiler caches remain under build/zig-host. Official toolchain validation and sanitizers still run separately in CI.
 
-GitHub workflow uses checkout v4 pinned by commit SHA and fixed runner family labels. Hosted images/tool versions are mutable, so logs must retain versions. Android NDK is pinned to the version verified locally. Phase 1 must add exact Gradle/JDK/Kotlin/Compose/Xcode inputs, lockfiles and dependency verification before app releases.
+GitHub workflows now use official Node 24 actions checkout v5.0.0/upload-artifact v6.0.0/setup-java v5.0.0 pinned by commit SHA and fixed runner family labels. Hosted images, emulator system-image revisions and SDK command-line tool inventories are mutable, so logs must retain actual versions. Android NDK is pinned to the version verified locally. Maven locks/checksums and the Gradle distribution/wrapper checksums are committed; release SBOM/signing and independent binary-size optimization remain later gates.
 
 The Zig fallback runs undefined-behavior checks in trap mode. Do not treat an accepted `-fsanitize=address` option as ASan evidence: inspection of this compiler's lowered invocation on Windows showed undefined-behavior instrumentation but no address instrumentation. Actual Linux Clang ASan/UBSan execution supplies mandatory independent evidence, locally through WSL or in CI.
 

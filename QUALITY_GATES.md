@@ -1,6 +1,6 @@
 # Quality gates and promotion policy
 
-Status vocabulary: PASS (executed with evidence), FAIL (executed and failed), BLOCKED (mandatory environment unavailable), NOT_APPLICABLE (out of milestone scope with reason). Skips are never PASS. A milestone advances only when all its mandatory gates pass; first-run scope ends at Phase 0 regardless. No unobserved CI run is evidence.
+Status vocabulary: PASS (executed with evidence), FAIL (executed and failed), BLOCKED (mandatory environment unavailable), NOT_APPLICABLE (out of milestone scope with reason). Skips are never PASS. A milestone advances only when all its mandatory gates pass and advancement is authorized. Current scope ends at Phase 1 regardless. No unobserved CI run is evidence.
 
 | Gate | Required evidence | Applies |
 | --- | --- | --- |
@@ -23,7 +23,13 @@ All thirteen requested authoritative root documents; README and source/build ins
 
 Phase 0 reports separately classify evidence as locally validated, CI validated, pending CI execution, or legitimately unavailable on the current host. The last category describes host availability and does not waive a mandatory gate. READY FOR CI means all mandatory local checks have passed and remaining platform jobs are executable but unobserved. FULLY PASSED requires every mandatory gate to have executed successfully, with a run URL/logs for CI evidence. No unobserved workflow receives CI validated status.
 
+## Phase 1 acceptance
+Phase 1 acceptance: native Compose/SwiftUI apps render Home/Editor/Projects/Settings and show ABI 1 through the actual shared boundary; mode selection survives navigation without project mutation; Android recreation and iOS scene restoration preserve shell state; debug/unsigned release builds; strict Android lint, JVM reducer tests, Android emulator JNI/Compose tests; Apple package/core tests, iOS simulator Swift/C ABI/UI tests; workflow/source checks and existing sanitizers; no dangerous/media/network permissions, analytics, authentication or content networking. Native labels, scrolling and system text/color/touch defaults supply the accessibility baseline; physical TalkBack/VoiceOver walkthrough evidence is tracked separately and never inferred from compilation.
+
+CI executes both Foundation boundaries and Native application shells. Apple app/package execution remains mandatory even when Windows gates pass. Signing is outside Phase 1; no store credentials are needed for simulator tests or unsigned builds.
+
 ## Budgets to validate
+
 Initial targets on recorded reference devices: UI frame p95 <=16.7 ms for ordinary interaction at 60 Hz; T0 720px basic adjustment preview p95 <=150 ms warm; cancel acknowledgement <=250 ms; import/project UI response <=100 ms excluding decode; 12 MP JPEG export <=10 s T1 and <=30 s T0; no unbounded allocations and tier caps per DEVICE_CAPABILITY_STRATEGY.md. Cold model loading separately measured. Targets are refined only via ADR with data, never quietly relaxed. Phase 2 sets numerical tolerances per operation before implementation; Phase 5 sets task-quality thresholds before model selection.
 
 ## Reporting and exceptions

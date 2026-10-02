@@ -13,7 +13,7 @@ const required = [
 ];
 function files(directory = root) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
-    if (['.git', 'build', '.build', '.swiftpm'].includes(entry.name)) return [];
+    if (['.git', 'build', '.build', '.swiftpm', '.gradle', '.cxx'].includes(entry.name)) return [];
     const full = path.join(directory, entry.name);
     return entry.isDirectory() ? files(full) : [full];
   });
@@ -50,6 +50,11 @@ test('relative documentation links resolve inside the repository', () => {
 
 test('source hygiene: no conflict markers, trailing spaces or missing newlines', () => {
   for (const file of files()) {
+    if (file.endsWith('.jar')) {
+      assert.equal(path.relative(root, file).split(path.sep).join('/'),
+        'platforms/android/gradle/wrapper/gradle-wrapper.jar', 'Unexpected binary outside generated directories');
+      continue;
+    }
     const content = fs.readFileSync(file, 'utf8');
     assert.ok(!/^(<<<<<<<|=======|>>>>>>>)( |$)/m.test(content), `${file}: conflict marker`);
     assert.ok(!/[\t ]+\r?$/m.test(content), `${file}: trailing whitespace`);
@@ -62,7 +67,7 @@ test('all build systems compile the same core and boundaries have smoke probes',
   assert.match(read('CMakeLists.txt'), /packages\/core\/src\/core\.cpp/);
   assert.match(read('packages/core/Package.swift'), /src\/core\.cpp/);
   assert.match(read('platforms/android/native/CMakeLists.txt'), /add_subdirectory\(\.\.\/\.\.\/\.\.\/ core\)/);
-  assert.match(read('platforms/android/CoreProbe.kt'), /package ai\.pixaura\.bridge/);
+  assert.match(read('platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/CoreProbe.kt'), /package ai\.pixaura\.bridge/);
   assert.match(read('platforms/android/native/bridge.cpp'), /Java_ai_pixaura_bridge_CoreProbe_nativeAbiVersion/);
   assert.match(read('packages/core/swift/Tests/CoreProbeTests.swift'), /XCTAssertEqual/);
 });

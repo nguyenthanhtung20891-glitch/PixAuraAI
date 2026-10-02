@@ -1,5 +1,10 @@
 /build/
 /.gradle/
+**/.gradle/
+**/.cxx/
+**/build/
+**/xcuserdata/
+/build-android-emulator.log
 **/.build/
 **/.swiftpm/
 **/DerivedData/

@@ -1,6 +1,6 @@
 # Autonomous engineering contract
 
-PixAuraAI is an AI-native, local-first photo editor. Read PRODUCT_SPEC.md, ARCHITECTURE.md, QUALITY_GATES.md, ROADMAP.md and relevant subsystem documents before changing code. User instructions take precedence. Phase 0 is foundation only; do not implement product features in this run.
+PixAuraAI is an AI-native, local-first photo editor. Read PRODUCT_SPEC.md, ARCHITECTURE.md, QUALITY_GATES.md, ROADMAP.md and relevant subsystem documents before changing code. User instructions take precedence. Current authorized scope is Phase 1 native application shells only. Do not begin Phase 2 or implement photo-engine features. Do not push without explicit approval.
 
 ## Invariants
 - Originals are immutable. Import into private managed storage; export creates a new destination.
@@ -20,4 +20,4 @@ Native Kotlin/Compose and Swift/SwiftUI presentation; shared C++17 core exposed 
 
 Foundation: `node --test tests/foundation.test.mjs`; Windows native: `powershell -NoProfile -File scripts/check-native.ps1`; CMake: configure/build/CTest per README.md. Phase 1 adds platform app lint/type/build/UI gates. QUALITY_GATES.md is authoritative for scope and evidence.
 
-Phase 0 validation closure: run both Node test files, the Windows compiler fallback when MSVC is incomplete, and `bash scripts/check-sanitizers.sh` through local WSL or Linux CI. `bash scripts/check-apple.sh` validates macOS and the minimal iOS package/test boundary on Apple CI. The negative sanitizer probes are test-only and must never enter a shipping target. Phase 0 remains CONDITIONAL PASS/READY FOR CI until Apple execution evidence is observed. Do not begin Phase 1; the user explicitly requires a stop at this scope.
+Preserve Phase 0 validation: run foundation/CI Node tests, the Windows compiler fallback when MSVC is incomplete, and `bash scripts/check-sanitizers.sh` through local WSL or Linux CI. `bash scripts/check-apple.sh` validates macOS and the iOS package/test boundary on Apple CI. Negative sanitizer probes are test-only and must never enter shipping targets. Phase 1 adds `tests/shells.test.mjs`, Android Gradle build/lint/unit/instrumentation gates and `bash scripts/check-ios-shell.sh`. Never call unobserved Apple execution PASS. Reports distinguish user-attested Phase 0 CI completion from locally observed evidence.

@@ -22,5 +22,11 @@ Dependency review requires exact version, SPDX license, redistribution/model lic
 
 Observed host tools and the optional repository-local C/C++ test compiler fallback are recorded in [docs/TOOLCHAIN.md](docs/TOOLCHAIN.md). That fallback does not change the shipping mobile stack.
 
+## Phase 1 shell implementation
+
+Android's app module isolates Compose presentation, an immutable destination/mode reducer, ViewModel state and the existing bridge source. CMake packages pixaura_core and pixaura_bridge for ARM64/ARMv7/x86_64. iOS's real Xcode application uses SwiftUI NavigationStack, MainActor state and a local Swift package dependency on the same core. Probe loading/calling runs on background executors; unavailable status leaves placeholder navigation reachable. No image decode/render/inference/persistence command exists in a view.
+
+ADR [0007](docs/adr/0007-shell-navigation-and-build-inputs.md) defines minimal coordinators and pinned inputs; [dependency review](docs/DEPENDENCIES.md) records licenses/security/size. Shell route/mode restoration is presentation state, not project history. SceneStorage holds no content; future project storage adapters must set Apple backup exclusion/data protection at creation. Android backup/transfer domains are excluded now. Import/Compare/Export extend future typed paths, with no editing feature implemented in Phase 1.
+
 ## Security and future expansion
 Untrusted decode and model parsing have allocation bounds, cancellation and fuzz tests. Planner receives tool descriptions, never raw filesystem authority. Executor verifies budgets and base revision. Cloud support requires a new opt-in data-flow ADR. Future advanced models fit the runtime/plan interfaces without bypassing approval or history.

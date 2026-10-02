@@ -1,8 +1,8 @@
 # Delivery roadmap
 
-First-run boundary: Phase 0 only. Phases are dependencies, not permission to skip validation. Each milestone performs the workflow in AGENTS.md and publishes evidence under docs/reports.
+Current authorized boundary: Phase 1 native shells only. Phases are dependencies, not permission to skip validation. Each milestone performs the workflow in AGENTS.md and publishes evidence under docs/reports. Phase 2 remains prohibited.
 
-Current status: Phase 0 CONDITIONAL PASS / READY FOR CI. Local foundation, Windows/Linux host ABI, Android native, workflow syntax and actual WSL Clang ASan/UBSan checks pass, including negative instrumentation probes. macOS core/Swift and iOS package/simulator execution are pending the Apple CI job; they are unavailable locally on Windows. Phase 1 is explicitly prohibited. See [Phase 0 report](docs/reports/phase-0.md) for the final gate matrix and required human action.
+Current status: Phase 1 shells implemented; local Android/core validation and remaining Apple execution are tracked in the [Phase 1 report](docs/reports/phase-1.md). The user reports that Phase 0 CI fully passed and explicitly authorized Phase 1. The historical [Phase 0 report](docs/reports/phase-0.md) predates that CI execution; its evidence is preserved. A Phase 0 CI run URL was not available in this session, so that completion is user-attested rather than independently observed here.
 
 | Phase | Deliverable | Measurable exit |
 | --- | --- | --- |
