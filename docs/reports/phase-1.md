@@ -1,6 +1,46 @@
 # Phase 1 native application shells report
 
-Updated: 2026-10-03. Scope: native shells only; Phase 2 not started. Status: **second CI rerun: source and iOS PASS, Android dependency verification PASS, Android FAIL at OldTargetApi lint (user-supplied evidence); narrow lint remediation prepared; corrected Android CI rerun required; not a full Phase 1 PASS**.
+Updated: 2026-10-03. Scope: native shells only; Phase 2 not started. Status: **third CI rerun: source, iOS and Android build/unit/lint/APK gates PASS; Android emulator step FAIL with timeout 124 (user-supplied evidence); bounded emulator orchestration prepared; hosted emulator rerun required; not a full Phase 1 PASS**.
+
+## Third CI rerun: Android emulator orchestration, 2026-10-03
+
+The user supplied the third rerun result after commit 3c1467f322f0abfb85529fe9d58c1daad6ad0890: source **PASS**, ios-app **PASS**, Android debug/unsigned Release builds, JVM tests, full lint and instrumentation APK build **PASS**. Only Execute JNI and Compose smoke tests on Android emulator **FAIL**, exit 124. ADB server started successfully; cleanup printed `kill: (...) - No such process`. These CI outcomes remain user-attested; no run URL or full emulator logs were available for independent inspection. They supersede historical lint/dependency/Apple blockers below.
+
+Exact timed-out command in the inspected workflow: `timeout 180 "$ANDROID_HOME/platform-tools/adb" wait-for-device`. It is the step's only explicit timeout; the later boot loop's failed `test` would return 1, not 124. [GNU timeout](https://www.gnu.org/software/coreutils/manual/html_node/timeout-invocation.html) documents 124 for expiry. Confirmed failure: no ADB-visible emulator within that 180-second device wait, before Gradle instrumentation was invoked. The missing process at cleanup indicates that launch PID was already gone by then; why it exited is **not established** by the supplied excerpt. The old `kill ... || true` already prevented cleanup's missing-process status from becoming the test result; the message was misleading noise, not the root failure.
+
+Acceptance for this fix: deterministic owned serial/AVD, bounded device/boot/package readiness and test execution, prompt early-exit detection, idempotent cleanup preserving all failure statuses, and retained startup/test evidence. Added scripts/check-android-emulator.sh and wired the existing CI emulator step to it. The actual `connectedDebugAndroidTest` task and app/instrumentation source are unchanged; dependency verification stays strict, targetSdk stays 36, and no test is skipped, retried into PASS, or made continue-on-error.
+
+The script starts ADB before launch, checks that emulator-5554 is unused, creates only a repository-isolated API 35 Google APIs x86_64 AVD, cold-boots/wipes that CI-owned AVD, and explicitly binds even port 5554 / ANDROID_SERIAL=emulator-5554. It retains the existing software GPU mode and uses 2 cores / 2048 MB RAM. It checks emulator liveness during every readiness stage; a dead process fails immediately and records its exit status instead of silently waiting for a device that cannot appear.
+
+| Stage | Bound / readiness condition |
+| --- | --- |
+| ADB server / AVD creation | 30s / 60s, each with a 5s forced-termination grace |
+| Device visibility | 180s; serial-specific get-state must return device |
+| Android boot | 600s; sys.boot_completed must equal 1 |
+| Package manager | 120s; pm path android must return a package path, not merely status 0 |
+| Each ADB probe / diagnostics call | 10s plus 5s forced-termination grace; polling interval at most 2s |
+| Gradle JNI/Compose instrumentation | Independent 900s (15 minutes), plus 10s forced-termination grace |
+| CI emulator step | 35 minutes; existing job budget remains 45 minutes |
+
+Hardware acceleration remains enabled when /dev/kvm is accessible and the emulator's bounded accel-check succeeds. Permission setup is bounded/noninteractive. Otherwise the script selects the documented [software acceleration fallback](https://developer.android.com/studio/run/emulator-commandline) `-accel off` and retains the same required test. A software boot exceeding the budget still fails; no instrumentation failure is hidden by fallback.
+
+Cleanup captures the original status, bounded diagnostics and process state, then stops only the owned emulator PID if still alive, with bounded TERM/KILL escalation. It exits with the original status even when the emulator already died. The always-upload artifact includes separate emulator stdout/stderr; ADB server/create/acceleration/readiness logs; prelaunch/final adb devices output; full boot properties and package-manager state; logcat; final phase/exit code; Gradle output; and existing Android test result/report directories. Console output names the timed-out stage and exposes emulator log tails.
+
+Changed files: .github/workflows/native-shells.yml; scripts/check-android-emulator.sh; tests/ci-tools.test.mjs; tests/shells.test.mjs; tests/android-emulator.test.mjs; this report. New source assertions require bounded staged readiness, explicit serial, separate test deadline, process-aware status-preserving cleanup, strict verification and always-upload evidence. The Linux source CI job also runs eight executable fake-SDK/Gradle behavior scenarios: success with delayed readiness, emulator early exit 23, invisible device, stalled ADB, boot timeout, package-manager timeout despite shell status 0, instrumentation exit 7 after emulator exit, and independent instrumentation timeout 124. Tests prove failure statuses survive cleanup, Gradle waits for readiness, evidence exists and mock emulator processes do not leak. They validate orchestration; they do **not** count as real JNI/Compose execution.
+
+Local observed validation: Windows Node source/foundation/CI/shell checks **PASS 15/15**, zero skips; actionlint **PASS**, exit 0; Bash syntax **PASS**; Windows Zig fallback C/C++ consumers and UB trap **PASS**; Linux CMake/CTest **PASS 2/2**; ASan/UBSan **PASS 4/4**, including diagnostic exits 86/87. Linux combined Node suite **PASS 23/23** (15 source checks + 8 orchestration behaviors), zero skips. Shellcheck/pyflakes are unavailable locally and are not claimed PASS. WSL initially lacked Node; downloaded only the official Node 24.14.0 Linux x64 archive under ignored build/tools, verified SHA256 `41cd79bb7877c81605a9e68ec4c91547774f46a40c67a17e34d7179ef11729df` against the official release SHASUMS256.txt before extraction/execution. This is the existing Node baseline, MIT licensed with bundled notices; no shipping dependency, toolchain pin or production binary size changed, and no system package was installed.
+
+```text
+node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs
+build/tools/actionlint/actionlint.exe -shellcheck= -pyflakes= .github/workflows/foundation.yml .github/workflows/native-shells.yml
+git diff --check
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-native-zig.ps1 -ZigPath G:/PixAuraAI/build/tools/zig-x86_64-windows-0.14.1/zig.exe
+wsl --distribution Ubuntu --exec bash -lc 'cd /mnt/g/PixAuraAI && bash -n scripts/check-apple.sh scripts/check-ios-shell.sh scripts/ios-simulator-architecture.sh scripts/check-sanitizers.sh scripts/check-android-emulator.sh && build/tools/node-v24.14.0-linux-x64/bin/node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs tests/android-emulator.test.mjs && cmake --build build/linux-host && ctest --test-dir build/linux-host --output-on-failure && bash scripts/check-sanitizers.sh'
+```
+
+No real emulator/instrumentation, Android application rebuild or Xcode execution is claimed for this orchestration-only follow-up. Previous local memory-pressure and incomplete MSVC limitations remain historical environment evidence. Remaining mandatory CI gate: launch the real API 35 emulator on the hosted Ubuntu runner, validate actual KVM/fallback startup and execute JNI/Compose tests with the corrected script. Owner: repository maintainer; affected G2 emulator execution / Phase 1 promotion. If launch still fails, the new stdout/stderr and phase artifacts must identify its underlying cause before declaring PASS.
+
+Exact next human action: review these six files, then commit/push through the maintainer's process or separately authorize the agent; run Native application shells on that new revision and retain its URL/android-shell-evidence artifact. Rerunning the existing remote revision cannot exercise these local changes. No commit, push, app behavior change, test removal, architecture redesign or Phase 2 work occurred. Physical assistive walkthrough remains unrun.
 
 ## Second CI rerun: Android target-SDK lint remediation, 2026-10-03
 

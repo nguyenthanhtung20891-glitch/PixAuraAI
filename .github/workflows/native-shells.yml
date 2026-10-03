@@ -8,8 +8,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0, Node 24
-      - run: node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs
-      - run: bash -n scripts/check-apple.sh scripts/check-ios-shell.sh scripts/check-sanitizers.sh
+      - run: node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs tests/android-emulator.test.mjs
+      - run: bash -n scripts/check-apple.sh scripts/check-ios-shell.sh scripts/check-sanitizers.sh scripts/check-android-emulator.sh
   android-app:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
@@ -26,21 +26,8 @@ jobs:
         working-directory: platforms/android
         run: bash gradlew --no-daemon --dependency-verification strict assembleDebug assembleRelease testDebugUnitTest lintDebug lintRelease assembleDebugAndroidTest
       - name: Execute JNI and Compose smoke tests on Android emulator
-        working-directory: platforms/android
-        run: |
-          sudo chmod a+rw /dev/kvm
-          echo no | "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd --force --name pixaura-shell --package "system-images;android-35;google_apis;x86_64"
-          "$ANDROID_HOME/emulator/emulator" -avd pixaura-shell -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect > ../../build-android-emulator.log 2>&1 &
-          emulator_pid=$!
-          trap 'kill "$emulator_pid" || true' EXIT
-          timeout 180 "$ANDROID_HOME/platform-tools/adb" wait-for-device
-          for _ in $(seq 1 120); do
-            if [ "$("$ANDROID_HOME/platform-tools/adb" shell getprop sys.boot_completed | tr -d '\r')" = 1 ]; then break; fi
-            sleep 2
-          done
-          test "$("$ANDROID_HOME/platform-tools/adb" shell getprop sys.boot_completed | tr -d '\r')" = 1
-          "$ANDROID_HOME/platform-tools/adb" shell input keyevent 82
-          bash gradlew --no-daemon --dependency-verification strict connectedDebugAndroidTest
+        timeout-minutes: 35
+        run: bash scripts/check-android-emulator.sh
       - name: Preserve Android evidence
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0, Node 24
@@ -49,7 +36,7 @@ jobs:
           path: |
             platforms/android/app/build/reports/
             platforms/android/app/build/outputs/androidTest-results/
-            build-android-emulator.log
+            build/android-emulator-evidence/
           retention-days: 14
   ios-app:
     runs-on: macos-26

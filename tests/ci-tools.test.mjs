@@ -76,3 +76,37 @@ test('Apple simulator commands share the native host architecture across package
   assert.match(workflow, /run: bash scripts\/check-ios-shell\.sh/);
   assert.doesNotMatch(workflow, /ARCHS|ONLY_ACTIVE_ARCH|EXCLUDED_ARCHS/);
 });
+
+test('Android emulator CI uses bounded staged readiness, separate test timeout and failure evidence', () => {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const read = file => fs.readFileSync(path.join(root, file), 'utf8');
+  const workflow = read('.github/workflows/native-shells.yml');
+  const script = read('scripts/check-android-emulator.sh');
+  assert.match(workflow, /timeout-minutes: 35\s+run: bash scripts\/check-android-emulator\.sh/);
+  assert.match(workflow, /tests\/android-emulator\.test\.mjs/);
+  assert.match(workflow, /if: always\(\)[\s\S]*build\/android-emulator-evidence\//);
+  assert.match(workflow, /app\/build\/outputs\/androidTest-results\//);
+  assert.doesNotMatch(workflow, /wait-for-device/);
+  assert.ok(!script.includes('\r'), 'Emulator script must use LF');
+  for (const phase of ['device-visibility', 'boot-completion', 'package-manager']) {
+    assert.match(script, new RegExp(`wait_for ${phase} "\\$[a-z_]+"`));
+  }
+  assert.match(script, /timeout --kill-after=5s "\$\{command_timeout\}s" "\$adb"/);
+  assert.match(script, /while \(\( SECONDS < deadline \)\)/);
+  assert.match(script, /return 124/);
+  assert.match(script, /sys\.boot_completed/);
+  assert.match(script, /shell pm path android/);
+  assert.match(script, /export ANDROID_SERIAL=emulator-5554/);
+  assert.match(script, /-port 5554 -accel "\$acceleration"/);
+  assert.match(script, /acceleration=off/);
+  assert.match(script, /-accel-check/);
+  assert.match(script, /timeout --kill-after=10s "\$\{test_timeout\}s" bash gradlew/);
+  assert.match(script, /set -euo pipefail/);
+  assert.match(script, /trap cleanup EXIT/);
+  assert.match(script, /local result=\$\?/);
+  assert.match(script, /kill -0 "\$emulator_pid" 2>\/dev\/null/);
+  assert.match(script, /exit "\$result"/);
+  for (const file of ['emulator.stdout.log', 'emulator.stderr.log', 'adb-devices.txt', 'boot-properties.txt', 'instrumentation.log']) {
+    assert.ok(script.includes(file), `Missing failure evidence ${file}`);
+  }
+});
