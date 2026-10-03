@@ -11,11 +11,17 @@ if (-not (Test-Path -LiteralPath $vcvarsAllPath)) { throw 'Visual Studio C++ ins
 $buildPath = Join-Path $workspacePath 'build\msvc'
 New-Item -ItemType Directory -Path $buildPath -Force | Out-Null
 $commands = @(
-    'cl /nologo /std:c++17 /EHsc /W4 /WX /LD /DPIXAURA_SHARED /DPIXAURA_BUILDING /I"..\..\packages\core\include" "..\..\packages\core\src\core.cpp" /link /OUT:pixaura_core.dll',
+    'cl /nologo /std:c++17 /EHsc /W4 /WX /LD /DPIXAURA_SHARED /DPIXAURA_BUILDING /I"..\..\packages\core\include" "..\..\packages\core\src\core.cpp" "..\..\packages\core\src\document.cpp" "..\..\packages\core\src\document_api.cpp" /link /OUT:pixaura_core.dll',
     'cl /nologo /std:c++17 /EHsc /W4 /WX /DPIXAURA_SHARED /I"..\..\packages\core\include" "..\..\packages\core\tests\core_test.cpp" pixaura_core.lib /Fe:core_test.exe',
     'cl /nologo /TC /W4 /WX /DPIXAURA_SHARED /I"..\..\packages\core\include" "..\..\packages\core\tests\c_consumer.c" pixaura_core.lib /Fe:c_consumer.exe',
     'core_test.exe',
-    'c_consumer.exe'
+    'c_consumer.exe',
+    'cl /nologo /std:c++17 /EHsc /W4 /WX /DPIXAURA_SHARED /I"..\..\packages\core\include" "..\..\packages\core\tests\document_test.cpp" "..\..\packages\core\src\document.cpp" pixaura_core.lib /Fe:document_test.exe',
+    'cl /nologo /TC /W4 /WX /DPIXAURA_SHARED /I"..\..\packages\core\include" "..\..\packages\core\tests\document_c_consumer.c" pixaura_core.lib /Fe:document_c_consumer.exe',
+    'cl /nologo /std:c++17 /EHsc /W4 /WX /I"..\..\packages\core\include" "..\..\packages\core\tests\document_allocation_test.cpp" "..\..\packages\core\src\document.cpp" "..\..\packages\core\src\document_api.cpp" /Fe:document_allocation_test.exe',
+    'document_test.exe "..\..\tests\fixtures\image-document-v1.json"',
+    'document_c_consumer.exe "..\..\tests\fixtures\image-document-v1.json" document-canonical.json',
+    'document_allocation_test.exe "..\..\tests\fixtures\image-document-v1.json"'
 )
 Push-Location $buildPath
 try {

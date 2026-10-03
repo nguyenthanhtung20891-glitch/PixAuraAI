@@ -25,10 +25,20 @@ jobs:
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
       - run: node --version
-      - run: node --test tests/foundation.test.mjs tests/ci-tools.test.mjs
+      - run: node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/document-contract.test.mjs tests/native-document.test.mjs
       - run: cmake -S . -B build/host -DCMAKE_BUILD_TYPE=Debug
       - run: cmake --build build/host --config Debug
       - run: ctest --test-dir build/host -C Debug --output-on-failure
+      - name: Preserve native document fixture and test evidence
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: document-foundation-${{ matrix.os }}
+          path: |
+            build/host/Testing/
+            build/host/document-canonical.json
+          if-no-files-found: warn
+          retention-days: 14
   apple-boundary:
     runs-on: macos-26
     timeout-minutes: 30
@@ -36,6 +46,8 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - name: Cross-host document contract fixtures
+        run: node --test tests/document-contract.test.mjs tests/native-document.test.mjs
       - name: macOS core, Swift C ABI, unsigned iOS build and simulator tests
         run: bash scripts/check-apple.sh
       - name: Preserve Apple test evidence
@@ -45,6 +57,7 @@ jobs:
           name: apple-boundary-evidence
           path: |
             build/apple-host/Testing/
+            build/apple-host/document-canonical.json
             build/apple-devices.json
             build/apple-results.*/
           if-no-files-found: warn
@@ -64,6 +77,7 @@ jobs:
           path: |
             build/sanitize/Testing/
             build/sanitize/test-logs/
+            build/sanitize/document-canonical.json
           if-no-files-found: warn
           retention-days: 14
   android-boundary:

@@ -1,6 +1,6 @@
 # Autonomous engineering contract
 
-PixAuraAI is an AI-native, local-first photo editor. Read PRODUCT_SPEC.md, ARCHITECTURE.md, QUALITY_GATES.md, ROADMAP.md and relevant subsystem documents before changing code. User instructions take precedence. Current authorized scope is Phase 1 native application shells only. Do not begin Phase 2 or implement photo-engine features. Do not push without explicit approval.
+PixAuraAI is an AI-native, local-first photo editor. Read PRODUCT_SPEC.md, ARCHITECTURE.md, QUALITY_GATES.md, ROADMAP.md and relevant subsystem documents before changing code. User instructions take precedence. Current authorized scope is Phase 2 Step 2: native document model, bounded parser/serializer, revision transitions and explicit caller-owned context C API, following approval of Step 1 and the context clarification in ADR 0009. Stop before Step 3; do not implement decoding, pixel kernels, rendering, AI or editing UI in this step. Do not commit or push without explicit approval.
 
 ## Invariants
 - Originals are immutable. Import into private managed storage; export creates a new destination.

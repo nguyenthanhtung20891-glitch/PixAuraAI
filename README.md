@@ -5,7 +5,7 @@ Local-first mobile photo editor. Phase 1 includes minimal Android Compose and iO
 ## Foundation checks
 Node 22+ with built-in test runner:
 ```
-node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs
+node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs tests/document-contract.test.mjs tests/native-document.test.mjs
 ```
 Windows with Visual Studio C++ workload:
 ```
@@ -60,4 +60,6 @@ bash scripts/check-ios-shell.sh
 ```
 The latter builds Debug/Release unsigned iOS device apps and executes simulator app/C ABI/UI tests. The committed Xcode project is generated with `node scripts/generate-ios-project.mjs`; source tests require deterministic output. Shell checks do not certify photo editing, GPU performance, physical accessibility or signing.
 
-CI workflows: **Foundation boundaries** and **Native application shells**. See [Phase 1 report](docs/reports/phase-1.md) for exact local evidence and mandatory unobserved macOS gates. Phase 0 completion was user-attested at Phase 1 authorization; the [Phase 0 report](docs/reports/phase-0.md) preserves its earlier evidence snapshot. No unobserved iOS build is PASS. Do not begin Phase 2 or push without explicit approval.
+CI workflows: **Foundation boundaries** and **Native application shells**. The user attests final Phase 0/1 CI completion, including both mobile execution gates; historical [Phase 0](docs/reports/phase-0.md) and [Phase 1](docs/reports/phase-1.md) reports preserve earlier evidence snapshots. No unobserved build for a new revision is PASS.
+
+Phase 2 Step 1 freezes the [document contract](docs/contracts/image-document-v1.md) and ADR [0008](docs/adr/0008-document-stacks-and-manifest.md), with test-only synthetic metadata fixtures. Step 2 implements the native metadata model, bounded parser/serializer, immutable revision transitions and separate document C API with caller-owned contexts under ADR [0009](docs/adr/0009-explicit-document-context.md). ABI 1 remains unchanged. See the [Step 1 report](docs/reports/phase-2-step-1.md) and [Step 2 report](docs/reports/phase-2-step-2.md) for acceptance and validation. No decoding, rendering, persistence adapter or editing UI is added. Stop before Step 3; do not commit or push.

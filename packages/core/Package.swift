@@ -8,9 +8,10 @@ let package = Package(
     targets: [
         .target(name: "CPixAuraCore", path: ".",
                 exclude: ["Package.swift", "swift", "tests"],
-                sources: ["src/core.cpp"], publicHeadersPath: "include"),
+                sources: ["src/core.cpp", "src/document.cpp", "src/document_api.cpp"], publicHeadersPath: "include"),
         .target(name: "PixAuraCore", dependencies: ["CPixAuraCore"], path: "swift/Sources"),
-        .testTarget(name: "PixAuraCoreTests", dependencies: ["PixAuraCore", "CPixAuraCore"], path: "swift/Tests")
+        .testTarget(name: "PixAuraCoreTests", dependencies: ["PixAuraCore", "CPixAuraCore"], path: "swift/Tests",
+                    resources: [.copy("Fixtures")])
     ],
     cxxLanguageStandard: .cxx17
 )

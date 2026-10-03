@@ -1,6 +1,6 @@
 # Quality gates and promotion policy
 
-Status vocabulary: PASS (executed with evidence), FAIL (executed and failed), BLOCKED (mandatory environment unavailable), NOT_APPLICABLE (out of milestone scope with reason). Skips are never PASS. A milestone advances only when all its mandatory gates pass and advancement is authorized. Current scope ends at Phase 1 regardless. No unobserved CI run is evidence.
+Status vocabulary: PASS (executed with evidence), FAIL (executed and failed), BLOCKED (mandatory environment unavailable), NOT_APPLICABLE (out of milestone scope with reason). Skips are never PASS. A milestone advances only when all its mandatory gates pass and advancement is authorized. Current authorization ends at Phase 2 Step 2 native document foundation; Step 3 requires a new instruction. User-attested prior Phase 0/1 CI completion is recorded separately from independently observed execution. No unobserved CI run is evidence.
 
 | Gate | Required evidence | Applies |
 | --- | --- | --- |
@@ -30,7 +30,11 @@ CI executes both Foundation boundaries and Native application shells. Apple app/
 
 ## Budgets to validate
 
+Phase 2 Step 1 G0/G1/G2 acceptance is the [document contract](docs/contracts/image-document-v1.md), ADR 0008 and executable metadata/history fixtures, while rerunning existing applicable Phase 0/1 checks. No production persistence or renderer is introduced, so new G5 durability/G6 numerical execution is not applicable to this contract-only step; those gates remain mandatory for their later production implementations and full Phase 2 promotion. Metadata replay tests cannot certify pixel determinism, original-byte preservation, crash recovery or native handle safety. Apple execution on Windows remains BLOCKED, not PASS; unchanged prior CI success is user-attested, not a new result for the working tree.
+
 Initial targets on recorded reference devices: UI frame p95 <=16.7 ms for ordinary interaction at 60 Hz; T0 720px basic adjustment preview p95 <=150 ms warm; cancel acknowledgement <=250 ms; import/project UI response <=100 ms excluding decode; 12 MP JPEG export <=10 s T1 and <=30 s T0; no unbounded allocations and tier caps per DEVICE_CAPABILITY_STRATEGY.md. Cold model loading separately measured. Targets are refined only via ADR with data, never quietly relaxed. Phase 2 sets numerical tolerances per operation before implementation; Phase 5 sets task-quality thresholds before model selection.
 
 ## Reporting and exceptions
 Each report names criteria, exact commands/tool versions, results, affected files, failed/unrun gates, blockers and next milestone. Required environmental blocker includes remediation and owner. Never waive source overwrite, approval or privacy invariants. Temporary noncritical exception requires explicit documented owner, expiry and bounded exposure; user authorization cannot be inferred for a product-level compromise.
+
+Phase 2 Step 2 requires bounded native parsing/canonical serialization, typed immutable metadata/history transitions, an independently versioned explicit-context C API, golden C/C++/platform fixture parity, invalid/stale ownership and allocation-failure tests, structured parser adversaries under actual ASan/UBSan, and preserved source/Windows/Linux/Android gates. Apple native/Swift fixture execution is mandatory on CI and remains BLOCKED locally on Windows. Step 2 does not implement a storage adapter or pixel processing; new G5 durable transaction/recovery and G6 pixel/GPU parity remain mandatory for those separately authorized implementations. Context runtime handle budgets do not alter manifest limits or permit pruning. See the [Step 2 report](docs/reports/phase-2-step-2.md).

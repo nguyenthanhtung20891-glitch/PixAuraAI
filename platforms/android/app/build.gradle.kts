@@ -21,6 +21,7 @@ android {
     }
     externalNativeBuild { cmake { path = file("../native/CMakeLists.txt"); version = "3.22.1" } }
     sourceSets["main"].java.srcDir("../bridge/src/main/kotlin")
+    sourceSets["androidTest"].assets.srcDir("../../../tests/fixtures")
     buildFeatures { compose = true }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

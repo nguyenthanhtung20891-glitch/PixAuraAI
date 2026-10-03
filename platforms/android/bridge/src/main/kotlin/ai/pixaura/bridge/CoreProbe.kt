@@ -10,4 +10,11 @@ class CoreProbe {
     }
 
     external fun nativeAbiVersion(): Int
+
+    // Bounded metadata adapter; call from a worker. No image bytes or algorithms.
+    external fun nativeDocumentRoundTrip(
+        manifest: ByteArray,
+        contextIdentity: ByteArray,
+        sessionIdentity: ByteArray,
+    ): ByteArray?
 }
