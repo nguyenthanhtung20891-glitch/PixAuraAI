@@ -52,3 +52,27 @@ test('workflow scripts and Apple package scheme references resolve', () => {
     assert.ok(products.includes(scheme), `Apple scheme ${scheme} is not a package library product`);
   }
 });
+
+test('Apple simulator commands share the native host architecture across package, app and tests', () => {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const read = file => fs.readFileSync(path.join(root, file), 'utf8');
+  const helper = read('scripts/ios-simulator-architecture.sh');
+  assert.match(helper, /simulator_arch="\$\(uname -m\)"/);
+  assert.match(helper, /arm64\|x86_64\)/);
+  for (const file of ['scripts/check-apple.sh', 'scripts/check-ios-shell.sh']) {
+    const script = read(file);
+    assert.match(script, /source scripts\/ios-simulator-architecture\.sh/);
+    assert.match(script, /platform=iOS Simulator,id=\$simulator_id,arch=\$simulator_arch/);
+    assert.match(script, /ARCHS="\$simulator_arch" ONLY_ACTIVE_ARCH=YES EXCLUDED_ARCHS= CODE_SIGNING_ALLOWED=NO test/);
+    // Device builds retain normal SDK-selected architecture and signing policy.
+    const deviceCommand = script.match(/xcodebuild[^\n]*(?:\\\n[^\n]*)*CODE_SIGNING_ALLOWED=NO build/);
+    assert.ok(deviceCommand, `${file}: device build missing`);
+    assert.doesNotMatch(deviceCommand[0], /ARCHS=|arch=\$simulator_arch/);
+  }
+  const project = read('platforms/ios/PixAuraAI.xcodeproj/project.pbxproj');
+  assert.match(project, /ARCHS = "\$\(ARCHS_STANDARD\)"/);
+  assert.doesNotMatch(project, /EXCLUDED_ARCHS|ONLY_ACTIVE_ARCH|ARCHS = "?(?:arm64|x86_64)/);
+  const workflow = read('.github/workflows/native-shells.yml');
+  assert.match(workflow, /run: bash scripts\/check-ios-shell\.sh/);
+  assert.doesNotMatch(workflow, /ARCHS|ONLY_ACTIVE_ARCH|EXCLUDED_ARCHS/);
+});

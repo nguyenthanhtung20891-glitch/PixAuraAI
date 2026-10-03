@@ -53,7 +53,7 @@ function configs(settings, projectConfig = false) {
   add(list, `isa = XCConfigurationList; buildConfigurations = (${debug},${release}); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release;`);
   return list;
 }
-const projectConfigs = configs('IPHONEOS_DEPLOYMENT_TARGET = 16.0; SDKROOT = iphoneos; SWIFT_VERSION = 5.0; CLANG_CXX_LANGUAGE_STANDARD = "c++17"; CLANG_ENABLE_MODULES = YES; SWIFT_TREAT_WARNINGS_AS_ERRORS = YES; GCC_TREAT_WARNINGS_AS_ERRORS = YES;', true);
+const projectConfigs = configs('ARCHS = "$(ARCHS_STANDARD)"; IPHONEOS_DEPLOYMENT_TARGET = 16.0; SDKROOT = iphoneos; SWIFT_VERSION = 5.0; CLANG_CXX_LANGUAGE_STANDARD = "c++17"; CLANG_ENABLE_MODULES = YES; SWIFT_TREAT_WARNINGS_AS_ERRORS = YES; GCC_TREAT_WARNINGS_AS_ERRORS = YES;', true);
 function target(key, name, product, phase, packageProduct, extraSettings, kind, dependencies = []) {
   const config = configs(`PRODUCT_NAME = "$(TARGET_NAME)"; PRODUCT_BUNDLE_IDENTIFIER = ai.pixaura.${name}; GENERATE_INFOPLIST_FILE = YES; CURRENT_PROJECT_VERSION = 1; MARKETING_VERSION = 0.1.0; TARGETED_DEVICE_FAMILY = "1,2"; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; CODE_SIGN_STYLE = Automatic; ${extraSettings}`);
   const phases = [phase];
