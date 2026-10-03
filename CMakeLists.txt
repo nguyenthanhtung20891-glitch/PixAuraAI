@@ -48,6 +48,8 @@ if(BUILD_TESTING)
     target_compile_features(document_allocation_test PRIVATE cxx_std_17)
     pixaura_strict(document_allocation_test)
     add_test(NAME document_allocation_test COMMAND document_allocation_test "${CMAKE_SOURCE_DIR}/tests/fixtures/image-document-v1.json")
+    # Outer guard also covers runtime/CRT failure paths before the watchdog starts.
+    set_tests_properties(document_allocation_test PROPERTIES TIMEOUT 120)
     if(PIXAURA_SANITIZERS)
         # Keep C ABI consumers compiled as C, but link the C++ UBSan runtime
         # required by the instrumented C++ shared library (including vptr).

@@ -28,7 +28,7 @@ jobs:
       - run: node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/document-contract.test.mjs tests/native-document.test.mjs
       - run: cmake -S . -B build/host -DCMAKE_BUILD_TYPE=Debug
       - run: cmake --build build/host --config Debug
-      - run: ctest --test-dir build/host -C Debug --output-on-failure
+      - run: ctest --test-dir build/host -C Debug --output-on-failure --verbose
       - name: Preserve native document fixture and test evidence
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f

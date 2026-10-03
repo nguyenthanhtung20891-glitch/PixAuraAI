@@ -1,6 +1,6 @@
 # Phase 2 Step 2: native document foundation
 
-Status: IMPLEMENTED, CI REMEDIATION VALIDATED LOCALLY; corrected-tree hosted CI remains pending. 2026-10-03. This is not FULLY PASSED or full Phase 2 completion. The initial prepublication evidence below is historical; section 13 records the published CI failures and their narrow remediation.
+Status: IMPLEMENTED, CI CANCELLATION DIAGNOSED; bounded diagnostics validated locally, exact MSVC allocation subcase still pending hosted execution. 2026-10-04. This is not FULLY PASSED or full Phase 2 completion. The initial prepublication evidence below is historical; sections 13-15 record published CI failures and their remediation/evidence limits.
 
 The user approved Step 1, authorized Step 2, and approved caller-owned contexts after the initial attempt stopped on the process-global registry conflict. The contract, ADR 0009, ADR 0008 supersession annotation and decision index were updated before implementation. All twelve frozen document decisions remain intact. No commit or push occurred. HEAD remains `2525b52207ef1f6a3af945032d8190366b177f27`. Prior Phase 0/1 final CI completion is user-attested; no new CI run is claimed.
 
@@ -232,3 +232,57 @@ wsl --distribution Ubuntu --exec bash -lc 'cd /mnt/g/PixAuraAI && cmake --build 
 Additional secure-branch command: `build/tools/zig-x86_64-windows-0.14.1/zig.exe cc -target x86_64-windows-gnu -std=c11 -Wall -Wextra -Wpedantic -Werror -D_MSC_VER=1951 -DPIXAURA_SHARED -I packages/core/include packages/core/tests/document_c_consumer.c build/zig-host/pixaura_core.lib -o build/zig-host/document_c_consumer-msvc-branch.exe`; executed with approved fixture and canonical output path. Zig caches were explicitly repository-local. All logs/generated outputs are ignored under `build/phase-2-fopen-fix` or existing ignored host build directories; none is staged.
 
 Remaining confirmed CI-only gate: Foundation Windows portable must build/run the corrected C consumer with real hosted MSVC and unchanged `/W4 /WX` on the newly published SHA (G1/G3 and native G2). Previously passing workflows must remain green for that SHA; their older passing results do not certify this unpublished tree. No local macOS runtime PASS is claimed. Next human action: review this two-file fix and explicitly authorize commit/push, then obtain corrected-SHA workflow evidence. No commit/push occurred during this remediation. Stop before Step 3; it remains separately unauthorized.
+
+## 15. Windows allocation-test cancellation and bounded diagnostics
+
+The section 14 fix was reviewed and published with explicit approval as `780c622a46424d61cff09a6659876cb75d39e333` (`fix: make document C consumer MSVC portable`). This investigation retrieved the exact [Foundation run 37137067831](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37137067831), [Windows job 111243647415](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37137067831/job/111243647415), check-run annotations, and retained `document-foundation-windows-2025` artifact. The jobs API confirms [Native application shells run 37137067706](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37137067706) succeeded; all other Foundation jobs succeeded for that SHA. This is independently observed hosted evidence, not local Apple execution or evidence for the unpublished diagnostic changes below.
+
+### Confirmed cancellation versus unknown internal subcase
+
+The check annotation states exactly `The job has exceeded the maximum execution time of 15m0s`. Windows started at `2026-10-03T16:30:00Z`, finished at `16:45:08Z`, and has conclusion `cancelled`. The log confirms Visual Studio 18 2026/MSVC 19.51.36260.0 built every Debug target warning-clean. CTest then passed core_test (0.29 s), c_consumer (0.01 s), document_test (2.14 s), document_c_consumer (0.01 s), and started document_allocation_test at `16:30:56.6873562Z`. The next test-step event at `16:45:01.2484393Z` is `The operation was canceled.`
+
+Thus the exact cancellation cause is the GitHub **job-level 15-minute timeout**, not an observed step timeout, CTest timeout, manual runner cancellation or compiler failure. The native-test phase occupied approximately 14 minutes after allocation-test start. There was no explicit CTest timeout on this test; no test-specific failure message or internal stack was emitted.
+
+The retained artifact contains `CTestCheckpoint.txt` with only tests 1-4 and an unfinished `LastTest.log.tmp576e7` ending after document_c_consumer. It contains no allocation-test output. The old test printed sweep summaries to buffered stdout only after completion. These sources cannot determine which allocation index, concurrency stage or teardown operation stopped. No exact internal MSVC subcase or deadlock is claimed as confirmed.
+
+Source inspection separates the possible sites: main-thread context initialization/warm open; exhaustive open/serialize/apply failure sweeps; a serializer worker paused at its first post-acquire allocation while main releases the handle; worker completion/join; stale-handle checks and context teardown. Synchronization uses atomic flags and spin/yield waits, plus the production registry mutex; the test has no condition variable. Pin/resume waits already had five-second bounds, but API calls, successful-call teardown and thread join had no independent supervisory bound. A destructor or API mutex stall could therefore outlive those waits. Source alone does not prove one occurred.
+
+MSVC Debug behavior also differs from the local Clang/GCC-style fallback: [Microsoft STL's string move constructor](https://github.com/microsoft/STL/blob/main/stl/inc/xstring) is `noexcept` while allocating an iterator-debug proxy through [xmemory](https://github.com/microsoft/STL/blob/main/stl/inc/xmemory). Injecting failure into such debug-only allocation can terminate rather than reach the C API's bad_alloc handler. Microsoft documents that [abort in Debug can display an interactive dialog](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/abort?view=msvc-170). Those are supported source-level risks, not proof of this run's exact path; current upstream STL source is not asserted to be a byte-identical copy of the runner toolset. No allocator-mode/iterator-debug suppression, one-shot injection, skipped failure index or production exception redesign was introduced to bypass a suspected cause.
+
+### Narrow remediation implemented
+
+- `packages/core/tests/document_allocation_test.cpp`: flushed C-stdio progress identifies phase, open/serialize/apply path (0/1/2), failure index, requested allocation bytes and returned status. It brackets every injected call, sentinel/canonical/prior-snapshot check, release and teardown, and concurrency start/pin/release/resume/completion/join. Logging does not allocate through the replacement C++ allocator.
+- The same test retains persistent fail-after injection and all 10000 candidate indices per sweep until first success. A separate noninjected watchdog fails with the current phase/path/index after 15 seconds without progress or a 90-second total execution limit. It is created before injection; its thread-local fail_after remains disabled. Serializer completion now has an explicit five-second wait before joining; the watchdog also covers join and API/teardown stalls. No worker is detached and no failure becomes a success.
+- Test assertions and `std::terminate` now print the active subcase and exit 1 without unwinding or calling abort. MSVC CRT reports are directed to stderr and interactive abort/error-report behavior is disabled **only in this test executable**. CRT reports, warning checks and actual failures remain observable. Additional post-destroy stale-release/repeated-destroy assertions retain and extend ownership checks.
+- `CMakeLists.txt`: `document_allocation_test` has a 120-second CTest TIMEOUT as an outer process guard, including failures before watchdog startup. `/W4 /WX`, `-Werror`, ASan/UBSan flags and C/C++ ABI consumers are unchanged.
+- `.github/workflows/foundation.yml`: portable CTest uses `--verbose` so flushed diagnostics appear as the subcase runs. The job timeout remains 15 minutes; no timeout increase was made. Existing CTest artifacts are retained.
+- This report records observed cancellation and explicitly leaves the unknown internal MSVC subcase unresolved.
+
+### Validation and evidence limits
+
+| Check | Observed result |
+| --- | --- |
+| Windows-compatible Node source checks | PASS 29/29, zero skips. |
+| Windows Zig fallback native suite | PASS, including complete allocation sweeps, concurrent pinned serialization/release, stale/destroyed handles and teardown. Counts remain exactly 142/190/229 failures before success, matching prediagnostic evidence. |
+| WSL Linux native CTest | PASS 5/5 with verbose allocation diagnostics and computed 120-second test timeout. Failure counts remain 192/227/278. |
+| Actual ASan/UBSan | PASS 7/7, including allocation tests and negative runtime probes (86/87); same 192/227/278 failures. Local compiler is Clang 21.1.8. |
+| Diagnostic failure probes | PASS on Windows fallback: an ignored copy with a deliberate blocked subcase exits 1 in 15.50 seconds, names `probe.watchdog`, path 1/index 7 and the 15-second no-progress bound. A separate ignored copy calls terminate with injection active and exits 1 naming `probe.terminate`, path 2/index 9 and exception/noexcept termination. Neither probe changes shipping/test-target sources or replaces the ordinary full-coverage runs. |
+| Real local MSVC | BLOCKED: standard script rechecked, reports `vcvarsall missing`; incomplete installation also lacks STL headers. No MSVC reproduction, debugger stack or exact internal subcase is claimed. Owner host maintainer, remediation repair complete desktop C++/SDK setup; hosted MSVC remains CI-only on this host. |
+| Actionlint/source hygiene/whitespace | PASS; no compiler warning policy or sanitizer suppression changed. |
+
+Primary commands:
+
+```text
+node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs tests/document-contract.test.mjs tests/native-document.test.mjs
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-native.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-native-zig.ps1 -ZigPath G:/PixAuraAI/build/tools/zig-x86_64-windows-0.14.1/zig.exe
+wsl --distribution Ubuntu --exec bash -lc 'cd /mnt/g/PixAuraAI && cmake -S . -B build/linux-host -DCMAKE_BUILD_TYPE=Debug && cmake --build build/linux-host -j2 && ctest --test-dir build/linux-host --output-on-failure --verbose && bash scripts/check-sanitizers.sh'
+build/tools/actionlint/actionlint.exe -shellcheck= -pyflakes= .github/workflows/foundation.yml .github/workflows/native-shells.yml
+git diff --check
+```
+
+GitHub logs, check annotations, artifact contents, fresh local logs and deliberately failing probe sources/binaries are ignored under `build/phase-2-allocation-ci`. Initial probe orchestration failed due the host PowerShell Path/PATH environment collision; direct executable invocation succeeded. A last-line-only probe assertion also initially selected buffered stdout instead of the stderr diagnostic; corrected validation checks the full log and actual exit code. Neither unsuccessful harness attempt is counted PASS.
+
+Only the four files listed above changed; nothing was staged, committed or pushed. No shipping source or document architecture changed; Step 3 was not started. This correction makes indefinite waits bounded and observable; it does **not** claim the unknown MSVC allocation subcase has been fixed. Remaining gate: execute Foundation Windows portable on the instrumented tree using actual MSVC Debug and inspect its phase/path/index plus returned status or termination/bound diagnostic. If it fails, correct that confirmed subcase while preserving full injection/concurrency/ownership coverage. Other workflows must remain green on the corrected SHA.
+
+Exact next human action: review and explicitly authorize publishing these four diagnostic/bound changes for CI. A rerun of the old SHA cannot reveal new diagnostics. Repository maintainer/hosted runner owns the remaining MSVC G2/G3 evidence. Step 2 is not fully passed until that gate completes; Step 3 still requires separate authorization.
