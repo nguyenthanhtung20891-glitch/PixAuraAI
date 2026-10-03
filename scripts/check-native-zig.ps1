@@ -10,7 +10,14 @@ $env:ZIG_LOCAL_CACHE_DIR = Join-Path $buildPath 'local-cache'
 $env:ZIG_GLOBAL_CACHE_DIR = Join-Path $buildPath 'global-cache'
 Push-Location $buildPath
 try {
-    & $zigCompiler c++ -target x86_64-windows-gnu -std=c++17 -Wall -Wextra -Wpedantic -Werror -DPIXAURA_SHARED -DPIXAURA_BUILDING -I ../../packages/core/include -shared ../../packages/core/src/core.cpp ../../packages/core/src/document.cpp ../../packages/core/src/document_api.cpp -o pixaura_core.dll '-Wl,--out-implib,pixaura_core.lib'
+    $sqlitePin = Get-Content ../../packages/core/vendor/sqlite/provenance.json -Raw | ConvertFrom-Json
+    foreach ($file in @('sqlite3.c', 'sqlite3.h')) {
+        if ((Get-FileHash -Algorithm SHA256 ("../../packages/core/vendor/sqlite/" + $file)).Hash.ToLowerInvariant() -ne $sqlitePin.files.$file) { throw 'SQLite integrity failure' }
+    }
+    $sqliteDefines = @('-DSQLITE_THREADSAFE=1', '-DSQLITE_DQS=0', '-DSQLITE_OMIT_LOAD_EXTENSION', '-DSQLITE_OMIT_SHARED_CACHE', '-DSQLITE_DEFAULT_MEMSTATUS=0', '-DSQLITE_MAX_LENGTH=8388608', '-DSQLITE_MAX_SQL_LENGTH=65536', '-DSQLITE_MAX_ATTACHED=0')
+    & $zigCompiler cc -target x86_64-windows-gnu -std=c11 -Wall -Wextra -Wpedantic -Werror -Wno-unused-parameter -Wno-unused-variable @sqliteDefines -c ../../packages/core/vendor/sqlite/sqlite3.c -o sqlite3.o
+    if ($LASTEXITCODE -ne 0) { throw 'SQLite build failed.' }
+    & $zigCompiler c++ -target x86_64-windows-gnu -std=c++17 -Wall -Wextra -Wpedantic -Werror -DPIXAURA_SHARED -DPIXAURA_BUILDING -I ../../packages/core/include -shared ../../packages/core/src/core.cpp ../../packages/core/src/document.cpp ../../packages/core/src/document_api.cpp ../../packages/core/src/storage_api.cpp ../../packages/core/src/storage.cpp ../../packages/core/src/storage_files.cpp ../../packages/core/src/sha256.cpp sqlite3.o -lbcrypt -o pixaura_core.dll '-Wl,--out-implib,pixaura_core.lib'
     if ($LASTEXITCODE -ne 0) { throw 'Shared core build failed.' }
     & $zigCompiler c++ -target x86_64-windows-gnu -std=c++17 -Wall -Wextra -Wpedantic -Werror -DPIXAURA_SHARED -I ../../packages/core/include ../../packages/core/tests/core_test.cpp pixaura_core.lib -o core_test.exe
     if ($LASTEXITCODE -ne 0) { throw 'C++ consumer build failed.' }
@@ -38,6 +45,14 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Undefined-behavior trap build failed.' }
     & .\core_ubsan.exe
     if ($LASTEXITCODE -ne 0) { throw 'Undefined-behavior trap test failed.' }
+    & $zigCompiler c++ -target x86_64-windows-gnu -std=c++17 -Wall -Wextra -Wpedantic -Werror -DPIXAURA_STORAGE_TESTING -DPIXAURA_TEST_FALLIBLE_STL -I ../../packages/core/include ../../packages/core/tests/storage_test.cpp ../../packages/core/src/document.cpp ../../packages/core/src/storage.cpp ../../packages/core/src/storage_files.cpp ../../packages/core/src/sha256.cpp sqlite3.o -lbcrypt -o storage_test.exe
+    if ($LASTEXITCODE -ne 0) { throw 'Storage test build failed.' }
+    & $zigCompiler cc -target x86_64-windows-gnu -std=c11 -Wall -Wextra -Wpedantic -Werror -DPIXAURA_SHARED -I ../../packages/core/include ../../packages/core/tests/storage_c_consumer.c pixaura_core.lib -o storage_c_consumer.exe
+    if ($LASTEXITCODE -ne 0) { throw 'Storage C consumer build failed.' }
+    & ./storage_test.exe ../../tests/fixtures/image-document-v1.json
+    if ($LASTEXITCODE -ne 0) { throw 'Storage native tests failed.' }
+    & ./storage_c_consumer.exe $buildPath
+    if ($LASTEXITCODE -ne 0) { throw 'Storage C ABI tests failed.' }
 } finally {
     Pop-Location
     $env:ZIG_LOCAL_CACHE_DIR = $previousLocalCache

@@ -11,6 +11,9 @@ class CoreProbe {
 
     external fun nativeAbiVersion(): Int
 
+    // Synchronous SQLite capability check; application services call on a worker.
+    external fun nativeStorageVersion(privateRoot: ByteArray): Int
+
     // Bounded metadata adapter; call from a worker. No image bytes or algorithms.
     external fun nativeDocumentRoundTrip(
         manifest: ByteArray,

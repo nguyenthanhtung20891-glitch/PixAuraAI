@@ -391,6 +391,11 @@ struct Engine {
     static Snapshot finish(std::shared_ptr<ImageDocument> next) {
         ++next->session_.generation; validate(*next); Writer().write(encode(*next)); return next;
     }
+    static Snapshot restore(Snapshot snapshot, uint64_t generation) {
+        require(snapshot != nullptr && generation <= max_generation, PIXAURA_DOCUMENT_RESOURCE_LIMIT);
+        auto next = std::make_shared<ImageDocument>(*snapshot);
+        next->session_.generation = generation; validate(*next); return next;
+    }
     static Snapshot commit(const ImageDocument& doc, const DetachedCandidate& candidate) {
         require(candidate.identity.project == doc.identity_.project && candidate.identity.document == doc.identity_.document, PIXAURA_DOCUMENT_STALE_BASE);
         check_base(doc, candidate.base, candidate.session);
@@ -439,6 +444,9 @@ struct Engine {
 
 Result<Snapshot> deserialize(std::string_view manifest, std::string_view session_id) {
     return attempt<Snapshot>([&] { return Engine::decode(Parser(manifest, manifest_limit).parse(Shape::Manifest), session_id); });
+}
+Result<Snapshot> restore_generation(Snapshot snapshot, uint64_t generation) {
+    return attempt<Snapshot>([&] { return Engine::restore(std::move(snapshot), generation); });
 }
 Result<Snapshot> create_document(std::string_view manifest, std::string_view session_id) {
     return attempt<Snapshot>([&] {

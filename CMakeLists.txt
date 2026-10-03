@@ -6,7 +6,7 @@ if(PIXAURA_SANITIZERS AND (MSVC OR ANDROID))
 endif()
 
 add_library(pixaura_core SHARED packages/core/src/core.cpp
-    packages/core/src/document.cpp packages/core/src/document_api.cpp)
+    packages/core/src/document.cpp packages/core/src/document_api.cpp packages/core/src/storage_api.cpp)
 target_include_directories(pixaura_core PUBLIC packages/core/include)
 target_compile_features(pixaura_core PUBLIC cxx_std_17)
 target_compile_definitions(pixaura_core PUBLIC PIXAURA_SHARED PRIVATE PIXAURA_BUILDING)
@@ -23,6 +23,32 @@ function(pixaura_strict target)
     endif()
 endfunction()
 pixaura_strict(pixaura_core)
+file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/packages/core/vendor/sqlite/sqlite3.c" sqlite_c_hash)
+file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/packages/core/vendor/sqlite/sqlite3.h" sqlite_h_hash)
+if(NOT sqlite_c_hash STREQUAL "b1dd5d74ec7f29055a6684fa06fb3c2f6821c87dd38f9a458dfd2e8a1db28189" OR
+   NOT sqlite_h_hash STREQUAL "919e7f2e8ed1d8f56ac17b412b8971c76aa5d1a879752cc6058f75e7d5910e1d")
+    message(FATAL_ERROR "Pinned SQLite source integrity failure")
+endif()
+add_library(pixaura_sqlite STATIC packages/core/vendor/sqlite/sqlite3.c)
+set_target_properties(pixaura_sqlite PROPERTIES POSITION_INDEPENDENT_CODE ON C_VISIBILITY_PRESET hidden)
+target_compile_definitions(pixaura_sqlite PRIVATE SQLITE_THREADSAFE=1 SQLITE_DQS=0
+    SQLITE_OMIT_LOAD_EXTENSION SQLITE_OMIT_SHARED_CACHE SQLITE_DEFAULT_MEMSTATUS=0
+    SQLITE_MAX_LENGTH=8388608 SQLITE_MAX_SQL_LENGTH=65536 SQLITE_MAX_ATTACHED=0)
+pixaura_strict(pixaura_sqlite)
+# Upstream VFS interfaces intentionally leave parameters/legacy OS probes unused.
+# Keep verified vendor bytes and warnings-as-errors; only that vendor warning is exempt.
+if(NOT MSVC)
+    target_compile_options(pixaura_sqlite PRIVATE -Wno-unused-parameter -Wno-unused-variable)
+endif()
+add_library(pixaura_storage STATIC packages/core/src/storage.cpp packages/core/src/storage_files.cpp packages/core/src/sha256.cpp)
+set_target_properties(pixaura_storage PROPERTIES POSITION_INDEPENDENT_CODE ON CXX_VISIBILITY_PRESET hidden)
+target_compile_features(pixaura_storage PUBLIC cxx_std_17)
+target_link_libraries(pixaura_storage PUBLIC pixaura_sqlite)
+if(WIN32)
+    target_link_libraries(pixaura_storage PUBLIC bcrypt)
+endif()
+pixaura_strict(pixaura_storage)
+target_link_libraries(pixaura_core PRIVATE pixaura_storage)
 
 include(CTest)
 if(BUILD_TESTING)
@@ -51,11 +77,27 @@ if(BUILD_TESTING)
     add_test(NAME document_allocation_test COMMAND document_allocation_test "${CMAKE_SOURCE_DIR}/tests/fixtures/image-document-v1.json")
     # Outer guard also covers runtime/CRT failure paths before the watchdog starts.
     set_tests_properties(document_allocation_test PROPERTIES TIMEOUT 120)
+    add_executable(storage_test packages/core/tests/storage_test.cpp packages/core/src/document.cpp
+        packages/core/src/storage.cpp packages/core/src/storage_files.cpp packages/core/src/sha256.cpp)
+    target_link_libraries(storage_test PRIVATE pixaura_sqlite)
+    target_include_directories(storage_test PRIVATE packages/core/include)
+    target_compile_features(storage_test PRIVATE cxx_std_17)
+    target_compile_definitions(storage_test PRIVATE PIXAURA_STORAGE_TESTING PIXAURA_TEST_FALLIBLE_STL)
+    if(WIN32)
+        target_link_libraries(storage_test PRIVATE bcrypt)
+    endif()
+    pixaura_strict(storage_test)
+    add_test(NAME storage_test COMMAND storage_test "${CMAKE_SOURCE_DIR}/tests/fixtures/image-document-v1.json")
+    set_tests_properties(storage_test PROPERTIES TIMEOUT 180)
+    add_executable(storage_c_consumer packages/core/tests/storage_c_consumer.c)
+    target_link_libraries(storage_c_consumer PRIVATE pixaura_core)
+    pixaura_strict(storage_c_consumer)
+    add_test(NAME storage_c_consumer COMMAND storage_c_consumer "${CMAKE_BINARY_DIR}")
     if(PIXAURA_SANITIZERS)
         # Keep C ABI consumers compiled as C, but link the C++ UBSan runtime
         # required by the instrumented C++ shared library (including vptr).
-        set_target_properties(c_consumer document_c_consumer PROPERTIES LINKER_LANGUAGE CXX)
-        set_tests_properties(core_test c_consumer document_test document_c_consumer document_allocation_test PROPERTIES ENVIRONMENT
+        set_target_properties(c_consumer document_c_consumer storage_c_consumer PROPERTIES LINKER_LANGUAGE CXX)
+        set_tests_properties(core_test c_consumer document_test document_c_consumer document_allocation_test storage_test storage_c_consumer PROPERTIES ENVIRONMENT
             "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1;UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1")
         add_executable(asan_negative packages/core/tests/asan_negative.cpp)
         target_link_libraries(asan_negative PRIVATE pixaura_core)

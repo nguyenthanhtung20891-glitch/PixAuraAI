@@ -1,6 +1,6 @@
 # Phase 2 Step 2: native document foundation
 
-Status: IMPLEMENTED, MSVC ALLOCATION ROOT CAUSE TRACED; exception-safety correction validated locally, corrected-tree MSVC Debug execution pending CI. 2026-10-04. This is not FULLY PASSED or full Phase 2 completion. The initial prepublication evidence below is historical; sections 13-16 record published CI failures and their remediation/evidence limits.
+Status: APPROVED, USER-ATTESTED FULL STEP 2 CI PASS on `f78ba096872249bf80ff1e4ee9e51a0a4ecfb6ef`, 2026-10-04. The user reports both Foundation boundaries and Native application shells green and explicitly authorizes Step 3. No new passing-run URL was supplied; this is user-attested completion, not locally observed Apple/MSVC runtime. Historical sections 13-16 retain the earlier failures and evidence limits. This does not certify full Phase 2 or the subsequent Step 3 tree.
 
 The user approved Step 1, authorized Step 2, and approved caller-owned contexts after the initial attempt stopped on the process-global registry conflict. The contract, ADR 0009, ADR 0008 supersession annotation and decision index were updated before implementation. All twelve frozen document decisions remain intact. No commit or push occurred. HEAD remains `2525b52207ef1f6a3af945032d8190366b177f27`. Prior Phase 0/1 final CI completion is user-attested; no new CI run is claimed.
 

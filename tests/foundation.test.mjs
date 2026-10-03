@@ -50,6 +50,9 @@ test('relative documentation links resolve inside the repository', () => {
 
 test('source hygiene: no conflict markers, trailing spaces or missing newlines', () => {
   for (const file of files()) {
+    // Exact upstream bytes are covered by persistence.test.mjs SHA-256 gates.
+    if (['packages/core/vendor/sqlite/sqlite3.c', 'packages/core/vendor/sqlite/sqlite3.h']
+      .includes(path.relative(root, file).split(path.sep).join('/'))) continue;
     if (file.endsWith('.jar')) {
       assert.equal(path.relative(root, file).split(path.sep).join('/'),
         'platforms/android/gradle/wrapper/gradle-wrapper.jar', 'Unexpected binary outside generated directories');

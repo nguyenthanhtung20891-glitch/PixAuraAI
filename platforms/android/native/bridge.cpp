@@ -1,7 +1,18 @@
 #include <jni.h>
 #include "pixaura/core.h"
 #include "pixaura/document.h"
+#include "pixaura/storage.h"
 #include <vector>
+
+extern "C" JNIEXPORT jint JNICALL
+Java_ai_pixaura_bridge_CoreProbe_nativeStorageVersion(JNIEnv* env, jobject, jbyteArray root) {
+    if(root==nullptr)return -1;
+    const auto length=env->GetArrayLength(root);if(length<=0||length>1024)return -1;
+    uint8_t path[1024];env->GetByteArrayRegion(root,0,length,reinterpret_cast<jbyte*>(path));if(env->ExceptionCheck())return -1;
+    pixaura_storage_info info{};
+    const auto status=pixaura_storage_check(1,path,static_cast<uint64_t>(length),&info);
+    return status==0?static_cast<jint>(info.storage_version):-status;
+}
 
 extern "C" JNIEXPORT jint JNICALL
 Java_ai_pixaura_bridge_CoreProbe_nativeAbiVersion(JNIEnv*, jobject) {

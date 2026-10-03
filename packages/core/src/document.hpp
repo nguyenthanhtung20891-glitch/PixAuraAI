@@ -79,6 +79,8 @@ public:
     const SessionIdentity& session() const { return session_; }
 };
 Result<Snapshot> deserialize(std::string_view manifest, std::string_view session_id);
+// Storage-only envelope restoration; canonical schema 1 remains session-free.
+Result<Snapshot> restore_generation(Snapshot snapshot, uint64_t generation);
 Result<Snapshot> create_document(std::string_view root_manifest, std::string_view session_id);
 Result<String> serialize(const ImageDocument& document);
 Result<Snapshot> transition(const ImageDocument& document, std::string_view command);
