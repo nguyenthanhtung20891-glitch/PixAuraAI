@@ -49,6 +49,9 @@ if(BUILD_TESTING)
     pixaura_strict(document_allocation_test)
     add_test(NAME document_allocation_test COMMAND document_allocation_test "${CMAKE_SOURCE_DIR}/tests/fixtures/image-document-v1.json")
     if(PIXAURA_SANITIZERS)
+        # Keep C ABI consumers compiled as C, but link the C++ UBSan runtime
+        # required by the instrumented C++ shared library (including vptr).
+        set_target_properties(c_consumer document_c_consumer PROPERTIES LINKER_LANGUAGE CXX)
         set_tests_properties(core_test c_consumer document_test document_c_consumer document_allocation_test PROPERTIES ENVIRONMENT
             "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1;UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1")
         add_executable(asan_negative packages/core/tests/asan_negative.cpp)

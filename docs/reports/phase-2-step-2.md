@@ -1,6 +1,6 @@
 # Phase 2 Step 2: native document foundation
 
-Status: IMPLEMENTED, READY FOR CI; mandatory Apple execution remains unobserved. 2026-10-03. This is not FULLY PASSED or full Phase 2 completion.
+Status: IMPLEMENTED, CI REMEDIATION VALIDATED LOCALLY; corrected-tree hosted CI remains pending. 2026-10-03. This is not FULLY PASSED or full Phase 2 completion. The initial prepublication evidence below is historical; section 13 records the published CI failures and their narrow remediation.
 
 The user approved Step 1, authorized Step 2, and approved caller-owned contexts after the initial attempt stopped on the process-global registry conflict. The contract, ADR 0009, ADR 0008 supersession annotation and decision index were updated before implementation. All twelve frozen document decisions remain intact. No commit or push occurred. HEAD remains `2525b52207ef1f6a3af945032d8190366b177f27`. Prior Phase 0/1 final CI completion is user-attested; no new CI run is claimed.
 
@@ -144,3 +144,58 @@ After Step 2 review and mandatory CI evidence, propose a separately scoped persi
 ## 12. Exact human decisions next
 
 Review Step 2, including explicit caller context identity/lifetime obligations. No new product/platform compromise is requested. Separately authorize commit/push if publication for CI is wanted; neither occurred. Obtain mandatory Apple/current-tree workflow evidence before declaring all gates passed. Then explicitly approve a Step 3 scope if desired. No automatic advancement, decoding, rendering, AI or editing UI work occurred.
+
+## 13. Published CI evidence and minimal remediation
+
+The user subsequently authorized publication of the reviewed Step 1/2 tree. Commit `744c8c5d711c1dba14514ae4f9078cc420694726` was pushed to main with message `feat: implement PixAuraAI phase 2 native document foundation`. On this follow-up, the GitHub Actions jobs API independently confirmed [Foundation boundaries run 37134260674](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37134260674) and [Native application shells run 37134260640](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37134260640) for that exact SHA. Shell source/android-app/ios-app succeeded. Foundation workflow-lint, portable Ubuntu, apple-boundary and both Android ABIs succeeded; portable Windows and sanitizer failed. Apple success is hosted CI evidence for the published SHA, never local macOS execution or evidence for these unpublished corrections.
+
+Exact failing logs were retrieved before changing source, using the existing Git credential without printing it. Ignored evidence lives under `build/phase-2-ci-fix/`: Windows job `111235434462.log`, sanitizer job `111235434454.log`, and both workflows' job metadata. No investigation data or credentials enter version control.
+
+### Windows: all four observed failures
+
+The Windows Foundation source command executed 23 tests: 19 passed, four failed, all in `tests/document-contract.test.mjs`. The three equality failures report `ERR_ASSERTION`, `AssertionError`, operator `strictEqual`, message `Expected values to be strictly equal:`. The complete JSON payload is identical; actual ends `}}\n`, expected ends `}}\r\n`.
+
+| Exact test name | Exact failing assertion/error | Classification and minimal remediation |
+| --- | --- | --- |
+| contract golden bytes are deterministic and survive key-order normalization/reload | Line 17: `assert.equal(serialize(fixture()), golden)`; strictEqual LF actual versus CRLF expected | Windows Git checkout line endings, no document contract divergence. Pin the approved golden JSON fixture to LF in `.gitattributes`. |
+| replay preserves explicit ordering and full stacks do not duplicate ancestor operations | Line 30: `assert.equal(serialize(state.document), golden)`; same strictEqual LF/CRLF mismatch | Same checkout issue and same LF attribute fix. No history/replay implementation change. |
+| invalid and stale commands leave inputs intact; generation rejects revision ABA | Line 64: `assert.equal(serialize(initial.document), golden)`; same strictEqual LF/CRLF mismatch | Same checkout issue and same LF attribute fix. No stale-generation implementation change. |
+| bounded token walk rejects corruption, duplicates, invalid UTF-8 and noninteger JSON | Line 130: `assert.throws(() => parseManifest(text), /INVALID_PROJECT/)`; `Missing expected exception.`, `ERR_ASSERTION`, operator `throws` | Same checkout issue. With CRLF, the first adversary `golden.slice(0, -2)` removes only CRLF, leaving valid complete JSON. Pin LF so it removes the final closing brace and LF as intended. No parser relaxation or test expectation change. |
+
+An isolated archived baseline with CRLF fixtures reproduced these exact four failures (nine document tests: five pass/four fail). `.gitattributes` now applies `text eol=lf` to exactly `tests/fixtures/image-document-v1.json` and its Swift bundled copy. JSON content and strict byte assertions are unchanged. `git -c core.autocrlf=true checkout-index` into an ignored directory confirmed both checkout copies have the original canonical SHA-256 `a18deede5475c2642501a8911212f76bd63f8ed8738dd3f7d5f3fbfff72216e7`. No blanket JSON normalization or checkout setting change was introduced.
+
+Replacing only the isolated baseline's two CRLF fixture copies with those simulated Windows checkout outputs made the exact Foundation source selection pass 23/23: `node --test build/phase-2-ci-fix/baseline/tests/foundation.test.mjs build/phase-2-ci-fix/baseline/tests/ci-tools.test.mjs build/phase-2-ci-fix/baseline/tests/document-contract.test.mjs build/phase-2-ci-fix/baseline/tests/native-document.test.mjs`. This is observed checkout remediation evidence, not a hosted CI rerun.
+
+### Sanitizer: exact root cause and fix
+
+The retrieved CI log uses Ubuntu Clang 18.1.3. Ninja reports `Linking C executable c_consumer` and invokes `/usr/bin/clang -g -fsanitize=address,undefined ... c_consumer.c.o ... libpixaura_core.so`. Its linker errors are exactly `undefined reference to '__ubsan_vptr_type_cache'` and `undefined reference to '__ubsan_handle_dynamic_type_cache_miss'`. The first actual symbol differs from the screenshot transcription; this report uses the downloaded job log.
+
+The consumer's C link driver does not select the C++ UBSan runtime providing dynamic-type/vptr support required by the sanitizer-instrumented C++ shared library. `CMakeLists.txt` now sets `LINKER_LANGUAGE CXX` for `c_consumer` and `document_c_consumer` only inside `if(PIXAURA_SANITIZERS)`. Both `.c` sources still compile with the C compiler. Generated Ninja rules confirm C compilation and CXX executable linking, retaining `-fsanitize=address,undefined` on compilation/linking. No vptr or other sanitizer suppression, source removal, architecture change or non-sanitizer link-language change occurred.
+
+Local Clang 21.1.8 also links the archived baseline successfully, so the Clang 18 CI failure is not claimed as locally reproduced. The downloaded CI command/errors establish its cause; corrected builds and full runtime tests pass locally. The original CI compiler/runner must still validate the correction.
+
+### Corrected-tree validation
+
+| Check and exact command | Observed result |
+| --- | --- |
+| Windows: `node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs tests/document-contract.test.mjs tests/native-document.test.mjs` | PASS 29/29, no skips; includes Apple package/fixture/CI wiring checks. |
+| Windows: `node --test tests/*.test.mjs` | FAIL 29/58: the 29 Linux-only executable fake-SDK/emulator scenarios cannot execute correctly on Windows (including EPERM for the symlink scenario). All 29 Windows-compatible checks pass. No unrelated emulator test rewrite was authorized. |
+| WSL Ubuntu: `export PATH="$PWD/build/tools/node-v24.14.0-linux-x64/bin:$PATH"; node --test tests/*.test.mjs` | PASS 58/58, no skips, including the complete emulator orchestration harness. |
+| WSL: `cmake -S . -B build/linux-host -DCMAKE_BUILD_TYPE=Debug`; `cmake --build build/linux-host -j2`; `ctest --test-dir build/linux-host --output-on-failure` | PASS 5/5, warning-clean native C/C++ document, allocation and both C ABI consumers. |
+| WSL: `bash scripts/check-sanitizers.sh` | PASS 7/7 with Clang 21.1.8, ASan/UBSan and both runtime negative probes (86/87); both C consumers use corrected CXX linking. |
+| Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-native-zig.ps1 -ZigPath G:/PixAuraAI/build/tools/zig-x86_64-windows-0.14.1/zig.exe` | PASS shared DLL, C/C++ document/ABI consumers, allocation/concurrent-release tests and original UB trap probe. |
+| Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-native.ps1` | BLOCKED: incomplete Visual Studio installation, `vcvarsall missing`. Owner host maintainer; repair desktop C++ workload. Hosted Windows MSVC build remains mandatory. |
+| `build/tools/actionlint/actionlint.exe -shellcheck= -pyflakes= .github/workflows/foundation.yml .github/workflows/native-shells.yml`; WSL `bash -n scripts/*.sh` | PASS actionlint 1.7.12 and Bash syntax. Local shellcheck/pyflakes unavailable; not claimed executed. Workflows are unchanged. |
+| Android NDK CMake configure/build, each ABI below | PASS fresh arm64-v8a and armeabi-v7a core/JNI shared library builds; pinned NDK 28.2.13676358, CMake 3.22.1, API 26. No platform source change. |
+| `git diff --check` | PASS; no staged changes, commit or push during remediation. |
+
+Android command, repeated with ABI/build directory `armeabi-v7a`/`android-armv7`:
+
+```text
+I:/AndroidStudioSDKdata/cmake/3.22.1/bin/cmake.exe -S platforms/android/native -B build/phase-2-ci-fix/android-arm64 -G Ninja -DCMAKE_MAKE_PROGRAM=I:/AndroidStudioSDKdata/cmake/3.22.1/bin/ninja.exe -DCMAKE_TOOLCHAIN_FILE=I:/AndroidStudioSDKdata/ndk/28.2.13676358/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-26
+I:/AndroidStudioSDKdata/cmake/3.22.1/bin/cmake.exe --build build/phase-2-ci-fix/android-arm64
+```
+
+Only `.gitattributes`, `CMakeLists.txt` and this report changed. All fresh logs, isolated checkout/reproduction fixtures and generated binaries remain ignored under build. Shipping source, schema, caller contexts, platform bridges and document architecture are unchanged. Step 3 was not started.
+
+Next human action: review these three-file corrections and explicitly authorize their commit/push. Then run both workflows on the resulting corrected SHA, requiring Windows portable source/MSVC execution and Ubuntu Clang 18 sanitizer success, plus preservation of all previously passing platform jobs. Owner repository maintainer/hosted runners; affects G1-G4. Apple runtime validation for the corrected tree is CI-only on this Windows host. No CI rerun of the old SHA can validate unpublished changes. Do not promote Step 2 as fully passed until corrected-tree mandatory CI succeeds; Step 3 still requires separate authorization.
