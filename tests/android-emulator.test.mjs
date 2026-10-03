@@ -17,6 +17,12 @@ function runScenario(scenario) {
   };
   fs.mkdirSync(path.join(directory, 'state'));
   write('scripts/check-android-emulator.sh', fs.readFileSync(path.join(root, 'scripts/check-android-emulator.sh')));
+  write('scripts/assert-android-userdata.mjs', fs.readFileSync(path.join(root, 'scripts/assert-android-userdata.mjs')));
+  write('sdk/system-images/android-35/google_apis/x86_64/data/empty_data_disk', 'factory-empty userdata marker');
+  if (scenario === 'unsupported-factory-data') {
+    fs.unlinkSync(path.join(directory, 'sdk/system-images/android-35/google_apis/x86_64/data/empty_data_disk'));
+  }
+  write('sdk/system-images/android-35/google_apis/x86_64/source.properties', 'Pkg.Revision=9\nAndroidVersion.ApiLevel=35\n');
   write('bin/sudo', '#!/usr/bin/env bash\nexit 1\n'); // Never change a real host's /dev/kvm permissions.
   write('sdk/cmdline-tools/latest/bin/avdmanager', `#!/usr/bin/env bash
 mkdir -p "$ANDROID_AVD_HOME/pixaura-ci-shell.avd"
@@ -42,12 +48,46 @@ printf 'Filesystem 1024-blocks Used Available Capacity Mounted on\\nmock 9999999
   }
   write('sdk/emulator/emulator', `#!/usr/bin/env bash
 if [[ "$1" == -accel-check ]]; then exit 1; fi
+if [[ "$1" == -version ]]; then echo 'fake emulator version'; exit 0; fi
+data_path=''; previous=''
+for argument in "$@"; do
+  if [[ "$previous" == -data ]]; then data_path="$argument"; fi
+  previous="$argument"
+done
+hardware="$ANDROID_AVD_HOME/pixaura-ci-shell.avd/hardware-qemu.ini"
+if [[ "$*" == *-check-snapshot-loadable* ]]; then
+  echo "resolver: $*"
+  echo resolution-start >> "$MOCK_STATE_DIRECTORY/calls.log"
+  if [[ "$MOCK_SCENARIO" == resolution-failure ]]; then exit 9; fi
+  if [[ "$MOCK_SCENARIO" == resolution-timeout ]]; then sleep 30; fi
+  if [[ "$MOCK_SCENARIO" == missing-hardware ]]; then exit 0; fi
+  resolved_size=2147483648
+  if [[ "$MOCK_SCENARIO" == resolved-6g || "$*" == *-wipe-data* || ! -f "$data_path" ]]; then
+    resolved_size=6442450944
+    echo disk.dataPartition.size=6442450944 >> "$ANDROID_AVD_HOME/pixaura-ci-shell.avd/config.ini"
+  fi
+  resolved_path="$data_path"
+  if [[ "$MOCK_SCENARIO" == wrong-data-path ]]; then resolved_path="$MOCK_STATE_DIRECTORY/other.img"; fi
+  printf 'disk.dataPartition.size = %s\\ndisk.dataPartition.path = %s\\n' "$resolved_size" "$resolved_path" > "$hardware"
+  if [[ "$MOCK_SCENARIO" == initdata-recreation ]]; then echo disk.dataPartition.initPath=/sdk/userdata.img >> "$hardware"; fi
+  if [[ "$MOCK_SCENARIO" == corrupt-data ]]; then truncate -s 2048 "$data_path"; fi
+  exit 0
+fi
+if [[ "$MOCK_SCENARIO" == launch-size-drift ]]; then
+  sed -i 's/2147483648/6442450944/' "$hardware"
+fi
 echo "emulator launch: $*"
 echo "emulator stderr evidence" >&2
 echo $$ > "$MOCK_STATE_DIRECTORY/emulator.pid"
 if [[ "$MOCK_SCENARIO" == early-exit ]]; then exit 23; fi
 trap 'echo emulator-cleanup >> "$MOCK_STATE_DIRECTORY/calls.log"; exit 0' TERM
 while true; do sleep 0.1; done
+`);
+  write('sdk/emulator/qemu-img', `#!/usr/bin/env bash
+image="\${!#}"
+size=2147483648
+if [[ "$MOCK_SCENARIO" == oversized-qemu-data ]]; then size=6442450944; fi
+printf '{"filename":"%s","format":"raw","virtual-size":%s}\\n' "$image" "$size"
 `);
   write('sdk/platform-tools/adb', `#!/usr/bin/env bash
 echo "$*" >> "$MOCK_STATE_DIRECTORY/calls.log"
@@ -99,7 +139,7 @@ if [[ "$MOCK_SCENARIO" == test-timeout ]]; then sleep 30; fi
       cwd: directory,
       env: {
         ...process.env,
-        PATH: `${path.join(directory, 'bin')}:${process.env.PATH}`,
+        PATH: `${path.join(directory, 'bin')}:${path.dirname(process.execPath)}:${process.env.PATH}`,
         ANDROID_HOME: path.join(directory, 'sdk'),
         MOCK_STATE_DIRECTORY: path.join(directory, 'state'),
         MOCK_SCENARIO: scenario,
@@ -110,6 +150,7 @@ if [[ "$MOCK_SCENARIO" == test-timeout ]]; then sleep 30; fi
         ANDROID_PACKAGE_TIMEOUT_SECONDS: scenario === 'package-timeout' ? '1' : '5',
         ANDROID_TEST_TIMEOUT_SECONDS: scenario === 'test-timeout' ? '1' : '5',
         ANDROID_COMMAND_TIMEOUT_SECONDS: '1',
+        ANDROID_RESOLUTION_TIMEOUT_SECONDS: scenario === 'resolution-timeout' ? '1' : '5',
         ANDROID_POLL_INTERVAL_SECONDS: '0.02',
       },
       encoding: 'utf8', timeout: 20000,
@@ -135,6 +176,9 @@ if [[ "$MOCK_SCENARIO" == test-timeout ]]; then sleep 30; fi
       stdoutLog: read('emulator.stdout.log'), stderrLog: read('emulator.stderr.log'),
       acceleration: fs.existsSync(path.join(evidence, 'acceleration.log')) ? read('acceleration.log') : '',
       diskLog: read('disk-preflight.log'), config: read('avd-config.ini'),
+      resolved: fs.existsSync(path.join(evidence, 'userdata-resolved.json')) && read('userdata-resolved.json').trim()
+        ? JSON.parse(read('userdata-resolved.json')) : null,
+      resolutionLog: fs.existsSync(path.join(evidence, 'emulator-resolution.log')) ? read('emulator-resolution.log') : '',
       temporaryOutputExists: fs.existsSync(path.join(directory, 'platforms/android/app/build/tmp/disposable.txt')),
       testLog: fs.existsSync(path.join(evidence, 'instrumentation.log')) ? read('instrumentation.log') : '',
       gradleArgs: fs.existsSync(path.join(directory, 'state/gradle-args.txt'))
@@ -203,6 +247,10 @@ for (const scenario of ['success', 'boundary-disk', 'cleanup-recovers']) {
     const result = runScenario(scenario);
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.stdoutLog, /-partition-size 2048 -cache-size 128/);
+    assert.match(result.stdoutLog, /-data .*ci-userdata\..*\.img -datadir /);
+    assert.doesNotMatch(result.stdoutLog, /-wipe-data/);
+    assert.equal(result.resolved.resolvedBytes, 2147483648);
+    assert.equal(result.resolved.ext4VirtualBytes, 2147483648);
     assert.match(result.config, /^disk.dataPartition.size=2048M$/m);
     assert.match(result.config, /^disk.cachePartition.size=128M$/m);
     assert.match(result.config, /^hw.sdCard=no$/m);
@@ -212,6 +260,35 @@ for (const scenario of ['success', 'boundary-disk', 'cleanup-recovers']) {
     assert.equal(result.testResultsWritten, true);
   });
 }
+
+for (const scenario of ['resolved-6g', 'wrong-data-path', 'initdata-recreation', 'corrupt-data', 'missing-hardware', 'resolution-failure', 'resolution-timeout', 'oversized-qemu-data']) {
+  test(scenario + ': effective resolution must pass before the test VM launches', () => {
+    const result = runScenario(scenario);
+    assert.notEqual(result.status, 0);
+    assert.equal(result.phase, 'userdata-resolution');
+    assert.equal(result.stdoutLog, '');
+    assert.equal(result.gradleArgs, '');
+    assert.match(result.calls, /resolution-start/);
+  });
+}
+
+test('images without factory-empty userdata fail before resolution or VM launch', () => {
+  const result = runScenario('unsupported-factory-data');
+  assert.notEqual(result.status, 0);
+  assert.equal(result.phase, 'userdata-preparation');
+  assert.match(result.stderr, /does not declare empty_data_disk/);
+  assert.equal(result.stdoutLog, '');
+  assert.equal(result.gradleArgs, '');
+});
+
+test('an effective size change during actual launch fails before instrumentation', () => {
+  const result = runScenario('launch-size-drift');
+  assert.notEqual(result.status, 0);
+  assert.equal(result.phase, 'userdata-running-assertion');
+  assert.match(result.stderr, /Effective resolved userdata 6442450944/);
+  assert.equal(result.gradleArgs, '');
+  assert.match(result.calls, /emulator-cleanup/);
+});
 for (const scenario of ['low-disk', 'local-low-disk', 'symlink-cleanup', 'invalid-disk']) {
   test(scenario + ': preflight fails before launch and preserves SDK and evidence', () => {
     const result = runScenario(scenario);

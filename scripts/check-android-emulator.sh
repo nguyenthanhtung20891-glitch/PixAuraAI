@@ -18,8 +18,9 @@ boot_timeout="${ANDROID_BOOT_TIMEOUT_SECONDS:-600}"
 package_timeout="${ANDROID_PACKAGE_TIMEOUT_SECONDS:-120}"
 test_timeout="${ANDROID_TEST_TIMEOUT_SECONDS:-900}"
 command_timeout="${ANDROID_COMMAND_TIMEOUT_SECONDS:-10}"
+resolution_timeout="${ANDROID_RESOLUTION_TIMEOUT_SECONDS:-120}"
 poll_interval="${ANDROID_POLL_INTERVAL_SECONDS:-2}"
-for budget in "$device_timeout" "$boot_timeout" "$package_timeout" "$test_timeout" "$command_timeout"; do
+for budget in "$device_timeout" "$boot_timeout" "$package_timeout" "$test_timeout" "$command_timeout" "$resolution_timeout"; do
     if [[ ! "$budget" =~ ^[1-9][0-9]*$ ]]; then
         echo "Timeout budgets must be positive integer seconds" >&2
         exit 2
@@ -35,6 +36,10 @@ phase=setup
 touch "$evidence/emulator.stdout.log" "$evidence/emulator.stderr.log"
 adb_command() { timeout --kill-after=5s "${command_timeout}s" "$adb" "$@"; }
 diagnostics() {
+    if [[ -n "${avd_config:-}" && -f "$avd_config" ]]; then cp "$avd_config" "$evidence/avd-config.final.ini"; fi
+    if [[ -n "${avd_directory:-}" && -f "$avd_directory/hardware-qemu.ini" ]]; then
+        cp "$avd_directory/hardware-qemu.ini" "$evidence/hardware-qemu.final.ini"
+    fi
     echo "$phase" > "$evidence/final-phase.txt"
     adb_command devices -l > "$evidence/adb-devices.txt" 2>&1
     adb_command -s "$ANDROID_SERIAL" shell getprop > "$evidence/boot-properties.txt" 2>&1
@@ -60,6 +65,7 @@ cleanup() {
     printf '%s\n' "$result" > "$evidence/exit-code.txt"
     echo "Android emulator phase '$phase' finished with exit $result; evidence: $evidence"
     if (( result != 0 )); then
+        if [[ -f "$evidence/emulator-resolution.log" ]]; then tail -n 40 "$evidence/emulator-resolution.log" >&2; fi
         tail -n 40 "$evidence/emulator.stdout.log" "$evidence/emulator.stderr.log" >&2
         cat "$evidence/adb-devices.txt" "$evidence/boot-properties.txt" >&2
     fi
@@ -132,10 +138,35 @@ userdata_mib=2048
 cache_mib=128
 reserve_mib=2048
 avd_config="$ANDROID_AVD_HOME/pixaura-ci-shell.avd/config.ini"
+avd_directory="$(dirname "$avd_config")"
+cp "$avd_config" "$evidence/avd-config.created.ini"
 sed -i -E '/^(disk\.dataPartition\.size|disk\.cachePartition\.(size|yes)|hw\.sdCard|sdcard\.(size|path))=/d' "$avd_config"
 printf '%s\n' "disk.dataPartition.size=${userdata_mib}M" \
     "disk.cachePartition=yes" "disk.cachePartition.size=${cache_mib}M" "hw.sdCard=no" >> "$avd_config"
 cp "$avd_config" "$evidence/avd-config.ini"
+
+phase=disk-input-evidence
+image_directory="$ANDROID_HOME/system-images/android-35/google_apis/x86_64"
+for metadata in source.properties package.xml advancedFeatures.ini; do
+    if [[ -f "$image_directory/$metadata" ]]; then cp "$image_directory/$metadata" "$evidence/system-image.$metadata"; fi
+done
+if [[ -f "$ANDROID_HOME/emulator/source.properties" ]]; then
+    cp "$ANDROID_HOME/emulator/source.properties" "$evidence/emulator.source.properties"
+fi
+timeout --kill-after=5s 10s "$emulator" -version > "$evidence/emulator-version.txt" 2>&1
+cat "$avd_config" "$evidence/emulator-version.txt"
+if [[ -f "$avd_directory/hardware-qemu.ini" ]]; then
+    cp "$avd_directory/hardware-qemu.ini" "$evidence/hardware-qemu.before.ini"
+else
+    echo 'hardware-qemu.ini not yet generated' > "$evidence/hardware-qemu.before.txt"
+fi
+if [[ -f "$image_directory/userdata.img" ]]; then
+    timeout --kill-after=5s 10s "$ANDROID_HOME/emulator/qemu-img" info --output=json "$image_directory/userdata.img" \
+        > "$evidence/initial-userdata.json"
+else
+    echo 'No initial userdata.img; recording system image data directory' > "$evidence/initial-userdata.txt"
+    timeout --kill-after=5s 10s ls -la "$image_directory/data" >> "$evidence/initial-userdata.txt"
+fi
 
 phase=disk-preflight
 required_mib=$((userdata_mib + cache_mib + reserve_mib))
@@ -171,6 +202,23 @@ if (( free_mib < required_mib )); then
     fi
 fi
 
+phase=userdata-preparation
+# API 24+ firstTimeSetup (wipe-data OR missing runtime image) clamps userdata
+# to 6 GiB inside QEMU2, after command-line parsing. Use documented -data with
+# a newly created factory-empty ext4 image, not -wipe-data or a missing file.
+# Only images that explicitly declare factory-empty data are supported here.
+if [[ ! -f "$image_directory/data/empty_data_disk" ]]; then
+    echo 'System image does not declare empty_data_disk; refusing to invent factory userdata' >&2
+    exit 1
+fi
+cp "$image_directory/data/empty_data_disk" "$evidence/empty_data_disk.txt"
+timeout --kill-after=5s 10s mke2fs -V > "$evidence/mke2fs-version.txt" 2>&1
+userdata_path="$(mktemp "$avd_directory/ci-userdata.XXXXXX.img")"
+timeout --kill-after=5s 60s mke2fs -q -F -t ext4 -b 4096 -m 0 \
+    -L data "$userdata_path" "$((userdata_mib * 256))" > "$evidence/userdata-create.log" 2>&1
+node scripts/assert-android-userdata.mjs "$userdata_path" "$userdata_mib" > "$evidence/userdata-prepared.json"
+cat "$evidence/userdata-prepared.json"
+
 phase=acceleration-probe
 acceleration=off
 if [[ -c /dev/kvm ]]; then
@@ -183,14 +231,43 @@ if [[ -c /dev/kvm ]]; then
     fi
 fi
 echo "Emulator acceleration: $acceleration (software fallback when KVM is unavailable)" | tee -a "$evidence/acceleration.log"
+emulator_arguments=(-avd pixaura-ci-shell -port 5554 -accel "$acceleration" -memory 2048 -cores 2
+    -partition-size "$userdata_mib" -cache-size "$cache_mib" -data "$userdata_path" -datadir "$avd_directory"
+    -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -verbose)
+printf '%q ' "$emulator" "${emulator_arguments[@]}" > "$evidence/emulator-arguments.txt"
+printf '\n' >> "$evidence/emulator-arguments.txt"
+cat "$evidence/emulator-arguments.txt"
+
+phase=userdata-resolution
+# Documented SDK diagnostic option resolves hardware and exits without running
+# the guest CPU. The absent snapshot is intentional, not a test skip.
+printf '%q ' "$emulator" "${emulator_arguments[@]}" -check-snapshot-loadable pixaura-ci-resolution \
+    > "$evidence/emulator-resolution-arguments.txt"
+printf '\n' >> "$evidence/emulator-resolution-arguments.txt"
+timeout --kill-after=5s "${resolution_timeout}s" "$emulator" "${emulator_arguments[@]}" \
+    -check-snapshot-loadable pixaura-ci-resolution > "$evidence/emulator-resolution.log" 2>&1
+cp "$avd_directory/hardware-qemu.ini" "$evidence/hardware-qemu.resolved.ini"
+cp "$avd_config" "$evidence/avd-config.resolved.ini"
+timeout --kill-after=5s 10s "$ANDROID_HOME/emulator/qemu-img" info --output=json "$userdata_path" \
+    > "$evidence/userdata-qemu-info.json"
+node scripts/assert-android-userdata.mjs "$userdata_path" "$userdata_mib" "$evidence/hardware-qemu.resolved.ini" "$evidence/userdata-qemu-info.json" \
+    > "$evidence/userdata-resolved.json"
+cat "$evidence/userdata-resolved.json"
+
 phase=launch
-"$emulator" -avd pixaura-ci-shell -port 5554 -accel "$acceleration" -memory 2048 -cores 2 \
-    -partition-size "$userdata_mib" -cache-size "$cache_mib" \
-    -no-window -no-audio -no-boot-anim -no-snapshot -wipe-data -gpu swiftshader_indirect \
+"$emulator" "${emulator_arguments[@]}" \
     > "$evidence/emulator.stdout.log" 2> "$evidence/emulator.stderr.log" &
 emulator_pid=$!
 
 wait_for device-visibility "$device_timeout" device_visible
+phase=userdata-running-assertion
+running_image="$userdata_path"
+if [[ -f "$userdata_path.qcow2" ]]; then running_image="$userdata_path.qcow2"; fi
+timeout --kill-after=5s 10s "$ANDROID_HOME/emulator/qemu-img" info -U --output=json "$running_image" \
+    > "$evidence/userdata-running-qemu-info.json"
+node scripts/assert-android-userdata.mjs "$userdata_path" "$userdata_mib" "$avd_directory/hardware-qemu.ini" \
+    "$evidence/userdata-running-qemu-info.json" \
+    > "$evidence/userdata-running.json"
 wait_for boot-completion "$boot_timeout" boot_complete
 wait_for package-manager "$package_timeout" package_ready
 phase=unlock

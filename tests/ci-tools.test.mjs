@@ -1,12 +1,45 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { selectSimulator } from '../scripts/select-ios-simulator.mjs';
+import { assertUserdata } from '../scripts/assert-android-userdata.mjs';
 
 const older = 'AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA';
 const newer = 'BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB';
+
+test('userdata assertion reads disk geometry and generated hardware rather than trusting configured size', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'pixaura userdata '));
+  const image = path.join(directory, 'ci-data.img');
+  const hardware = path.join(directory, 'hardware-qemu.ini');
+  try {
+    const fd = fs.openSync(image, 'w');
+    const superblock = Buffer.alloc(1024);
+    superblock.writeUInt16LE(0xef53, 56);
+    superblock.writeUInt32LE(1024, 4); // 1024 * 4096 = 4 MiB.
+    superblock.writeUInt32LE(2, 24);
+    fs.ftruncateSync(fd, 4 * 1024 * 1024);
+    fs.writeSync(fd, superblock, 0, superblock.length, 1024);
+    fs.closeSync(fd);
+    for (const size of ['4M', '4096k', '4194304']) {
+      fs.writeFileSync(hardware, `disk.dataPartition.size = ${size}\ndisk.dataPartition.path = ${image}\n`);
+      assert.equal(assertUserdata(image, 4, hardware).resolvedBytes, 4194304);
+    }
+    fs.writeFileSync(hardware, `disk.dataPartition.size = 6g\ndisk.dataPartition.path = ${image}\n`);
+    assert.throws(() => assertUserdata(image, 4, hardware), /Effective resolved userdata 6442450944/);
+    fs.writeFileSync(hardware, `disk.dataPartition.size = 4M\ndisk.dataPartition.path = ${image}\ndisk.dataPartition.initPath = userdata.img\n`);
+    assert.throws(() => assertUserdata(image, 4, hardware), /recreated from initPath/);
+    fs.writeFileSync(hardware, `disk.dataPartition.size = 4M\ndisk.dataPartition.size = 2M\n`);
+    assert.throws(() => assertUserdata(image, 4, hardware), /Duplicate resolved key/);
+    superblock.writeUInt32LE(2048, 4);
+    const changed = fs.openSync(image, 'r+');
+    fs.writeSync(changed, superblock, 0, superblock.length, 1024);
+    fs.closeSync(changed);
+    assert.throws(() => assertUserdata(image, 4), /ext4 virtual size/);
+  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+});
 
 test('Apple CI selects an available iPhone on the newest installed iOS runtime', () => {
   assert.equal(selectSimulator({ devices: {

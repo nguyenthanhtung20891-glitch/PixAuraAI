@@ -26,7 +26,7 @@ jobs:
         working-directory: platforms/android
         run: bash gradlew --no-daemon --dependency-verification strict assembleDebug assembleRelease testDebugUnitTest lintDebug lintRelease assembleDebugAndroidTest
       - name: Execute JNI and Compose smoke tests on Android emulator
-        # Script pins writable disks and checks workspace capacity before launch.
+        # Script verifies factory-empty ext4 and emulator-resolved hardware before VM launch.
         timeout-minutes: 35
         run: bash scripts/check-android-emulator.sh
       - name: Preserve Android evidence
