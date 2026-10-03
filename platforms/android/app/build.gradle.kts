@@ -31,6 +31,8 @@ android {
         abortOnError = true
         // Version upgrades are reviewed separately; pinned supported inputs are deliberate.
         disable += setOf("AndroidGradlePluginVersion", "GradleDependency")
+        // targetSdk 36 is intentionally pinned; API 37 migration requires explicit behavior-change testing.
+        disable += "OldTargetApi"
     }
     buildTypes { release { isMinifyEnabled = false } }
 }

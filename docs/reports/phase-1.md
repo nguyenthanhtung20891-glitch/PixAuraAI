@@ -1,6 +1,47 @@
 # Phase 1 native application shells report
 
-Updated: 2026-10-03. Scope: native shells only; Phase 2 not started. Status: **confirmed Android/iOS CI causes remediated in source/build configuration; local validation recorded below; Apple execution remains BLOCKED on Windows; corrected GitHub Actions execution still required; not a full Phase 1 PASS**.
+Updated: 2026-10-03. Scope: native shells only; Phase 2 not started. Status: **second CI rerun: source and iOS PASS, Android dependency verification PASS, Android FAIL at OldTargetApi lint (user-supplied evidence); narrow lint remediation prepared; corrected Android CI rerun required; not a full Phase 1 PASS**.
+
+## Second CI rerun: Android target-SDK lint remediation, 2026-10-03
+
+The user reports the rerun after commit 2557fd4bebf051916f40163167ad7a822b972415: source job **PASS**, ios-app **PASS**, and Android dependency verification **PASS**. The earlier missing metadata and iOS simulator architecture mismatch are resolved in that run. These CI outcomes are user-attested; no run URL/artifact was supplied or independently fetched in this session. iOS is not locally executed on Windows. Historical pending-Apple statements below describe earlier validation, not this newer CI result.
+
+The supplied Android diagnostic confirms the remaining failure is `:app:lintDebug`, build.gradle.kts:15, `[OldTargetApi]`: targetSdk 36 is not the latest API. Strict `warningsAsErrors = true` promotes that warning to an error. The approved Phase 1 baseline intentionally remains SDK 36; API 37 / Android 17 migration requires an explicit platform upgrade with behavior-change testing.
+
+Remediation: add only `disable += "OldTargetApi"` in the existing Android lint block, with a comment explaining the pinned target and explicit API 37 migration. `targetSdk = 36`, `warningsAsErrors = true`, and `abortOnError = true` remain unchanged. Existing AndroidGradlePluginVersion/GradleDependency exceptions remain unchanged; no unrelated issue was newly suppressed, and no lint baseline, warning downgrade or dependency/build-input change was introduced. The new source test requires the exact explicit target, strict lint settings and exact three-item exception set (the two existing version-review exceptions plus the sole target-SDK exception OldTargetApi), and rejects broad baseline/ignore/checkOnly settings.
+
+Changed files for this follow-up only: platforms/android/app/build.gradle.kts, tests/shells.test.mjs, and this report. No architecture change, Phase 2 work, commit or push occurred.
+
+Local validation commands:
+
+```text
+node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs
+build/tools/actionlint/actionlint.exe -shellcheck= -pyflakes= .github/workflows/foundation.yml .github/workflows/native-shells.yml
+git diff --check
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-native-zig.ps1 -ZigPath G:/PixAuraAI/build/tools/zig-x86_64-windows-0.14.1/zig.exe
+wsl --distribution Ubuntu --exec bash -lc 'cd /mnt/g/PixAuraAI && bash -n scripts/check-apple.sh scripts/check-ios-shell.sh scripts/ios-simulator-architecture.sh scripts/check-sanitizers.sh && cmake --build build/linux-host && ctest --test-dir build/linux-host --output-on-failure && bash scripts/check-sanitizers.sh'
+```
+
+Observed **PASS**: Node **14/14**, zero skips/failures; actionlint exit 0 (unavailable shellcheck/pyflakes disabled); whitespace checks; Windows fallback C/C++ consumers and UB trap; Linux core **2/2**; ASan/UBSan **4/4** including negative diagnostic exits 86/87; Bash syntax. The existing MSVC installation limitation is unchanged and was not re-probed for this lint-only follow-up.
+
+Android validation uses ANDROID_HOME=I:/AndroidStudioSDKdata and the previously populated isolated GRADLE_USER_HOME=G:/PixAuraAI/build/gradle-remediation-verify-final. No metadata or lock generation, SDK upgrade or network access is requested. Build-cache reuse is disabled and actionable tasks are forced to rerun:
+
+```text
+platforms/android/gradlew.bat -p platforms/android --no-daemon --offline --dependency-verification strict --no-build-cache --rerun-tasks assembleDebug assembleRelease testDebugUnitTest lintDebug lintRelease assembleDebugAndroidTest connectedDebugAndroidTest
+```
+
+The combined build/emulator attempt failed before Gradle execution because Windows paging-file capacity could not satisfy JVM startup (error 1455). A smaller-heap attempt also failed during JVM initialization. The isolated emulator was unresponsive to graceful adb shutdown and only its two identified processes (started by this task) were stopped. Retried the build/unit/lint/APK gates without the emulator using these local command-line resource overrides; no committed JVM setting was changed:
+
+```text
+JAVA_OPTS=-Xmx64m -Xms32m -XX:+UseSerialGC
+platforms/android/gradlew.bat -p platforms/android --no-daemon --offline --dependency-verification strict --no-build-cache --rerun-tasks --max-workers=1 "-Dorg.gradle.jvmargs=-Xmx768m -Xms128m -XX:+UseSerialGC -Dfile.encoding=UTF-8" -Pkotlin.compiler.execution.strategy=in-process assembleDebug assembleRelease testDebugUnitTest lintDebug lintRelease assembleDebugAndroidTest
+```
+
+Reduced-memory Android run **PASS**, exit 0, BUILD SUCCESSFUL in **2m 42s**, **146/146 actionable tasks executed**. Debug/unsigned Release builds and three-ABI JNI compilation pass; JVM tests re-executed **2/2**, zero skips/failures/errors; full Debug/Release lint reports say no issues; instrumentation APK builds. Strict dependency verification and existing locks remain enforced offline. The local SDK inventory is not the hosted runner's latest SDK inventory; this does not claim reproduction of the hosted OldTargetApi diagnostic. The source check verifies the narrow exception directly, and executed lint verifies that remaining checks still run.
+
+Emulator instrumentation for this follow-up is **BLOCKED / unrun** by local memory pressure; the earlier Phase 1 instrumentation PASS is historical evidence and is not counted as a new run. Owner: host maintainer; remediation provide sufficient free commit memory/paging-file capacity or execute the prepared Android emulator CI step; affected local G2 emulator evidence. The isolated emulator is stopped, and no build/test remains pending. One intermediate Node hygiene check while Gradle was active encountered its temporary `.kotlin/sessions/*.salive` file; rerun source checks after build completion rather than modifying source-hygiene rules for this lint-only change.
+
+Remaining CI-only gate: rerun android-app on the corrected revision with the hosted SDK inventory, confirming full strict lint/build/unit/emulator completion. Owner: repository maintainer; affected G1/G2/G3 Android CI and Phase 1 promotion. Exact human action: review these three files, then commit/push through the maintainer's process (or separately authorize the agent) and run Native application shells on that new revision; retain the run URL and Android evidence artifact. Rerunning the unchanged remote commit cannot exercise this fix. iOS CI PASS is preserved as user-attested evidence; no local iOS PASS is claimed. Physical assistive walkthrough remains unrun. Do not begin Phase 2.
 
 ## Confirmed CI remediation, 2026-10-03
 

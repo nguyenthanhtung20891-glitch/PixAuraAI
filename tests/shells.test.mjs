@@ -84,3 +84,15 @@ test('clean Android classpath metadata is verified and CI enforces strict mode',
   assert.equal(commands.length, 2);
   for (const command of commands) assert.match(command, /--dependency-verification strict/);
 });
+
+test('Android retains strict lint and the reviewed target SDK exception only', () => {
+  const build = read('platforms/android/app/build.gradle.kts');
+  assert.match(build, /^\s*targetSdk = 36\s*$/m);
+  const lint = build.match(/\blint\s*\{([^}]+)\}/)[1];
+  assert.match(lint, /^\s*warningsAsErrors = true\s*$/m);
+  assert.match(lint, /^\s*abortOnError = true\s*$/m);
+  const exceptions = [...lint.matchAll(/"([A-Za-z]+)"/g)].map(match => match[1]);
+  assert.deepEqual(exceptions.sort(), ['AndroidGradlePluginVersion', 'GradleDependency', 'OldTargetApi']);
+  assert.match(lint, /targetSdk 36 is intentionally pinned; API 37 migration requires explicit behavior-change testing/);
+  assert.doesNotMatch(build, /\bbaseline\b|\bignoreWarnings\b|\bcheckOnly\b|\b(?:warning|ignore)\s*\(/);
+});
