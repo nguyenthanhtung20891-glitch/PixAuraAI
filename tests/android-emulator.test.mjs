@@ -18,7 +18,28 @@ function runScenario(scenario) {
   fs.mkdirSync(path.join(directory, 'state'));
   write('scripts/check-android-emulator.sh', fs.readFileSync(path.join(root, 'scripts/check-android-emulator.sh')));
   write('bin/sudo', '#!/usr/bin/env bash\nexit 1\n'); // Never change a real host's /dev/kvm permissions.
-  write('sdk/cmdline-tools/latest/bin/avdmanager', '#!/usr/bin/env bash\necho "AVD created: $*"\n');
+  write('sdk/cmdline-tools/latest/bin/avdmanager', `#!/usr/bin/env bash
+mkdir -p "$ANDROID_AVD_HOME/pixaura-ci-shell.avd"
+printf 'disk.dataPartition.size=6G\\ndisk.cachePartition.size=66M\\nhw.sdCard=yes\\nsdcard.size=512M\\n' > "$ANDROID_AVD_HOME/pixaura-ci-shell.avd/config.ini"
+echo "AVD created: $*"
+`);
+  write('bin/df', `#!/usr/bin/env bash
+count_file="$MOCK_STATE_DIRECTORY/df.count"
+count=0; if [[ -f "$count_file" ]]; then read -r count < "$count_file"; fi
+count=$((count + 1)); echo "$count" > "$count_file"
+available=7069061
+if [[ "$MOCK_SCENARIO" == low-disk || "$MOCK_SCENARIO" == local-low-disk || "$MOCK_SCENARIO" == symlink-cleanup ]]; then available=1024; fi
+if [[ "$MOCK_SCENARIO" == cleanup-recovers && "$count" == 1 ]]; then available=1024; fi
+if [[ "$MOCK_SCENARIO" == boundary-disk ]]; then available=4325376; fi
+if [[ "$MOCK_SCENARIO" == invalid-disk ]]; then available=invalid; fi
+printf 'Filesystem 1024-blocks Used Available Capacity Mounted on\\nmock 9999999 0 %s 0%% /\\n' "$available"
+`);
+  write('platforms/android/app/build/tmp/disposable.txt', 'temporary output');
+  write('sdk/keep.txt', 'required SDK component');
+  if (scenario === 'symlink-cleanup') {
+    fs.rmSync(path.join(directory, 'platforms/android/app/build/tmp'), { recursive: true });
+    fs.symlinkSync(path.join(directory, 'sdk'), path.join(directory, 'platforms/android/app/build/tmp'));
+  }
   write('sdk/emulator/emulator', `#!/usr/bin/env bash
 if [[ "$1" == -accel-check ]]; then exit 1; fi
 echo "emulator launch: $*"
@@ -82,6 +103,8 @@ if [[ "$MOCK_SCENARIO" == test-timeout ]]; then sleep 30; fi
         ANDROID_HOME: path.join(directory, 'sdk'),
         MOCK_STATE_DIRECTORY: path.join(directory, 'state'),
         MOCK_SCENARIO: scenario,
+        CI: scenario === 'local-low-disk' ? 'false' : 'true',
+        GITHUB_ACTIONS: 'true',
         ANDROID_DEVICE_TIMEOUT_SECONDS: scenario === 'invisible' || scenario === 'stalled-adb' ? '1' : '5',
         ANDROID_BOOT_TIMEOUT_SECONDS: scenario === 'boot-timeout' ? '1' : '5',
         ANDROID_PACKAGE_TIMEOUT_SECONDS: scenario === 'package-timeout' ? '1' : '5',
@@ -100,14 +123,19 @@ if [[ "$MOCK_SCENARIO" == test-timeout ]]; then sleep 30; fi
     }
     assert.equal(Number(read('exit-code.txt')), result.status, result.stderr);
     assert.doesNotMatch(result.stderr, /No such process/);
-    const pid = Number(fs.readFileSync(path.join(directory, 'state/emulator.pid'), 'utf8'));
-    assert.throws(() => process.kill(pid, 0), { code: 'ESRCH' }, `${scenario}: emulator leaked`);
+    if (fs.existsSync(path.join(directory, 'state/emulator.pid'))) {
+      const pid = Number(fs.readFileSync(path.join(directory, 'state/emulator.pid'), 'utf8'));
+      assert.throws(() => process.kill(pid, 0), { code: 'ESRCH' }, `${scenario}: emulator leaked`);
+    }
+    assert.equal(fs.readFileSync(path.join(directory, 'sdk/keep.txt'), 'utf8'), 'required SDK component');
     return {
       ...result,
       phase: read('final-phase.txt').trim(),
       calls: fs.readFileSync(path.join(directory, 'state/calls.log'), 'utf8'),
       stdoutLog: read('emulator.stdout.log'), stderrLog: read('emulator.stderr.log'),
-      acceleration: read('acceleration.log'),
+      acceleration: fs.existsSync(path.join(evidence, 'acceleration.log')) ? read('acceleration.log') : '',
+      diskLog: read('disk-preflight.log'), config: read('avd-config.ini'),
+      temporaryOutputExists: fs.existsSync(path.join(directory, 'platforms/android/app/build/tmp/disposable.txt')),
       testLog: fs.existsSync(path.join(evidence, 'instrumentation.log')) ? read('instrumentation.log') : '',
       gradleArgs: fs.existsSync(path.join(directory, 'state/gradle-args.txt'))
         ? fs.readFileSync(path.join(directory, 'state/gradle-args.txt'), 'utf8') : '',
@@ -169,3 +197,30 @@ test('instrumentation timeout is independent from startup readiness and remains 
   assert.equal(result.phase, 'instrumentation');
   assert.match(result.testLog, /instrumentation-output/);
 });
+
+for (const scenario of ['success', 'boundary-disk', 'cleanup-recovers']) {
+  test(scenario + ': small disks and sufficient preflight space allow instrumentation', () => {
+    const result = runScenario(scenario);
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdoutLog, /-partition-size 2048 -cache-size 128/);
+    assert.match(result.config, /^disk.dataPartition.size=2048M$/m);
+    assert.match(result.config, /^disk.cachePartition.size=128M$/m);
+    assert.match(result.config, /^hw.sdCard=no$/m);
+    assert.doesNotMatch(result.config, /sdcard.size=|6G|66M/);
+    assert.match(result.diskLog, /required: 4224 MiB/);
+    assert.equal(result.temporaryOutputExists, scenario !== 'cleanup-recovers');
+    assert.equal(result.testResultsWritten, true);
+  });
+}
+for (const scenario of ['low-disk', 'local-low-disk', 'symlink-cleanup', 'invalid-disk']) {
+  test(scenario + ': preflight fails before launch and preserves SDK and evidence', () => {
+    const result = runScenario(scenario);
+    assert.notEqual(result.status, 0);
+    assert.equal(result.phase, 'disk-preflight');
+    assert.equal(result.stdoutLog, '');
+    assert.equal(result.gradleArgs, '');
+    assert.match(result.stderr, /Insufficient disk space|Cannot determine free disk/);
+    if (scenario === 'local-low-disk') assert.equal(result.temporaryOutputExists, true);
+    if (scenario === 'symlink-cleanup') assert.match(result.diskLog, /Refusing cleanup/);
+  });
+}

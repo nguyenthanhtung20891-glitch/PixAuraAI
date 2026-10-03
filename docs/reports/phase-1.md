@@ -1,6 +1,36 @@
 # Phase 1 native application shells report
 
-Updated: 2026-10-03. Scope: native shells only; Phase 2 not started. Status: **third CI rerun: source, iOS and Android build/unit/lint/APK gates PASS; Android emulator step FAIL with timeout 124 (user-supplied evidence); bounded emulator orchestration prepared; hosted emulator rerun required; not a full Phase 1 PASS**.
+Updated: 2026-10-03. Scope: native shells only; Phase 2 not started. Status: **fourth CI rerun isolates Android userdata disk exhaustion; source/iOS/Android build gates PASS per user; disk remediation prepared; hosted emulator execution remains required**.
+
+
+## Fourth CI rerun: confirmed userdata disk exhaustion, 2026-10-03
+
+User-supplied hosted-runner diagnostic: `FATAL | Not enough space to create userdata partition. Available: 6903.38 MB need 7372.80 MB`. The emulator exited before device visibility; `device 'emulator-5554' not found` is a downstream symptom. This establishes the cause left unknown in the third-rerun history below. Source, ios-app, Android debug/release/JVM/lint/instrumentation APK gates PASS are user-attested; no run URL was supplied and no Apple execution is locally observed.
+
+Acceptance: explicit smaller writable disks on the same repository-isolated API 35 Google APIs x86_64 AVD; bounded free-space preflight; narrowly scoped CI cleanup only if needed; diagnostics and required instrumentation retained. No architecture, dependencies or app behavior change; no Phase 2, commit or push.
+
+Exact disk configuration: replace inherited disk keys with `disk.dataPartition.size=2048M`, `disk.cachePartition=yes`, `disk.cachePartition.size=128M`, `hw.sdCard=no`; remove inherited sdcard.size/path. Launch also explicitly passes `-partition-size 2048 -cache-size 128`, retaining wipe-data/no-snapshot, software GPU, 2048 MB RAM, two cores and KVM preference/software fallback. Android documents these [emulator disk options](https://developer.android.com/studio/run/emulator-commandline). The source image is unchanged; actual hosted boot remains the acceptance gate for its compatibility with the smaller writable partition.
+
+Before launch, df checks the AVD filesystem (10s plus 5s termination grace), requiring 4224 MiB = 2048 userdata + 128 cache + 2048 reserve for writable overlays/test output. This is a conservative admission budget, not a guarantee against subsequent external disk consumption. If insufficient and CI=true/GITHUB_ACTIONS=true, one cleanup removes only repository platforms/android/app/build/tmp after realpath verifies the exact expected path; symlink redirects are rejected. Cleanup has a 30s plus 5s bound, followed by one disk recheck. Local execution does not delete temporary output. SDK components, APKs, reports, dependency caches and outside-workspace files are preserved. Low space or invalid measurement fails before emulator launch with the existing exit-status/evidence cleanup intact.
+
+Free MiB, configured sizes, required reserve and AVD disk keys appear in console and disk-preflight.log; the complete config.ini is copied into the always-upload evidence. Existing readiness/deadline/process-cleanup/strict dependency verification/instrumentation behavior remains required.
+
+Changed files: scripts/check-android-emulator.sh; .github/workflows/native-shells.yml (explanatory comment); tests/android-emulator.test.mjs; this report. Seven additional fake-SDK behaviors cover sufficient space/default-key replacement, exact 4224 MiB threshold, successful cleanup/recheck, persistent low space, local no-cleanup, symlink rejection and invalid df output. These supplement all eight existing readiness/exit/cleanup behaviors; fake instrumentation is never real JNI/Compose evidence.
+
+Local observed validation: Windows source/foundation/workflow/shell Node **PASS 15/15**, zero skips; Linux combined suite **PASS 30/30**, zero skips (15 source checks + 15 orchestration scenarios); all scripts Bash syntax **PASS**; actionlint **PASS** (shellcheck/pyflakes unavailable); Windows Zig C/C++ boundary and trap checks **PASS**; Linux core CTest **PASS 2/2**; ASan/UBSan **PASS 4/4**, negative diagnostic exits 86/87. WSL sandbox E_ACCESSDENIED was resolved by an approved escalated run. The standard Windows check-native.ps1 was re-executed and is **BLOCKED** by the existing incomplete Visual Studio desktop C++ workload (vcvarsall missing); the required compiler fallback passed. Owner: host maintainer; remediation repair that workload; affected direct MSVC G2/G3 validation, already covered locally through the fallback. No real emulator, Android app rebuild or Apple execution is claimed for this disk-only change.
+
+Commands:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-native.ps1
+node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs
+build/tools/actionlint/actionlint.exe -shellcheck= -pyflakes= .github/workflows/foundation.yml .github/workflows/native-shells.yml
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-native-zig.ps1 -ZigPath G:/PixAuraAI/build/tools/zig-x86_64-windows-0.14.1/zig.exe
+wsl --distribution Ubuntu --exec bash -lc 'cd /mnt/g/PixAuraAI && bash -n scripts/*.sh && build/tools/node-v24.14.0-linux-x64/bin/node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs tests/android-emulator.test.mjs && cmake --build build/linux-host && ctest --test-dir build/linux-host --output-on-failure && bash scripts/check-sanitizers.sh'
+git diff --check
+```
+
+Remaining CI-only gate: actual hosted Ubuntu API 35 emulator boot and JNI/Compose connectedDebugAndroidTest on this corrected revision. Owner: repository maintainer; affected G2 / Phase 1 promotion. Exact next human action: review these four files, commit/push through the maintainer's process, run Native application shells on the new revision, and retain the run URL plus android-shell-evidence artifact with disk-preflight.log, avd-config.ini and actual instrumentation results. Rerunning the old remote revision cannot validate this fix. Phase 0 CI completion remains user-attested; physical assistive walkthrough remains unrun. Do not begin Phase 2.
 
 ## Third CI rerun: Android emulator orchestration, 2026-10-03
 

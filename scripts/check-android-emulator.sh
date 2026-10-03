@@ -127,6 +127,50 @@ phase=avd-creation
 printf 'no\n' | timeout --kill-after=5s 60s "$avdmanager" create avd --force --name pixaura-ci-shell \
     --package 'system-images;android-35;google_apis;x86_64' > "$evidence/avd-create.log" 2>&1
 
+# Explicit writable disk sizes; do not inherit the SDK userdata default.
+userdata_mib=2048
+cache_mib=128
+reserve_mib=2048
+avd_config="$ANDROID_AVD_HOME/pixaura-ci-shell.avd/config.ini"
+sed -i -E '/^(disk\.dataPartition\.size|disk\.cachePartition\.(size|yes)|hw\.sdCard|sdcard\.(size|path))=/d' "$avd_config"
+printf '%s\n' "disk.dataPartition.size=${userdata_mib}M" \
+    "disk.cachePartition=yes" "disk.cachePartition.size=${cache_mib}M" "hw.sdCard=no" >> "$avd_config"
+cp "$avd_config" "$evidence/avd-config.ini"
+
+phase=disk-preflight
+required_mib=$((userdata_mib + cache_mib + reserve_mib))
+check_disk() {
+    local available_kib
+    available_kib="$(timeout --kill-after=5s 10s df -Pk "$ANDROID_AVD_HOME" | awk 'NR == 2 {print $4}')"
+    if [[ ! "$available_kib" =~ ^[0-9]+$ ]]; then
+        echo "Cannot determine free disk space for $ANDROID_AVD_HOME" >&2
+        return 2
+    fi
+    free_mib=$((available_kib / 1024))
+    echo "Free disk: ${free_mib} MiB; configured userdata: ${userdata_mib} MiB; cache: ${cache_mib} MiB; reserve: ${reserve_mib} MiB; required: ${required_mib} MiB" | tee -a "$evidence/disk-preflight.log"
+}
+echo "AVD disk settings ($avd_config):" | tee -a "$evidence/disk-preflight.log"
+grep -E '^(disk\.|hw.sdCard|sdcard\.)' "$avd_config" | tee -a "$evidence/disk-preflight.log"
+check_disk
+if (( free_mib < required_mib )); then
+    # One bounded cleanup of disposable workspace output on CI only. Keep SDKs,
+    # APKs, reports and dependency caches; reject redirected/symlinked parents.
+    if [[ "${CI:-}" == true && "${GITHUB_ACTIONS:-}" == true ]]; then
+        cleanup_path="$(realpath -m "$workspace_path/platforms/android/app/build/tmp")"
+        if [[ "$cleanup_path" == "$workspace_path/platforms/android/app/build/tmp" ]]; then
+            echo "Low disk: cleaning CI workspace temporary output: $cleanup_path" | tee -a "$evidence/disk-preflight.log"
+            timeout --kill-after=5s 30s rm -rf -- "$cleanup_path"
+        else
+            echo "Refusing cleanup outside the expected workspace path: $cleanup_path" | tee -a "$evidence/disk-preflight.log"
+        fi
+        check_disk
+    fi
+    if (( free_mib < required_mib )); then
+        echo "Insufficient disk space before emulator launch: ${free_mib} MiB free, ${required_mib} MiB required; SDK components preserved" >&2
+        exit 1
+    fi
+fi
+
 phase=acceleration-probe
 acceleration=off
 if [[ -c /dev/kvm ]]; then
@@ -141,6 +185,7 @@ fi
 echo "Emulator acceleration: $acceleration (software fallback when KVM is unavailable)" | tee -a "$evidence/acceleration.log"
 phase=launch
 "$emulator" -avd pixaura-ci-shell -port 5554 -accel "$acceleration" -memory 2048 -cores 2 \
+    -partition-size "$userdata_mib" -cache-size "$cache_mib" \
     -no-window -no-audio -no-boot-anim -no-snapshot -wipe-data -gpu swiftshader_indirect \
     > "$evidence/emulator.stdout.log" 2> "$evidence/emulator.stderr.log" &
 emulator_pid=$!
