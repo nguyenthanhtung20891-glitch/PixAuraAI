@@ -3,6 +3,15 @@
 #include <string.h>
 
 #define CHECK(e) do { if (!(e)) { fprintf(stderr, "C document line %d\n", __LINE__); return 1; } } while (0)
+static FILE* open_file(const char* path, const char* mode) {
+#ifdef _MSC_VER
+    FILE* file = NULL;
+    return fopen_s(&file, path, mode) == 0 ? file : NULL;
+#else
+    return fopen(path, mode);
+#endif
+}
+
 int main(int argc, char** argv) {
     uint8_t input[8192], output[8192];
     const uint8_t context_id[] = "000000000000000000000000000000a1";
@@ -14,7 +23,7 @@ int main(int argc, char** argv) {
     FILE* file;
     size_t size;
     CHECK((argc == 2 || argc == 3) && sizeof(error) == 184 && offsetof(pixaura_document_error, message) == 24);
-    file = fopen(argv[1], "rb"); CHECK(file != NULL);
+    file = open_file(argv[1], "rb"); CHECK(file != NULL);
     size = fread(input, 1, sizeof(input), file); CHECK(fclose(file) == 0 && size > 0 && size < sizeof(input));
     error.api_version = 1; error.struct_size = sizeof(error);
     CHECK(pixaura_document_context_init(1, &context, sizeof(context), context_id, 32, &error) == 0);
@@ -28,11 +37,11 @@ int main(int argc, char** argv) {
     CHECK(pixaura_document_context_destroy(&context) == 0);
     CHECK(pixaura_document_release(&context, &handle) == PIXAURA_DOCUMENT_INVALID_HANDLE);
     CHECK(pixaura_document_context_destroy(&context) == PIXAURA_DOCUMENT_INVALID_HANDLE);
-    file = fopen(argv[1], "rb"); CHECK(file != NULL);
+    file = open_file(argv[1], "rb"); CHECK(file != NULL);
     CHECK(fread(input, 1, sizeof(input), file) == size && fclose(file) == 0);
     CHECK(memcmp(input, output, size) == 0);
     if (argc == 3) {
-        file = fopen(argv[2], "wb"); CHECK(file != NULL);
+        file = open_file(argv[2], "wb"); CHECK(file != NULL);
         CHECK(fwrite(output, 1, size, file) == size && fclose(file) == 0);
     }
     puts("Independent C document fixture and ownership PASS");

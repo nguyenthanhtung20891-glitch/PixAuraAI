@@ -199,3 +199,36 @@ I:/AndroidStudioSDKdata/cmake/3.22.1/bin/cmake.exe --build build/phase-2-ci-fix/
 Only `.gitattributes`, `CMakeLists.txt` and this report changed. All fresh logs, isolated checkout/reproduction fixtures and generated binaries remain ignored under build. Shipping source, schema, caller contexts, platform bridges and document architecture are unchanged. Step 3 was not started.
 
 Next human action: review these three-file corrections and explicitly authorize their commit/push. Then run both workflows on the resulting corrected SHA, requiring Windows portable source/MSVC execution and Ubuntu Clang 18 sanitizer success, plus preservation of all previously passing platform jobs. Owner repository maintainer/hosted runners; affects G1-G4. Apple runtime validation for the corrected tree is CI-only on this Windows host. No CI rerun of the old SHA can validate unpublished changes. Do not promote Step 2 as fully passed until corrected-tree mandatory CI succeeds; Step 3 still requires separate authorization.
+
+## 14. Final Windows C consumer portability remediation
+
+The section 13 correction was reviewed, committed as `871ca77a362b7e91f9c776f11eea43072ff819b2` (`fix: stabilize phase 2 foundation CI`) and pushed with explicit approval. The user now reports Native application shells, Foundation sanitizer, Ubuntu portable, Apple boundary and Android boundaries PASS; only Windows portable remains FAIL. This rerun status is user-attested here, not independently retrieved evidence. The confirmed remaining diagnostic is MSVC C4996 for `fopen()` in `packages/core/tests/document_c_consumer.c`, promoted to build failure C2220 by warnings-as-errors.
+
+The only source change is a private test-only `open_file(path, mode)` helper in that C consumer. Under `_MSC_VER` it initializes a `FILE*` to NULL, calls `fopen_s`, and returns NULL on nonzero status. Elsewhere it returns standard `fopen`. All three call sites use the helper: original fixture read/re-read retain `rb`; canonical artifact write retains `wb`. Existing NULL checks, exit 1 on failed opens, reads/writes/close checks and byte assertions remain unchanged. No production behavior, schema, context lifecycle or document architecture changed.
+
+Validation on this unpublished correction:
+
+| Check | Observed result |
+| --- | --- |
+| Windows-compatible source checks | PASS 29/29, no skips; command below. |
+| Standard Windows MSVC script | BLOCKED: executed `scripts/check-native.ps1` prerequisite check still reports missing `vcvarsall`; no local `/W4 /WX` execution claimed. Owner host maintainer; repair Visual Studio desktop C++ setup. |
+| Windows Zig 0.14.1 fallback | PASS full warning-clean DLL/C/C++/document/allocation tests with `-Wall -Wextra -Wpedantic -Werror`. |
+| Explicit secure-open branch exercise | PASS: test-only Zig C compile with `_MSC_VER=1951` selected `fopen_s`; linked actual Windows CRT, executed fixture/canonical assertions successfully. This is branch/runtime coverage, not an MSVC compiler or C4996-policy validation. |
+| Failed-open behavior | PASS both ordinary and forced-secure-branch consumers return 1 for missing input and output in a missing directory; existing error semantics preserved. |
+| Linux native CTest | PASS 5/5, includes independent C consumers and native document/history/allocation tests. |
+| Linux ASan/UBSan | PASS 7/7, Clang 21.1.8; includes actual negative instrumentation probes (86/87). |
+| Canonical byte parity | PASS secure-open Windows/Linux/sanitizer output hashes match approved fixture SHA-256 `a18deede5475c2642501a8911212f76bd63f8ed8738dd3f7d5f3fbfff72216e7`. |
+| Warning policy and scope | PASS build/scripts unchanged: CMake retains `/W4 /WX` and `-Wall -Wextra -Wpedantic -Werror`; no `_CRT_SECURE_NO_WARNINGS` or warning suppression introduced. Only this report and the test consumer changed. |
+
+Exact primary commands:
+
+```text
+node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs tests/document-contract.test.mjs tests/native-document.test.mjs
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-native.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-native-zig.ps1 -ZigPath G:/PixAuraAI/build/tools/zig-x86_64-windows-0.14.1/zig.exe
+wsl --distribution Ubuntu --exec bash -lc 'cd /mnt/g/PixAuraAI && cmake --build build/linux-host -j2 && ctest --test-dir build/linux-host --output-on-failure && bash scripts/check-sanitizers.sh'
+```
+
+Additional secure-branch command: `build/tools/zig-x86_64-windows-0.14.1/zig.exe cc -target x86_64-windows-gnu -std=c11 -Wall -Wextra -Wpedantic -Werror -D_MSC_VER=1951 -DPIXAURA_SHARED -I packages/core/include packages/core/tests/document_c_consumer.c build/zig-host/pixaura_core.lib -o build/zig-host/document_c_consumer-msvc-branch.exe`; executed with approved fixture and canonical output path. Zig caches were explicitly repository-local. All logs/generated outputs are ignored under `build/phase-2-fopen-fix` or existing ignored host build directories; none is staged.
+
+Remaining confirmed CI-only gate: Foundation Windows portable must build/run the corrected C consumer with real hosted MSVC and unchanged `/W4 /WX` on the newly published SHA (G1/G3 and native G2). Previously passing workflows must remain green for that SHA; their older passing results do not certify this unpublished tree. No local macOS runtime PASS is claimed. Next human action: review this two-file fix and explicitly authorize commit/push, then obtain corrected-SHA workflow evidence. No commit/push occurred during this remediation. Stop before Step 3; it remains separately unauthorized.
