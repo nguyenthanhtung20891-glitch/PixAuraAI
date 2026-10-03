@@ -48,7 +48,14 @@ printf 'Filesystem 1024-blocks Used Available Capacity Mounted on\\nmock 9999999
   }
   write('sdk/emulator/emulator', `#!/usr/bin/env bash
 if [[ "$1" == -accel-check ]]; then exit 1; fi
-if [[ "$1" == -version ]]; then echo 'fake emulator version'; exit 0; fi
+if [[ "$*" == *-version* ]]; then
+  echo "$*" > "$MOCK_STATE_DIRECTORY/emulator-version-args.txt"
+  if [[ "$*" != *-no-window* || "$MOCK_SCENARIO" == headless-library-failure ]]; then
+    echo 'qemu-system-x86_64: error while loading shared libraries: libpulse.so.0: cannot open shared object file: No such file or directory' >&2
+    exit 127
+  fi
+  echo 'fake emulator version'; exit 0
+fi
 data_path=''; previous=''
 for argument in "$@"; do
   if [[ "$previous" == -data ]]; then data_path="$argument"; fi
@@ -134,12 +141,28 @@ if [[ "$MOCK_SCENARIO" == test-failure ]]; then
 fi
 if [[ "$MOCK_SCENARIO" == test-timeout ]]; then sleep 30; fi
 `);
+  let executionPath = `${path.join(directory, 'bin')}:${path.dirname(process.execPath)}:${process.env.PATH}`;
+  if (scenario === 'missing-mke2fs' || scenario === 'missing-node') {
+    // A real restricted PATH, not a stub that pretends to be a missing command.
+    for (const command of ['bash', 'dirname', 'mkdir', 'touch', 'timeout', 'df', 'awk', 'mktemp', 'ls',
+      'tee', 'ps', 'tail', 'cat', 'sleep', 'cp', 'sed', 'grep', 'realpath', 'rm', 'truncate', 'mke2fs', 'node']) {
+      if (command === scenario.replace('missing-', '')) continue;
+      const target = path.join(directory, 'bin', command);
+      if (fs.existsSync(target)) continue;
+      const resolved = command === 'node' ? process.execPath
+        : spawnSync('/usr/bin/bash', ['-c', 'command -v "$1"', 'resolve-tool', command], { encoding: 'utf8' }).stdout.trim();
+      assert.ok(resolved, `fixture prerequisite missing: ${command}`);
+      fs.symlinkSync(resolved, target);
+    }
+    executionPath = path.join(directory, 'bin');
+  }
+  if (scenario === 'missing-sdk-qemu-img') fs.unlinkSync(path.join(directory, 'sdk/emulator/qemu-img'));
   try {
     const result = spawnSync('bash', ['scripts/check-android-emulator.sh'], {
       cwd: directory,
       env: {
         ...process.env,
-        PATH: `${path.join(directory, 'bin')}:${path.dirname(process.execPath)}:${process.env.PATH}`,
+        PATH: executionPath,
         ANDROID_HOME: path.join(directory, 'sdk'),
         MOCK_STATE_DIRECTORY: path.join(directory, 'state'),
         MOCK_SCENARIO: scenario,
@@ -175,7 +198,12 @@ if [[ "$MOCK_SCENARIO" == test-timeout ]]; then sleep 30; fi
       calls: fs.readFileSync(path.join(directory, 'state/calls.log'), 'utf8'),
       stdoutLog: read('emulator.stdout.log'), stderrLog: read('emulator.stderr.log'),
       acceleration: fs.existsSync(path.join(evidence, 'acceleration.log')) ? read('acceleration.log') : '',
-      diskLog: read('disk-preflight.log'), config: read('avd-config.ini'),
+      diskLog: fs.existsSync(path.join(evidence, 'disk-preflight.log')) ? read('disk-preflight.log') : '',
+      config: fs.existsSync(path.join(evidence, 'avd-config.ini')) ? read('avd-config.ini') : '',
+      toolLog: read('tool-preflight.log'),
+      versionArgs: fs.existsSync(path.join(directory, 'state/emulator-version-args.txt'))
+        ? fs.readFileSync(path.join(directory, 'state/emulator-version-args.txt'), 'utf8') : '',
+      versionStderr: fs.existsSync(path.join(evidence, 'emulator-version.stderr.log')) ? read('emulator-version.stderr.log') : '',
       resolved: fs.existsSync(path.join(evidence, 'userdata-resolved.json')) && read('userdata-resolved.json').trim()
         ? JSON.parse(read('userdata-resolved.json')) : null,
       resolutionLog: fs.existsSync(path.join(evidence, 'emulator-resolution.log')) ? read('emulator-resolution.log') : '',
@@ -205,6 +233,31 @@ test('emulator orchestration waits for device, boot and package manager before i
   assert.match(result.calls, /emulator-cleanup/);
   assert.match(result.acceleration, /Emulator acceleration: off/);
   assert.match(result.stdoutLog, /-port 5554 -accel off/);
+  assert.equal(result.versionArgs.trim(), '-no-window -version');
+  assert.match(result.toolLog, /PATH=.*\nmke2fs=|PATH=[\s\S]*mke2fs=/);
+});
+
+for (const scenario of ['missing-mke2fs', 'missing-node', 'missing-sdk-qemu-img']) {
+  test(scenario + ': availability preflight names the absent tool and never prepares or launches a disk', () => {
+    const result = runScenario(scenario);
+    assert.equal(result.status, 2, result.stderr);
+    assert.equal(result.phase, 'tool-preflight');
+    assert.match(result.stderr, new RegExp(scenario.replace('missing-sdk-', '').replace('missing-', '')));
+    assert.match(result.toolLog, /PATH=/);
+    assert.equal(result.stdoutLog, '');
+    assert.equal(result.config, '');
+    assert.equal(result.gradleArgs, '');
+  });
+}
+
+test('a headless emulator runtime-library failure retains stderr and returns a named failure, not raw 127', () => {
+  const result = runScenario('headless-library-failure');
+  assert.equal(result.status, 1, result.stderr);
+  assert.equal(result.phase, 'tool-preflight');
+  assert.match(result.stderr, /failed headless version inspection \(exit 127\)/);
+  assert.match(result.versionStderr, /libpulse.so.0/);
+  assert.equal(result.stdoutLog, '');
+  assert.equal(result.gradleArgs, '');
 });
 
 test('emulator early exit fails before testing and retains both emulator logs', () => {

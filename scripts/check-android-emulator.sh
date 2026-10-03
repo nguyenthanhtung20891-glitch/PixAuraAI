@@ -65,6 +65,8 @@ cleanup() {
     printf '%s\n' "$result" > "$evidence/exit-code.txt"
     echo "Android emulator phase '$phase' finished with exit $result; evidence: $evidence"
     if (( result != 0 )); then
+        if [[ -f "$evidence/tool-preflight.log" ]]; then cat "$evidence/tool-preflight.log" >&2; fi
+        if [[ -f "$evidence/emulator-version.stderr.log" ]]; then cat "$evidence/emulator-version.stderr.log" >&2; fi
         if [[ -f "$evidence/emulator-resolution.log" ]]; then tail -n 40 "$evidence/emulator-resolution.log" >&2; fi
         tail -n 40 "$evidence/emulator.stdout.log" "$evidence/emulator.stderr.log" >&2
         cat "$evidence/adb-devices.txt" "$evidence/boot-properties.txt" >&2
@@ -121,6 +123,35 @@ package_ready() {
     [[ "$package_path" == package:* ]]
 }
 
+phase=tool-preflight
+echo "PATH=$PATH" | tee "$evidence/tool-preflight.log"
+for required_command in timeout node mke2fs df awk mktemp ls; do
+    if ! resolved_command="$(command -v "$required_command")" || [[ ! -x "$resolved_command" ]]; then
+        echo "Required tool '$required_command' is unavailable on PATH; disk preparation cannot proceed" | tee -a "$evidence/tool-preflight.log" >&2
+        exit 2
+    fi
+    echo "$required_command=$resolved_command" | tee -a "$evidence/tool-preflight.log"
+done
+node_command="$(command -v node)"
+mke2fs_command="$(command -v mke2fs)"
+for sdk_command in "$adb" "$avdmanager" "$emulator" "$ANDROID_HOME/emulator/qemu-img"; do
+    if [[ ! -x "$sdk_command" ]]; then
+        echo "Required SDK tool '$sdk_command' is missing or not executable; disk preparation cannot proceed" | tee -a "$evidence/tool-preflight.log" >&2
+        exit 2
+    fi
+    echo "SDK tool=$sdk_command" | tee -a "$evidence/tool-preflight.log"
+done
+# Select the SDK's headless engine even for version inspection. The GUI engine
+# requires libpulse.so.0 on hosts where the headless test engine does not.
+version_result=0
+timeout --kill-after=5s 10s "$emulator" -no-window -version \
+    > "$evidence/emulator-version.stdout.log" 2> "$evidence/emulator-version.stderr.log" || version_result=$?
+cat "$evidence/emulator-version.stdout.log" "$evidence/emulator-version.stderr.log" > "$evidence/emulator-version.txt"
+if (( version_result != 0 )); then
+    echo "Required SDK emulator '$emulator' failed headless version inspection (exit $version_result); inspect emulator-version.stderr.log for missing runtime libraries" | tee -a "$evidence/tool-preflight.log" >&2
+    exit 1
+fi
+
 phase=adb-server-start
 timeout --kill-after=5s 30s "$adb" start-server > "$evidence/adb-server.log" 2>&1
 phase=device-list-before-launch
@@ -153,7 +184,6 @@ done
 if [[ -f "$ANDROID_HOME/emulator/source.properties" ]]; then
     cp "$ANDROID_HOME/emulator/source.properties" "$evidence/emulator.source.properties"
 fi
-timeout --kill-after=5s 10s "$emulator" -version > "$evidence/emulator-version.txt" 2>&1
 cat "$avd_config" "$evidence/emulator-version.txt"
 if [[ -f "$avd_directory/hardware-qemu.ini" ]]; then
     cp "$avd_directory/hardware-qemu.ini" "$evidence/hardware-qemu.before.ini"
@@ -212,11 +242,11 @@ if [[ ! -f "$image_directory/data/empty_data_disk" ]]; then
     exit 1
 fi
 cp "$image_directory/data/empty_data_disk" "$evidence/empty_data_disk.txt"
-timeout --kill-after=5s 10s mke2fs -V > "$evidence/mke2fs-version.txt" 2>&1
+timeout --kill-after=5s 10s "$mke2fs_command" -V > "$evidence/mke2fs-version.txt" 2>&1
 userdata_path="$(mktemp "$avd_directory/ci-userdata.XXXXXX.img")"
-timeout --kill-after=5s 60s mke2fs -q -F -t ext4 -b 4096 -m 0 \
+timeout --kill-after=5s 60s "$mke2fs_command" -q -F -t ext4 -b 4096 -m 0 \
     -L data "$userdata_path" "$((userdata_mib * 256))" > "$evidence/userdata-create.log" 2>&1
-node scripts/assert-android-userdata.mjs "$userdata_path" "$userdata_mib" > "$evidence/userdata-prepared.json"
+"$node_command" scripts/assert-android-userdata.mjs "$userdata_path" "$userdata_mib" > "$evidence/userdata-prepared.json"
 cat "$evidence/userdata-prepared.json"
 
 phase=acceleration-probe
@@ -250,7 +280,7 @@ cp "$avd_directory/hardware-qemu.ini" "$evidence/hardware-qemu.resolved.ini"
 cp "$avd_config" "$evidence/avd-config.resolved.ini"
 timeout --kill-after=5s 10s "$ANDROID_HOME/emulator/qemu-img" info --output=json "$userdata_path" \
     > "$evidence/userdata-qemu-info.json"
-node scripts/assert-android-userdata.mjs "$userdata_path" "$userdata_mib" "$evidence/hardware-qemu.resolved.ini" "$evidence/userdata-qemu-info.json" \
+"$node_command" scripts/assert-android-userdata.mjs "$userdata_path" "$userdata_mib" "$evidence/hardware-qemu.resolved.ini" "$evidence/userdata-qemu-info.json" \
     > "$evidence/userdata-resolved.json"
 cat "$evidence/userdata-resolved.json"
 
@@ -265,7 +295,7 @@ running_image="$userdata_path"
 if [[ -f "$userdata_path.qcow2" ]]; then running_image="$userdata_path.qcow2"; fi
 timeout --kill-after=5s 10s "$ANDROID_HOME/emulator/qemu-img" info -U --output=json "$running_image" \
     > "$evidence/userdata-running-qemu-info.json"
-node scripts/assert-android-userdata.mjs "$userdata_path" "$userdata_mib" "$avd_directory/hardware-qemu.ini" \
+"$node_command" scripts/assert-android-userdata.mjs "$userdata_path" "$userdata_mib" "$avd_directory/hardware-qemu.ini" \
     "$evidence/userdata-running-qemu-info.json" \
     > "$evidence/userdata-running.json"
 wait_for boot-completion "$boot_timeout" boot_complete

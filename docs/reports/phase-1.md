@@ -1,7 +1,51 @@
 # Phase 1 native application shells report
 
-Updated: 2026-10-03. Scope: native shells only; Phase 2 not started. Status: **fifth CI failure independently inspected; emulator API 24+ first-time userdata clamp confirmed and reproduced with the exact hosted build/image; explicit-data remediation resolves to 2048 MiB locally; hosted JNI/Compose gate pending**.
+Updated: 2026-10-03. Scope: native shells only; Phase 2 not started. Status: **sixth CI failure independently inspected: GUI version inspection cannot load libpulse.so.0; headless version inspection and availability diagnostics prepared; effective 2048 MiB userdata remediation preserved; hosted execution pending**.
 
+
+## Sixth CI rerun: GUI version inspection loader failure, 2026-10-03
+
+Independently downloaded the [exact Native application shells run 37115701071](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37115701071) for **f1855d4709119801991d7545157f087e49ad8b7c**, Android job **111181988098**, job statuses/log and android-shell-evidence artifact **11270759149**. Source and ios-app jobs **PASS**; Android debug/release/JVM/lint/instrumentation APK step **PASS**; emulator step **FAIL** in disk-input-evidence with 127, before disk preparation/resolution/VM launch. Evidence is retained under ignored build/emulator-investigation/sixth-run. Existing credentials were used read-only without displaying or saving them. No unobserved Apple execution is claimed locally.
+
+Exact failing command from the checked revision, with resolved Android SDK path:
+
+```text
+timeout --kill-after=5s 10s /usr/local/lib/android/sdk/emulator/emulator -version
+```
+
+The artifact's emulator-version.txt contains exactly this loader diagnostic (the command redirected stdout and stderr together):
+
+```text
+/usr/local/lib/android/sdk/emulator/qemu/linux-x86_64/qemu-system-x86_64: error while loading shared libraries: libpulse.so.0: cannot open shared object file: No such file or directory
+```
+
+There is no version stdout; the message originates from the dynamic loader's stderr, before the emulator engine enters main. The historical artifact merges the streams; it does not contain separately captured stdout/stderr. Emulator launcher and GUI engine **exist** at these absolute paths: the loader reached the engine and failed to resolve **libpulse.so.0**. Thus 127 here is a runtime shared-library error, not evidence of a missing mke2fs/Node command. The emulator package metadata records **37.2.12 / build 16428233**; runner log identifies **Ubuntu 24.04.5, image 20260927.320.1**. No 7372.80 MiB userdata failure is present, because the script never reached that path; this run does not validate hosted userdata resolution either.
+
+PATH evidence limitation: the historical logs/artifact do **not** record the full resolved PATH. It cannot be recovered from a finished runner and is not invented here. The failing SDK executable uses an absolute path, so shell PATH lookup did not cause this failure. The updated preflight records full PATH and resolved paths for timeout, node, mke2fs, df, awk, mktemp and ls, plus absolute SDK paths. Exact local PATH/library outputs are retained in sixth-run/check-headless.sh output and gui-libraries.txt/headless-libraries.txt; these are local evidence, not the historical hosted PATH.
+
+Portable supported fix: **emulator -no-window -version**, selecting the headless engine already shipped in the same official SDK emulator archive, just as the required VM launch already does. [Android documents -no-window for server environments](https://developer.android.com/studio/run/emulator-commandline). The exact downloaded build's GUI engine dependency tree includes libpulse.so.0; its bundled **qemu-system-x86_64-headless** dependency tree does not. The corrected bounded version invocation executed locally with exit 0 and printed 37.2.12.0/build 16428233. No package installation, substitute emulator version, custom shared-library shim or apt step was added. Locally the earlier exact-binary investigation had explicitly installed libpulse0, which masked the GUI version probe's dependency; the historical dependency review records that local package. Production CI never installed it. Source CI also passed the real mke2fs-created ext4 orchestration scenarios on Ubuntu, so the observed sixth failure does not establish a formatter availability problem.
+
+Added **tool-preflight before AVD/disk preparation**: check required commands and SDK executables; record PATH/absolute resolutions; pin resolved node/mke2fs paths for subsequent execution; fail with exit 2 naming an unavailable/nonexecutable tool. Perform bounded headless version inspection (10s + 5s grace), preserve separate emulator-version.stdout.log/emulator-version.stderr.log and the existing combined emulator-version.txt, and fail descriptively with exit 1 naming the SDK emulator and original diagnostic exit if runtime loading fails. Cleanup displays preflight/runtime diagnostics and keeps the original stage result and evidence. Disk-input-evidence now consumes the already verified version output.
+
+The **2048 MiB raw ext4 image**, explicit -data/-datadir, resolved hardware/QEMU geometry proof, API 35 Google APIs x86_64, cache/SD/preflight settings, KVM/software fallback, staged readiness, bounded resolution/instrumentation, cleanup, strict dependency verification, lint and always-upload evidence remain required. No application or native code, dependency/lock change, workflow gate removal, apt provisioning, Phase 2 work, commit or push.
+
+Changed files: scripts/check-android-emulator.sh; tests/android-emulator.test.mjs; this report. Regression mocks now reproduce the GUI loader's 127 unless version inspection is headless. Three real missing-tool conditions (mke2fs/Node absent from an isolated PATH; absent bundled qemu-img) must fail descriptively before AVD creation. A simulated headless loader failure retains its exact stderr and named original exit while remaining a failed preflight. All previous disk sizing, geometry, readiness, timeout, cleanup and instrumentation scenarios remain.
+
+Local observed validation: **Linux Node 45/45** (16 source/geometry + 29 orchestration), zero skips/failures; **Windows Node 16/16**, zero skips/failures; Bash syntax **PASS**; actionlint exit 0 (shellcheck/pyflakes unavailable); Linux core **2/2**; ASan/UBSan **4/4**, including actual negative diagnostic exits 86/87; Windows Zig C/C++ consumers/trap **PASS**; exact SDK headless-version/library comparison **PASS**. Standard Windows MSVC check re-executed **BLOCKED** by existing missing vcvarsall; owner host maintainer, remediation repair desktop C++ workload; compiler fallback passed. Final git diff --check PASS; only the three intended files are modified. No real Android boot/instrumentation or application rebuild was run for this version-probe fix; the previous exact-build 2 GiB resolved-size proof remains retained.
+
+Commands:
+
+```text
+node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs
+build/tools/actionlint/actionlint.exe -shellcheck= -pyflakes= .github/workflows/foundation.yml .github/workflows/native-shells.yml
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-native.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-native-zig.ps1 -ZigPath G:/PixAuraAI/build/tools/zig-x86_64-windows-0.14.1/zig.exe
+wsl --distribution Ubuntu --exec bash /mnt/g/PixAuraAI/build/emulator-investigation/sixth-run/check-headless.sh
+wsl --distribution Ubuntu --exec bash -lc 'cd /mnt/g/PixAuraAI && bash -n scripts/*.sh && build/tools/node-v24.14.0-linux-x64/bin/node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs tests/android-emulator.test.mjs && cmake --build build/linux-host && ctest --test-dir build/linux-host --output-on-failure && bash scripts/check-sanitizers.sh'
+git diff --check
+```
+
+Remaining CI-only gate: corrected preflight/version inspection, actual hosted effective-size assertion/boot and JNI/Compose connectedDebugAndroidTest on the new revision. Owner repository maintainer; affected G2 emulator execution / Phase 1 promotion. Exact next human action: review these **three files**, commit/push through the maintainer's process or separately authorize it, run Native application shells on the new revision, and retain the URL/android-shell-evidence artifact including tool-preflight.log, version stdout/stderr, userdata-resolved.json, running QEMU info and actual test results. Phase 0 CI completion remains user-attested; physical assistive walkthrough remains unrun. Do not begin Phase 2.
 
 ## Fifth CI rerun: emulator first-time setup overrides userdata, 2026-10-03
 
