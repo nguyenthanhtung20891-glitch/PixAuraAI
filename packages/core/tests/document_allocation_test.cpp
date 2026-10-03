@@ -1,6 +1,7 @@
 // Test-only replacement allocator. This executable compiles the production
 // sources independently; no failure hook or replacement allocator ships.
 #include "pixaura/document.h"
+#include "../src/document.hpp"
 #include <atomic>
 #include <chrono>
 #include <cstdio>
@@ -13,6 +14,7 @@
 #include <new>
 #include <string>
 #include <thread>
+#include <type_traits>
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #endif
@@ -75,6 +77,11 @@ static const uint8_t context_id[] = "000000000000000000000000000000a2";
 static const uint8_t session[] = "00000000000000000000000000000500";
 static const uint8_t undo[] = "{\"command_version\":1,\"kind\":\"undo\",\"expected_session_id\":\"00000000000000000000000000000500\",\"expected_generation\":0,\"expected_revision_id\":\"00000000000000000000000000000102\"}";
 
+static_assert(!std::is_nothrow_default_constructible<pixaura::document::String>::value, "string proxy failures must propagate");
+static_assert(!std::is_nothrow_move_constructible<pixaura::document::String>::value, "string move failures must propagate");
+static_assert(!std::is_nothrow_default_constructible<pixaura::document::Vector<int>>::value, "vector proxy failures must propagate");
+static_assert(!std::is_nothrow_move_constructible<pixaura::document::Vector<int>>::value, "vector move failures must propagate");
+
 int main(int argc, char** argv) {
 #ifdef _MSC_VER
     _set_error_mode(_OUT_TO_STDERR);
@@ -111,6 +118,21 @@ int main(int argc, char** argv) {
     CHECK(pixaura_document_context_init(1, &context, sizeof(context), context_id, 32, nullptr) == PIXAURA_DOCUMENT_RESOURCE_LIMIT);
     fail_after = -1;
     pixaura_document_context zero{}; CHECK(std::memcmp(&context, &zero, sizeof(context)) == 0);
+    bool initialized = false;
+    const uint8_t init_probe_id[] = "000000000000000000000000000000a3";
+    for (int64_t n = 0; n < 10000; ++n) {
+        pixaura_document_context probe{};
+        progress("context.init.sweep", 4, n);
+        fail_after = n;
+        const auto status = pixaura_document_context_init(1, &probe, sizeof(probe), init_probe_id, 32, nullptr);
+        fail_after = -1;
+        if (status == 0) {
+            CHECK(n > 0 && pixaura_document_context_destroy(&probe) == 0);
+            initialized = true; break;
+        }
+        CHECK(status == PIXAURA_DOCUMENT_RESOURCE_LIMIT && std::memcmp(&probe, &zero, sizeof(probe)) == 0);
+    }
+    CHECK(initialized);
     progress("context.init.normal");
     CHECK(pixaura_document_context_init(1, &context, sizeof(context), context_id, 32, nullptr) == 0);
     pixaura_document_handle stable{};
@@ -118,6 +140,44 @@ int main(int argc, char** argv) {
     progress("fixture.open.warm");
     CHECK(pixaura_document_open(1, &context, input, golden.size(), session, 32, &stable, nullptr) == 0);
     pixaura_document_handle sentinel{}; sentinel.serial = 999; sentinel.api_version = 87;
+    const auto verify_stable = [&] {
+        uint8_t buffer[8192]; uint64_t required = 0;
+        CHECK(pixaura_document_serialize(&context, &stable, buffer, sizeof(buffer), &required, nullptr) == 0);
+        CHECK(required == golden.size() && std::memcmp(buffer, golden.data(), golden.size()) == 0);
+    };
+    // The confirmed MSVC failure index remains explicit as well as in the sweep.
+    progress("regression.open.fail_after_2", 0, 2);
+    auto regression_output = sentinel;
+    const auto prior_context = context;
+    pixaura_document_error regression_error{};
+    regression_error.api_version = 1; regression_error.struct_size = sizeof(regression_error);
+    fail_after = 2;
+    const auto regression_status = pixaura_document_open(1, &context, input, golden.size(), session, 32, &regression_output, &regression_error);
+    fail_after = -1;
+    CHECK(regression_status == PIXAURA_DOCUMENT_RESOURCE_LIMIT && regression_error.code == PIXAURA_DOCUMENT_RESOURCE_LIMIT);
+    CHECK(std::memcmp(&regression_output, &sentinel, sizeof(sentinel)) == 0);
+    CHECK(std::memcmp(&context, &prior_context, sizeof(context)) == 0);
+    CHECK(regression_error.message_bytes == 14 && std::memcmp(regression_error.message, "RESOURCE_LIMIT", 14) == 0);
+    progress("regression.prior_snapshot"); verify_stable();
+    progress("regression.subsequent_open");
+    CHECK(pixaura_document_open(1, &context, input, golden.size(), session, 32, &regression_output, nullptr) == 0);
+    fail_after = 0;
+    CHECK(pixaura_document_release(&context, &regression_output) == 0);
+    CHECK(pixaura_document_release(&context, &regression_output) == PIXAURA_DOCUMENT_INVALID_HANDLE);
+    fail_after = -1;
+    verify_stable();
+
+    // Initial creation shares the parser, but its distinct root-only admission
+    // and publication path also gets an exhaustive allocation sweep.
+    auto initial = golden;
+    auto start = initial.find("\"operations\":["); auto end = initial.find("],\"project_id\"", start);
+    CHECK(start != std::string::npos && end != std::string::npos);
+    initial.replace(start, end + 1 - start, "\"operations\":[]");
+    start = initial.find("\"revisions\":["); end = initial.find("],\"schema_version\"", start);
+    CHECK(start != std::string::npos && end != std::string::npos);
+    initial.replace(start, end + 1 - start, "\"revisions\":[{\"actor\":\"import\",\"id\":\"00000000000000000000000000000100\",\"parent_id\":null,\"plan_id\":null,\"stack\":[]}]");
+    start = initial.find("00000000000000000000000000000102"); CHECK(start != std::string::npos);
+    initial.replace(start, 32, "00000000000000000000000000000100");
     const auto sweep = [&](int path) {
         int failures = 0;
         for (int64_t n = 0; n < 10000; ++n) {
@@ -127,7 +187,8 @@ int main(int argc, char** argv) {
             fail_after = n; int32_t status;
             if (path == 0) status = pixaura_document_open(1, &context, input, golden.size(), session, 32, &output, nullptr);
             else if (path == 1) status = pixaura_document_serialize(&context, &stable, buffer, sizeof(buffer), &required, nullptr);
-            else status = pixaura_document_apply(1, &context, &stable, undo, sizeof(undo) - 1, &output, nullptr);
+            else if (path == 2) status = pixaura_document_apply(1, &context, &stable, undo, sizeof(undo) - 1, &output, nullptr);
+            else status = pixaura_document_create(1, &context, reinterpret_cast<const uint8_t*>(initial.data()), initial.size(), session, 32, &output, nullptr);
             fail_after = -1;
             std::fprintf(stderr, "allocation returned path=%d fail_after=%lld status=%d\n", path, static_cast<long long>(n), status);
             std::fflush(stderr);
@@ -143,11 +204,11 @@ int main(int argc, char** argv) {
             for (const auto byte : buffer) CHECK(byte == 0x5a);
             ++failures;
             progress("sweep.prior_snapshot", path, n);
-            uint64_t size = 0; CHECK(pixaura_document_serialize(&context, &stable, nullptr, 0, &size, nullptr) == 0 && size == golden.size());
+            verify_stable();
         }
         failure("allocation sweep exhausted all 10000 indices without success", __LINE__);
     };
-    sweep(0); sweep(1); sweep(2);
+    sweep(0); sweep(1); sweep(2); sweep(3);
     // The first serialization allocation occurs after acquire pins the snapshot.
     // Hold that call while another thread releases its registry ownership.
     progress("concurrency.start");
@@ -170,10 +231,12 @@ int main(int argc, char** argv) {
     progress("ownership.stale_release");
     CHECK(pixaura_document_release(&context, &stable) == PIXAURA_DOCUMENT_INVALID_HANDLE);
     progress("context.destroy");
+    fail_after = 0;
     CHECK(pixaura_document_context_destroy(&context) == 0);
     progress("ownership.destroyed_release");
     CHECK(pixaura_document_release(&context, &stable) == PIXAURA_DOCUMENT_INVALID_HANDLE);
     CHECK(pixaura_document_context_destroy(&context) == PIXAURA_DOCUMENT_INVALID_HANDLE);
+    fail_after = -1;
     progress("watchdog.join");
     finished.store(true); watchdog.join();
     std::puts("Allocation failures preserve handles, prior snapshots and caller buffers PASS");

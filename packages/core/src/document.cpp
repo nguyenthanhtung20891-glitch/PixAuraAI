@@ -20,26 +20,26 @@ template<class T, class F> Result<T> attempt(F&& function) {
 }
 
 struct Json {
-    using Object = std::map<std::string, Json>;
-    using Array = std::vector<Json>;
-    std::variant<std::nullptr_t, bool, int64_t, std::string, Object, Array> data;
+    using Object = std::map<String, Json>;
+    using Array = Vector<Json>;
+    std::variant<std::nullptr_t, bool, int64_t, String, Object, Array> data;
     Json() : data(nullptr) {}
     explicit Json(bool value) : data(value) {}
     explicit Json(int64_t value) : data(value) {}
-    explicit Json(std::string value) : data(std::move(value)) {}
+    explicit Json(String value) : data(std::move(value)) {}
     explicit Json(Object value) : data(std::move(value)) {}
     explicit Json(Array value) : data(std::move(value)) {}
 };
 enum class Shape { Manifest, Source, Metadata, Operation, Parameters, Revision, Command, Scalar };
-const std::set<std::string>& allowed(Shape shape) {
+const std::set<String>& allowed(Shape shape) {
     // Immutable registry data only; no global mutable state.
-    static const std::set<std::string> manifest{"schema_version", "project_id", "document_id", "source", "operations", "revisions", "current_revision_id", "redo"};
-    static const std::set<std::string> source{"sha256", "byte_length", "metadata"};
-    static const std::set<std::string> metadata{"width", "height", "orientation", "codec", "has_alpha", "icc_sha256"};
-    static const std::set<std::string> operation{"id", "type", "operation_version", "parameter_version", "parameters"};
-    static const std::set<std::string> parameters{"milli_ev", "quarter_turns", "x_ppm", "y_ppm", "width_ppm", "height_ppm"};
-    static const std::set<std::string> revision{"id", "parent_id", "stack", "actor", "plan_id"};
-    static const std::set<std::string> command{"command_version", "kind", "expected_revision_id", "expected_session_id", "expected_generation", "revision_id", "operations", "stack", "actor", "plan_id"};
+    static const std::set<String> manifest{"schema_version", "project_id", "document_id", "source", "operations", "revisions", "current_revision_id", "redo"};
+    static const std::set<String> source{"sha256", "byte_length", "metadata"};
+    static const std::set<String> metadata{"width", "height", "orientation", "codec", "has_alpha", "icc_sha256"};
+    static const std::set<String> operation{"id", "type", "operation_version", "parameter_version", "parameters"};
+    static const std::set<String> parameters{"milli_ev", "quarter_turns", "x_ppm", "y_ppm", "width_ppm", "height_ppm"};
+    static const std::set<String> revision{"id", "parent_id", "stack", "actor", "plan_id"};
+    static const std::set<String> command{"command_version", "kind", "expected_revision_id", "expected_session_id", "expected_generation", "revision_id", "operations", "stack", "actor", "plan_id"};
     switch (shape) {
         case Shape::Manifest: return manifest;
         case Shape::Source: return source;
@@ -73,7 +73,7 @@ class Parser {
         }
         return result;
     }
-    static void append_codepoint(std::string& output, uint32_t value) {
+    static void append_codepoint(String& output, uint32_t value) {
         if (value < 0x80) output.push_back(static_cast<char>(value));
         else if (value < 0x800) {
             output.push_back(static_cast<char>(0xc0u | (value >> 6)));
@@ -89,9 +89,9 @@ class Parser {
             output.push_back(static_cast<char>(0x80u | (value & 63u)));
         }
     }
-    std::string string() {
+    String string() {
         take('"');
-        std::string result;
+        String result;
         while (position_ < input_.size()) {
             const auto c = static_cast<uint8_t>(input_[position_++]);
             if (c == '"') return result;
@@ -204,7 +204,7 @@ public:
 
 const Json::Object& object(const Json& value) { const auto* p = std::get_if<Json::Object>(&value.data); require(p != nullptr); return *p; }
 const Json::Array& array(const Json& value) { const auto* p = std::get_if<Json::Array>(&value.data); require(p != nullptr); return *p; }
-const std::string& text(const Json& value) { const auto* p = std::get_if<std::string>(&value.data); require(p != nullptr); return *p; }
+const String& text(const Json& value) { const auto* p = std::get_if<String>(&value.data); require(p != nullptr); return *p; }
 const Json& field(const Json& value, const char* key) { const auto& o = object(value); const auto it = o.find(key); require(it != o.end()); return it->second; }
 void keys(const Json& value, std::initializer_list<const char*> expected, int32_t code = PIXAURA_DOCUMENT_INVALID_PROJECT) {
     const auto* o = std::get_if<Json::Object>(&value.data); require(o != nullptr, code); require(o->size() == expected.size(), code);
@@ -217,8 +217,8 @@ bool boolean(const Json& value) { const auto* b = std::get_if<bool>(&value.data)
 bool null(const Json& value) { return std::holds_alternative<std::nullptr_t>(value.data); }
 Id id(const Json& value) { return Id::parse(text(value)); }
 std::optional<Id> optional_id(const Json& value) { return null(value) ? std::nullopt : std::optional<Id>(id(value)); }
-std::vector<Id> stack(const Json& value) {
-    std::vector<Id> result; std::set<std::string> seen;
+Vector<Id> stack(const Json& value) {
+    Vector<Id> result; std::set<String> seen;
     for (const auto& entry : array(value)) { auto identity = id(entry); require(seen.insert(identity.text()).second); result.push_back(std::move(identity)); }
     return result;
 }
@@ -258,7 +258,7 @@ SourceDescriptor source(const Json& value) {
         {static_cast<uint32_t>(width), static_cast<uint32_t>(height), static_cast<uint32_t>(integer(field(m, "orientation"), 1, 8)), codec, alpha,
             null(icc) ? std::nullopt : std::optional<Digest>(Digest::parse(text(icc)))}};
 }
-Json ids_json(const std::vector<Id>& ids) { Json::Array result; for (const auto& i : ids) result.emplace_back(i.text()); return Json(std::move(result)); }
+Json ids_json(const Vector<Id>& ids) { Json::Array result; for (const auto& i : ids) result.emplace_back(i.text()); return Json(std::move(result)); }
 Json nullable(const std::optional<Id>& value) { return value ? Json(value->text()) : Json(); }
 Json operation_json(const EditOperation& op) {
     Json::Object parameters;
@@ -271,9 +271,9 @@ Json operation_json(const EditOperation& op) {
         {"parameter_version", Json(static_cast<int64_t>(op.parameter_version))}, {"parameters", Json(std::move(parameters))}});
 }
 class Writer {
-    std::string output_;
+    String output_;
     void append(std::string_view value) { require(value.size() <= manifest_limit - output_.size(), PIXAURA_DOCUMENT_RESOURCE_LIMIT); output_.append(value); }
-    void string(const std::string& value) {
+    void string(const String& value) {
         append("\"");
         for (const unsigned char c : value) {
             switch (c) {
@@ -296,7 +296,7 @@ class Writer {
         if (std::holds_alternative<std::nullptr_t>(json.data)) append("null");
         else if (const auto* b = std::get_if<bool>(&json.data)) append(*b ? "true" : "false");
         else if (const auto* n = std::get_if<int64_t>(&json.data)) append(std::to_string(*n));
-        else if (const auto* s = std::get_if<std::string>(&json.data)) string(*s);
+        else if (const auto* s = std::get_if<String>(&json.data)) string(*s);
         else if (const auto* o = std::get_if<Json::Object>(&json.data)) {
             append("{"); bool first = true;
             for (const auto& entry : *o) { if (!first) append(","); first = false; string(entry.first); append(":"); value(entry.second, depth + 1); }
@@ -308,20 +308,20 @@ class Writer {
         }
     }
 public:
-    std::string write(const Json& json) { value(json, 1); append("\n"); return std::move(output_); }
+    String write(const Json& json) { value(json, 1); append("\n"); return std::move(output_); }
 };
 }
 
 template<std::size_t N> HexIdentity<N> HexIdentity<N>::parse(std::string_view text) {
     require(text.size() == N && std::all_of(text.begin(), text.end(), [](char c) { return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'); }));
-    return HexIdentity(std::string(text));
+    return HexIdentity(String(text));
 }
 template class HexIdentity<32>;
 template class HexIdentity<64>;
 
 ImageDocument::ImageDocument(DocumentIdentity identity, SourceDescriptor source_value,
-    std::vector<EditOperation> operations, std::vector<Revision> revisions, Id current,
-    std::vector<Id> redo, SessionIdentity session) : identity_(std::move(identity)), source_(std::move(source_value)),
+    Vector<EditOperation> operations, Vector<Revision> revisions, Id current,
+    Vector<Id> redo, SessionIdentity session) : identity_(std::move(identity)), source_(std::move(source_value)),
     operations_(std::move(operations)), revisions_(std::move(revisions)), current_(std::move(current)), redo_(std::move(redo)), session_(std::move(session)) {}
 
 struct Engine {
@@ -332,7 +332,7 @@ struct Engine {
     static void validate(const ImageDocument& doc) {
         require(doc.operations_.size() <= 4096 && doc.revisions_.size() <= 4096 && doc.redo_.size() <= 4095, PIXAURA_DOCUMENT_RESOURCE_LIMIT);
         require(!doc.revisions_.empty());
-        std::set<std::string> operations, referenced; std::map<std::string, std::optional<Id>> revisions;
+        std::set<String> operations, referenced; std::map<String, std::optional<Id>> revisions;
         for (const auto& op : doc.operations_) { operation(operation_json(op)); require(operations.insert(op.id.text()).second); }
         for (std::size_t i = 0; i < doc.revisions_.size(); ++i) {
             const auto& r = doc.revisions_[i];
@@ -343,13 +343,13 @@ struct Engine {
                     require(r.parent && revisions.count(r.parent->text()) == 1);
                     require((r.actor == "manual" && !r.plan) || (r.actor == "ai" && r.plan));
                 }
-                std::set<std::string> unique;
+                std::set<String> unique;
                 for (const auto& op : r.stack) { require(operations.count(op.text()) == 1 && unique.insert(op.text()).second); referenced.insert(op.text()); }
                 require(revisions.emplace(r.id.text(), r.parent).second);
             } catch (Failure& error) { error.index = static_cast<uint32_t>(i); throw; }
         }
         require(referenced.size() == operations.size() && revisions.count(doc.current_.text()) == 1);
-        std::set<std::string> seen; Id previous = doc.current_;
+        std::set<String> seen; Id previous = doc.current_;
         for (const auto& r : doc.redo_) {
             const auto found = revisions.find(r.text()); require(found != revisions.end() && found->second && *found->second == previous && seen.insert(r.text()).second); previous = r;
         }
@@ -358,12 +358,12 @@ struct Engine {
     static Snapshot decode(const Json& json, std::string_view session) {
         keys(json, {"schema_version", "project_id", "document_id", "source", "operations", "revisions", "current_revision_id", "redo"});
         require(integer(field(json, "schema_version"), 0, static_cast<int64_t>(max_generation)) == 1, PIXAURA_DOCUMENT_UNSUPPORTED_SCHEMA);
-        std::vector<EditOperation> operations;
+        Vector<EditOperation> operations;
         for (const auto& op : array(field(json, "operations"))) {
             try { operations.push_back(operation(op)); }
             catch (Failure& error) { error.index = static_cast<uint32_t>(operations.size()); throw; }
         }
-        std::vector<Revision> revisions;
+        Vector<Revision> revisions;
         for (const auto& r : array(field(json, "revisions"))) {
             keys(r, {"id", "parent_id", "stack", "actor", "plan_id"});
             revisions.push_back({id(field(r, "id")), optional_id(field(r, "parent_id")), stack(field(r, "stack")), text(field(r, "actor")), optional_id(field(r, "plan_id"))});
@@ -395,7 +395,7 @@ struct Engine {
         require(candidate.identity.project == doc.identity_.project && candidate.identity.document == doc.identity_.document, PIXAURA_DOCUMENT_STALE_BASE);
         check_base(doc, candidate.base, candidate.session);
         require(candidate.operations.size() <= 4096 - doc.operations_.size() && doc.revisions_.size() < 4096 && candidate.stack.size() <= 256, PIXAURA_DOCUMENT_RESOURCE_LIMIT);
-        std::set<std::string> existing;
+        std::set<String> existing;
         for (const auto& op : doc.operations_) existing.insert(op.id.text());
         for (const auto& op : candidate.operations) {
             require(existing.insert(op.id.text()).second);
@@ -415,7 +415,7 @@ struct Engine {
         check_base(doc, base, session);
         if (kind == "commit") {
             keys(command, {"command_version", "kind", "expected_revision_id", "expected_session_id", "expected_generation", "revision_id", "operations", "stack", "actor", "plan_id"});
-            std::vector<EditOperation> operations;
+            Vector<EditOperation> operations;
             for (const auto& op : array(field(command, "operations"))) operations.push_back(operation(op));
             return commit(doc, {doc.identity_, base, session, stack(field(command, "stack")), std::move(operations), id(field(command, "revision_id")), text(field(command, "actor")), optional_id(field(command, "plan_id"))});
         }
@@ -446,8 +446,8 @@ Result<Snapshot> create_document(std::string_view manifest, std::string_view ses
         require(doc->operations().empty() && doc->revisions().size() == 1 && doc->redo().empty()); return doc;
     });
 }
-Result<std::string> serialize(const ImageDocument& doc) {
-    return attempt<std::string>([&] { Engine::validate(doc); return Writer().write(Engine::encode(doc)); });
+Result<String> serialize(const ImageDocument& doc) {
+    return attempt<String>([&] { Engine::validate(doc); return Writer().write(Engine::encode(doc)); });
 }
 Result<Snapshot> transition(const ImageDocument& doc, std::string_view command) {
     return attempt<Snapshot>([&] { return Engine::apply(doc, Parser(command, command_limit).parse(Shape::Command)); });
@@ -455,9 +455,9 @@ Result<Snapshot> transition(const ImageDocument& doc, std::string_view command) 
 Result<Snapshot> transition(const ImageDocument& doc, const DetachedCandidate& candidate) {
     return attempt<Snapshot>([&] { return Engine::commit(doc, candidate); });
 }
-Result<std::vector<EditOperation>> replay(const ImageDocument& doc, const Id& revision_id) {
-    return attempt<std::vector<EditOperation>>([&] {
-        std::vector<EditOperation> ordered;
+Result<Vector<EditOperation>> replay(const ImageDocument& doc, const Id& revision_id) {
+    return attempt<Vector<EditOperation>>([&] {
+        Vector<EditOperation> ordered;
         for (const auto& op_id : Engine::revision(doc, revision_id).stack) {
             const auto found = std::find_if(doc.operations().begin(), doc.operations().end(), [&](const EditOperation& op) { return op.id == op_id; });
             require(found != doc.operations().end()); ordered.push_back(*found);

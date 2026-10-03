@@ -24,7 +24,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Document C++ consumer build failed.' }
     & $zigCompiler cc -target x86_64-windows-gnu -std=c11 -Wall -Wextra -Wpedantic -Werror -DPIXAURA_SHARED -I ../../packages/core/include ../../packages/core/tests/document_c_consumer.c pixaura_core.lib -o document_c_consumer.exe
     if ($LASTEXITCODE -ne 0) { throw 'Document C consumer build failed.' }
-    & $zigCompiler c++ -target x86_64-windows-gnu -std=c++17 -Wall -Wextra -Wpedantic -Werror -I ../../packages/core/include ../../packages/core/tests/document_allocation_test.cpp ../../packages/core/src/document.cpp ../../packages/core/src/document_api.cpp -o document_allocation_test.exe
+    & $zigCompiler c++ -target x86_64-windows-gnu -std=c++17 -Wall -Wextra -Wpedantic -Werror -DPIXAURA_TEST_FALLIBLE_STL -I ../../packages/core/include ../../packages/core/tests/document_allocation_test.cpp ../../packages/core/src/document.cpp ../../packages/core/src/document_api.cpp -o document_allocation_test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Document allocation consumer build failed.' }
     foreach ($documentTest in @('document_test.exe', 'document_c_consumer.exe', 'document_allocation_test.exe')) {
         if ($documentTest -eq 'document_c_consumer.exe') {

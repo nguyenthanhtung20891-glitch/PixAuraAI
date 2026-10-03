@@ -25,10 +25,10 @@ static_assert(alignof(pixaura_document_error) == 4, "error alignment");
 static_assert(sizeof(pixaura_document_handle) == 56 && offsetof(pixaura_document_handle, serial) == 48, "handle layout");
 static_assert(sizeof(pixaura_document_context) == 64, "context layout");
 
-bool valid_error(const pixaura_document_error* error) {
+bool valid_error(const pixaura_document_error* error) noexcept {
     return error == nullptr || (error->api_version == 1 && error->struct_size == sizeof(*error) && error->reserved == 0);
 }
-int32_t report(pixaura_document_error* error, int32_t code, uint32_t index = UINT32_MAX) {
+int32_t report(pixaura_document_error* error, int32_t code, uint32_t index = UINT32_MAX) noexcept {
     if (error) {
         pixaura_document_error result{}; result.api_version = 1; result.struct_size = sizeof(result); result.code = code; result.field_index = index;
         if (code != 0) {

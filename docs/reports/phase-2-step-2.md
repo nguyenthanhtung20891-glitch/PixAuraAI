@@ -1,6 +1,6 @@
 # Phase 2 Step 2: native document foundation
 
-Status: IMPLEMENTED, CI CANCELLATION DIAGNOSED; bounded diagnostics validated locally, exact MSVC allocation subcase still pending hosted execution. 2026-10-04. This is not FULLY PASSED or full Phase 2 completion. The initial prepublication evidence below is historical; sections 13-15 record published CI failures and their remediation/evidence limits.
+Status: IMPLEMENTED, MSVC ALLOCATION ROOT CAUSE TRACED; exception-safety correction validated locally, corrected-tree MSVC Debug execution pending CI. 2026-10-04. This is not FULLY PASSED or full Phase 2 completion. The initial prepublication evidence below is historical; sections 13-16 record published CI failures and their remediation/evidence limits.
 
 The user approved Step 1, authorized Step 2, and approved caller-owned contexts after the initial attempt stopped on the process-global registry conflict. The contract, ADR 0009, ADR 0008 supersession annotation and decision index were updated before implementation. All twelve frozen document decisions remain intact. No commit or push occurred. HEAD remains `2525b52207ef1f6a3af945032d8190366b177f27`. Prior Phase 0/1 final CI completion is user-attested; no new CI run is claimed.
 
@@ -286,3 +286,85 @@ GitHub logs, check annotations, artifact contents, fresh local logs and delibera
 Only the four files listed above changed; nothing was staged, committed or pushed. No shipping source or document architecture changed; Step 3 was not started. This correction makes indefinite waits bounded and observable; it does **not** claim the unknown MSVC allocation subcase has been fixed. Remaining gate: execute Foundation Windows portable on the instrumented tree using actual MSVC Debug and inspect its phase/path/index plus returned status or termination/bound diagnostic. If it fails, correct that confirmed subcase while preserving full injection/concurrency/ownership coverage. Other workflows must remain green on the corrected SHA.
 
 Exact next human action: review and explicitly authorize publishing these four diagnostic/bound changes for CI. A rerun of the old SHA cannot reveal new diagnostics. Repository maintainer/hosted runner owns the remaining MSVC G2/G3 evidence. Step 2 is not fully passed until that gate completes; Step 3 still requires separate authorization.
+
+## 16. Confirmed MSVC allocation exception and catchable construction
+
+The section 15 instrumentation was reviewed and published as `f68168207f0c130463ed9df4ef06c3b7cf281ed2`. Retrieved [Foundation run 37139721362](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37139721362) and [Windows job 111251458169](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37139721362/job/111251458169) expose the exact previously unknown subcase: `sweep.call`, path 0 (open), fail_after 2, allocation 16 bytes, then `std::terminate: unhandled exception or exception escaped noexcept`. The instrumented test exits as a failure in 0.04 seconds. This is exception termination, not a thread/join/condition-variable deadlock or another job timeout. [Native application shells run 37139721358](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37139721358) succeeded. These hosted results apply to the published diagnostic SHA, not the unpublished correction below.
+
+### Call chain and allocation site
+
+The production source and logged allocation order reconstruct this call chain:
+
+```text
+pixaura_document_open
+  open_impl (noexcept)
+    boundary (noexcept; catches bad_alloc)
+      deserialize -> attempt<Snapshot>
+        Parser::parse -> Parser::value (root JSON object)
+          Json::Object result                 [map proxy 16; head/sentinel 120]
+          Parser::string -> std::string result
+            std::basic_string<char>::basic_string() noexcept
+              _Construct_empty -> _Container_base12::_Alloc_proxy
+                allocator<_Container_proxy>::allocate(1)
+                  operator new(16) -> injected std::bad_alloc -> terminate
+```
+
+The offending noexcept function is the **MSVC STL default string constructor**, reached at the first object-key buffer in `Parser::string`, before `allowed(shape)` is called. Its noexcept condition is true for the default allocator. The 16 bytes hold an iterator-debug `_Container_proxy`, comprising two x64 pointers (container and first iterator), rather than JSON character storage. Earlier failures at index 0 (map proxy, 16 bytes) and index 1 (map sentinel, 120 bytes) return status 8; index 2 enters the string's noexcept constructor, so outer catches cannot run. This trace is reconstructed from control flow and the hosted allocation sequence; no local MSVC debugger stack was captured. Primary references: [Microsoft string implementation](https://github.com/microsoft/STL/blob/main/stl/inc/xstring), [proxy implementation](https://github.com/microsoft/STL/blob/main/stl/inc/xmemory), and [tree construction](https://github.com/microsoft/STL/blob/main/stl/inc/xtree). Current upstream headers are not claimed to be byte-identical to the hosted toolset.
+
+The audit also found allocation-bearing noexcept string/vector **move constructors** and the vector default constructor in MSVC iterator-debug mode. Fixing only the first local string would leave equivalent termination paths in parser variants, identity/domain values, history stacks and serializer results. [Microsoft vector implementation](https://github.com/microsoft/STL/blob/main/stl/inc/vector) documents those proxy allocations.
+
+### Exact correction and ABI audit
+
+`document_containers.hpp` adds private `String`/`Vector<T>` adapters only when MSVC iterator debugging is enabled. Empty strings use the throwing pointer/count constructor; empty vectors use the throwing empty initializer-list constructor. Adapter move construction/assignment uses throwing copy paths, retaining source validity and allowing failures to propagate to the existing guard. Parser/domain/serializer owning values use these private types. Iterator debugging and its proxy allocations remain enabled; the same first string proxy remains allocation index 2 under MSVC. Other builds use aliases to the existing standard types. The tradeoff is extra bounded copying in MSVC Debug; ordinary release/platform container behavior is unchanged. No C header, ABI version, manifest, operation graph or context ownership contract changes.
+
+All seven exported document C ABI functions were reviewed:
+
+| Export | Exception/publication behavior |
+| --- | --- |
+| context_init | Registry/map construction is inside `boundary`; context storage is published only after construction succeeds. |
+| context_destroy | Guarded destruction/deallocation and fixed-width context update; no allocating cleanup path. |
+| open | `open_impl` retains noexcept and invokes `boundary`; parser/domain construction can now throw normally. Registry insertion precedes caller output publication. |
+| create | Same guarded construction path, with independent root-only admission/publication coverage. |
+| apply | Acquisition, transition and insertion stay guarded; prior immutable snapshot and caller output survive construction failure. |
+| serialize | Result construction stays guarded; required size/caller bytes are written only after successful serialization (or the documented capacity result). |
+| release | Guarded ownership check/erase; no allocating cleanup path. |
+
+Reference-only lambda captures do not allocate before entering the guard. Map/set constructors are throwing; shared-pointer copies/moves and fixed-width handles do not allocate. Remaining numeric `std::to_string` uses a throwing sized-string construction and C++17 return elision. `valid_error` and `report` are explicitly noexcept: validation and error translation use fixed storage, literal status names and byte copies. `boundary` still catches `Failure`, `std::bad_alloc` and all other exceptions, returning `PIXAURA_DOCUMENT_RESOURCE_LIMIT` (8) for allocation failure. If construction of an internal error-result value also fails under persistent injection, that exception reaches the outer guard through a throwing adapter rather than terminating. No C++ exception is allowed across the C ABI; its existing noexcept guards remain.
+
+### Regression coverage and observed validation
+
+The allocation executable explicitly exercises path 0/fail_after 2, checks status/error code 8 and `RESOURCE_LIMIT`, preserves output sentinel and caller context bytes, compares the prior serialized snapshot byte-for-byte with the golden manifest, then successfully opens/releases another document. Valid/stale release and context destruction are checked with allocation failure active. Exhaustive persistent-injection sweeps retain all indices until first success for open/serialize/apply, add create and context initialization, and validate the full prior snapshot after each failed operation. Existing stale/destroyed ownership, pinned serialization/release concurrency, watchdog and 120-second CTest limit remain. Compile-time assertions require adapter default/move construction to be potentially throwing.
+
+CMake and both Windows native scripts define `PIXAURA_TEST_FALLIBLE_STL` **only for the independent allocation executable**, so the adapters are exercised on fallback/Linux as well as MSVC. The macro does not enter shipping targets. A separate ignored validation build forces adapters across the entire C++ document suite to test history, validation and serialization behavior. Neither fallback nor Linux emulates MSVC debug proxy allocation: their explicit index-2 allocation sizes are 88 and 61 bytes respectively; only hosted MSVC can confirm the corrected 16-byte proxy case.
+
+| Check | Observed result on final correction |
+| --- | --- |
+| Windows-compatible Node source tests | PASS 29/29, zero failures/skips. |
+| Windows Zig fallback native suite | PASS core/document/C ABI consumers and allocation/concurrency/ownership suite. Open/serialize/apply/create failure counts: 416/389/441/89; context init fails at index 0 then succeeds at 1. |
+| WSL Linux native CTest | PASS 5/5, including both C consumers. Allocation failure counts: 497/448/515/98; context init fails at 0 then succeeds at 1. |
+| ASan/UBSan | PASS 7/7, including full allocation suite and actual negative runtime probes (86/87); same 497/448/515/98 counts. No sanitizer flags or vptr coverage removed. |
+| Entire native suite with adapters forced | PASS 5/5 in separate Clang Debug CMake build; includes document validation/history/canonical tests as well as the allocation executable. |
+| Real local MSVC | BLOCKED: `check-native.ps1` reports `vcvarsall missing`; local installation also lacks STL headers. Hosted MSVC Debug execution remains CI-only; host maintainer can repair desktop C++/SDK installation. |
+| Actionlint and whitespace | PASS; `/W4 /WX`, `-Wall -Wextra -Wpedantic -Werror`, watchdog/CTest bounds and workflow job timeout remain unchanged. |
+
+Primary commands:
+
+```text
+node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs tests/document-contract.test.mjs tests/native-document.test.mjs
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-native.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-native-zig.ps1 -ZigPath G:/PixAuraAI/build/tools/zig-x86_64-windows-0.14.1/zig.exe
+wsl --distribution Ubuntu --exec bash -lc 'cd /mnt/g/PixAuraAI && cmake --build build/linux-host -j2 && ctest --test-dir build/linux-host --output-on-failure --verbose && bash scripts/check-sanitizers.sh'
+cmake -S . -B build/phase-2-exception-ci/fallible-host -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS=-DPIXAURA_TEST_FALLIBLE_STL
+cmake --build build/phase-2-exception-ci/fallible-host -j2
+ctest --test-dir build/phase-2-exception-ci/fallible-host --output-on-failure --verbose
+build/tools/actionlint/actionlint.exe -shellcheck= -pyflakes= .github/workflows/foundation.yml .github/workflows/native-shells.yml
+git diff --check
+```
+
+The final three CMake commands ran inside WSL. Retrieved job metadata/logs and local validation outputs are ignored under `build/phase-2-exception-ci`; no investigation/build output is staged. Initial adapter compilation exposed inherited-constructor syntax and zero-count vector element constraints; corrected code uses `using Base::Base` and empty initializer-list construction. Those initial failed builds are not counted as validation passes.
+
+Exact changed files: `CMakeLists.txt`, `packages/core/src/document_containers.hpp` (new), `packages/core/src/document.hpp`, `packages/core/src/document.cpp`, `packages/core/src/document_api.cpp`, `packages/core/tests/document_allocation_test.cpp`, `scripts/check-native.ps1`, `scripts/check-native-zig.ps1`, and this report. No workflow, public C header, dependency or architecture decision changed. Nothing was staged, committed or pushed; Step 3 was not started.
+
+Remaining gate: Foundation Windows portable must run actual MSVC Debug on the corrected published tree, report resource status for path 0/index 2, and complete every sweep plus ordinary document/C ABI tests within the existing bounds. Other Foundation/native-shell workflow gates must remain green for that same SHA; historical CI passes do not certify this unpublished tree. No local macOS runtime PASS is claimed.
+
+Exact next human action: review this nine-file exception-safety correction and regression evidence, then explicitly authorize commit/push for CI. After publication, inspect the hosted MSVC regression/sweep output and require both workflows green before accepting Step 2. Repository maintainer/hosted runner owns that CI gate; Step 3 remains separately unauthorized.

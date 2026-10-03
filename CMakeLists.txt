@@ -46,6 +46,7 @@ if(BUILD_TESTING)
         packages/core/src/document.cpp packages/core/src/document_api.cpp)
     target_include_directories(document_allocation_test PRIVATE packages/core/include)
     target_compile_features(document_allocation_test PRIVATE cxx_std_17)
+    target_compile_definitions(document_allocation_test PRIVATE PIXAURA_TEST_FALLIBLE_STL)
     pixaura_strict(document_allocation_test)
     add_test(NAME document_allocation_test COMMAND document_allocation_test "${CMAKE_SOURCE_DIR}/tests/fixtures/image-document-v1.json")
     # Outer guard also covers runtime/CRT failure paths before the watchdog starts.
