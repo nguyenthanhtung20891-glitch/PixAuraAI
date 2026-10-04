@@ -1,6 +1,6 @@
 # Non-destructive photo engine
 
-Phase 2 Step 4 uses [ADR 0011](docs/adr/0011-shared-bounded-sdr-decode.md) and the [encoded admission contract](docs/contracts/encoded-image-v1.md): shared portable baseline JPEG/still PNG decoding, verified structural metadata, bounded transient RGBA8 in encoded raster order, retained orientation/profile information. Color/orientation normalization remains the next separately authorized evaluation work; no renderer or editing kernel exists.
+Phase 2 Step 5 adds the [CPU working-image contract](docs/contracts/cpu-working-image-v1.md): all EXIF orientations normalize into bounded canonical RGBA32F linear-sRGB premultiplied pixels; absent/default or explicit sRGB uses fixed transfer tables. ICC and unresolved/contradictory PNG color annotations defer explicitly. Identity evaluation creates an independently owned exact copy; no editing tool or renderer exists. Step 4 admission/decode and retained immutable provenance remain under [ADR 0011](docs/adr/0011-shared-bounded-sdr-decode.md).
 
 ## Source and graph
 

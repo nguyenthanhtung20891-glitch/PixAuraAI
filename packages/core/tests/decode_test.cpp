@@ -1,4 +1,5 @@
 #include "../src/decode.hpp"
+#include "../src/working.hpp"
 #include "../src/storage.hpp"
 #include "../../../tests/fixtures/decode/fixtures.h"
 #include <filesystem>
@@ -41,7 +42,7 @@ int main(int argc,char** argv){CHECK(argc==2);auto l=decode::defaults();
         if(input.first==decode_gray1)CHECK((*pixels)[0]==255&&(*pixels)[3]==255);
     }
     for(const auto& b:{png(),jpeg()}){auto m=decode::admit(b.data(),b.size(),l);std::cerr<<"format "<<m.value.format<<" orientations and failure sweep\n";CHECK(m.value.width==2&&m.value.height==3&&m.value.decoded_bytes==24);decode::Source s(b,std::move(m));const auto pixels=decode::execute(s,l);CHECK(pixels->size()==24);if(s.metadata().value.format==1)for(auto x:*pixels)CHECK(x==128||x==255);else CHECK((*pixels)[0]==255&&(*pixels)[23]==128);
-        for(unsigned o=1;o<=8;++o){auto v=orient(b,o,s.metadata().value.format==2);auto info=decode::admit(v.data(),v.size(),l);CHECK(info.value.orientation==o&&info.value.display_width==(o>=5?3u:2u));decode::Source source(v,std::move(info));CHECK(*decode::execute(source,l)==*pixels);}
+        for(unsigned o=1;o<=8;++o){auto v=orient(b,o,s.metadata().value.format==2);auto info=decode::admit(v.data(),v.size(),l);CHECK(info.value.orientation==o&&info.value.display_width==(o>=5?3u:2u));decode::Source source(v,std::move(info));const auto decoded=decode::execute(source,l);CHECK(*decoded==*pixels);auto normalized=working::normalize(source.metadata(),decoded->data(),decoded->size(),working::defaults());CHECK(normalized.metadata.width==source.metadata().value.display_width&&normalized.metadata.height==source.metadata().value.display_height&&normalized.metadata.orientation==1);}
         auto bad=orient(b,9,s.metadata().value.format==2);error(17,[&]{decode::admit(bad.data(),bad.size(),l);});bad=orient(b,0,s.metadata().value.format==2);error(17,[&]{decode::admit(bad.data(),bad.size(),l);});
         for(int fault:{1,2}){decode::execution_fault=fault;error(fault==1?17:19,[&]{decode::execute(s,l);});}decode::execution_fault=0;
         unsigned failures=0;for(int n=0;n<100;++n){decode::allocation_fail_after=n;try{CHECK(*decode::execute(s,l)==*pixels);break;}catch(const document::Failure& f){CHECK(f.code==8);++failures;}}CHECK(failures>0);decode::allocation_fail_after=-1;CHECK(*decode::execute(s,l)==*pixels);auto tiny_scratch=l;tiny_scratch.scratch_bytes=1;error(8,[&]{decode::execute(s,tiny_scratch);});
@@ -77,6 +78,19 @@ int main(int argc,char** argv){CHECK(argc==2);auto l=decode::defaults();
     const fs::path root=fs::absolute(fs::path(argv[1])/"decode-test-root");fs::create_directories(root);storage::AssetStore store(root.generic_string());b=png();Reader reader(b);const auto asset=store.ingest(reader,b.size(),{},"mislabelled.jpeg");
     auto open=[&](Context& c,pixaura_decode_handle& h){const auto path=root.generic_string();return pixaura_decode_open(&c.c,reinterpret_cast<const uint8_t*>(path.data()),path.size(),reinterpret_cast<const uint8_t*>(asset.digest.data()),asset.digest.size(),asset.bytes,&h);};
     Context c; pixaura_decode_handle source{},image{};CHECK(open(c,source)==0);pixaura_decode_metadata m{};CHECK(pixaura_decode_query(&c.c,&source,&m)==0&&m.format==2);CHECK(pixaura_decode_image(&c.c,&source,&image)==0);
+    const auto wl=working::defaults();pixaura_decode_handle normalized{},evaluated{};
+    CHECK(pixaura_working_normalize(&c.c,&image,&wl,&normalized)==0);
+    pixaura_working_metadata wm{};CHECK(pixaura_working_query(&c.c,&normalized,&wm)==0&&wm.width==2&&wm.height==3&&wm.orientation==1&&wm.row_stride==32);
+    std::array<float,24> wp{};CHECK(pixaura_working_copy(&c.c,&normalized,0,wp.data(),24)==0&&wp[0]==1&&wp[23]>0.5f);
+    auto sentinel_working=normalized;auto tiny=wl;tiny.image_bytes=95;CHECK(pixaura_working_normalize(&c.c,&image,&tiny,&sentinel_working)==8&&std::memcmp(&normalized,&sentinel_working,sizeof(normalized))==0);
+    CHECK(pixaura_working_normalize(&c.c,&source,&wl,&sentinel_working)==3&&std::memcmp(&normalized,&sentinel_working,sizeof(normalized))==0);
+    CHECK(pixaura_working_identity(&c.c,&normalized,&wl,&evaluated)==0&&evaluated.serial!=normalized.serial);
+    CHECK(pixaura_working_copy(&c.c,&normalized,24,wp.data(),1)==1&&wp[0]==1);
+    auto normalize_job=[&]{for(unsigned i=0;i<16;++i){pixaura_decode_handle h{};CHECK(pixaura_working_normalize(&c.c,&image,&wl,&h)==0);pixaura_working_metadata info{};CHECK(pixaura_working_query(&c.c,&h,&info)==0);CHECK(pixaura_decode_release(&c.c,&h)==0);}};
+    auto wn1=std::async(std::launch::async,normalize_job),wn2=std::async(std::launch::async,normalize_job);wn1.get();wn2.get();
+    auto working_read=[&]{for(unsigned i=0;i<100;++i){std::array<float,24> p{};CHECK(pixaura_working_copy(&c.c,&normalized,0,p.data(),24)==0&&p==wp);}};
+    auto wr1=std::async(std::launch::async,working_read),wr2=std::async(std::launch::async,working_read);wr1.get();wr2.get();
+    CHECK(pixaura_decode_release(&c.c,&evaluated)==0);CHECK(pixaura_decode_release(&c.c,&normalized)==0);CHECK(pixaura_working_query(&c.c,&normalized,&wm)==3);
     for(int fault:{1,2}){decode::execution_fault=fault;auto untouched=image;CHECK(pixaura_decode_image(&c.c,&source,&untouched)==(fault==1?17:19));CHECK(std::memcmp(&untouched,&image,sizeof(image))==0);}decode::execution_fault=0;
     decode::allocation_fail_after=0;auto failed_handle=image;CHECK(pixaura_decode_image(&c.c,&source,&failed_handle)==8&&std::memcmp(&failed_handle,&image,sizeof(image))==0);decode::allocation_fail_after=-1;
     pixaura_decode_handle duplicate_image{};CHECK(pixaura_decode_image(&c.c,&source,&duplicate_image)==0&&duplicate_image.serial!=image.serial);CHECK(pixaura_decode_release(&c.c,&duplicate_image)==0);
@@ -86,10 +100,19 @@ int main(int argc,char** argv){CHECK(argc==2);auto l=decode::defaults();
     auto sentinel=image;CHECK(pixaura_decode_image(&c.c,&image,&sentinel)==3&&std::memcmp(&sentinel,&image,sizeof(image))==0);
     CHECK(pixaura_decode_release(&c.c,&source)==0);CHECK(pixaura_decode_query(&c.c,&source,&m)==3);CHECK(pixaura_decode_query(&c.c,&image,&m)==0);CHECK(pixaura_decode_release(&c.c,&source)==3);
     const auto jb=jpeg();Reader jr(jb);const auto ja=store.ingest(jr,jb.size());
-    auto other=std::async(std::launch::async,[&]{Context x('b');pixaura_decode_handle s{},im{};const auto path=root.generic_string();CHECK(pixaura_decode_open(&x.c,reinterpret_cast<const uint8_t*>(path.data()),path.size(),reinterpret_cast<const uint8_t*>(ja.digest.data()),64,ja.bytes,&s)==0);CHECK(pixaura_decode_image(&x.c,&s,&im)==0);CHECK(pixaura_decode_query(&x.c,&image,&m)==3);});other.get();
+    auto other=std::async(std::launch::async,[&]{Context x('b');pixaura_decode_handle s{},im{},wk{};const auto path=root.generic_string();CHECK(pixaura_decode_open(&x.c,reinterpret_cast<const uint8_t*>(path.data()),path.size(),reinterpret_cast<const uint8_t*>(ja.digest.data()),64,ja.bytes,&s)==0);CHECK(pixaura_decode_image(&x.c,&s,&im)==0);CHECK(pixaura_working_normalize(&x.c,&im,&wl,&wk)==0);CHECK(pixaura_decode_query(&x.c,&image,&m)==3);});normalize_job();other.get();
+    for(const auto& input:{orient(png(),6,true),orient(jpeg(),8,false),inject(png(),chunk("sRGB",{0})),inject(png(),chunk("gAMA",{0,0,177,143})),inject(inject(png(),chunk("sRGB",{0})),chunk("gAMA",{0,0,177,143})),inject(inject(png(),chunk("sRGB",{0})),chunk("gAMA",{0,0,195,80})),prof_source.encoded()}){
+        Reader ir(input);const auto ia=store.ingest(ir,input.size());const auto path=root.generic_string();pixaura_decode_handle ih{},im{},wk{};
+        CHECK(pixaura_decode_open(&c.c,reinterpret_cast<const uint8_t*>(path.data()),path.size(),reinterpret_cast<const uint8_t*>(ia.digest.data()),64,ia.bytes,&ih)==0);CHECK(pixaura_decode_image(&c.c,&ih,&im)==0);
+        const auto info=decode::admit(input.data(),input.size(),l);const bool supported=info.value.profile_type!=1&&info.srgb_compatible;
+        CHECK(pixaura_working_normalize(&c.c,&im,&wl,&wk)==(supported?0:16));
+        if(supported){CHECK(pixaura_working_query(&c.c,&wk,&wm)==0&&wm.width==info.value.display_width);CHECK(pixaura_decode_release(&c.c,&wk)==0);}else CHECK(wk.serial==0);
+        CHECK(pixaura_decode_release(&c.c,&ih)==0);CHECK(pixaura_decode_release(&c.c,&im)==0);
+    }
     auto query=[&]{for(unsigned i=0;i<100;++i){pixaura_decode_metadata info{};CHECK(pixaura_decode_query(&c.c,&image,&info)==0);}};auto a=std::async(std::launch::async,query),d=std::async(std::launch::async,query);a.get();d.get();
     pixaura_decode_handle racing{};CHECK(open(c,racing)==0);auto reader_job=std::async(std::launch::async,[&]{for(unsigned i=0;i<100;++i){pixaura_decode_metadata info{};const auto status=pixaura_decode_query(&c.c,&racing,&info);CHECK(status==0||status==3);}});CHECK(pixaura_decode_release(&c.c,&racing)==0);reader_job.get();
     // The owner joins every operation before context destruction (ADR 0009).
-    CHECK(pixaura_decode_release(&c.c,&image)==0);CHECK(pixaura_decode_copy_pixels(&c.c,&image,0,out.data(),1)==3);store.verify(asset);
+    CHECK(pixaura_working_normalize(&c.c,&image,&wl,&normalized)==0);CHECK(pixaura_decode_release(&c.c,&image)==0);CHECK(pixaura_decode_copy_pixels(&c.c,&image,0,out.data(),1)==3);
+    CHECK(pixaura_working_copy(&c.c,&normalized,0,wp.data(),24)==0);CHECK(pixaura_decode_query(&c.c,&normalized,&m)==0&&m.width==2);CHECK(pixaura_decode_release(&c.c,&normalized)==0);store.verify(asset);
     std::cout<<"decode checks "<<checks<<" passed; fixed corpus 4096 mutations + 1024 random/property cases; failures 0\n";
 }

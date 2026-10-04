@@ -1,4 +1,5 @@
 #include "pixaura/decode.h"
+#include "pixaura/working.h"
 #include "../../../tests/fixtures/decode/fixtures.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,6 +35,18 @@ int main(int argc,char** argv){
     CHECK(pixaura_decode_image(&c,&source,&image)==0);CHECK(pixaura_decode_copy_pixels(&c,&image,0,pixels,24)==0&&pixels[0]==255&&pixels[23]==128);
     CHECK(pixaura_decode_copy_pixels(&c,&image,23,pixels,2)==1&&pixels[0]==255);
     sentinel=image;CHECK(pixaura_decode_image(&c,&image,&sentinel)==3&&memcmp(&sentinel,&image,sizeof(image))==0);
+    {
+        pixaura_working_limits wl;pixaura_working_metadata wm;pixaura_decode_handle working={0},identity_image={0};float values[24]={0};
+        CHECK(pixaura_working_default_limits(1,&wl)==0);
+        CHECK(pixaura_working_normalize(&c,&image,&wl,&working)==0);
+        CHECK(pixaura_working_query(&c,&working,&wm)==0&&wm.width==2&&wm.height==3&&wm.orientation==1&&wm.row_stride==32);
+        CHECK(pixaura_working_copy(&c,&working,0,values,24)==0&&values[0]==1.0f);
+        CHECK(pixaura_working_identity(&c,&working,&wl,&identity_image)==0);
+        CHECK(pixaura_decode_release(&c,&working)==0);
+        CHECK(pixaura_working_query(&c,&working,&wm)==3);
+        CHECK(pixaura_working_copy(&c,&identity_image,0,values,24)==0&&values[0]==1.0f);
+        CHECK(pixaura_decode_release(&c,&identity_image)==0);
+    }
     CHECK(pixaura_decode_release(&c,&source)==0);CHECK(pixaura_decode_query(&c,&image,&m)==0);
     CHECK(pixaura_decode_release(&c,&image)==0);CHECK(pixaura_decode_release(&c,&image)==3);
     CHECK(pixaura_decode_context_destroy(&c)==0);CHECK(pixaura_decode_context_destroy(&c)==3);

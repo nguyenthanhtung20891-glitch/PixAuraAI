@@ -1,4 +1,5 @@
 #include "decode.hpp"
+#include "working.hpp"
 #include "storage_files.hpp"
 #include <map>
 #include <mutex>
@@ -8,7 +9,7 @@ using namespace pixaura;
 void need(bool ok,int32_t code=1){if(!ok)throw document::Failure{code};}
 template<class F> int32_t boundary(F&& fn)noexcept{try{fn();return 0;}catch(const document::Failure& e){return e.code;}catch(const std::bad_alloc&){return 8;}catch(...){return 14;}}
 constexpr uint64_t live_tag=0x5049584445433031ULL,dead_tag=0x5049584445433030ULL;
-struct Entry { std::shared_ptr<const decode::Source> source;std::unique_ptr<decode::Vector<uint8_t>> pixels;bool image=false; };
+struct Entry { std::shared_ptr<const decode::Source> source;std::unique_ptr<decode::Vector<uint8_t>> pixels;bool image=false;working::Image working{}; };
 struct Registry { std::mutex mutex;pixaura_decode_limits limits;uint64_t next=1;std::map<uint64_t,Entry> entries; };
 struct Header { uint64_t tag;Registry* registry;uint8_t identity[32]; };
 static_assert(sizeof(Header)<=sizeof(pixaura_decode_context::opaque),"context layout");
@@ -17,7 +18,7 @@ Header live(pixaura_decode_context* c){auto h=read(c);need(c->api_version==1&&c-
 void write(pixaura_decode_context* c,const Header& h){std::memset(c,0,sizeof(*c));c->api_version=1;c->struct_size=sizeof(*c);std::memcpy(c->opaque,&h,sizeof(h));}
 const Entry& entry(const Header& h,const pixaura_decode_handle* handle){need(handle!=nullptr);need(handle->api_version==1&&handle->struct_size==sizeof(*handle)&&handle->reserved==0&&std::memcmp(handle->context_id,h.identity,32)==0,3);auto it=h.registry->entries.find(handle->serial);need(it!=h.registry->entries.end(),3);return it->second;}
 void room(const Registry& r,uint64_t extra){need(r.entries.size()<64&&r.next!=UINT64_MAX,8);uint64_t used=0;const decode::Source* seen[64]{};std::size_t count=0;
-    for(const auto& pair:r.entries){const auto& e=pair.second;used+=e.pixels?e.pixels->capacity():0;bool duplicate=false;for(std::size_t i=0;i<count;++i)if(seen[i]==e.source.get())duplicate=true;
+    for(const auto& pair:r.entries){const auto& e=pair.second;used+=e.pixels?e.pixels->capacity():0;used+=e.working.pixels?decode::multiply(e.working.pixels->capacity(),sizeof(float)):0;bool duplicate=false;for(std::size_t i=0;i<count;++i)if(seen[i]==e.source.get())duplicate=true;
         if(!duplicate){seen[count++]=e.source.get();used+=e.source->encoded().capacity()+e.source->metadata().profile.capacity();}}
     need(used<=r.limits.context_bytes&&extra<=r.limits.context_bytes-used,8);
 }
@@ -40,8 +41,21 @@ int32_t pixaura_decode_open(pixaura_decode_context* c,const uint8_t* root,uint64
 });}
 int32_t pixaura_decode_query(pixaura_decode_context* c,const pixaura_decode_handle* handle,pixaura_decode_metadata* output){return boundary([&]{need(output!=nullptr);const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);*output=entry(h,handle).source->metadata().value;});}
 int32_t pixaura_decode_image(pixaura_decode_context* c,const pixaura_decode_handle* handle,pixaura_decode_handle* output){return boundary([&]{need(output!=nullptr);const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);const auto& e=entry(h,handle);need(!e.image,3);const auto& l=h.registry->limits;
-    room(*h.registry,e.source->metadata().value.decoded_bytes+l.scratch_bytes);auto pixels=decode::execute(*e.source,l);const auto result=insert(h,{e.source,std::move(pixels),true});*output=result;
+    need(!e.working.pixels,3);room(*h.registry,e.source->metadata().value.decoded_bytes+l.scratch_bytes);auto pixels=decode::execute(*e.source,l);const auto result=insert(h,{e.source,std::move(pixels),true});*output=result;
 });}
 int32_t pixaura_decode_copy_pixels(pixaura_decode_context* c,const pixaura_decode_handle* h,uint64_t offset,uint8_t* output,uint64_t bytes){return copy(c,h,offset,output,bytes,true);}
 int32_t pixaura_decode_copy_profile(pixaura_decode_context* c,const pixaura_decode_handle* h,uint64_t offset,uint8_t* output,uint64_t bytes){return copy(c,h,offset,output,bytes,false);}
 int32_t pixaura_decode_release(pixaura_decode_context* c,const pixaura_decode_handle* handle){return boundary([&]{const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);entry(h,handle);h.registry->entries.erase(handle->serial);});}
+int32_t pixaura_working_default_limits(uint32_t version,pixaura_working_limits* out){return boundary([&]{need(version==1,2);need(out!=nullptr);*out=working::defaults();});}
+int32_t pixaura_working_normalize(pixaura_decode_context* c,const pixaura_decode_handle* handle,const pixaura_working_limits* l,pixaura_decode_handle* out){return boundary([&]{
+    need(l&&out);const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);const auto& e=entry(h,handle);need(e.image&&e.pixels,3);
+    const auto m=working::layout(e.source->metadata(),*l);room(*h.registry,m.image_bytes);
+    Entry result;result.source=e.source;result.working=working::normalize(e.source->metadata(),e.pixels->data(),e.pixels->size(),*l);
+    const auto token=insert(h,std::move(result));*out=token;
+});}
+int32_t pixaura_working_identity(pixaura_decode_context* c,const pixaura_decode_handle* handle,const pixaura_working_limits* l,pixaura_decode_handle* out){return boundary([&]{
+    need(l&&out);const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);const auto& e=entry(h,handle);need(e.working.pixels!=nullptr,3);working::validate(*l);
+    room(*h.registry,e.working.metadata.image_bytes);Entry result;result.source=e.source;result.working=working::identity(e.working,*l);const auto token=insert(h,std::move(result));*out=token;
+});}
+int32_t pixaura_working_query(pixaura_decode_context* c,const pixaura_decode_handle* handle,pixaura_working_metadata* out){return boundary([&]{need(out!=nullptr);const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);const auto& e=entry(h,handle);need(e.working.pixels!=nullptr,3);*out=e.working.metadata;});}
+int32_t pixaura_working_copy(pixaura_decode_context* c,const pixaura_decode_handle* handle,uint64_t offset,float* out,uint64_t count){return boundary([&]{const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);const auto& e=entry(h,handle);need(e.working.pixels!=nullptr,3);const auto& v=*e.working.pixels;need(offset<=v.size()&&count<=v.size()-offset&&(out||count==0));if(count)std::memcpy(out,v.data()+static_cast<std::size_t>(offset),static_cast<std::size_t>(count)*sizeof(float));});}

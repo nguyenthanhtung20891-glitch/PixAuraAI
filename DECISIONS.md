@@ -15,3 +15,5 @@
 | [0011](docs/adr/0011-shared-bounded-sdr-decode.md) | Accepted | Shared portable bounded JPEG/PNG SDR decoders; supersedes platform codec ownership for these formats only; transient RGBA8 and configurable hard limits |
 
 Accepted architecture does not imply an implementation or verified runtime. Exact models, Android GPU backend fallback coverage, shader tolerance and subscription grace remain evaluation items in relevant phases. Major changes require new numbered ADRs and index updates.
+
+Phase 2 Step 5 refines existing ADR 0003/0009/0011 in the [CPU working-image contract](docs/contracts/cpu-working-image-v1.md): canonical premultiplied linear-sRGB RGBA32F, fixed bounded transfer tables, explicit unsupported profile transformation, existing context-scoped lifetime. No new dependency or superseding architecture decision is introduced.

@@ -8,6 +8,7 @@ using document::Vector;
 struct Metadata {
     pixaura_decode_metadata value{};
     Vector<uint8_t> profile;
+    bool srgb_compatible=true;
 };
 pixaura_decode_limits defaults();
 void validate_limits(const pixaura_decode_limits&);
@@ -20,7 +21,7 @@ class Source {
     Metadata metadata_;
 public:
     Source(std::unique_ptr<Vector<uint8_t>> encoded, Metadata&& metadata):encoded_(std::move(encoded)) {
-        metadata_.value=metadata.value;metadata_.profile.swap(metadata.profile);
+        metadata_.value=metadata.value;metadata_.profile.swap(metadata.profile);metadata_.srgb_compatible=metadata.srgb_compatible;
     }
     Source(const Vector<uint8_t>& encoded, Metadata&& metadata):Source(std::make_unique<Vector<uint8_t>>(encoded),std::move(metadata)){}
     const Vector<uint8_t>& encoded() const { return *encoded_; }

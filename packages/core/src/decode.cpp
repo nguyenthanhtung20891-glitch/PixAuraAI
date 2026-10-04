@@ -62,13 +62,13 @@ Metadata png(View v,const pixaura_decode_limits& l){
         else if(is("iCCP")){need(!icc&&!srgb&&!idat);icc=true;std::size_t z=0;while(z<data.n&&data.p[z])++z;need(z>=1&&z<=79&&z+2<data.n&&data.p[z+1]==0);
             m.profile.resize(static_cast<std::size_t>(l.profile_bytes));std::size_t actual=0;const auto status=pixaura_codec_inflate(data.p+z+2,data.n-z-2,m.profile.data(),m.profile.size(),&actual,static_cast<std::size_t>(l.scratch_bytes));need(status==0,status);m.profile.resize(actual);profile(m,l,color==0||color==4);
         }else if(is("sRGB")){need(!srgb&&!icc&&!idat&&n==1&&data.at(0)<=3);srgb=true;m.value.profile_type=2;}
-        else if(is("gAMA")){need(!gamma&&!idat&&n==4&&data.be32(0)>0);gamma=true;}
-        else if(is("cHRM")){need(!chrm&&!idat&&n==32);chrm=true;}
+        else if(is("gAMA")){need(!gamma&&!idat&&n==4&&data.be32(0)>0);gamma=true;if(data.be32(0)!=45455)m.srgb_compatible=false;}
+        else if(is("cHRM")){need(!chrm&&!idat&&n==32);chrm=true;const uint32_t expected[]={31270,32900,64000,33000,30000,60000,15000,6000};for(unsigned i=0;i<8;++i)if(data.be32(i*4)!=expected[i])m.srgb_compatible=false;}
         else need((type.p[0]&32)!=0,16);
         if(idat&&!is("IDAT"))after_data=true;
         pos+=12+std::size_t(n);
     }
-    need(ended,18);layout(m.value,l);return m;
+    need(ended,18);m.srgb_compatible=m.srgb_compatible&&(!(gamma||chrm)||srgb);layout(m.value,l);return m;
 }
 Metadata jpeg(View v,const pixaura_decode_limits& l){
     Metadata m;m.value.orientation=1;bool sof=false,sos=false,done=false,orientation=false;uint64_t meta=0;uint32_t markers=0;std::size_t pos=2;unsigned profiles=0;std::array<View,256> parts{};
