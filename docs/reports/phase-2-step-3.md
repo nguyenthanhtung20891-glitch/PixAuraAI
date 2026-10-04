@@ -1,6 +1,6 @@
 # Phase 2 Step 3: durable persistence and immutable asset storage
 
-Status: IMPLEMENTED; autonomous CI closeout authorized on 2026-10-04; corrected-revision CI gates pending. Step 4 remains unauthorized. The user attests Foundation boundaries and Native application shells fully green for approved Step 2 revision `f78ba096872249bf80ff1e4ee9e51a0a4ecfb6ef`. That attestation authorizes this step; it is not an independently observed Apple/MSVC execution for this working tree. Historical remediation sections below retain their original authorization and evidence; section 12 records the current closeout.
+Status: FULL PASS for Phase 2 Step 3, independently observed on published implementation `7b572b4807a1740994517e8924e28601d42832ec`; ready for Product Owner acceptance. Step 4 remains unauthorized. The user attests Foundation boundaries and Native application shells fully green for approved Step 2 revision `f78ba096872249bf80ff1e4ee9e51a0a4ecfb6ef`. That attestation authorized this step; current Step 3 Apple/MSVC results are independently observed below. Historical remediation sections retain their original authorization and evidence; section 13 records resumed closeout and final results.
 
 ## 1. Repository findings and scope
 
@@ -261,3 +261,18 @@ Commit `5d3588312411aaa978323f125621638f96d6a6de` produces fully successful Foun
 All four Xcode invocations now expand `KEEP_PRIVATE_EXTERNS` from a target-name-specific setting, defining YES only for CPixAuraSQLite. Other targets expand to the empty/default boolean, preserving their normal dynamic-library build behavior. Single shell quotes retain Xcode's literal nested variable expansion. Regression checks require both target-specific settings and forbid the global YES override. SQLite bytes, hidden visibility, app debug dylib behavior and every test remain intact.
 
 The read-only Actions wrapper additionally supports an optional numeric completed-job ID for failed-log retrieval via the fixed repository's Actions job-log API, because `gh run view --log-failed` refuses logs while another workflow job is still running. Logs remain under ignored repository paths and checkout SHA is inspected before acting; no token access or external mutation. Source tests remain 33/33 after the previous correction; native/Android/sanitizer regressions are unchanged and their executed evidence above remains applicable. Latest target-specific Apple runtime confirmation is pending.
+
+### Observed closure and acceptance evidence
+
+Both workflows completed successfully on exact implementation SHA `7b572b4807a1740994517e8924e28601d42832ec`, verified by commit-filtered run listing and retained job checkout logs:
+
+| Workflow | Observed result |
+| --- | --- |
+| [Foundation boundaries 37190477473](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37190477473) | PASS all 7 jobs: workflow lint, Windows MSVC, Ubuntu native, ASan/UBSan, Apple boundary and Android arm64/ARMv7 boundaries |
+| [Native application shells 37190477422](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37190477422) | PASS all 3 jobs: source, Android app/emulator and iOS app/package/device/simulator |
+
+Retained wrapper-retrieved logs: `msvc-green.log` confirms real hosted MSVC CTest 7/7; `sanitizer-green.log` confirms actual sanitizer CTest 9/9; `apple-green.log` confirms macOS Swift 6/6 and iOS simulator package 6/6, zero failures, with successful unsigned device build. Its actual SQLite partial-link invocations contain `-keep_private_externs`. `ios-green.log` confirms unsigned Debug and Release app builds, app Swift/C boundary tests 4/4 and UI test 1/1, zero failures. `android-green.log` confirms strict builds/lint/JVM gates, all three instrumentation tests finished and Gradle/emulator exit 0 on hosted API 35; the intermediate progress line shows 1/3 with zero failures/skips, not the final XML, so no uninspected XML counts are asserted. Local newly executed instrumentation independently reports 3/3 with failures/errors/skips zero.
+
+Final applicable gates G0-G5 and existing shell regressions are PASS. Local MSVC/Apple host unavailability is covered by actual hosted execution; there are no remaining CI-only Step 3 gates or architecture/product blockers. G6 pixel parity and later-phase gates remain outside Step 3. Flush/crash tests do not certify physical power-loss hardware behavior; orphan/temp GC remains intentionally deferred by ADR 0010. SQLite source/header retain the reviewed hashes, hidden visibility and security definitions. No Step 4 work, test removal or quality-policy relaxation occurred.
+
+Closeout commits created and pushed through `scripts/codex-git.ps1`: `e220010` (MSVC/fixture/inspection fixes and first linker attempt), `5d35883` (Xcode partial-link setting), `7b572b4` (SQLite-target-only setting). This final evidence update changes only the report; both workflows will be observed again on its published documentation commit before the user-facing closeout. The acceptance evidence above refers to the fully validated implementation commit, without inventing a self-referential documentation SHA.
