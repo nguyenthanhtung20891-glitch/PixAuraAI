@@ -84,7 +84,7 @@ Owned changes: root architecture/photo/quality/roadmap/decision documentation; d
 
 ## 15. Commits
 
-None yet. Implementation will be committed/pushed through scripts/codex-git.ps1 after local gates pass; subsequent CI remediation/evidence commits will be recorded here.
+Created/pushed through scripts/codex-git.ps1: `b8449b484e1f080d444cb9fa9bd7f56081e572cf` (bounded decode implementation, dependency pins, contracts and tests). CI remediation/evidence commits follow below.
 
 ## 16. Local validation
 
@@ -106,7 +106,7 @@ Initial failures were diagnosed rather than counted PASS: WSL RPC/service access
 
 ## 17. GitHub Actions
 
-Step 4 workflows are not yet published/observed. Both Foundation boundaries and Native application shells must pass on the exact pushed SHA, including real MSVC, Apple package/app/simulator and Android hosted emulator. Use scripts/codex-gh.ps1, verify SHA before retrieving current failed logs and repeat narrow remediation until green. Baseline successes in section 1 do not substitute.
+Initial Step 4 workflows on exact SHA `b8449b484e1f080d444cb9fa9bd7f56081e572cf`: Foundation run 37208103131 failed on two host compiler issues; Native application shells run 37208103134 remains in progress at this observation. Both Foundation boundaries and Native application shells must pass on the exact pushed SHA, including real MSVC, Apple package/app/simulator and Android hosted emulator. Use scripts/codex-gh.ps1, verify SHA before retrieving current failed logs and repeat narrow remediation until green. Baseline successes in section 1 do not substitute.
 
 ## 18. Remaining limitations
 
@@ -119,3 +119,9 @@ Not FULL PASS until final local regressions and exact-SHA CI workflows are green
 ## 20. Proposed Step 5
 
 Separately review/authorize orientation and color normalization into the frozen linear working space, then initial CPU reference evaluation with explicit numerical/resource contracts. This proposal is not authorization and no Step 5 implementation has started.
+
+## CI remediation round 1
+
+Exact current run/job logs were retrieved through scripts/codex-gh.ps1 after commit-filtered listing. Foundation 37208103131: real MSVC C compiler lacks the C max_align_t declaration used by the allocation header; Ubuntu GCC rejects copied pair loop variables under -Werror=range-loop-construct. Corrected only owned code: a portable union aligned for the scalar codec types, and const-reference test loop bindings. A final scratch-budget review also moves the fixed decoder-control size check before its allocation; both codecs test scratch=1 rejection. No vendor bytes, warning gates or security policy were changed. Local GCC is absent and its attempted configure is BLOCKED; hosted GCC must execute the corrected tree.
+
+First-run Foundation Apple, sanitizers, workflow lint and both Android native jobs independently pass. Retrieved Apple job 111453460725 checkout logs verify b8449b4 and actual macOS Swift 7/7, iOS simulator package 7/7 and successful unsigned device build. This is genuine initial implementation evidence, not final corrected-SHA acceptance. Fresh Windows fallback and Android regressions pass on the remediation tree (10/10 native; strict Android 147 tasks, 23 executed/124 up-to-date; instrumentation 4/4), with refreshed Clang 10/10, ASan/UBSan 12/12, Linux source 65/65 and Windows source 36/36 passing before publishing the fix. Local actionlint 1.7.12 passes through its Windows executable; an initial invocation incorrectly targeted its containing directory and was corrected.

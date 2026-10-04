@@ -33,7 +33,7 @@ struct Context {
     ~Context(){CHECK(pixaura_decode_context_destroy(&c)==0);}
 };
 int main(int argc,char** argv){CHECK(argc==2);auto l=decode::defaults();
-    for(const auto input:{std::pair<const uint8_t*,std::size_t>{decode_gray1,sizeof(decode_gray1)},
+    for(const auto& input:{std::pair<const uint8_t*,std::size_t>{decode_gray1,sizeof(decode_gray1)},
         {decode_rgb,sizeof(decode_rgb)},{decode_grayalpha,sizeof(decode_grayalpha)},{decode_palette,sizeof(decode_palette)},{decode_adam7,sizeof(decode_adam7)}}){
         const Bytes encoded(input.first,input.first+input.second);auto info=decode::admit(encoded.data(),encoded.size(),l);decode::Source source(encoded,std::move(info));const auto pixels=decode::execute(source,l);CHECK(pixels->size()==source.metadata().value.decoded_bytes);
         if(input.first==decode_adam7){auto plain=png();auto pm=decode::admit(plain.data(),plain.size(),l);decode::Source ps(plain,std::move(pm));CHECK(*pixels==*decode::execute(ps,l));}
@@ -44,11 +44,11 @@ int main(int argc,char** argv){CHECK(argc==2);auto l=decode::defaults();
         for(unsigned o=1;o<=8;++o){auto v=orient(b,o,s.metadata().value.format==2);auto info=decode::admit(v.data(),v.size(),l);CHECK(info.value.orientation==o&&info.value.display_width==(o>=5?3u:2u));decode::Source source(v,std::move(info));CHECK(*decode::execute(source,l)==*pixels);}
         auto bad=orient(b,9,s.metadata().value.format==2);error(17,[&]{decode::admit(bad.data(),bad.size(),l);});bad=orient(b,0,s.metadata().value.format==2);error(17,[&]{decode::admit(bad.data(),bad.size(),l);});
         for(int fault:{1,2}){decode::execution_fault=fault;error(fault==1?17:19,[&]{decode::execute(s,l);});}decode::execution_fault=0;
-        unsigned failures=0;for(int n=0;n<100;++n){decode::allocation_fail_after=n;try{CHECK(*decode::execute(s,l)==*pixels);break;}catch(const document::Failure& f){CHECK(f.code==8);++failures;}}CHECK(failures>0);decode::allocation_fail_after=-1;CHECK(*decode::execute(s,l)==*pixels);
+        unsigned failures=0;for(int n=0;n<100;++n){decode::allocation_fail_after=n;try{CHECK(*decode::execute(s,l)==*pixels);break;}catch(const document::Failure& f){CHECK(f.code==8);++failures;}}CHECK(failures>0);decode::allocation_fail_after=-1;CHECK(*decode::execute(s,l)==*pixels);auto tiny_scratch=l;tiny_scratch.scratch_bytes=1;error(8,[&]{decode::execute(s,tiny_scratch);});
         for(std::size_t n=0;n<b.size();++n){try{decode::admit(b.data(),n,l);CHECK(false);}catch(const document::Failure& f){CHECK(f.code==17||f.code==18||f.code==16);}}
     }
     std::cerr<<"arithmetic and corpus\n";error(8,[]{decode::multiply(UINT64_MAX,2);});CHECK(decode::multiply(0,UINT64_MAX)==0);
-    for(const auto dims:{std::pair<uint32_t,uint32_t>{0,1},{1,0},{UINT32_MAX,UINT32_MAX},{16384,16384}}){auto b=png();be32(b,16,dims.first);be32(b,20,dims.second);crc(b,8,13);error(dims.first==0||dims.second==0?17:8,[&]{decode::admit(b.data(),b.size(),l);});}
+    for(const auto& dims:{std::pair<uint32_t,uint32_t>{0,1},{1,0},{UINT32_MAX,UINT32_MAX},{16384,16384}}){auto b=png();be32(b,16,dims.first);be32(b,20,dims.second);crc(b,8,13);error(dims.first==0||dims.second==0?17:8,[&]{decode::admit(b.data(),b.size(),l);});}
     auto b=png();for(unsigned which=0;which<6;++which){auto small=l;if(which==0)small.row_stride=7;if(which==1)small.decoded_bytes=23;if(which==2)small.pixel_count=5;if(which==3)small.metadata_bytes=12;if(which==4)small.marker_count=2;if(which==5)small.encoded_bytes=b.size()-1;error(8,[&]{decode::admit(b.data(),b.size(),small);});}
     b=png();b.push_back(0);error(17,[&]{decode::admit(b.data(),b.size(),l);});b=jpeg();b.push_back(0);error(17,[&]{decode::admit(b.data(),b.size(),l);});
     b=png();be32(b,8,UINT32_MAX);error(18,[&]{decode::admit(b.data(),b.size(),l);});

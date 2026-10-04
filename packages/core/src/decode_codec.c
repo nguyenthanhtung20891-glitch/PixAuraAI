@@ -13,7 +13,10 @@
 #include "zlib.h"
 enum { MALFORMED=17, TRUNCATED=18, MISMATCH=19, LIMIT=8 };
 typedef struct Budget { size_t limit,live; int fail_after,status; } Budget;
-typedef union Block { max_align_t align; struct { size_t bytes; } data; } Block;
+/* Align all scalar codec objects without depending on MSVC's C max_align_t.
+ * These portable builds contain no vector/SIMD allocations.
+ */
+typedef union Block { long double align; void* pointer; uint64_t integer; struct { size_t bytes; } data; } Block;
 static void* take(Budget* b,size_t n) {
     Block* p;
     if(n>SIZE_MAX-sizeof(Block)||b->live>b->limit||n+sizeof(Block)>b->limit-b->live||b->fail_after==0) { b->status=LIMIT;return NULL; }
@@ -42,9 +45,10 @@ static void source_noop(j_decompress_ptr c){(void)c;}
 static boolean source_eof(j_decompress_ptr c){((Budget*)c->client_data)->status=TRUNCATED;jpeg_fail((j_common_ptr)c);return FALSE;}
 static void source_skip(j_decompress_ptr c,long n){if(n>0){if((size_t)n>c->src->bytes_in_buffer){source_eof(c);return;}c->src->next_input_byte+=(size_t)n;c->src->bytes_in_buffer-=(size_t)n;}}
 static int32_t decode_jpeg(const uint8_t* input,size_t bytes,uint8_t* out,uint32_t w,uint32_t h,size_t stride,size_t cap,int fail_after,int fault){
-    Jpeg* s=(Jpeg*)calloc(1,sizeof(Jpeg));JpegError e;int32_t status=0;
+    Jpeg* s;JpegError e;int32_t status=0;
+    if(cap<sizeof(Jpeg))return LIMIT;
+    s=(Jpeg*)calloc(1,sizeof(Jpeg));
     if(!s)return LIMIT;
-    if(cap<sizeof(Jpeg)){free(s);return LIMIT;}
     s->budget.limit=cap-sizeof(Jpeg);s->budget.fail_after=fail_after;
     memset(&e,0,sizeof(e));jpeg_std_error(&e.base);e.base.error_exit=jpeg_fail;e.base.emit_message=jpeg_warning;e.jump=&s->jump;e.budget=&s->budget;
     s->codec.err=&e.base;s->codec.client_data=&s->budget;
@@ -68,9 +72,10 @@ static png_voidp png_take(png_structp p,png_alloc_size_t n){return take(&((Png*)
 static void png_drop(png_structp p,png_voidp v){drop(&((Png*)png_get_mem_ptr(p))->budget,v);}
 static void png_read(png_structp p,png_bytep v,png_size_t n){Png* s=(Png*)png_get_io_ptr(p);if(n>s->bytes-s->offset){s->budget.status=TRUNCATED;png_fail(p,"EOF");return;}memcpy(v,s->input+s->offset,n);s->offset+=n;}
 static int32_t decode_png(const uint8_t* input,size_t bytes,uint8_t* out,uint32_t w,uint32_t h,size_t stride,size_t cap,int fail_after,int fault){
-    Png* s=(Png*)calloc(1,sizeof(Png));int32_t status=0;int color,depth,passes,pass;uint32_t y;
+    Png* s;int32_t status=0;int color,depth,passes,pass;uint32_t y;
+    if(cap<sizeof(Png))return LIMIT;
+    s=(Png*)calloc(1,sizeof(Png));
     if(!s)return LIMIT;
-    if(cap<sizeof(Png)){free(s);return LIMIT;}
     s->budget.limit=cap-sizeof(Png);s->budget.fail_after=fail_after;s->input=input;s->bytes=bytes;
     if(setjmp(s->jump)){status=s->budget.status;goto done;}
     if(fault==1){status=MALFORMED;goto done;}
