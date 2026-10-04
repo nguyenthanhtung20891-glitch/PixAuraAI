@@ -12,7 +12,7 @@ for configuration in Debug Release; do
         -configuration "$configuration" -destination 'generic/platform=iOS' \
         -derivedDataPath "$workspace_path/build/ios-shell-device" \
         'KEEP_PRIVATE_EXTERNS=$(PIXAURA_PRIVATE_EXTERNS_$(TARGET_NAME))' \
-        PIXAURA_PRIVATE_EXTERNS_CPixAuraSQLite=YES CODE_SIGNING_ALLOWED=NO build
+        PIXAURA_PRIVATE_EXTERNS_CPixAuraSQLite=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraCodecs=YES CODE_SIGNING_ALLOWED=NO build
 done
 result_directory="$(mktemp -d "$workspace_path/build/ios-shell-results.XXXXXX")"
 xcodebuild -project platforms/ios/PixAuraAI.xcodeproj -scheme PixAuraAI \
@@ -20,5 +20,5 @@ xcodebuild -project platforms/ios/PixAuraAI.xcodeproj -scheme PixAuraAI \
     -derivedDataPath "$workspace_path/build/ios-shell-simulator" \
     -resultBundlePath "$result_directory/tests.xcresult" \
     'KEEP_PRIVATE_EXTERNS=$(PIXAURA_PRIVATE_EXTERNS_$(TARGET_NAME))' \
-    PIXAURA_PRIVATE_EXTERNS_CPixAuraSQLite=YES \
+    PIXAURA_PRIVATE_EXTERNS_CPixAuraSQLite=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraCodecs=YES \
     ARCHS="$simulator_arch" ONLY_ACTIVE_ARCH=YES EXCLUDED_ARCHS= CODE_SIGNING_ALLOWED=NO test

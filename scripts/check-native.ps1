@@ -37,3 +37,11 @@ try {
     & cmd.exe /d /c check.cmd
     if ($LASTEXITCODE -ne 0) { throw "Native checks failed (exit $LASTEXITCODE)." }
 } finally { Pop-Location }
+# Include decode_test, decode_c_consumer and decode_allocation_test in the MSVC gate.
+$decodeBuild = Join-Path $workspacePath 'build\msvc-decode'
+& cmake -S $workspacePath -B $decodeBuild
+if ($LASTEXITCODE -ne 0) { throw 'Decode CMake configure failed.' }
+& cmake --build $decodeBuild --config Debug
+if ($LASTEXITCODE -ne 0) { throw 'Decode native build failed.' }
+& ctest --test-dir $decodeBuild -C Debug --output-on-failure
+if ($LASTEXITCODE -ne 0) { throw 'Decode/native tests failed.' }

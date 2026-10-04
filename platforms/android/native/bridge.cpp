@@ -2,7 +2,34 @@
 #include "pixaura/core.h"
 #include "pixaura/document.h"
 #include "pixaura/storage.h"
+#include "pixaura/decode.h"
 #include <vector>
+
+extern "C" JNIEXPORT jint JNICALL
+Java_ai_pixaura_bridge_CoreProbe_nativeDecodeCheck(JNIEnv* env,jobject,jbyteArray root,jbyteArray digest,
+    jlong asset_bytes,jbyteArray identity,jlong encoded_limit) {
+    if(!root||!digest||!identity||asset_bytes<=0||encoded_limit<=0)return -1;
+    const auto n=env->GetArrayLength(root);
+    if(n<=0||n>1024||env->GetArrayLength(digest)!=64||env->GetArrayLength(identity)!=32)return -1;
+    uint8_t path[1024],hash[64],id[32];
+    env->GetByteArrayRegion(root,0,n,reinterpret_cast<jbyte*>(path));
+    env->GetByteArrayRegion(digest,0,64,reinterpret_cast<jbyte*>(hash));
+    env->GetByteArrayRegion(identity,0,32,reinterpret_cast<jbyte*>(id));
+    if(env->ExceptionCheck())return -1;
+    pixaura_decode_limits limits{};pixaura_decode_default_limits(1,&limits);
+    limits.encoded_bytes=static_cast<uint64_t>(encoded_limit);
+    pixaura_decode_context context{};auto status=pixaura_decode_context_init(1,&context,sizeof(context),id,32,&limits);
+    if(status!=0)return -status;
+    struct Cleanup{pixaura_decode_context& c;~Cleanup(){pixaura_decode_context_destroy(&c);}} cleanup{context};
+    pixaura_decode_handle source{},image{};pixaura_decode_metadata metadata{};
+    status=pixaura_decode_open(&context,path,static_cast<uint64_t>(n),hash,64,static_cast<uint64_t>(asset_bytes),&source);
+    if(status==0)status=pixaura_decode_query(&context,&source,&metadata);
+    if(status==0)status=pixaura_decode_image(&context,&source,&image);
+    if(status==0)status=pixaura_decode_release(&context,&source);
+    if(status==0)status=pixaura_decode_query(&context,&image,&metadata);
+    if(status==0)status=pixaura_decode_release(&context,&image);
+    return status==0?static_cast<jint>(metadata.width):-status;
+}
 
 extern "C" JNIEXPORT jint JNICALL
 Java_ai_pixaura_bridge_CoreProbe_nativeStorageVersion(JNIEnv* env, jobject, jbyteArray root) {

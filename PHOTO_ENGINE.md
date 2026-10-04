@@ -1,5 +1,7 @@
 # Non-destructive photo engine
 
+Phase 2 Step 4 uses [ADR 0011](docs/adr/0011-shared-bounded-sdr-decode.md) and the [encoded admission contract](docs/contracts/encoded-image-v1.md): shared portable baseline JPEG/still PNG decoding, verified structural metadata, bounded transient RGBA8 in encoded raster order, retained orientation/profile information. Color/orientation normalization remains the next separately authorized evaluation work; no renderer or editing kernel exists.
+
 ## Source and graph
 
 The [schema 1 document contract](docs/contracts/image-document-v1.md) and ADR [0008](docs/adr/0008-document-stacks-and-manifest.md) refine this graph into a linear ordered stack for each revision, with a single-parent revision tree retaining branches. General multi-input pixel DAG evaluation is deferred until a concrete feature requires it. Operation envelopes, integer parameter units, unknown-version rejection, bounded canonical JSON, history transitions, source identity and render/export request ownership are frozen there. These are contracts, not implemented pixel tools.

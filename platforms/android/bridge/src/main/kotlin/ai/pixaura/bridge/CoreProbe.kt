@@ -14,6 +14,15 @@ class CoreProbe {
     // Synchronous SQLite capability check; application services call on a worker.
     external fun nativeStorageVersion(privateRoot: ByteArray): Int
 
+    // Synchronous background-only check. Core owns admission and allocation policy.
+    external fun nativeDecodeCheck(
+        privateRoot: ByteArray,
+        digest: ByteArray,
+        assetBytes: Long,
+        contextIdentity: ByteArray,
+        encodedLimit: Long,
+    ): Int
+
     // Bounded metadata adapter; call from a worker. No image bytes or algorithms.
     external fun nativeDocumentRoundTrip(
         manifest: ByteArray,

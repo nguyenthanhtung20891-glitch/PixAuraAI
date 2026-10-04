@@ -58,3 +58,5 @@ try {
     $env:ZIG_LOCAL_CACHE_DIR = $previousLocalCache
     $env:ZIG_GLOBAL_CACHE_DIR = $previousGlobalCache
 }
+# Codec/decode_test/decode_c_consumer/decode_allocation_test use the full CMake build.
+& (Join-Path $PSScriptRoot 'check-decode-zig.ps1') -ZigPath $zigCompiler

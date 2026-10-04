@@ -238,6 +238,21 @@ void Files::verify(const Asset& asset) const {
     while(total<asset.bytes) {const auto n=read(file,buffer.data(),static_cast<std::size_t>(std::min<uint64_t>(buffer.size(),asset.bytes-total)));require(n>0,6);hash.update(buffer.data(),n);total+=n;}
     require(read(file,buffer.data(),1)==0&&length(file)==asset.bytes&&hash.finish()==asset.digest,6);
 }
+std::unique_ptr<document::Vector<uint8_t>> Files::read_verified(const Asset& asset,uint64_t limit) const {
+    require(digest_valid(asset.digest)&&asset.bytes>0,1);
+    require(asset.bytes<=limit&&asset.bytes<=SIZE_MAX,8);
+    auto file=impl_->open_file("assets/sha256",asset.digest,false);require(file.handle!=invalid,6);
+    require(length(file)==asset.bytes,6);
+    auto bytes=std::make_unique<document::Vector<uint8_t>>(static_cast<std::size_t>(asset.bytes));
+    Sha256 hash;std::size_t offset=0;
+    while(offset<bytes->size()) {
+        const auto n=read(file,bytes->data()+offset,std::min(stream_buffer,bytes->size()-offset));
+        require(n>0,6);hash.update(bytes->data()+offset,n);offset+=n;
+    }
+    uint8_t extra=0;
+    require(read(file,&extra,1)==0&&length(file)==asset.bytes&&hash.finish()==asset.digest,6);
+    return bytes;
+}
 Asset Files::ingest(Reader& reader,uint64_t expected,std::string_view digest) {
     require(expected>0&&expected<=asset_limit,8);require(digest.empty()||digest_valid(digest),1);fault(Point::before_temp);
     const auto name=impl_->temporary();

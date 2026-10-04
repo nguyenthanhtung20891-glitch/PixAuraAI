@@ -1,5 +1,7 @@
 # System architecture
 
+For JPEG/PNG SDR, accepted [ADR 0011](docs/adr/0011-shared-bounded-sdr-decode.md) supersedes the earlier platform codec ownership below: shared C++ owns admission, bounds, decode semantics and transient image ownership using pinned portable decoders. Platforms retain OS/file integration. This exception does not extend to other formats, HDR, animation or encoding/export.
+
 ## Stack and rationale
 Native Kotlin/Jetpack Compose Android shell and Swift/SwiftUI iOS shell, shared C++17 processing/domain primitives behind a versioned C ABI. Two native UIs cost more than one cross-platform shell but give direct ownership of GPU surfaces, memory pressure, background tasks, accessibility and inference providers. Flutter and React Native are viable shells but are not selected: the core must already be native and this product prioritizes platform profiling and integration over shared presentation.
 

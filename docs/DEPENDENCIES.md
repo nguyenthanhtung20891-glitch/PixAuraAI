@@ -1,5 +1,23 @@
 # Phase 1 dependency and build-input review
 
+## Phase 2 Step 4 portable decoder review, 2026-10-04
+
+The Product Owner explicitly approves the shared JPEG/PNG SDR stack under [ADR 0011](adr/0011-shared-bounded-sdr-decode.md). No other codec, cloud framework or encoding/export pipeline is added. Exact unchanged distribution files and their SHA-256 values are recorded in [codec provenance](../packages/core/vendor/codecs/provenance.json); CMake and source tests verify every retained distribution file. Shipping builds require no codec download/resolution. Owned platform-neutral configuration headers are separate from vendor bytes.
+
+| Input | Official release/provenance | License | Archive SHA-256 |
+| --- | --- | --- | --- |
+| libjpeg-turbo 3.2.0 | [Official supported source asset](https://github.com/libjpeg-turbo/libjpeg-turbo/releases/tag/3.2.0), 2537858 bytes | IJG/BSD-style and component Zlib notices; LICENSE.md and README.ijg retained | `6f30092cef9fb839779646608f4ee14ae3cbac989c47fa05e841b0841f09878e` |
+| libpng 1.6.59 | [Official release/security page](https://www.libpng.org/pub/png/libpng.html), SourceForge source archive, 1589315 bytes | PNG Reference Library License v2 (`libpng-2.0`), LICENSE retained | `86a3e4b501f7f50e392c4e456ea158893e9a595b1c63eb88c7bb9f6cf8772dad` |
+| zlib 1.3.2 | [Official distribution](https://zlib.net/), 1502830 bytes | `Zlib`, LICENSE retained | `bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16` |
+
+Libpng/zlib archive hashes match values published by their official websites. JPEG hash is computed from the official HTTPS release asset; no independent signature verification is claimed. Per-file hashes preserve distribution bytes, not application-generated build artifacts. Licenses require retaining their copyright/disclaimer/notices; no copyleft runtime or separate paid extension is selected. Review/upgrades remain isolated maintainer-owned changes and later SBOM/security gates remain required.
+
+Security posture: [libjpeg-turbo's security policy](https://github.com/libjpeg-turbo/libjpeg-turbo/security) supports security fixes on maintained branches; its 3.2.0 release records API-hardening fixes. Libpng's official page records recent palette/transparency/NEON and allocation-failure fixes; 1.6.59 includes those preceding fixes. Zlib 1.3.2 documents fixes following an external audit, including initialized-window copying and allocation initialization. These primary-source reviews are not an exhaustive advisory-database or vulnerability-free certification. Our strict baseline/still admission, disabled PNG SIMD and compressed-text parsing, allocation hooks, fixed corpus and actual codec sanitizers constrain exposure but do not replace patch maintenance.
+
+Portable C builds target Windows/Linux/Android/Apple; real platform evidence is tracked in the [Step 4 report](reports/phase-2-step-4.md). No SIMD/assembly/tool executable resolution is required. The owned JPEG system-memory backend replaces jmemnobs through documented hooks, without editing third-party source. Libpng custom allocators also account for its zlib allocations. PNG encoding and unneeded ancillary parsers are disabled in owned configuration; no application encoding/export API exists. The static libjpeg source target retains upstream internal precision/encoder sources needed by its common library build; unsupported formats/precision and encoding are not exposed by PixAura's capability family. Vendor compiler-warning policy is isolated to that target; the owned adapter and C++ remain strict. Every codec is sanitizer-instrumented on the sanitizer gate.
+
+Binary-size implications: three static codec libraries add native payload across the existing three Android ABIs. Existing pre-Step-4 local APK observations were Debug 18898487 and unsigned Release 14858259 bytes. These are recorded before rebuilding, not a clean baseline-SHA experiment. After-build measurements and Apple limitations are recorded in the Step 4 report; no estimated size is presented as measured evidence. Source archives/builds remain ignored, while reviewed source inputs and licenses are committed.
+
 Phase 1 reviewed 2026-10-02; Step 3 review appended 2026-10-04. The Phase 1 table is historical. Step 3 adds direct pinned SQLite, without an ORM, network, analytics, authentication, inference or cloud SDK. iOS's local Swift package compiles the identical native sources and vendored SQLite rather than external package resolution.
 
 | Input | Exact version | License / purpose / size consideration |
