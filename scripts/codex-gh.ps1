@@ -113,17 +113,28 @@ switch ($Action) {
     }
 
     "run-failed" {
-        if ($Rest.Count -ne 1 -or $Rest[0] -notmatch '^\d+$') {
-            throw "run-failed requires one numeric run ID."
+        if ($Rest.Count -lt 1 -or $Rest.Count -gt 2 -or $Rest[0] -notmatch '^\d+$' -or
+            ($Rest.Count -eq 2 -and $Rest[1] -notmatch '^\d+$')) {
+            throw "run-failed requires one numeric run ID and an optional numeric job ID."
         }
 
-        Invoke-Gh @(
+        $Arguments = @(
             "run",
             "view",
             $Rest[0],
             "--repo", $Repo,
             "--log-failed"
         )
+        # Completed job logs are available before the entire workflow finishes.
+        if ($Rest.Count -eq 2) {
+            $JobRun = Invoke-Gh @("api", "repos/$Repo/actions/jobs/$($Rest[1])", "--jq", ".run_id")
+            if ("$JobRun".Trim() -ne $Rest[0]) {
+                throw "Job does not belong to the requested workflow run."
+            }
+            Invoke-Gh @("api", "repos/$Repo/actions/jobs/$($Rest[1])/logs", "--allow-escape-sequences")
+            break
+        }
+        Invoke-Gh $Arguments
     }
 
     "run-watch" {

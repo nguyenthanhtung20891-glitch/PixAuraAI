@@ -24,8 +24,11 @@ cd packages/core
 # Preserve hidden SQLite externs through Xcode's package-target ld -r stages.
 xcodebuild -scheme PixAuraCore -destination 'generic/platform=iOS' \
     -derivedDataPath "$workspace_path/build/apple-ios-device" \
-    KEEP_PRIVATE_EXTERNS=YES CODE_SIGNING_ALLOWED=NO build
+    'KEEP_PRIVATE_EXTERNS=$(PIXAURA_PRIVATE_EXTERNS_$(TARGET_NAME))' \
+    PIXAURA_PRIVATE_EXTERNS_CPixAuraSQLite=YES CODE_SIGNING_ALLOWED=NO build
 xcodebuild -scheme PixAuraCore -destination "platform=iOS Simulator,id=$simulator_id,arch=$simulator_arch" \
     -derivedDataPath "$workspace_path/build/apple-ios-simulator" \
     -resultBundlePath "$result_directory/ios-tests.xcresult" \
-    KEEP_PRIVATE_EXTERNS=YES ARCHS="$simulator_arch" ONLY_ACTIVE_ARCH=YES EXCLUDED_ARCHS= CODE_SIGNING_ALLOWED=NO test
+    'KEEP_PRIVATE_EXTERNS=$(PIXAURA_PRIVATE_EXTERNS_$(TARGET_NAME))' \
+    PIXAURA_PRIVATE_EXTERNS_CPixAuraSQLite=YES \
+    ARCHS="$simulator_arch" ONLY_ACTIVE_ARCH=YES EXCLUDED_ARCHS= CODE_SIGNING_ALLOWED=NO test
