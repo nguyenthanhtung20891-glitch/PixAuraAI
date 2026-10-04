@@ -127,3 +127,41 @@ Exact next human actions: review the implementation/ADR/dependency/validation ev
 - `packages/core/vendor/sqlite/sqlite3.h`
 - `platforms/android/app/src/androidTest/java/ai/pixaura/app/StorageBoundaryTest.kt`
 - `tests/persistence.test.mjs`
+
+## 10. Autonomous CI portability remediation (2026-10-04)
+
+User-supplied Step 3 CI evidence identifies Foundation portable `windows-2025`, Foundation `apple-boundary`, and Native application shells Apple/package as FAIL; Ubuntu portable/sanitizer and Android Foundation were reported green. Apple CMake had already passed all seven native tests; its subsequent SwiftPM compilation failed. These supplied results are separate from execution observed below. No commit/push or Step 4 work was authorized or performed in this pass.
+
+### Root causes and exact fixes
+
+- MSVC C4244 under `/WX`: both SHA-256 padding `std::fill` calls deduced an `int` value from literal `0` while assigning to `uint8_t`. Both now pass `uint8_t{0}`. `/W4 /WX` and all owned warning policies remain intact. Empty, abc and million-a known vectors remain; an additional FIPS 56-byte vector verifies the two-block padding branch and expected digest `248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1`.
+- MSVC storage-test C3530/C2513/C2062/C2144 and apparent zero-argument `verify`: the exact declaration was `auto small=store.ingest(...)`, followed by `small.digest` and `store.verify(small)`. Windows SDK RPC headers define `small` as `char`, producing `auto char`, `char.digest` and `verify(char)` after preprocessing. This is macro leakage, not nonstandard C++17 declaration syntax. Linux headers do not introduce it; the local Clang/MinGW RPC header confines that macro to `RC_INVOKED`, explaining why the fallback accepted the original. Rename to `abc_asset` throughout these scenarios; deduplication, hash mismatch, tamper/collision preservation and traversal assertions are unchanged. A separate strict Clang/MinGW object compilation explicitly enables `-Dsmall=char` and passes, verifying resilience to that SDK macro; `windows-macro.log`.
+- AppleClang SwiftPM `-Werror,-Wambiguous-macro`: modular SDK `sys/param.h` and SQLite's internal amalgamation definitions both expose MIN/MAX. `check-apple.sh` passes `-Xcc -Werror` across package targets, unlike the already-green CMake path. The existing `CPixAuraSQLite` target now alone receives `-Wno-ambiguous-macro`, conditioned on macOS/iOS. Other diagnostics still obey `-Werror`; owned C/C++ and Swift warning policies remain strict. No amalgamation, version, module boundary or frozen architecture changed. Both workflows invoke `check-apple.sh`, and the iOS application also references the same local `packages/core` product. This one vendor-target fix therefore addresses both reported Apple/package failures, subject to actual Apple execution.
+- Added a source regression verifying the exception remains in the SQLite target, is Apple-conditioned, preserves the strict Apple command and retains the application's local package reference. During local escalation the tool generated untracked `.codex/config.toml` without a final newline; the source walker initially rejected it. Ignore root `.codex/` in Git and exclude generated tool configuration alongside existing build/cache directories. Authored source hygiene assertions and every test remain enabled.
+
+Reviewed Step 3 storage/SHA/API/schema/tests and platform build wiring for narrowing, same-declaration `auto` types, macro collisions, byte signedness, bounded size/ssize conversions, path capabilities and third-party flags. No further source change was justified. OS read/write conversions remain bounded by streaming/checkpoint limits, negative POSIX results are checked before unsigned conversion, and platform filesystem separation remains as frozen. This pass makes no architectural decision and requires no new ADR.
+
+### Observed validation for this remediation
+
+Logs are ignored under `build/phase-2-step-3/ci-remediation/`.
+
+| Gate | Observed result |
+| --- | --- |
+| Windows source | PASS 33/33, zero skips; `node --test` foundation, ci-tools, shells, document-contract, native-document, persistence; `windows-source.log` |
+| Windows native fallback | PASS, Zig 0.14.1 `check-native-zig.ps1`; core/document/C consumers, allocation failures, storage/crash/concurrency, SHA vectors and C storage reopen; `windows-native.log` |
+| Linux source | PASS 62/62, zero skips; repository-local Node 24.14.0 `node --test tests/*.test.mjs`, including emulator orchestration; `linux-source.log` |
+| Linux native | PASS Clang 21.1.8 CMake Debug/Ninja, CTest 7/7 including storage/document/C consumers; `linux-native.log` |
+| ASan/UBSan | PASS `bash scripts/check-sanitizers.sh`, CTest 9/9, instrumented storage and both runtime-negative probes; `sanitizers.log` |
+| Android builds/native/lint | PASS strict offline Gradle Debug/Release, unit gate, both lints, instrumentation APK; three native ABIs arm64-v8a/armeabi-v7a/x86_64; `android.log`. JVM two-test XML and unchanged lint tasks were reused/up-to-date, not newly executed assertions |
+| Android instrumentation | PASS newly executed 3/3, failures/errors/skips 0; Android 16/API 36.1 x86_64 `pixaura-shell`, JNI document/storage and Compose shell tests; connected XML and `android.log` |
+| Workflows / shell syntax | PASS actionlint 1.7.12 on both workflows; `bash -n` on every `scripts/*.sh`; Apple package/app/source wiring regression passes |
+| Whitespace / vendor integrity | PASS `git diff --check` and source hygiene; SQLite pin checks pass in source/native configuration and fallback |
+| Real MSVC | BLOCKED locally: attempted `check-native.ps1` with execution-policy bypass; missing `vcvarsall.bat`, desktop C++ installation incomplete; `msvc.log`. Owner host maintainer; repair workload or obtain hosted Windows CTest evidence; affects G1/G2/G3 |
+| GCC | BLOCKED locally: attempted CMake GCC configure, neither `gcc` nor `g++` available in WSL PATH; `gcc.log`. Owner host/CI maintainer; execute existing Ubuntu portable job or install host compiler; no GCC PASS claimed |
+| Apple runtime | CI-only: Windows/WSL cannot execute AppleClang SDK modules, Swift/Darwin/macOS tests or Xcode iOS package/app/simulator. Owner repository maintainer; rerun both workflows on corrected revision; affects G1/G2/G3/G5 |
+
+Diagnostic attempts are not PASS: default PowerShell script policy blocked the first MSVC attempt before workload discovery; sandbox denied Windows temporary-ancestor access and ADB configuration; authorized retries ran successfully. Initial WSL shell quoting produced no logs, corrected literal script execution produced the recorded results. Initial Android retries had no device; launched only the existing repository-isolated hidden headless AVD, confirmed boot completion, then reran successfully. The initial generated-config hygiene failure was fixed as described above. GCC configuration unavailability is an environment limitation, not a compiler test result.
+
+SQLite `sqlite3.c` SHA-256 remains exactly `b1dd5d74ec7f29055a6684fa06fb3c2f6821c87dd38f9a458dfd2e8a1db28189`; header remains `919e7f2e8ed1d8f56ac17b412b8971c76aa5d1a879752cc6058f75e7d5910e1d`. Both match reviewed provenance and neither has a Git diff.
+
+This remediation changes seven files: `.gitignore`, `packages/core/Package.swift`, `packages/core/src/sha256.cpp`, `packages/core/tests/storage_test.cpp`, `tests/foundation.test.mjs`, `tests/persistence.test.mjs`, and this report. No commits, pushes, upstream-byte edits, test removals, global warning relaxations or Step 4 implementation occurred. Both red workflows are expected to be repaired for the supplied failures; that expectation is not a claim of CI success. Recommended next action: maintainer reviews this consolidated diff, then commits/pushes through an explicitly authorized process and reruns **Foundation boundaries** and **Native application shells** on the corrected SHA. Retain actual Windows/MSVC and Apple package/iOS run evidence before marking Step 3 fully passed; do not advance to Step 4.

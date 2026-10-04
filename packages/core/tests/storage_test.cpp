@@ -86,9 +86,12 @@ Asset prepare(const Directory& d,const String& golden) {
 void digest_tests() {
     note("SHA256.known_vectors");Sha256 empty;CHECK(empty.finish()=="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
     Sha256 abc;abc.update(reinterpret_cast<const uint8_t*>("abc"),3);CHECK(abc.finish()=="ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
+    // FIPS two-block padding vector exercises finish() with used_ > 56.
+    constexpr char padding[]="abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
+    Sha256 padded;padded.update(reinterpret_cast<const uint8_t*>(padding),sizeof(padding)-1);CHECK(padded.finish()=="248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1");
     Directory d("assets");AssetStore store(d.path());Input large(1000000,'a');const auto a=store.ingest(large,1000000);CHECK(a.digest=="cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0");CHECK(large.calls>15&&large.peak==65536);store.verify(a);
-    note("asset.dedup_names_and_no_overwrite");Bytes b("abc"),again("abc"),different("abcd"),different_name("abc");auto small=store.ingest(b,3,{},"../same.png");CHECK(store.ingest(again,3,{},"../same.png").digest==small.digest);CHECK(store.ingest(different_name,3,{},"other.png").digest==small.digest);CHECK(store.ingest(different,4,{},"../same.png").digest!=small.digest);
-    CHECK(!fs::exists(d.root.parent_path()/"same.png"));store.verify(small);
+    note("asset.dedup_names_and_no_overwrite");Bytes b("abc"),again("abc"),different("abcd"),different_name("abc");auto abc_asset=store.ingest(b,3,{},"../same.png");CHECK(store.ingest(again,3,{},"../same.png").digest==abc_asset.digest);CHECK(store.ingest(different_name,3,{},"other.png").digest==abc_asset.digest);CHECK(store.ingest(different,4,{},"../same.png").digest!=abc_asset.digest);
+    CHECK(!fs::exists(d.root.parent_path()/"same.png"));store.verify(abc_asset);
     note("asset.empty_truncated_read_write_mismatch");Input zero(0);error(8,[&]{store.ingest(zero,0);});Input truncated(2);error(6,[&]{store.ingest(truncated,3);});Input too_long(4);error(6,[&]{store.ingest(too_long,3);});Input read_failure(3);read_failure.fail=true;error(12,[&]{store.ingest(read_failure,3);});
     Input mismatch(3);error(6,[&]{store.ingest(mismatch,3,String(64,'0'));});
     for(int point=0;point<4;++point){Input i(stream_buffer+5,static_cast<uint8_t>(point));fault_point=point;error(12,[&]{store.ingest(i,stream_buffer+5);});fault_point=-1;}
@@ -96,7 +99,7 @@ void digest_tests() {
     const auto other_temp=d.root/"staging/temp-collision";{std::ofstream f(other_temp,std::ios::binary);f<<"other owner";}
     temp_name_override="temp-collision";Bytes collision("abc");error(12,[&]{store.ingest(collision,3);});temp_name_override=nullptr;
     CHECK(fixture(other_temp.string().c_str())=="other owner");
-    note("asset.tamper_collision_rejected");const auto path=d.root/"assets/sha256"/std::string(small.digest);fs::permissions(path,fs::perms::owner_write,fs::perm_options::add);{std::ofstream f(path,std::ios::binary|std::ios::trunc);f<<"xyz";}error(6,[&]{store.verify(small);});Bytes same("abc");error(6,[&]{store.ingest(same,3);});CHECK(fixture(path.string().c_str())=="xyz");
+    note("asset.tamper_collision_rejected");const auto path=d.root/"assets/sha256"/std::string(abc_asset.digest);fs::permissions(path,fs::perms::owner_write,fs::perm_options::add);{std::ofstream f(path,std::ios::binary|std::ios::trunc);f<<"xyz";}error(6,[&]{store.verify(abc_asset);});Bytes same("abc");error(6,[&]{store.ingest(same,3);});CHECK(fixture(path.string().c_str())=="xyz");
     note("asset.concurrent_dedup");auto ingest=[&]{AssetStore s(d.path());Input i(12345,91);return s.ingest(i,12345);};auto one=std::async(std::launch::async,ingest),two=std::async(std::launch::async,ingest);const auto x=one.get(),y=two.get();CHECK(x.digest==y.digest);store.verify(x);
     note("asset.traversal_and_symlink");error(1,[&]{store.verify({"../escape",3});});error(1,[&]{AssetStore s(d.path()+"/../escape");});
     Directory links("links");std::error_code ec;fs::create_directory_symlink(d.root,links.root/"staging",ec);if(!ec){error(6,[&]{AssetStore s(links.path());});}

@@ -13,7 +13,7 @@ const required = [
 ];
 function files(directory = root) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
-    if (['.git', 'build', '.build', '.swiftpm', '.gradle', '.kotlin', '.cxx'].includes(entry.name)) return [];
+    if (['.git', '.codex', 'build', '.build', '.swiftpm', '.gradle', '.kotlin', '.cxx'].includes(entry.name)) return [];
     const full = path.join(directory, entry.name);
     return entry.isDirectory() ? files(full) : [full];
   });

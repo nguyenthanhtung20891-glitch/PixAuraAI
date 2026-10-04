@@ -30,3 +30,12 @@ test('platform storage checks use the native checked boundary', () => {
   assert.match(read('packages/core/swift/Tests/StorageBoundaryTests.swift'), /pixaura_storage_check/);
   assert.match(read('platforms/android/app/src/androidTest/java/ai/pixaura/app/StorageBoundaryTest.kt'), /nativeStorageVersion/);
 });
+test('Apple SDK macro exception stays confined to the vendored SQLite target', () => {
+  const manifest = read('packages/core/Package.swift');
+  const sqlite = manifest.slice(manifest.indexOf('.target(name: "CPixAuraSQLite"'), manifest.indexOf('.target(name: "CPixAuraCore"'));
+  const owned = manifest.slice(manifest.indexOf('.target(name: "CPixAuraCore"'));
+  assert.match(sqlite, /\.unsafeFlags\(\["-Wno-ambiguous-macro"\], \.when\(platforms: \[\.macOS, \.iOS\]\)\)/);
+  assert.doesNotMatch(owned, /-Wno-|-w\b/);
+  assert.match(read('scripts/check-apple.sh'), /-Xswiftc -warnings-as-errors -Xcc -Werror/);
+  assert.match(read('platforms/ios/PixAuraAI.xcodeproj/project.pbxproj'), /relativePath = \.\.\/\.\.\/packages\/core/);
+});

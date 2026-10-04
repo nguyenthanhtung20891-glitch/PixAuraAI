@@ -37,8 +37,8 @@ void Sha256::update(const uint8_t* data, std::size_t size) {
 }
 document::String Sha256::finish() {
     const auto bits=bytes_*8;block_[used_++]=0x80;
-    if (used_>56) {std::fill(block_.begin()+static_cast<std::ptrdiff_t>(used_),block_.end(),0);compress();used_=0;}
-    std::fill(block_.begin()+static_cast<std::ptrdiff_t>(used_),block_.begin()+56,0);
+    if (used_>56) {std::fill(block_.begin()+static_cast<std::ptrdiff_t>(used_),block_.end(),uint8_t{0});compress();used_=0;}
+    std::fill(block_.begin()+static_cast<std::ptrdiff_t>(used_),block_.begin()+56,uint8_t{0});
     for (unsigned i=0;i<8;++i) block_[63-i]=static_cast<uint8_t>(bits>>(i*8));
     compress();document::String result(64,'0');constexpr char hex[]="0123456789abcdef";
     for (unsigned i=0;i<32;++i) {const auto byte=static_cast<uint8_t>(state_[i/4]>>(24-8*(i%4)));result[i*2]=hex[byte>>4];result[i*2+1]=hex[byte&15];}
