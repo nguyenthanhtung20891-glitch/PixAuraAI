@@ -1,6 +1,6 @@
 # Phase 2 Step 4: bounded image decoding foundation
 
-Status: READY FOR CI; implementation and applicable local gates PASS; hosted CI closure pending. Step 5 is not started. Updated 2026-10-04.
+Status: READY FOR FULL PASS; implementation, applicable local gates and exact implementation-SHA hosted workflows PASS. Step 5 is not started. Updated 2026-10-04.
 
 ## 1. Repository findings and approved decision
 
@@ -72,7 +72,7 @@ Fixed seed 0x50495834: 4096 signature-preserving single-byte mutations of synthe
 
 ## 12. Failure injection
 
-Codec allocation-site sweeps for JPEG and PNG; decoder initialization and output-mismatch hooks compiled only in tests; malformed entropy/EOF/resource rejection; independent replacement-new sweep through context init, source open and decode publication. Failures preserve output sentinels and subsequently valid requests work. Native assertions check source/image ownership, no leaked scratch allocations, handle budget exhaustion/recovery and repeat release/destroy. Windows fallback C++ sweep recovers 35 allocation sites; Linux recovers 14 (allocator/STL implementation differences). Hosted MSVC execution must independently prove its Debug paths.
+Codec allocation-site sweeps for JPEG and PNG; decoder initialization and output-mismatch hooks compiled only in tests; malformed entropy/EOF/resource rejection; independent replacement-new sweep through context init, source open and decode publication. Failures preserve output sentinels and subsequently valid requests work. Native assertions check source/image ownership, no leaked scratch allocations, handle budget exhaustion/recovery and repeat release/destroy. Windows fallback C++ sweep recovers 35 allocation sites; Linux recovers 14 (allocator/STL implementation differences). Hosted MSVC independently recovers 103 allocation sites across all three phases and passes its Debug paths.
 
 ## 13. Concurrency policy
 
@@ -84,7 +84,7 @@ Owned changes: root architecture/photo/quality/roadmap/decision documentation; d
 
 ## 15. Commits
 
-Created/pushed through scripts/codex-git.ps1: `b8449b484e1f080d444cb9fa9bd7f56081e572cf` (bounded decode implementation, dependency pins, contracts and tests). CI remediation/evidence commits follow below.
+Created/pushed through scripts/codex-git.ps1: `b8449b484e1f080d444cb9fa9bd7f56081e572cf` (bounded decode implementation, dependency pins, contracts and tests). Remediation commit `b843695b644f29c85d8821b2dc7b6c6c03c63e14` fixes owned MSVC allocation alignment/GCC test bindings and pre-allocation control budget rejection. This evidence-only report commit follows those two implementation commits.
 
 ## 16. Local validation
 
@@ -97,7 +97,7 @@ Evidence is ignored under build/phase-2-step-4 and normal build/test-result fold
 | Windows Zig fallback native CTest | 10/10 PASS; final documented fallback also executes existing manual-script ABI/document/allocation/storage gates |
 | Linux Clang Debug CTest | 10/10 PASS |
 | ASan/UBSan CTest | 12/12 PASS, including both actual negative instrumentation probes |
-| Android final | PASS strict offline Debug/Release, lintDebug/lintRelease, JVM and instrumented APK/connected gates; 147 tasks, 28 executed/119 up-to-date; JVM XML 2/2 and fresh instrumentation XML 4/4, errors/failures/skips zero |
+| Android final | PASS strict offline Debug/Release, lintDebug/lintRelease, JVM and instrumented APK/connected gates; 147 tasks, 23 executed/124 up-to-date; JVM XML 2/2 and fresh instrumentation XML 4/4, errors/failures/skips zero |
 | Workflow/shell checks | PASS actionlint 1.7.12 both workflows (local shellcheck/pyflakes integrations unavailable and disabled); all scripts/*.sh pass bash -n; git diff --check/source hygiene PASS |
 | MSVC local | BLOCKED: existing installation lacks vcvarsall; hosted MSVC is mandatory |
 | Apple local | BLOCKED: Windows host has no Apple runtime; wiring is source evidence only |
@@ -106,15 +106,19 @@ Initial failures were diagnosed rather than counted PASS: WSL RPC/service access
 
 ## 17. GitHub Actions
 
-Initial Step 4 workflows on exact SHA `b8449b484e1f080d444cb9fa9bd7f56081e572cf`: Foundation run 37208103131 failed on two host compiler issues; Native application shells run 37208103134 remains in progress at this observation. Both Foundation boundaries and Native application shells must pass on the exact pushed SHA, including real MSVC, Apple package/app/simulator and Android hosted emulator. Use scripts/codex-gh.ps1, verify SHA before retrieving current failed logs and repeat narrow remediation until green. Baseline successes in section 1 do not substitute.
+Initial implementation SHA b8449b484e1f080d444cb9fa9bd7f56081e572cf: Foundation 37208103131 failed on two owned compiler portability errors; Shells 37208103134 passed. Current implementation SHA **b843695b644f29c85d8821b2dc7b6c6c03c63e14** independently verified through commit-filtered wrapper listing and checkout logs:
 
+- [Foundation boundaries 37208943007](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37208943007): SUCCESS all seven jobs. Real MSVC/GCC native CTest each 10/10; each decode suite 10074 checks with zero failures. ASan/UBSan, workflow lint and Android arm64/armv7 gates PASS. Actual Apple CTest 10/10, macOS Swift 7/7, simulator package 7/7 and unsigned device build PASS.
+- [Native application shells 37208942942](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37208942942): SUCCESS all three jobs. Linux source PASS; iOS package 7/7, app 4/4, UI smoke and unsigned Debug/Release builds PASS; Android strict Debug/Release/JVM/lint/instrumented APK build and four hosted emulator instrumentation tests PASS. Android job completed in 13m1s, with no disabled checks.
+
+Exact current job logs are retained locally under build/phase-2-step-4, retrieved only through scripts/codex-gh.ps1. Final report-only HEAD will also be checked after publication; implementation evidence above remains explicitly tied to its immutable SHA.
 ## 18. Remaining limitations
 
-Only baseline 8-bit JPEG and specified still PNG subsets; progressive/depth/CMYK/HDR/animation/other codecs are unsupported. Full-raster output is bounded; tile/device pressure policy is future work. Profiles are structurally admitted/retained, not fully semantically validated or converted. Pixel output is encoded sample data, not ready for editing/rendering. Context destroy needs caller quiescence. No physical-device RSS/power-loss guarantee, UI/import flow, renderer, color transform, adjustment or export pipeline is claimed. Hosted platform gates remain pending.
+Only baseline 8-bit JPEG and specified still PNG subsets; progressive/depth/CMYK/HDR/animation/other codecs are unsupported. Full-raster output is bounded; tile/device pressure policy is future work. Profiles are structurally admitted/retained, not fully semantically validated or converted. Pixel output is encoded sample data, not ready for editing/rendering. Context destroy needs caller quiescence. No physical-device RSS/power-loss guarantee, UI/import flow, renderer, color transform, adjustment or export pipeline is claimed. Hosted MSVC/Apple/Android platform gates passed; local Windows cannot itself execute Apple or the incomplete MSVC installation.
 
 ## 19. Step 4 acceptance
 
-Not FULL PASS until final local regressions and exact-SHA CI workflows are green. Approved ownership/dependency conflict is resolved; no Step 5 work is underway.
+Ready for Product Owner FULL PASS: final local regressions and both exact implementation-SHA CI workflows are green. Approved ownership/dependency conflict is resolved; no Step 5 work is underway.
 
 ## 20. Proposed Step 5
 
