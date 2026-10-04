@@ -123,6 +123,45 @@ void digest_tests() {
     AssetStore private_store(String(leaf.generic_string()));Bytes input("abc");private_store.verify(private_store.ingest(input,3));
 #endif
 }
+void path_shape_tests() {
+    note("db.canonical_private_var_shape_and_alias_rejection");
+    Directory d("path-shape");
+    const auto private_var=d.root/"private/var";
+    const auto suffix=fs::path("folders/test user/T/project #%");
+    const auto leaf=private_var/suffix;CHECK(fs::create_directories(leaf));
+    const auto canonical_path=String(fs::canonical(leaf).generic_string());
+    {Repository created(canonical_path);CHECK(created.version()==1);}
+    CHECK(fs::is_regular_file(leaf/"catalog.sqlite"));
+    {Repository reopened(canonical_path);CHECK(reopened.version()==1);}
+    CHECK(sqlite3_libversion_number()==3053004);
+    error(1,[&]{Repository invalid(canonical_path+"/../escape");});
+    error(6,[&]{Repository invalid(String((leaf/"catalog.sqlite").generic_string()));});
+    std::error_code ec;const auto alias=d.root/"var";
+    fs::create_directory_symlink(private_var,alias,ec);
+#ifdef _WIN32
+    if(ec)CHECK(junction(alias,private_var));
+    struct RemoveAlias{fs::path path;~RemoveAlias(){RemoveDirectoryW(path.c_str());}}remove_alias{alias};
+#else
+    CHECK(!ec);
+#endif
+    error(6,[&]{Repository untrusted(String((alias/suffix).generic_string()));});
+#ifndef _WIN32
+    note("db.unwritable_private_directory_rejected");
+    const auto denied=d.root/"unwritable";CHECK(fs::create_directory(denied));
+    struct Restore{fs::path path;~Restore(){std::error_code e;fs::permissions(path,fs::perms::owner_all,fs::perm_options::add,e);}}restore{denied};
+    fs::permissions(denied,fs::perms::owner_read|fs::perms::owner_exec|fs::perms::group_read|fs::perms::group_exec|fs::perms::others_read|fs::perms::others_exec);
+    // Root bypasses DAC; exercise rejection in an unprivileged child instead.
+    if(geteuid()==0) {
+        const auto pid=fork();CHECK(pid>=0);
+        if(pid==0) {
+            if(setuid(65534)!=0)std::_Exit(2);
+            try{error(12,[&]{Repository invalid(String(denied.generic_string()));});std::_Exit(0);}catch(...){std::_Exit(1);}
+        }
+        int status=0;CHECK(waitpid(pid,&status,0)==pid&&WIFEXITED(status)&&WEXITSTATUS(status)==0);
+    }else error(12,[&]{Repository invalid(String(denied.generic_string()));});
+    CHECK(!fs::exists(denied/"catalog.sqlite"));
+#endif
+}
 void database_tests(const String& golden) {
     note("db.fresh_reopen_history_and_canonical");Directory d("database");auto asset=prepare(d,golden);const auto expected=manifest(golden,asset);Repository r(d.path());CHECK(r.version()==1);auto initial=r.read();CHECK(canonical(initial)==expected);CHECK(initial.snapshot->revisions().size()==3);
     note("db.undo_redo_and_new_session");const auto stale=command(initial,"undo");r.apply(stale,initial.epoch);auto undone=r.read();CHECK(undone.snapshot->redo().size()==1&&undone.snapshot->session().generation==1);
@@ -206,6 +245,6 @@ int main(int argc,char** argv) {
         if(argc==5&&std::string_view(argv[1])=="--crash") {
             fault_point=std::atoi(argv[2]);crash_fault=true;const auto golden=fixture(argv[4]);AssetStore store(argv[3]);Input input(stream_buffer+128);const auto asset=store.ingest(input,stream_buffer+128);Repository r(argv[3]);auto snapshot=good(document::deserialize(manifest(golden,asset),"00000000000000000000000000000500"));r.create(*snapshot);return 75;
         }
-        CHECK(argc==2);const auto golden=fixture(argv[1]);digest_tests();database_tests(golden);concurrency_tests(golden);crash_tests(argv[0],argv[1],golden);std::puts("SQLite persistence, streamed immutable assets, crash/failure and concurrency PASS");return 0;
+        CHECK(argc==2);const auto golden=fixture(argv[1]);digest_tests();path_shape_tests();database_tests(golden);concurrency_tests(golden);crash_tests(argv[0],argv[1],golden);std::puts("SQLite persistence, streamed immutable assets, crash/failure and concurrency PASS");return 0;
     }catch(const document::Failure& e){std::fprintf(stderr,"storage FAIL status=%d\n",e.code);return 1;}catch(const std::exception& e){std::fprintf(stderr,"storage FAIL %s\n",e.what());return 1;}
 }
