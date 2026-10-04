@@ -113,6 +113,8 @@ next() {
 }
 case "$*" in
   get-state)
+    # A dead fake emulator must never advertise readiness, regardless of scheduling.
+    if [[ "$MOCK_SCENARIO" == early-exit ]]; then echo offline; exit 1; fi
     if [[ "$MOCK_SCENARIO" == stalled-adb ]]; then sleep 30; fi
     if [[ "$MOCK_SCENARIO" == invisible ]]; then echo offline; exit 1; fi
     if [[ "$(next device)" == 1 ]]; then echo offline; else echo device; fi ;;

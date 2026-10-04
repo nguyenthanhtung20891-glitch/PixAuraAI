@@ -36,6 +36,8 @@ test('Apple SDK macro exception stays confined to the vendored SQLite target', (
   const owned = manifest.slice(manifest.indexOf('.target(name: "CPixAuraCore"'));
   assert.match(sqlite, /\.unsafeFlags\(\["-Wno-ambiguous-macro"\], \.when\(platforms: \[\.macOS, \.iOS\]\)\)/);
   assert.doesNotMatch(owned, /-Wno-|-w\b/);
+  assert.match(sqlite, /linkerSettings:.*-keep_private_externs/);
+  assert.match(sqlite, /visibility/);
   assert.match(read('scripts/check-apple.sh'), /-Xswiftc -warnings-as-errors -Xcc -Werror/);
   assert.match(read('platforms/ios/PixAuraAI.xcodeproj/project.pbxproj'), /relativePath = \.\.\/\.\.\/packages\/core/);
 });

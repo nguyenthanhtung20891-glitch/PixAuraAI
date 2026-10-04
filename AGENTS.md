@@ -419,3 +419,21 @@ At the end of a task or when blocked, report concise evidence:
 - whether the current Step is ready for acceptance.
 
 Never claim success without evidence.
+
+---
+
+### GitHub Actions access
+
+Use `scripts/codex-gh.ps1` for GitHub Actions inspection.
+
+Do not read, export or print GitHub authentication tokens.
+
+Allowed autonomous operations:
+
+- authentication status checks;
+- listing workflow runs for PixAuraAI commits;
+- viewing PixAuraAI workflow runs;
+- reading failed job logs;
+- watching PixAuraAI workflow runs.
+
+Do not use GitHub CLI to modify repository settings, secrets, permissions, releases or unrelated repositories.

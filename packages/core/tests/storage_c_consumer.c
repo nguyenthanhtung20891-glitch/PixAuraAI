@@ -22,7 +22,12 @@ int main(int argc,char** argv) {
         FILE* db;
         int n=snprintf(path,sizeof(path),"%s/catalog.sqlite",argv[1]);
         assert(n>0 && (size_t)n<sizeof(path));
-        db=fopen(path,"rb");assert(db!=NULL);
+#ifdef _MSC_VER
+        assert(fopen_s(&db,path,"rb")==0);
+#else
+        db=fopen(path,"rb");
+#endif
+        assert(db!=NULL);
         assert(fread(header,1,sizeof(header),db)==sizeof(header));assert(fclose(db)==0);
         assert(memcmp(header,"SQLite format 3",16)==0);
         info=before;
