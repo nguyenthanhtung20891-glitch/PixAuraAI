@@ -1,6 +1,6 @@
 # Phase 2 Step 5: orientation/color normalization and initial CPU evaluation
 
-Status: READY FOR CI; implementation and all applicable local gates PASS; hosted execution pending. Accepted Step 4 baseline d26baf21be2dde5f0c7881e8007658c859572cbe. Step 6 is not started.
+Status: READY FOR FULL PASS; implementation, applicable local gates and both exact implementation-SHA CI workflows PASS. Accepted Step 4 baseline d26baf21be2dde5f0c7881e8007658c859572cbe. Step 6 is not started.
 
 ## 1. Repository findings
 
@@ -44,7 +44,7 @@ Exact paths: [file inventory](phase-2-step-5-files.txt) (26 owned files). Core w
 
 ## 11. Commits
 
-Pending focused implementation/validation commit through scripts/codex-git.ps1. No Git history rewrite.
+Implementation commit `9fa7de58e8ab326fd33eca3885d37cb5c6406714` created/pushed through scripts/codex-git.ps1. This report-only evidence commit follows it; no remediation commit was needed and no Git history was rewritten.
 
 ## 12. Local validation
 
@@ -52,7 +52,12 @@ Targeted Windows native 4/4 PASS; working suite 187265 assertions, deterministic
 
 ## 13. CI
 
-Pending commit/push and exact-SHA Foundation boundaries/Native application shells. Maximum one focused remediation cycle after initial CI failure, per quota-aware user instruction. No unobserved Apple/MSVC execution claimed.
+Exact implementation SHA **9fa7de58e8ab326fd33eca3885d37cb5c6406714**, verified with commit-filtered listing and checkout logs through scripts/codex-gh.ps1:
+
+- [Foundation boundaries 37213299831](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37213299831): SUCCESS seven jobs. Real MSVC and GCC CTest 11/11 each, working assertions 187265 and decode assertions 10495 each; allocation sweep MSVC 111 and GCC 20 recovered sites across five phases. ASan/UBSan and negative probes, actionlint and Android arm64/armv7 PASS. Real Apple CTest 11/11, macOS Swift 7/7, simulator Swift 7/7, unsigned device build PASS.
+- [Native application shells 37213299810](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37213299810): SUCCESS three jobs. Source suite PASS; iOS package/app/UI tests and unsigned Debug/Release builds PASS; Android Debug/Release/JVM/lint/instrumented APK build and four hosted emulator tests PASS. Workflow completed in 12m32s.
+
+No CI remediation cycle was needed (zero of the allowed one used). Observed logs remain in build/phase-2-step-5. Final report-only HEAD is checked after publication separately from immutable implementation evidence above. The prepublication source hygiene check initially caught a generated JVM crash log outside build; it was excluded from staging, moved into ignored evidence, and source hygiene independently passed again. No crash log or artifact was committed.
 
 ## 14. Limitations
 
@@ -60,7 +65,7 @@ ICC/non-sRGB profile transformation deferred; no production color-management dep
 
 ## 15. Acceptance
 
-Not ready for FULL PASS until all applicable local checks and exact-SHA hosted workflows pass. Step 6 not started.
+Ready for Product Owner FULL PASS: applicable local gates and both exact implementation-SHA hosted workflows are green. No unresolved architecture/dependency decision or platform gate remains. Step 6 not started.
 
 ## 16. Proposed Step 6
 
