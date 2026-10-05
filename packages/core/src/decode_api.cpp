@@ -1,5 +1,6 @@
 #include "decode.hpp"
 #include "working.hpp"
+#include "evaluation.hpp"
 #include "storage_files.hpp"
 #include <map>
 #include <mutex>
@@ -59,3 +60,19 @@ int32_t pixaura_working_identity(pixaura_decode_context* c,const pixaura_decode_
 });}
 int32_t pixaura_working_query(pixaura_decode_context* c,const pixaura_decode_handle* handle,pixaura_working_metadata* out){return boundary([&]{need(out!=nullptr);const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);const auto& e=entry(h,handle);need(e.working.pixels!=nullptr,3);*out=e.working.metadata;});}
 int32_t pixaura_working_copy(pixaura_decode_context* c,const pixaura_decode_handle* handle,uint64_t offset,float* out,uint64_t count){return boundary([&]{const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);const auto& e=entry(h,handle);need(e.working.pixels!=nullptr,3);const auto& v=*e.working.pixels;need(offset<=v.size()&&count<=v.size()-offset&&(out||count==0));if(count)std::memcpy(out,v.data()+static_cast<std::size_t>(offset),static_cast<std::size_t>(count)*sizeof(float));});}
+int32_t pixaura_evaluation_validate(uint32_t version,const uint8_t* request,uint64_t bytes){return boundary([&]{
+    need(version==1,2);need(bytes<=PIXAURA_EVALUATION_MAX_REQUEST_BYTES,8);
+    evaluation::parse(text(request,bytes,PIXAURA_EVALUATION_MAX_REQUEST_BYTES));
+});}
+int32_t pixaura_working_evaluate(pixaura_decode_context* c,const pixaura_decode_handle* handle,uint32_t version,
+    const uint8_t* request,uint64_t bytes,const pixaura_working_limits* l,pixaura_decode_handle* out){return boundary([&]{
+    need(version==1,2);need(l&&out);need(bytes<=PIXAURA_EVALUATION_MAX_REQUEST_BYTES,8);
+    const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);
+    const auto& e=entry(h,handle);need(e.working.pixels!=nullptr,3);working::validate(*l);
+    // Reserve bounded parser/stack payload before parsing (no heap kernel scratch).
+    // Conservative fixed 1 MiB covers at most 256 bounded integer envelopes.
+    room(*h.registry,e.working.metadata.image_bytes+1048576);
+    const auto stack=evaluation::parse(text(request,bytes,PIXAURA_EVALUATION_MAX_REQUEST_BYTES));
+    Entry result;result.source=e.source;result.working=evaluation::evaluate(e.working,stack,*l);
+    const auto token=insert(h,std::move(result));*out=token;
+});}

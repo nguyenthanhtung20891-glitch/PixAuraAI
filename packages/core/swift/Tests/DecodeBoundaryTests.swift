@@ -60,6 +60,22 @@ final class DecodeBoundaryTests: XCTestCase {
                 XCTAssertEqual(workingMetadata.row_stride, 32)
                 var evaluated = pixaura_decode_handle()
                 XCTAssertEqual(pixaura_working_identity(&context, &working, &workingLimits, &evaluated), 0)
+                let request = Array("{\"operations\":[{\"id\":\"00000000000000000000000000000001\",\"type\":\"pixaura.exposure\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":1000}}]}".utf8)
+                var edited = pixaura_decode_handle()
+                XCTAssertEqual(request.withUnsafeBufferPointer {
+                    pixaura_evaluation_validate(1, $0.baseAddress, UInt64($0.count))
+                }, 0)
+                XCTAssertEqual(request.withUnsafeBufferPointer {
+                    pixaura_working_evaluate(&context, &working, 1, $0.baseAddress, UInt64($0.count), &workingLimits, &edited)
+                }, 0)
+                XCTAssertEqual(pixaura_working_query(&context, &edited, &workingMetadata), 0)
+                XCTAssertEqual(workingMetadata.width, 2)
+                let invalidOperation = Array("{}".utf8)
+                XCTAssertNotEqual(invalidOperation.withUnsafeBufferPointer {
+                    pixaura_evaluation_validate(1, $0.baseAddress, UInt64($0.count))
+                }, 0)
+                XCTAssertEqual(pixaura_decode_release(&context, &edited), 0)
+                XCTAssertEqual(pixaura_decode_release(&context, &edited), 3)
                 XCTAssertEqual(pixaura_decode_release(&context, &working), 0)
                 var pixels = [Float](repeating: -1, count: 24)
                 XCTAssertEqual(pixels.withUnsafeMutableBufferPointer {

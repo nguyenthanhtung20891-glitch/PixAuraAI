@@ -86,5 +86,7 @@ Result<String> serialize(const ImageDocument& document);
 Result<Snapshot> transition(const ImageDocument& document, std::string_view command);
 Result<Snapshot> transition(const ImageDocument& document, const DetachedCandidate& candidate);
 Result<Vector<EditOperation>> replay(const ImageDocument& document, const Id& revision);
+// Bounded evaluation envelope: {"operations":[schema-1 operation records]}.
+Result<Vector<EditOperation>> parse_evaluation(std::string_view request);
 }
 #endif

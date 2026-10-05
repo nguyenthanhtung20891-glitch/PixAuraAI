@@ -4,6 +4,11 @@ $zigCompiler = (Resolve-Path -LiteralPath $ZigPath).Path
 $workspacePath = Split-Path $PSScriptRoot -Parent
 $buildPath = Join-Path $workspacePath 'build\zig-host'
 New-Item -ItemType Directory -Path $buildPath -Force | Out-Null
+$previousTemp = $env:TEMP
+$previousTmp = $env:TMP
+$env:TEMP = Join-Path $buildPath 'tmp'
+$env:TMP = $env:TEMP
+New-Item -ItemType Directory -Path $env:TEMP -Force | Out-Null
 $previousLocalCache = $env:ZIG_LOCAL_CACHE_DIR
 $previousGlobalCache = $env:ZIG_GLOBAL_CACHE_DIR
 $env:ZIG_LOCAL_CACHE_DIR = Join-Path $buildPath 'local-cache'
@@ -57,6 +62,8 @@ try {
     Pop-Location
     $env:ZIG_LOCAL_CACHE_DIR = $previousLocalCache
     $env:ZIG_GLOBAL_CACHE_DIR = $previousGlobalCache
+    $env:TEMP = $previousTemp
+    $env:TMP = $previousTmp
 }
 # Codec/decode_test/decode_c_consumer/decode_allocation_test use the full CMake build.
 & (Join-Path $PSScriptRoot 'check-decode-zig.ps1') -ZigPath $zigCompiler

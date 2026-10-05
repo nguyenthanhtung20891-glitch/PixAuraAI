@@ -4,6 +4,7 @@
 #include "pixaura/storage.h"
 #include "pixaura/decode.h"
 #include "pixaura/working.h"
+#include "pixaura/evaluation.h"
 #include <vector>
 
 extern "C" JNIEXPORT jint JNICALL
@@ -34,6 +35,15 @@ Java_ai_pixaura_bridge_CoreProbe_nativeDecodeCheck(JNIEnv* env,jobject,jbyteArra
     if(status==0)status=pixaura_working_normalize(&context,&image,&working_limits,&working);
     if(status==0)status=pixaura_working_query(&context,&working,&working_metadata);
     if(status==0)status=pixaura_working_identity(&context,&working,&working_limits,&identity_image);
+    if(status==0){
+        const uint8_t request[]="{\"operations\":[{\"id\":\"00000000000000000000000000000001\",\"type\":\"pixaura.exposure\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":1000}}]}";
+        pixaura_decode_handle evaluated{};
+        status=pixaura_evaluation_validate(1,request,sizeof(request)-1);
+        if(status==0)status=pixaura_working_evaluate(&context,&working,1,request,sizeof(request)-1,&working_limits,&evaluated);
+        if(status==0)status=pixaura_working_query(&context,&evaluated,&working_metadata);
+        if(status==0&&pixaura_evaluation_validate(1,reinterpret_cast<const uint8_t*>("{}"),2)==0)status=14;
+        if(status==0)status=pixaura_decode_release(&context,&evaluated);
+    }
     if(status==0)status=pixaura_decode_release(&context,&working);
     if(status==0)status=pixaura_working_query(&context,&identity_image,&working_metadata);
     if(status==0)status=pixaura_decode_release(&context,&identity_image);

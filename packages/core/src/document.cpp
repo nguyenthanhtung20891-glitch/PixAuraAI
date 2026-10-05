@@ -30,7 +30,7 @@ struct Json {
     explicit Json(Object value) : data(std::move(value)) {}
     explicit Json(Array value) : data(std::move(value)) {}
 };
-enum class Shape { Manifest, Source, Metadata, Operation, Parameters, Revision, Command, Scalar };
+enum class Shape { Manifest, Source, Metadata, Operation, Parameters, Revision, Command, Evaluation, Scalar };
 const std::set<String>& allowed(Shape shape) {
     // Immutable registry data only; no global mutable state.
     static const std::set<String> manifest{"schema_version", "project_id", "document_id", "source", "operations", "revisions", "current_revision_id", "redo"};
@@ -40,6 +40,7 @@ const std::set<String>& allowed(Shape shape) {
     static const std::set<String> parameters{"milli_ev", "quarter_turns", "x_ppm", "y_ppm", "width_ppm", "height_ppm"};
     static const std::set<String> revision{"id", "parent_id", "stack", "actor", "plan_id"};
     static const std::set<String> command{"command_version", "kind", "expected_revision_id", "expected_session_id", "expected_generation", "revision_id", "operations", "stack", "actor", "plan_id"};
+    static const std::set<String> evaluation{"operations"};
     switch (shape) {
         case Shape::Manifest: return manifest;
         case Shape::Source: return source;
@@ -48,12 +49,14 @@ const std::set<String>& allowed(Shape shape) {
         case Shape::Parameters: return parameters;
         case Shape::Revision: return revision;
         case Shape::Command: return command;
+        case Shape::Evaluation: return evaluation;
         default: fail();
     }
 }
 
 class Parser {
     std::string_view input_;
+    bool evaluation_ = false;
     std::size_t position_ = 0;
     void whitespace() {
         while (position_ < input_.size() && (input_[position_] == ' ' || input_[position_] == '\n' || input_[position_] == '\r' || input_[position_] == '\t')) ++position_;
@@ -153,7 +156,7 @@ class Parser {
                 if (key == "source") child = Shape::Source;
                 else if (key == "metadata") child = Shape::Metadata;
                 else if (key == "parameters") child = Shape::Parameters;
-                else if (key == "operations") { bound = 4096; item = Shape::Operation; }
+                else if (key == "operations") { bound = evaluation_ ? 256 : 4096; item = Shape::Operation; }
                 else if (key == "revisions") { bound = 4096; item = Shape::Revision; }
                 else if (key == "stack") bound = 256;
                 else if (key == "redo") bound = 4095;
@@ -169,7 +172,11 @@ class Parser {
             if (peek() == ']') { ++position_; return Json(std::move(result)); }
             for (;;) {
                 require(result.size() < array_limit, PIXAURA_DOCUMENT_RESOURCE_LIMIT);
-                result.push_back(value(depth + 1, element)); whitespace();
+                whitespace();
+                const auto start = position_;
+                result.push_back(value(depth + 1, element));
+                if (evaluation_ && element == Shape::Operation) require(position_ - start <= 1024, PIXAURA_DOCUMENT_RESOURCE_LIMIT);
+                whitespace();
                 if (peek() == ']') { ++position_; break; }
                 take(',');
             }
@@ -196,7 +203,7 @@ class Parser {
         return Json(negative ? -static_cast<int64_t>(number) : static_cast<int64_t>(number));
     }
 public:
-    Parser(std::string_view input, std::size_t bound) : input_(input) {
+    Parser(std::string_view input, std::size_t bound, bool evaluation = false) : input_(input), evaluation_(evaluation) {
         require(input.size() <= bound, PIXAURA_DOCUMENT_RESOURCE_LIMIT);
     }
     Json parse(Shape shape) { auto result = value(1, shape); whitespace(); require(position_ == input_.size()); return result; }
@@ -469,6 +476,20 @@ Result<Vector<EditOperation>> replay(const ImageDocument& doc, const Id& revisio
         for (const auto& op_id : Engine::revision(doc, revision_id).stack) {
             const auto found = std::find_if(doc.operations().begin(), doc.operations().end(), [&](const EditOperation& op) { return op.id == op_id; });
             require(found != doc.operations().end()); ordered.push_back(*found);
+        }
+        return ordered;
+    });
+}
+Result<Vector<EditOperation>> parse_evaluation(std::string_view request) {
+    return attempt<Vector<EditOperation>>([&] {
+        const auto json = Parser(request, command_limit, true).parse(Shape::Evaluation);
+        keys(json, {"operations"});
+        Vector<EditOperation> ordered;
+        std::set<String> seen;
+        for (const auto& value : array(field(json, "operations"))) {
+            auto op = operation(value);
+            require(seen.insert(op.id.text()).second);
+            ordered.push_back(std::move(op));
         }
         return ordered;
     });

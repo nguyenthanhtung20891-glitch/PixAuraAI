@@ -1,5 +1,6 @@
 #include "pixaura/decode.h"
 #include "pixaura/working.h"
+#include "pixaura/evaluation.h"
 #include "../../../tests/fixtures/decode/fixtures.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,6 +43,17 @@ int main(int argc,char** argv){
         CHECK(pixaura_working_query(&c,&working,&wm)==0&&wm.width==2&&wm.height==3&&wm.orientation==1&&wm.row_stride==32);
         CHECK(pixaura_working_copy(&c,&working,0,values,24)==0&&values[0]==1.0f);
         CHECK(pixaura_working_identity(&c,&working,&wl,&identity_image)==0);
+        {
+            const uint8_t request[]="{\"operations\":[{\"id\":\"00000000000000000000000000000001\",\"type\":\"pixaura.exposure\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":1000}}]}";
+            pixaura_decode_handle evaluated={0};
+            CHECK(pixaura_evaluation_validate(1,request,sizeof(request)-1)==0);
+            CHECK(pixaura_working_evaluate(&c,&working,1,request,sizeof(request)-1,&wl,&evaluated)==0);
+            CHECK(pixaura_working_query(&c,&evaluated,&wm)==0&&wm.width==2&&wm.height==3);
+            CHECK(pixaura_working_copy(&c,&evaluated,0,values,24)==0&&values[0]==2.0f&&values[3]==1.0f);
+            CHECK(pixaura_evaluation_validate(1,(const uint8_t*)"{}",2)!=0);
+            CHECK(pixaura_decode_release(&c,&evaluated)==0);
+            CHECK(pixaura_decode_release(&c,&evaluated)==3);
+        }
         CHECK(pixaura_decode_release(&c,&working)==0);
         CHECK(pixaura_working_query(&c,&working,&wm)==3);
         CHECK(pixaura_working_copy(&c,&identity_image,0,values,24)==0&&values[0]==1.0f);

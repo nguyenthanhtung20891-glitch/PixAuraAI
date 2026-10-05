@@ -13,7 +13,10 @@
 | [0009](docs/adr/0009-explicit-document-context.md) | Accepted | Explicit caller-owned document registry contexts; context-scoped opaque tokens; ABI 1 unchanged |
 | [0010](docs/adr/0010-durable-native-project-storage.md) | Accepted | Normalized SQLite WAL/FULL authority, durable epochs, verified streamed SHA-256 asset publication and derived atomic checkpoints |
 | [0011](docs/adr/0011-shared-bounded-sdr-decode.md) | Accepted | Shared portable bounded JPEG/PNG SDR decoders; supersedes platform codec ownership for these formats only; transient RGBA8 and configurable hard limits |
+| [0012](docs/adr/0012-bounded-cpu-exposure-evaluation.md) | Accepted | Frozen CPU exposure recipe, finite unclamped RGB, bounded ordered stacks and one private output raster |
 
 Accepted architecture does not imply an implementation or verified runtime. Exact models, Android GPU backend fallback coverage, shader tolerance and subscription grace remain evaluation items in relevant phases. Major changes require new numbered ADRs and index updates.
 
 Phase 2 Step 5 refines existing ADR 0003/0009/0011 in the [CPU working-image contract](docs/contracts/cpu-working-image-v1.md): canonical premultiplied linear-sRGB RGBA32F, fixed bounded transfer tables, explicit unsupported profile transformation, existing context-scoped lifetime. No new dependency or superseding architecture decision is introduced.
+
+Phase 2 Step 6: [ADR 0012](docs/adr/0012-bounded-cpu-exposure-evaluation.md) freezes exposure/1/1 numerical evaluation, finite unclamped RGB policy, 256-operation admission and one-private-destination buffering. No historical tuple, document/storage schema or ABI 1 meaning changes.

@@ -29,7 +29,12 @@ set(CMAKE_CXX_ARCHIVE_FINISH "$prefix/ranlib.cmd <TARGET>")
 [System.IO.File]::WriteAllText((Join-Path $buildPath 'zig.cmake'), $toolchain + "`n", $utf8)
 $previousLocalCache = $env:ZIG_LOCAL_CACHE_DIR
 $previousGlobalCache = $env:ZIG_GLOBAL_CACHE_DIR
+$previousTemp = $env:TEMP
+$previousTmp = $env:TMP
 try {
+    $env:TEMP = Join-Path $buildPath 'tmp'
+    $env:TMP = $env:TEMP
+    New-Item -ItemType Directory -Path $env:TEMP -Force | Out-Null
     $env:ZIG_LOCAL_CACHE_DIR = Join-Path $buildPath 'local-cache'
     $env:ZIG_GLOBAL_CACHE_DIR = Join-Path $buildPath 'global-cache'
     $binaryPath = Join-Path $buildPath 'native'
@@ -42,4 +47,6 @@ try {
 } finally {
     $env:ZIG_LOCAL_CACHE_DIR = $previousLocalCache
     $env:ZIG_GLOBAL_CACHE_DIR = $previousGlobalCache
+    $env:TEMP = $previousTemp
+    $env:TMP = $previousTmp
 }

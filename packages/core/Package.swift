@@ -23,8 +23,8 @@ let package = Package(
                     .headerSearchPath("codec-config/png"), .unsafeFlags(["-fvisibility=hidden"])]),
         .target(name: "CPixAuraCore", dependencies: ["CPixAuraSQLite", "CPixAuraCodecs"], path: ".",
                 exclude: ["Package.swift", "swift", "tests", "vendor"],
-                sources: ["src/core.cpp", "src/document.cpp", "src/document_api.cpp", "src/storage_api.cpp", "src/storage.cpp", "src/storage_files.cpp", "src/sha256.cpp", "src/decode.cpp", "src/decode_api.cpp", "src/working.cpp"], publicHeadersPath: "include",
-                cxxSettings: [.headerSearchPath("vendor/codecs/zlib")]),
+                sources: ["src/core.cpp", "src/document.cpp", "src/document_api.cpp", "src/storage_api.cpp", "src/storage.cpp", "src/storage_files.cpp", "src/sha256.cpp", "src/decode.cpp", "src/decode_api.cpp", "src/working.cpp", "src/evaluation.cpp"], publicHeadersPath: "include",
+                cxxSettings: [.headerSearchPath("vendor/codecs/zlib"), .unsafeFlags(["-fno-fast-math", "-ffp-contract=off"])]),
         .target(name: "PixAuraCore", dependencies: ["CPixAuraCore"], path: "swift/Sources"),
         .testTarget(name: "PixAuraCoreTests", dependencies: ["PixAuraCore", "CPixAuraCore"], path: "swift/Tests",
                     resources: [.copy("Fixtures")])
