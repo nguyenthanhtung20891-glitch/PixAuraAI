@@ -1,5 +1,6 @@
 #include "evaluation.hpp"
 #include "exposure_table.hpp"
+#include "geometry.hpp"
 #include <cmath>
 #include <limits>
 #include <cfenv>
@@ -38,33 +39,58 @@ Stack parse(std::string_view bytes) {
     validate(parsed.value);
     return std::move(parsed.value);
 }
-working::Image evaluate(const working::Image& source, const Stack& stack, const pixaura_working_limits& limits) {
+void checkpoint(const Cancellation* cancel, Checkpoint point, Observer observer, void* state) {
+    if(observer) observer(point,state);
+    need(!cancel || !cancel->requested.load(std::memory_order_acquire),13);
+}
+working::Image evaluate(const working::Image& source, const Stack& stack, const pixaura_working_limits& limits,
+    const Cancellation* cancel, Observer observer, void* state) {
+    const auto check=[&](Checkpoint p){checkpoint(cancel,p,observer,state);};
+    check(Checkpoint::admission);
     validate(stack);
     need(std::fegetround() == FE_TONEAREST, 7);
-    // identity checks all layout/byte limits and allocates the sole destination.
-    // The input remains read-only; any failure destroys this private candidate.
-    auto out = working::identity(source, limits);
+    const auto& m=source.metadata;
+    need(m.api_version==1&&m.struct_size==sizeof(m)&&m.orientation==1&&m.pixel_format==1,17);
+    const geometry::Extent extent{m.width,m.height};
+    const auto bytes=geometry::admit(extent,limits);
+    need(m.row_stride==decode::multiply(m.width,16)&&m.image_bytes==bytes&&source.pixels&&source.pixels->size()==bytes/4,19);
+    check(Checkpoint::allocation);
+    working::Image out;out.metadata=m;
+    out.pixels=std::make_unique<decode::Vector<float>>(static_cast<std::size_t>(bytes/4));
     auto& pixels = *out.pixels;
-    for (std::size_t i = 0; i < pixels.size(); i += 4) {
+    const auto count=geometry::tile_count(extent);
+    const auto traverse=[&](auto&& fn){
+        for(uint32_t t=0;t<count;++t) {
+            check(Checkpoint::tile);const auto r=geometry::tile(extent,t);
+            for(uint32_t y=r.y0;y<r.y1;++y)for(uint32_t x=r.x0;x<r.x1;++x) {
+                const auto i=geometry::pixel_offset(extent,{x,y});
+                fn(i);
+            }
+        }
+    };
+    traverse([&](std::size_t i) {
+        std::memcpy(pixels.data()+i,source.pixels->data()+i,4*sizeof(float));
         const float a = pixels[i + 3];
         need(finite(a) && a >= 0 && a <= 1, 7);
         for (unsigned c = 0; c < 3; ++c) {
             need(finite(pixels[i + c]), 7);
             need(a != 0 || pixels[i + c] == 0, 7);
         }
-    }
+    });
     for (const auto& op : stack) {
         const auto ev = std::get<document::Exposure>(op.parameters).milli_ev;
+        check(Checkpoint::admission);
         if (ev == 0) continue; // Exact identity, including signed zero/subnormals.
         const double multiplier = gain(ev);
-        for (std::size_t i = 0; i < pixels.size(); i += 4) {
+        traverse([&](std::size_t i) {
             for (unsigned c = 0; c < 3; ++c) {
                 const double value = static_cast<double>(pixels[i + c]) * multiplier;
                 need(std::isfinite(value) && std::abs(value) <= std::numeric_limits<float>::max(), 7);
                 pixels[i + c] = static_cast<float>(value);
             }
-        }
+        });
     }
+    check(Checkpoint::publication);
     return out;
 }
 }

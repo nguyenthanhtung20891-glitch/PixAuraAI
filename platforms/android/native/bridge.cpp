@@ -5,6 +5,7 @@
 #include "pixaura/decode.h"
 #include "pixaura/working.h"
 #include "pixaura/evaluation.h"
+#include "../../../packages/core/tests/geometry_boundary.h"
 #include <vector>
 
 extern "C" JNIEXPORT jint JNICALL
@@ -35,6 +36,7 @@ Java_ai_pixaura_bridge_CoreProbe_nativeDecodeCheck(JNIEnv* env,jobject,jbyteArra
     if(status==0)status=pixaura_working_normalize(&context,&image,&working_limits,&working);
     if(status==0)status=pixaura_working_query(&context,&working,&working_metadata);
     if(status==0)status=pixaura_working_identity(&context,&working,&working_limits,&identity_image);
+    if(status==0)status=geometry_boundary_check(&context,&working,&working_limits);
     if(status==0){
         const uint8_t request[]="{\"operations\":[{\"id\":\"00000000000000000000000000000001\",\"type\":\"pixaura.exposure\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":1000}}]}";
         pixaura_decode_handle evaluated{};
