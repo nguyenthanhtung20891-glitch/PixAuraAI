@@ -1,6 +1,6 @@
 # Phase 2 Step 8: minimal geometry pixel execution
 
-Accepted Step 7 HEAD: 2e0f975ca894372684c3febbc391dc3ac92d5407, clean main at audit. Product Owner attests Step 7 FULL PASS; baseline hosted Foundation run 37319777904 and Native shells run 37319778089 now show success. Earlier billing failures remain historical. Scope: Step 8 only; Step 9 not started. Status: local gates PASS; hosted Step 8 certification pending.
+Accepted Step 7 HEAD: 2e0f975ca894372684c3febbc391dc3ac92d5407, clean main at audit. Product Owner attests Step 7 FULL PASS; baseline hosted Foundation run 37319777904 and Native shells run 37319778089 now show success. Earlier billing failures remain historical. Scope: Step 8 only; Step 9 not started. Status: implementation local and hosted gates PASS; ready for Product Owner FULL PASS acceptance.
 
 ## Repository findings and frozen semantics
 
@@ -48,7 +48,20 @@ Informational final Linux scalar diagnostics (1024x768 source; no performance ga
 | Crop + rotate | 768x512 | 72 | 1224 | 98.761 | 25165824 | 49152 |
 | Exposure + crop + rotate | 768x512 | 120 | 1272 | 134.100 | 25165824 | 49152 |
 
-Counts include initial copy tiles; crop uses scanline checkpoints and rotation also checks cycle groups. Times are unoptimized host diagnostics, not device/RSS claims. Exact 26-file inventory: [phase-2-step-8-files.txt](phase-2-step-8-files.txt). Hosted run/commit provenance will be appended after execution. No dependencies, migrations or production UI were added.
+Counts include initial copy tiles; crop uses scanline checkpoints and rotation also checks cycle groups. Times are unoptimized host diagnostics, not device/RSS claims. Exact 26-file inventory: [phase-2-step-8-files.txt](phase-2-step-8-files.txt). No dependencies, migrations or production UI were added.
+
+## Hosted certification and Git provenance
+
+Implementation commit: `6721b68631026e624d459ee3a36721208dd4990b`, pushed to approved origin/main. Both following push runs are attempt 1 and their API head_sha equals that exact commit:
+
+- [Foundation boundaries 37333859216](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37333859216): SUCCESS, all seven jobs. Linux, MSVC, sanitizer, both Android NDK ABIs, Apple and workflow lint executed.
+- [Native application shells 37333859180](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37333859180): SUCCESS, all three jobs. Source, Android build/lint/JVM/emulator and iOS package/application tests executed.
+
+Real MSVC: job 111843524657, compiler MSVC 19.51.36260.0, native CTest 14/14 PASS, geometry 11093 checks / 2048 properties / 164 checkpoints PASS; 1755 allocation failures recovered across 12 phases.
+
+Real Apple: Foundation job 111843524812, AppleClang 21.0.0.21000101, macOS native CTest 14/14 PASS, Swift 7/7 PASS, unsigned iOS package build and simulator Swift 7/7 PASS. Shell job 111843524661 also passed its package/core gates, Debug/Release application builds, 4/4 application tests and 1/1 UI test. Android shell job 111843524774 passed build/lint/JVM and 4/4 emulator instrumentation tests.
+
+No hosted code/test failure occurred and no CI remediation was necessary. This report's acceptance-evidence follow-up is documentation-only; the final response records its resulting HEAD and exact-SHA workflow results. Repository visibility and historical architecture records were preserved.
 
 ## Limitations and next step
 
