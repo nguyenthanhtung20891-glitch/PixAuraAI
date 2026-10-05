@@ -1,6 +1,6 @@
 # Phase 2 Step 7: bounded geometry, tiles and cancellation
 
-Accepted baseline: fd545ac545d526e779ca82daf8ac58e20cf39f2f (Product Owner FULL PASS). Scope: Step 7 only; Step 8 not started. Status: local gates PASS; READY FOR CI. Hosted Apple/MSVC/mobile closure remains pending; no unexecuted gate is PASS.
+Accepted baseline: fd545ac545d526e779ca82daf8ac58e20cf39f2f (Product Owner FULL PASS). Scope: Step 7 only; Step 8 not started. Status: **BLOCKED on external GitHub billing/spending-limit infrastructure. Implementation/contracts and local gates PASS; Step 7 is not ready for FULL PASS.** Hosted jobs did not execute; no unexecuted gate is PASS.
 
 ## Audit and architecture
 
@@ -24,11 +24,11 @@ Focused Linux geometry/evaluation: PASS 2/2 on the initial implementation. Final
 | --- | --- |
 | Windows source | PASS 42/42, zero skips/failures |
 | Linux source | PASS 71/71, final repetition, zero skips/failures |
-| Windows native fallback | PASS 13/13 CTest, plus existing independent consumers/trap checks; actual hosted MSVC pending |
+| Windows native fallback | PASS 13/13 CTest, plus existing independent consumers/trap checks; actual hosted MSVC BLOCKED |
 | Linux native CTest | PASS 13/13 warning-clean Clang build |
 | ASan/UBSan | PASS 15/15, leak checks and negative actual instrumentation probes (86/87) |
 | Android | PASS Debug/Release, both lint checks (No issues found), four fresh instrumentation cases; JVM debug 2/2 and release 2/2 freshly rerun (49/49 tasks executed), zero errors/failures/skips |
-| Apple wiring | Source/build/Swift boundary wiring checked; actual macOS/iOS execution pending CI |
+| Apple wiring | Source/build/Swift boundary wiring checked; actual macOS/iOS execution BLOCKED on hosted infrastructure |
 | actionlint/shell/hygiene | actionlint 1.7.12 exit 0 (local shellcheck/pyflakes unavailable and disabled); Bash syntax and git diff --check pass |
 
 Repository-local evidence is under ignored build/phase-2-step-7. Commands: check-native-zig.ps1 (delegates full CMake fallback), WSL private mount namespace close.sh (Linux CTest, check-sanitizers.sh, node --test tests/*.test.mjs, Bash syntax), explicit Windows ten-file source command, repository-isolated Android Gradle debug/release/lint/JVM/connected command. Windows TEMP/TMP, Java tmpdir, WSL TMPDIR, caches and emulator state are repository-contained. Initial sandbox Node/WSL child-process denial was resolved through authorized tooling access; initial ADR-template omission was fixed and source gates rerun. Neither failed attempt is counted PASS.
@@ -36,6 +36,19 @@ Repository-local evidence is under ignored build/phase-2-step-7. Commands: check
 Planning diagnostic: 4096x2048, tile edge 128, 512 tiles, one stage 36 metadata bytes, no tile-array bytes. Windows plan 6.200 us/traversal 36.300 us; Linux 2.965 us/40.916 us; sanitizer 11.660 us/69.860 us. Timings include validation overhead and are informational. Existing 1024x1024/16-exposure diagnostic: Windows 1104.953 ms, Linux 813.387 ms, sanitizer 2297.661 ms; two rasters 32 MiB, scratch zero. No throughput threshold or device latency certification.
 
 Exact source/documentation inventory: [phase-2-step-7-files.txt](phase-2-step-7-files.txt), 27 files. No generated build/cache/database or credentials are intended for staging. No crop/rotate pixels, UI, renderer, export, AI or Step 8 work.
+
+## GitHub Actions and closure blocker
+
+Implementation commit **abaf650bae65e291236f645294861183251435c5**, `feat(core): add bounded geometry plans, tiles and cooperative cancellation`, was committed and pushed to approved origin/main using scripts/codex-git.ps1. Both workflow run identities were obtained with scripts/codex-gh.ps1 run-list filtered to that exact SHA before inspecting their annotations:
+
+| Run | Result | Executed work |
+| --- | --- | --- |
+| [Foundation boundaries 37319461556](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37319461556) | GitHub failure; infrastructure BLOCKED | All seven jobs refused before starting: Windows/Linux portable, sanitizer, workflow lint, two Android ABIs, Apple boundary |
+| [Native application shells 37319461403](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37319461403) | GitHub failure; infrastructure BLOCKED | All three jobs refused before starting: source, Android app, iOS app |
+
+Exact shared annotation: "The job was not started because recent account payments have failed or your spending limit needs to be increased." GitHub directs the account owner to Billing & plans. Failed-log retrieval reports logs unavailable because no runner work started. This is not a compilation/test failure, and no hosted Apple/MSVC PASS can be inferred from earlier Step 6 results. Repository code cannot fix billing, and changing account settings is outside authorization. Stop condition C applies. Owner remediation: resolve payment/spending-limit restriction, then resume the unchanged Step 7 hosted gates and any evidence-driven remediation; do not weaken workflows or start Step 8.
+
+A focused documentation closure commit records this blocker after the implementation commit; its SHA is reported in the final response. No further implementation change or attempt to alter billing/runner policy is made. Working tree is intended to be clean after that commit/push. Local evidence, including current annotations, remains in ignored build/phase-2-step-7.
 
 ## Limitations and next step
 
