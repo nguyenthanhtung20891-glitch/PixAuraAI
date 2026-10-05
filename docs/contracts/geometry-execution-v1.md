@@ -1,0 +1,29 @@
+# Ordered geometry pixel execution, version 1
+
+Step 8 activates only exposure/crop/rotate /1/1 through the existing evaluation and cancellable evaluation APIs. Empty stack is owned identity. Historical strict JSON/millionth units, [outward integer geometry](geometry-v1.md), [exposure](cpu-evaluation-v1.md) and [cancellation](cancellation-v1.md) semantics are unchanged. Geometry preflight now reports executable=1 for these registered tuples. Unsupported reserved/future tuples still reject. No schema/API layout/status changes or migration.
+
+## Plan and exact pixel mapping
+
+Parse/validate the whole ordered stack, preflight every intermediate stage under caller limits, admit the source-sized private candidate plus bitmap and parser/plan allowance, then execute each stage. Execution consumes planned input/output extents, crop rectangle and turns; it never substitutes a crop rounding policy. Only crop reduces area, and rotation preserves area, so the source-sized candidate is always large enough. Every intermediate width/height/stride/raster and tile count must remain legal, even if a later crop would reduce it. No optimizer, commuting or operation fusion.
+
+Crop destination (x,y) selects input (x+x0,y+y0) from the planned half-open rectangle. Compact rows from y=0 upward using checked offsets and memmove; destination offsets are <= corresponding source offsets, and increasing rows cannot overwrite unread future source rows. Cropped logical vector length becomes (x1-x0)*(y1-y0)*4 float components. All four channels are copied as bytes, including signed zero/subnormal RGB, transparent pixels and tiny alpha; no channel arithmetic, display clamp, unpremultiply or gamma conversion.
+
+Clockwise forward mappings remain: 0=(x,y), 1=(H-1-y,x), 2=(W-1-x,H-1-y), 3=(y,W-1-x). Destination dimensions swap for odd turns. Inverse destination-to-source: 0=(x,y), 1=(y,H-1-x), 2=(W-1-x,H-1-y), 3=(W-1-y,x). Shared Step 7 inverse mapping drives execution. Cycle roots visit destination tiles row-major. A saved 16-byte original root and visited bits let each pixel move exactly once without a raster temporary. Turn 0 preserves all bits. Full crop preserves content/dimensions. Canonical orientation stays 1 and original encoded provenance remains retained.
+
+All input pixels undergo the existing strict finite/alpha validation before operations, including pixels later discarded. Exposure still executes across its current input before later geometry: exposure-overflow followed by crop fails; crop discarding that pixel before exposure may succeed. This distinction is explicitly tested. RGB remains finite/unclamped; alpha stays bit-preserved in [0,1], with zero-alpha RGB zero.
+
+## Buffering, resources and CPU bounds
+
+Maximum request working rasters: two (immutable source + private candidate). The private candidate retains source-sized capacity through all crops; no alternate/ping-pong raster and no growth per operation. Bitmap capacity <=1 MiB, allocated once only if any nonzero rotation exists, reused and released before publication. Saved pixel =16 stack bytes. Plan payload <=9216 bytes; parser/plan conservative allowance 1 MiB plus bounded control overhead. Context admission includes all existing retained image/provenance capacities + source-sized new candidate + exact planned bitmap + allowance. Retained output capacity is counted, not just its smaller logical byte length. No shrink-to-fit allocation at publication.
+
+Unchanged ceilings: raster 128 MiB, context 256 MiB, dimensions 16384, pixels 8388608, row 262144 bytes; 64 combined handles; 256 operations; 64 KiB request, 1024 consumed bytes per object; 4096 tiles. Internal plan records maximum intermediate width/height/pixels/raster and bitmap need without raster allocation. Lazy metadata only; no full tile array. CPU bounded by input validation/copy plus <=256 stages; rotation <=2*N root/move pixel visits and <=ceil(N/8) bitmap-byte clear, crop/exposure <=N. The previous stage-input visit sum <=2147483648 remains metadata, with execution <=2*that sum+8388608 raster visits. No allocation-failure-only control or larger logical images through tiling.
+
+## Cancellation, errors and ownership
+
+Retain status 13 and all signal/publication mutex, sticky token, stale-kind/lifetime and quiescence rules. Check before admission, destination/bitmap allocation, every stage, every copy/exposure/root tile, every crop scanline and each 1024 rotation moves, before bitmap clearing and publication. Crop scanline <=16384 pixels; tile <=16384 pixels; cycle subgroup <=1024 moves. Cycle root tiles and dependency moves may interleave, but output semantics are independent of this deterministic traversal. Allocation/clear/parsing/locks remain non-preemptible bounded phases.
+
+Any parser/plan/resource/layout/numeric/allocation/cancellation/registration failure destroys the private candidate/bitmap, publishes no handle, preserves output/source/history and allows recovery. Byte-copy itself is non-throwing; checked layout/offset rejection and allocation injection cover its failure boundaries. No API exposes partially mutated candidate pixels. Ordinary context calls serialize, signal/release can run concurrently, independent contexts run concurrently and destroy requires quiescence. Pixels/plans/bitmap remain derived transient data; SQLite history and immutable original assets are untouched.
+
+## Human-readable goldens
+
+For 2x3 labels `1 2 / 3 4 / 5 6`: R90=`5 3 1 / 6 4 2`; R180=`6 5 / 4 3 / 2 1`; R270=`2 4 6 / 1 3 5`. Left-half crop gives `1 / 3 / 5`; crop then R90 gives `5 3 1`; R90 then left-half crop gives `5 3 / 6 4` because outward rounding maps half of width 3 to width 2. A 3x3 center crop at x=y=333334,width=height=1 ppm yields label 5. Bottom-right edge 1 ppm selects the final pixel, including 1x1 inputs. Golden/property tests also cover 2x2,3x2 and edge tile dimensions.

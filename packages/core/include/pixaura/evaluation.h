@@ -9,11 +9,12 @@ extern "C" {
 #define PIXAURA_EVALUATION_MAX_REQUEST_BYTES 65536u
 #define PIXAURA_EVALUATION_MAX_OPERATION_BYTES 1024u
 /* Version 1 request: {"operations":[schema-1 operation records in stack order]}.
- * Only exposure/1/1 executes; other tuples reject, never skip.
+ * Exposure/crop/rotate /1/1 execute; other tuples reject, never skip.
  * Strict integer JSON; no fractional/exponent/non-finite parameters.
  * Validation uses the document parser and completes before raster allocation.
  * Context lifecycle/thread rules and release/query/copy are the decode/working API.
- * One independently owned output raster, no heap kernel scratch. All failures
+ * One independently owned output raster; reusable rotation bitmap <=1 MiB.
+ * Crop compacts without allocation; retained capacity is admitted/counts fully. All failures
  * preserve output. Numerical overflow returns INVALID_PARAMETERS (7).
  */
 PIXAURA_API int32_t pixaura_evaluation_validate(uint32_t version,

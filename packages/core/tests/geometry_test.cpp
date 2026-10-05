@@ -66,7 +66,7 @@ int main(int argc,char** argv){
     auto rotate=operation("rotate","{\"quarter_turns\":1}",2);
     auto exposure=operation("exposure","{\"milli_ev\":1000}",3);
     const auto planned=geometry::plan({2,3},stack(exposure+","+crop+","+rotate),l);
-    CHECK(planned.summary.width==3&&planned.summary.height==1&&!planned.summary.executable&&planned.stages.size()==3);
+    CHECK(planned.summary.width==3&&planned.summary.height==1&&planned.summary.executable&&planned.stages.size()==3);
     CHECK(planned.stages[0].input.width==2&&planned.stages[1].output.width==1&&planned.stages[2].input.height==3);
     const auto reverse=geometry::plan({2,3},stack(rotate+","+crop),l);CHECK(reverse.summary.width==2&&reverse.summary.height==2);
     std::string maximum;
@@ -108,6 +108,19 @@ int main(int argc,char** argv){
     pixaura_decode_handle source{},decoded{},working{};
     CHECK(pixaura_decode_open(&context,reinterpret_cast<const uint8_t*>(path.data()),path.size(),reinterpret_cast<const uint8_t*>(asset.digest.data()),64,asset.bytes,&source)==0);
     CHECK(pixaura_decode_image(&context,&source,&decoded)==0);CHECK(pixaura_working_normalize(&context,&decoded,&l,&working)==0);
+    // Admit copy+parser exactly, but reject rotation's additional bitmap byte.
+    pixaura_decode_context budget_context{};auto budget_limits=dl;
+    budget_limits.profile_bytes=1;budget_limits.scratch_bytes=131072;
+    budget_limits.context_bytes=sizeof(decode_png)+24+96+96+1048576;
+    const uint8_t budget_id[]="33333333333333333333333333333333";
+    CHECK(pixaura_decode_context_init(1,&budget_context,sizeof(budget_context),budget_id,32,&budget_limits)==0);
+    pixaura_decode_handle bs{},bd{},bw{},bo{};
+    CHECK(pixaura_decode_open(&budget_context,reinterpret_cast<const uint8_t*>(path.data()),path.size(),reinterpret_cast<const uint8_t*>(asset.digest.data()),64,asset.bytes,&bs)==0);
+    CHECK(pixaura_decode_image(&budget_context,&bs,&bd)==0);CHECK(pixaura_working_normalize(&budget_context,&bd,&l,&bw)==0);
+    const std::string rotation_request="{\"operations\":["+rotate+"]}";
+    CHECK(pixaura_working_evaluate(&budget_context,&bw,1,reinterpret_cast<const uint8_t*>(rotation_request.data()),rotation_request.size(),&l,&bo)==8&&bo.serial==0);
+    CHECK(pixaura_working_evaluate(&budget_context,&bw,1,reinterpret_cast<const uint8_t*>(request.data()),request.size(),&l,&bo)==0);
+    CHECK(pixaura_decode_context_destroy(&budget_context)==0);
     const std::string long_request="{\"operations\":["+maximum+"]}";
     for(unsigned i=0;i<64;++i){CHECK(pixaura_cancel_create(&context,1,&token)==0);pixaura_decode_handle output=unchanged;std::atomic<bool> started{false};int32_t status=-1,read_status=-1;float pixel=-1;
         std::thread evaluate([&]{started.store(true);status=pixaura_working_evaluate_cancel(&context,&working,1,reinterpret_cast<const uint8_t*>(long_request.data()),long_request.size(),&l,&token,&output);});

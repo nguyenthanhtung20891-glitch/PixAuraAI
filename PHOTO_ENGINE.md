@@ -1,5 +1,7 @@
 # Non-destructive photo engine
 
+Phase 2 Step 8 activates exact bit-preserving crop/rotate execution through the existing evaluation APIs. [ADR 0014](docs/adr/0014-two-raster-geometry-execution.md) and [execution contract](docs/contracts/geometry-execution-v1.md) specify two rasters, in-place crop/permutation rotation and a bounded reusable bitmap. No resampling, renderer or export.
+
 Phase 2 Step 7 adds [geometry planning](docs/contracts/geometry-v1.md) and [cooperative cancellation](docs/contracts/cancellation-v1.md) under [ADR 0013](docs/adr/0013-bounded-geometry-and-cancellation.md). Crop uses approved outward integer rasterization; quarter-turn mappings are unchanged. Geometry is planning-only; tiled scalar exposure evaluation supports sticky context tokens and atomic cancellation. Existing raster/context ceilings remain unchanged. No renderer or geometry pixel execution is introduced.
 
 Phase 2 Step 6 adds [bounded CPU exposure evaluation](docs/contracts/cpu-evaluation-v1.md) under [ADR 0012](docs/adr/0012-bounded-cpu-exposure-evaluation.md): frozen exposure/1/1 only, unclamped finite RGB, preserved alpha, strict bounded shared parsing, ordered scalar passes on one private output raster and atomic handle publication. Identity/zero exposure remain exact. Geometry/reserved tools, rendering and export are outside this step.

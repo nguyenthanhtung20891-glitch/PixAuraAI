@@ -70,6 +70,17 @@ target_link_libraries(pixaura_core PRIVATE pixaura_codecs)
 
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(geometry_execution_test packages/core/tests/geometry_execution_test.cpp packages/core/src/geometry.cpp
+        packages/core/src/evaluation.cpp packages/core/src/working.cpp packages/core/src/document.cpp packages/core/src/decode.cpp)
+    target_link_libraries(geometry_execution_test PRIVATE pixaura_core pixaura_storage pixaura_codecs)
+    target_include_directories(geometry_execution_test PRIVATE packages/core/include)
+    target_compile_features(geometry_execution_test PRIVATE cxx_std_17)
+    pixaura_strict(geometry_execution_test)
+    add_test(NAME geometry_execution_test COMMAND geometry_execution_test)
+    set_tests_properties(geometry_execution_test PROPERTIES TIMEOUT 90)
+    if(PIXAURA_SANITIZERS)
+        set_tests_properties(geometry_execution_test PROPERTIES ENVIRONMENT "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1;UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1")
+    endif()
     add_executable(geometry_test packages/core/tests/geometry_test.cpp packages/core/src/geometry.cpp
         packages/core/src/evaluation.cpp packages/core/src/working.cpp packages/core/src/document.cpp packages/core/src/decode.cpp)
     target_link_libraries(geometry_test PRIVATE pixaura_core pixaura_storage pixaura_codecs)

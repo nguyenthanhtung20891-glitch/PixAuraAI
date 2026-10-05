@@ -44,21 +44,34 @@ std::size_t pixel_offset(Extent e,Point p) {
     const auto index=decode::multiply(add(decode::multiply(p.y,e.width),p.x),4);
     need(index<=SIZE_MAX-3,8);return static_cast<std::size_t>(index);
 }
+Point crop_source(const Stage& stage,Point p) {
+    need(p.x<stage.output.width&&p.y<stage.output.height);
+    const auto x=add(stage.region.x0,p.x),y=add(stage.region.y0,p.y);
+    need(x<stage.input.width&&y<stage.input.height);
+    return {static_cast<uint32_t>(x),static_cast<uint32_t>(y)};
+}
 Plan plan(Extent e,const evaluation::Stack& stack,const pixaura_working_limits& l) {
-    admit(e,l);need(stack.size()<=256,8);Plan out;
-    out.stages.reserve(stack.size());need(out.stages.capacity()<=256,8);uint64_t visits=0;bool executable=true;
+    const auto initial_bytes=admit(e,l);need(stack.size()<=256,8);Plan out;
+    out.max_raster_bytes=initial_bytes;out.max_pixels=decode::multiply(e.width,e.height);
+    out.max_width=e.width;out.max_height=e.height;
+    out.stages.reserve(stack.size());need(out.stages.capacity()<=256,8);uint64_t visits=0;
     for(std::size_t i=0;i<stack.size();++i) {
         const auto& op=stack[i];need(op.operation_version==1&&op.parameter_version==1,5);
         for(std::size_t j=0;j<i;++j)need(op.id!=stack[j].id,6);
         Stage stage{e,e,{0,0,e.width,e.height},0};
-        if(op.type=="pixaura.crop") {const auto* c=std::get_if<document::Crop>(&op.parameters);need(c!=nullptr);stage.region=crop(e,*c);stage.output={stage.region.x1-stage.region.x0,stage.region.y1-stage.region.y0};executable=false;}
-        else if(op.type=="pixaura.rotate") {const auto* r=std::get_if<document::Rotate>(&op.parameters);need(r!=nullptr);stage.turns=r->quarter_turns;stage.output=rotated(e,r->quarter_turns);executable=false;}
+        if(op.type=="pixaura.crop") {const auto* c=std::get_if<document::Crop>(&op.parameters);need(c!=nullptr);stage.region=crop(e,*c);stage.output={stage.region.x1-stage.region.x0,stage.region.y1-stage.region.y0};}
+        else if(op.type=="pixaura.rotate") {const auto* r=std::get_if<document::Rotate>(&op.parameters);need(r!=nullptr);stage.turns=r->quarter_turns;stage.output=rotated(e,r->quarter_turns);
+            if(stage.turns)out.scratch_bytes=std::max(out.scratch_bytes,add(decode::multiply(e.width,e.height),7)/8);}
         else if(op.type=="pixaura.exposure") {const auto* p=std::get_if<document::Exposure>(&op.parameters);need(p&&p->milli_ev>=-5000&&p->milli_ev<=5000);}
         else need(false,5);
-        admit(stage.output,l);visits=add(visits,decode::multiply(e.width,e.height));need(visits<=2147483648ULL,8);
+        out.max_raster_bytes=std::max(out.max_raster_bytes,admit(stage.output,l));
+        tile_count(stage.output);
+        out.max_width=std::max(out.max_width,stage.output.width);out.max_height=std::max(out.max_height,stage.output.height);
+        out.max_pixels=std::max(out.max_pixels,decode::multiply(stage.output.width,stage.output.height));
+        visits=add(visits,decode::multiply(e.width,e.height));need(visits<=2147483648ULL,8);
         out.stages.push_back(stage);e=stage.output;
     }
-    out.summary={1,sizeof(pixaura_geometry_plan),e.width,e.height,static_cast<uint32_t>(stack.size()),tile_count(e),128,executable?1u:0u,admit(e,l),decode::multiply(out.stages.capacity(),sizeof(Stage)),visits};
+    out.summary={1,sizeof(pixaura_geometry_plan),e.width,e.height,static_cast<uint32_t>(stack.size()),tile_count(e),128,1u,admit(e,l),decode::multiply(out.stages.capacity(),sizeof(Stage)),visits};
     return out;
 }
 }

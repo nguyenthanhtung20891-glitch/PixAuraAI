@@ -7,7 +7,11 @@ struct Extent { uint32_t width, height; };
 struct Rect { uint32_t x0, y0, x1, y1; };
 struct Point { uint32_t x, y; };
 struct Stage { Extent input, output; Rect region; uint32_t turns; };
-struct Plan { pixaura_geometry_plan summary{}; document::Vector<Stage> stages; };
+struct Plan {
+    pixaura_geometry_plan summary{}; document::Vector<Stage> stages;
+    uint64_t max_raster_bytes=0, scratch_bytes=0, max_pixels=0;
+    uint32_t max_width=0, max_height=0;
+};
 uint64_t admit(Extent, const pixaura_working_limits&);
 Rect crop(Extent, document::Crop);
 Extent rotated(Extent, uint32_t);
@@ -16,6 +20,7 @@ Point inverse(Extent, uint32_t, Point);
 uint32_t tile_count(Extent);
 Rect tile(Extent, uint32_t);
 std::size_t pixel_offset(Extent, Point);
+Point crop_source(const Stage&, Point);
 Plan plan(Extent, const evaluation::Stack&, const pixaura_working_limits&);
 }
 #endif

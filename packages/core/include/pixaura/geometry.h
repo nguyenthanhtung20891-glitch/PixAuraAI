@@ -16,7 +16,8 @@ typedef struct pixaura_geometry_plan {
 typedef struct pixaura_geometry_tile {
     uint32_t api_version, struct_size, index, x0, y0, x1, y1;
 } pixaura_geometry_tile;
-/* Planning only: geometry does not execute. Exact schema-1 stack, unchanged order.
+/* Exact schema-1 stack, unchanged order. Step 8 executes registered geometry
+ * through existing evaluation APIs; this function itself only plans.
  * Output untouched on failure. Dimensions obey existing working limits. */
 PIXAURA_API int32_t pixaura_geometry_preflight(uint32_t version, uint32_t width,
     uint32_t height, const uint8_t* request, uint64_t bytes,

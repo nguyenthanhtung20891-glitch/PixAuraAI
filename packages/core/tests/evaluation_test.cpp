@@ -53,7 +53,7 @@ int main(int argc,char** argv) {
     const auto checkpoint=document::serialize(*snapshot.value);CHECK(checkpoint.code==0);
     const auto replay=document::replay(*snapshot.value,document::Id::parse("00000000000000000000000000000101"));CHECK(replay.code==0);
     auto historical=evaluation::evaluate(in,replay.value,limits);CHECK((*historical.pixels)[4]>2);
-    const auto geometry=document::replay(*snapshot.value,snapshot.value->current());CHECK(geometry.code==0&&failure(in,geometry.value)==5);
+    const auto geometry=document::replay(*snapshot.value,snapshot.value->current());CHECK(geometry.code==0&&failure(in,geometry.value)==0);
     const auto after=document::serialize(*snapshot.value);CHECK(after.code==0&&after.value==checkpoint.value);
     // All 10001 legal parameters versus an independent double transcendental oracle.
     for(int ev=-5000;ev<=5000;++ev) {

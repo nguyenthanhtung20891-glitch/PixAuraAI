@@ -15,6 +15,7 @@
 | [0011](docs/adr/0011-shared-bounded-sdr-decode.md) | Accepted | Shared portable bounded JPEG/PNG SDR decoders; supersedes platform codec ownership for these formats only; transient RGBA8 and configurable hard limits |
 | [0012](docs/adr/0012-bounded-cpu-exposure-evaluation.md) | Accepted | Frozen CPU exposure recipe, finite unclamped RGB, bounded ordered stacks and one private output raster |
 | [0013](docs/adr/0013-bounded-geometry-and-cancellation.md) | Accepted | Approved outward crop rasterization, ordered geometry preflight, lazy tiles and cooperative atomic cancellation |
+| [0014](docs/adr/0014-two-raster-geometry-execution.md) | Accepted | Exact ordered geometry movement within two rasters using in-place compaction and a bounded bitmap |
 
 Accepted architecture does not imply an implementation or verified runtime. Exact models, Android GPU backend fallback coverage, shader tolerance and subscription grace remain evaluation items in relevant phases. Major changes require new numbered ADRs and index updates.
 
@@ -23,3 +24,5 @@ Phase 2 Step 5 refines existing ADR 0003/0009/0011 in the [CPU working-image con
 Phase 2 Step 6: [ADR 0012](docs/adr/0012-bounded-cpu-exposure-evaluation.md) freezes exposure/1/1 numerical evaluation, finite unclamped RGB policy, 256-operation admission and one-private-destination buffering. No historical tuple, document/storage schema or ABI 1 meaning changes.
 
 Phase 2 Step 7: [ADR 0013](docs/adr/0013-bounded-geometry-and-cancellation.md) records the Product Owner approved outward crop rasterization, transient ordered geometry plans, lazy 128x128 tiles and cooperative cancellation. Raster/context ceilings, historical tuples and ABI 1 remain unchanged.
+
+Phase 2 Step 8: [ADR 0014](docs/adr/0014-two-raster-geometry-execution.md) activates exact crop/rotate movement and specifies in-place compaction/permutation under the two-raster limit with a <=1 MiB admitted bitmap. Historical operation meanings, raster/context ceilings and ABI 1 remain unchanged.

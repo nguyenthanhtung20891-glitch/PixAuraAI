@@ -81,6 +81,7 @@ int32_t pixaura_working_evaluate(pixaura_decode_context* c,const pixaura_decode_
     // Conservative fixed 1 MiB covers at most 256 bounded integer envelopes.
     room(*h.registry,e.working.metadata.image_bytes+1048576);
     const auto stack=evaluation::parse(text(request,bytes,PIXAURA_EVALUATION_MAX_REQUEST_BYTES));
+    room(*h.registry,evaluation::reservation(e.working.metadata.width,e.working.metadata.height,stack,*l)+1048576);
     Entry result;result.source=e.source;result.working=evaluation::evaluate(e.working,stack,*l);
     const auto token=insert(h,std::move(result));*out=token;
 });}
@@ -118,6 +119,7 @@ int32_t pixaura_working_evaluate_cancel(pixaura_decode_context* c,const pixaura_
     const auto& e=entry(h,source);need(e.working.pixels!=nullptr,3);working::validate(*l);
     room(*h.registry,e.working.metadata.image_bytes+1048576);
     const auto stack=evaluation::parse(text(request,bytes,65536));
+    room(*h.registry,evaluation::reservation(e.working.metadata.width,e.working.metadata.height,stack,*l)+1048576);
     evaluation::checkpoint(cancel.get(),evaluation::Checkpoint::allocation);
     Entry result;result.source=e.source;result.working=evaluation::evaluate(e.working,stack,*l,cancel.get());
     // Publication and signal share this lock: whichever commits first wins.

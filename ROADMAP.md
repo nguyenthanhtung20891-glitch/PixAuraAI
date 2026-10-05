@@ -1,5 +1,7 @@
 # Delivery roadmap
 
+Current authorization: Phase 2 Step 8 minimal geometry pixel execution, including autonomous local validation and commit/push/CI closure. Accepted Step 7 HEAD: 2e0f975ca894372684c3febbc391dc3ac92d5407, user-attested FULL PASS. Frozen outward crop and clockwise turns execute with two rasters under existing ceilings. Step 9 is not started. [Step 8 report](docs/reports/phase-2-step-8.md).
+
 Current authorization: Phase 2 Step 7 bounded geometry, tiling and cancellation contracts, including autonomous implementation, validation, commit/push and CI closure. Step 6 is Product Owner accepted FULL PASS at fd545ac545d526e779ca82daf8ac58e20cf39f2f. Outward crop rasterization is explicitly approved. No Step 8 is started. Evidence: [Step 7 report](docs/reports/phase-2-step-7.md). Historical limits below are superseded.
 
 Current authorization: Phase 2 Step 6 bounded CPU operation evaluation and numerical contracts, including autonomous commit/push and CI remediation until green. Step 5 is Product Owner accepted FULL PASS at 7f1fa96ab0f24b44e4e28a8c6c0aff8e7a4024ce. Step 6 implements the frozen exposure/1/1 tuple and ordered bounded evaluation; it does not start Step 7. Evidence: [Step 6 report](docs/reports/phase-2-step-6.md). Historical authorizations below are superseded.
