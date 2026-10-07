@@ -1,6 +1,6 @@
 # Phase 2 Step 10: bounded preview and platform consumption
 
-Status: implementation and validation in progress; hosted closure pending. No Step 11 work.
+Status: implementation and local/hosted certification PASS on functional HEAD 79a43978da7ca03ec11af983de49ee3964f83bc1. Documentation-only certification publication requires a final exact-SHA workflow check, reported with the final delivery. No Step 11 work.
 
 ## Audit and scope
 
@@ -58,13 +58,34 @@ WSL DrvFS cannot enforce POSIX permission-denial fixtures; rerun uses an ephemer
 
 Windows native regression reproduced an existing concurrent immutable-asset publication race: verifier read-open intermittently returns OS sharing violation32 while MoveFileExW's publication handle is closing. Remediation marks the owned private staging file read-only before publication, reclaims read-only staging files on failure/dedup and retries only immutable asset-open sharing conflicts at most64 attempts with63 one-millisecond waits. Read handles still deny write/delete sharing, and reparse/link/hash/no-overwrite checks remain unchanged. Persistent held-handle conflict rejects with6 and recovers after release. Eight complete Windows storage reruns pass, including32 concurrent dedup rounds each. No process-global lock/cache, permission change or test weakening.
 
-Exact changed-file inventory is [phase-2-step-10-files.txt](phase-2-step-10-files.txt). Commit SHA and hosted IDs will be recorded after validation. Real MSVC/Apple evidence pending; Step 10 is not yet ready for FULL PASS.
+Exact changed-file inventory is [phase-2-step-10-files.txt](phase-2-step-10-files.txt): 31 files. Frozen working/evaluation/geometry/context ceilings, dependencies and application permissions remain unchanged.
 
-Initial implementation SHA d8df83ead888c09d6f3221c4ae36cf80e1d8d341: Foundation run37636514502 observes real MSVC19.51.36260.0 job112844048988 PASS15/15,894360 preview checks,1771 recovered allocation failures/16 phases, including the persistent-sharing conflict scenario. Linux/sanitizer/ARM64/ARMv7/lint jobs pass. Native shells run37636514441 Android job112844049728 fails before compilation because Google SDK Manager downloads an invalid API35 system-image zip (`ZipFile unknown archive`). Remediation introduces at most3 SDK installation attempts for the identical pinned package list; persistent failure still stops CI. Isolated fake SDK tests prove transient recovery and persistent3-attempt failure; no local installed SDK mutation, timeout increase, skip or weakened gate. Apple execution and final exact-SHA closure remain pending.
+Initial implementation SHA d8df83ead888c09d6f3221c4ae36cf80e1d8d341: Foundation run37636514502 observes real MSVC19.51.36260.0 job112844048988 PASS15/15,894360 preview checks,1771 recovered allocation failures/16 phases, including the persistent-sharing conflict scenario. Linux/sanitizer/ARM64/ARMv7/lint jobs pass. Native shells run37636514441 Android job112844049728 fails before compilation because Google SDK Manager downloads an invalid API35 system-image zip (`ZipFile unknown archive`). Remediation introduces at most3 SDK installation attempts for the identical pinned package list; persistent failure still stops CI. Isolated fake SDK tests prove transient recovery and persistent3-attempt failure; no local installed SDK mutation, timeout increase, skip or weakened gate. This initial infrastructure failure was resolved by the subsequent exact-SHA green runs below.
 
 Remediation SHA2f560214e7568b3f152968f03489e2857df5d663 is fully green: [Foundation37637468018](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37637468018) all7 jobs and [Native shells37637468097](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37637468097) all3 jobs. Real MSVC job112847346586, AppleClang21.0.0.21000101 job112847346225 (15/15 native,7/7 macSwift,7/7 iOS simulator Swift), Android job112847346893 (4/4 instrumentation, builds/lint/JVM), iOS job112847346964 (Debug/Release,5/5 app including preview smoke,1/1 UI). GitHub reports macOS runner capacity delays; no timeout change.
 
-Final strengthened tests draw opaque goldens through real CoreGraphics, prove interpolation occurs before display clipping and reject hidden RGB at zero alpha even in unsampled source pixels. A subsequent required sanitizer rerun reproduced Linux's transient two-link dedup publication window. POSIX metadata admission now retains the pinned descriptor, retries exactly-two-link states at most63 times with one-millisecond sleeps and still requires one link before any read and after verification. Persistent aliases reject with6 and recover after explicit unlink; the security condition is unchanged. Linux native15/15 and sanitizer17/17 pass after remediation. Final exact-SHA hosted closure is required for these changes.
+Final strengthened tests draw opaque goldens through real CoreGraphics, prove interpolation occurs before display clipping and reject hidden RGB at zero alpha even in unsampled source pixels. A subsequent required sanitizer rerun reproduced Linux's transient two-link dedup publication window. POSIX metadata admission now retains the pinned descriptor, retries exactly-two-link states at most63 times with one-millisecond sleeps and still requires one link before any read and after verification. Persistent aliases reject with6 and recover after explicit unlink; the security condition is unchanged. Linux native15/15 and sanitizer17/17 pass after remediation. Eight complete sanitized POSIX storage reruns also pass, each including 32 concurrent dedup rounds. Final functional exact-SHA hosted closure for these changes is recorded below.
+
+## Final functional hosted certification
+
+Resumed main with a clean tree and HEAD exactly 79a43978da7ca03ec11af983de49ee3964f83bc1. Both workflow JSON records identify that full SHA and completed/success conclusions; every required job is completed/success:
+
+- [Foundation boundaries 37641013264](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37641013264): 7/7 jobs: workflow lint, Linux portable, Windows portable, sanitizers, Apple boundary and both Android ABIs.
+- [Native application shells 37641013252](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37641013252): 3/3 jobs: source, Android application and iOS application.
+- Real Windows MSVC 19.51.36260.0, job 112859655369: 15/15 native tests, 894362 preview checks, 1771 recovered allocation failures across 16 phases; persistent-sharing rejection/recovery executed.
+- Real macOS AppleClang 21.0.0.21000101, job 112859654754: 15/15 native, 7/7 macOS Swift and 7/7 iOS simulator Swift; CoreGraphics interpretation assertions and unsigned iOS build pass.
+- Real iOS application/simulator, job 112859669536: Debug/Release builds, 5/5 application tests including testBoundedPreviewPlatformConsumer and its actual CoreGraphics draw, 1/1 UI test; zero failures.
+- Android application, job 112859669782: Debug/Release builds, lint/JVM and 4/4 emulator instrumentation tests pass, including actual Bitmap channel/alpha interpretation.
+
+No remediation was necessary during final certification resume. No architecture deviation, unresolved blocker, new skip, weakened assertion or increased timeout. Final documentation-only commit must receive the same exact-SHA green workflow closure before delivery; its actual commit/run identifiers are supplied in the final certification response to avoid a self-referential report commit.
+
+Implementation/remediation commits:
+
+- 6dfc89207a3144781f4050f57bc17b3d98fe3072: bounded immutable-asset Windows open/publication handling.
+- d8df83ead888c09d6f3221c4ae36cf80e1d8d341: bounded bilinear fit and platform-owned consumers.
+- 2f560214e7568b3f152968f03489e2857df5d663: bounded retry for transient pinned SDK provisioning.
+- 9b333c9380a9a84f1a342fa4712613778a32b090: pinned POSIX metadata publication retry.
+- 79a43978da7ca03ec11af983de49ee3964f83bc1: final independent/reference and real platform interpretation assertions.
 
 ## Limitations and next authorization
 
