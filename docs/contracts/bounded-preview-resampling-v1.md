@@ -44,4 +44,14 @@ Product Owner approved 4032x3024 as intentional source-admission rejections: RGB
 
 Timing sources are legally admitted: 4032x2048 ->1440x731, ->1024x520, ->256x130; 1920x1080 ->1280x720; 1024x768 ->exact. Report source/output sizes, scale, pixels, destination tiles and time; no production performance gate.
 
-Required evidence includes reviewable byte goldens, independent four-weight/OETF oracle, dimension/edge/alpha/exact properties, malformed requests/layout/nonfinite inputs, aggregate/handle exhaustion, cancellation at all checkpoints, races/stale handles, fail-at-N recovery, C/JNI/Swift consumers, ASan/UBSan and real MSVC/Apple/Android/Linux hosted gates.
+Required evidence includes reviewable byte goldens, independent four-weight/OETF oracle, dimension/edge/alpha/exact properties, malformed requests/layout/nonfinite inputs, aggregate/handle exhaustion, cancellation at all checkpoints, races/stale handles, fail-at-N recovery, C/JNI/Swift consumers, ASan/UBSan and real MSVC/Apple/Android/Linux hosted gates. Consumer tests additionally draw 1x1 opaque goldens through CoreGraphics to verify actual channel interpretation; this is test-only display consumption, with no resampling formula in Swift.
+
+| Fixture (row-major canonical input) | Fit output RGBA8 |
+| --- | --- |
+| 2x2 opaque black/white checkerboard |1x1: 188,188,188,255|
+| 2x2 red/transparent alternating columns |1x1: 255,0,0,128|
+| 2x2 R=0,.125,.25,.375; G=B=0; A=.5 |1x1: 165,0,0,128|
+| 3x3 grayscale i/8 for i=0..8; A=1 |2x2 grayscale codes 99,152,216,240; A=255|
+| 4x2 R=0,.2,.4,.6,.8,0,.2,.4; G=B=0; A=1 |2x1 red codes 137,170; A=255|
+| 2x4 same row-major red sequence |1x2 red codes 149,160; A=255|
+| Verified 2x3 PNG blue/white middle row |1x1: 188,188,255,255|

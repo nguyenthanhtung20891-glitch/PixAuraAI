@@ -143,6 +143,20 @@ final class DecodeBoundaryTests: XCTestCase {
                 XCTAssertEqual(platformExact.alphaInfo, .last)
                 XCTAssertEqual(platformExact.colorSpace?.name, CGColorSpace.sRGB)
                 XCTAssertEqual(platformExact.dataProvider?.data as Data?, Data(previewBytes))
+                if name == "png" {
+                    let red = try XCTUnwrap(platformExact.cropping(to: CGRect(x: 0, y: 0, width: 1, height: 1)))
+                    var rendered = [UInt8](repeating: 0, count: 4)
+                    let drew = rendered.withUnsafeMutableBytes { storage -> Bool in
+                        guard let space = CGColorSpace(name: CGColorSpace.sRGB),
+                              let display = CGContext(data: storage.baseAddress, width: 1, height: 1,
+                                                      bitsPerComponent: 8, bytesPerRow: 4, space: space,
+                                                      bitmapInfo: CGBitmapInfo.byteOrder32Big.rawValue | CGImageAlphaInfo.premultipliedLast.rawValue) else { return false }
+                        display.draw(red, in: CGRect(x: 0, y: 0, width: 1, height: 1))
+                        return true
+                    }
+                    XCTAssertTrue(drew)
+                    XCTAssertEqual(rendered, [255, 0, 0, 255])
+                }
                 var fitRequest = pixaura_preview_request(version: 1, struct_size: UInt32(MemoryLayout<pixaura_preview_request>.size), mode: 1, max_width: 1, max_height: 2, reserved: 0)
                 var fitted = pixaura_decode_handle()
                 XCTAssertEqual(pixaura_preview_render(&context, &evaluated, &fitRequest, nil, &fitted), 0)

@@ -44,8 +44,8 @@ Times include full input validation; exact timings use existing converter. Logs 
 | --- | --- |
 | Windows applicable source |47/47, zero skips|
 | Linux full source |78/78, zero skips (includes SDK provisioning failure/recovery tests)|
-| Windows Zig native fallback |15/15; 894360 preview checks; 450 injected failures recovered/16 phases|
-| Linux native |15/15; 894360 preview checks; 588 injected failures recovered/16 phases|
+| Windows Zig native fallback |15/15; 894362 preview checks; 450 injected failures recovered/16 phases|
+| Linux native |15/15; 894362 preview checks; 588 injected failures recovered/16 phases|
 | ASan/UBSan |17/17 including actual negative instrumentation probes|
 | Android debug/release |builds PASS on ARM64/ARMv7/x86_64|
 | Android lint debug/release |zero issues, warnings-as-errors unchanged|
@@ -61,6 +61,10 @@ Windows native regression reproduced an existing concurrent immutable-asset publ
 Exact changed-file inventory is [phase-2-step-10-files.txt](phase-2-step-10-files.txt). Commit SHA and hosted IDs will be recorded after validation. Real MSVC/Apple evidence pending; Step 10 is not yet ready for FULL PASS.
 
 Initial implementation SHA d8df83ead888c09d6f3221c4ae36cf80e1d8d341: Foundation run37636514502 observes real MSVC19.51.36260.0 job112844048988 PASS15/15,894360 preview checks,1771 recovered allocation failures/16 phases, including the persistent-sharing conflict scenario. Linux/sanitizer/ARM64/ARMv7/lint jobs pass. Native shells run37636514441 Android job112844049728 fails before compilation because Google SDK Manager downloads an invalid API35 system-image zip (`ZipFile unknown archive`). Remediation introduces at most3 SDK installation attempts for the identical pinned package list; persistent failure still stops CI. Isolated fake SDK tests prove transient recovery and persistent3-attempt failure; no local installed SDK mutation, timeout increase, skip or weakened gate. Apple execution and final exact-SHA closure remain pending.
+
+Remediation SHA2f560214e7568b3f152968f03489e2857df5d663 is fully green: [Foundation37637468018](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37637468018) all7 jobs and [Native shells37637468097](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37637468097) all3 jobs. Real MSVC job112847346586, AppleClang21.0.0.21000101 job112847346225 (15/15 native,7/7 macSwift,7/7 iOS simulator Swift), Android job112847346893 (4/4 instrumentation, builds/lint/JVM), iOS job112847346964 (Debug/Release,5/5 app including preview smoke,1/1 UI). GitHub reports macOS runner capacity delays; no timeout change.
+
+Final strengthened tests draw opaque goldens through real CoreGraphics, prove interpolation occurs before display clipping and reject hidden RGB at zero alpha even in unsampled source pixels. A subsequent required sanitizer rerun reproduced Linux's transient two-link dedup publication window. POSIX metadata admission now retains the pinned descriptor, retries exactly-two-link states at most63 times with one-millisecond sleeps and still requires one link before any read and after verification. Persistent aliases reject with6 and recover after explicit unlink; the security condition is unchanged. Linux native15/15 and sanitizer17/17 pass after remediation. Final exact-SHA hosted closure is required for these changes.
 
 ## Limitations and next authorization
 

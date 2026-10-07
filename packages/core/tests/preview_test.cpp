@@ -49,6 +49,8 @@ static void fit_tests(){
     auto result=preview::render(checker,fit(1,1));CHECK(*result.pixels==decode::Vector<uint8_t>({188,188,188,255}));
     auto edge=image(2,2);for(unsigned i=0;i<4;++i){(*edge.pixels)[i*4]=i%2?0.f:1.f;(*edge.pixels)[i*4+3]=i%2?0.f:1.f;}
     CHECK(*preview::render(edge,fit(1,1)).pixels==decode::Vector<uint8_t>({255,0,0,128}));
+    auto unclipped=image(2,2);for(unsigned i=0;i<4;++i){(*unclipped.pixels)[i*4]=i%2?1.f:-1.f;(*unclipped.pixels)[i*4+1]=i%2?0.f:2.f;(*unclipped.pixels)[i*4+2]=.5f;}
+    CHECK(*preview::render(unclipped,fit(1,1)).pixels==decode::Vector<uint8_t>({0,255,188,255}));
     auto half=image(2,2);for(unsigned i=0;i<4;++i){(*half.pixels)[i*4]=float(i)*.125f;(*half.pixels)[i*4+3]=.5f;}
     CHECK(*preview::render(half,fit(1,1)).pixels==decode::Vector<uint8_t>({165,0,0,128}));
     auto odd=image(3,3);for(unsigned i=0;i<9;++i)for(unsigned k=0;k<3;++k)(*odd.pixels)[i*4+k]=float(i)/8;
@@ -71,6 +73,7 @@ static void fit_tests(){
     }
     for(float a:{0.f,.5f,1.f}){auto solid=image(9,7);for(std::size_t i=0;i<solid.pixels->size();i+=4){for(unsigned k=0;k<3;++k)(*solid.pixels)[i+k]=a;(*solid.pixels)[i+3]=a;}auto out=preview::render(solid,fit(3,2));for(std::size_t i=0;i<out.pixels->size();i+=4){CHECK((*out.pixels)[i]==(a?255:0));CHECK((*out.pixels)[i+3]==std::floor(double(a)*255+.5));}}
     auto malformed=image(9,9);(*malformed.pixels)[0]=std::numeric_limits<float>::infinity();CHECK(failure([&]{preview::render(malformed,fit(1,1));})==7);
+    (*malformed.pixels)[0]=1;(*malformed.pixels)[3]=0;CHECK(failure([&]{preview::render(malformed,fit(1,1));})==7);
     auto tiled=image(257,259);CancelAt baseline;preview::render(tiled,fit(129,130),&baseline.cancel,inject,&baseline);
     for(unsigned i=0;i<baseline.count;++i){CancelAt cancel;cancel.target=i;CHECK(failure([&]{preview::render(tiled,fit(129,130),&cancel.cancel,inject,&cancel);})==13);}
     // Real working normalization admission, null input: rejection precedes any allocation/read.

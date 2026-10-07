@@ -40,6 +40,17 @@ final class ShellTests: XCTestCase {
             XCTAssertEqual(image.height, 1)
             XCTAssertEqual(image.alphaInfo, .last)
             XCTAssertEqual(image.dataProvider?.data as Data?, Data([188, 188, 255, 255]))
+            var displayed = [UInt8](repeating: 0, count: 4)
+            let drew = displayed.withUnsafeMutableBytes { storage -> Bool in
+                guard let space = CGColorSpace(name: CGColorSpace.sRGB),
+                      let display = CGContext(data: storage.baseAddress, width: 1, height: 1,
+                                              bitsPerComponent: 8, bytesPerRow: 4, space: space,
+                                              bitmapInfo: CGBitmapInfo.byteOrder32Big.rawValue | CGImageAlphaInfo.premultipliedLast.rawValue) else { return false }
+                display.draw(image, in: CGRect(x: 0, y: 0, width: 1, height: 1))
+                return true
+            }
+            XCTAssertTrue(drew)
+            XCTAssertEqual(displayed, [188, 188, 255, 255])
         }.value
     }
 
