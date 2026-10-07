@@ -65,6 +65,13 @@ uint64_t length(const File& f) {
     return (uint64_t(info.nFileSizeHigh)<<32)|info.nFileSizeLow;
 #else
     struct stat info{};require(fstat(f.handle,&info)==0);
+    // The portable no-overwrite link/unlink publication has a transient second
+    // link. Keep the pinned descriptor and require single-link integrity before
+    // any read; a persistent alias still rejects after bounded metadata retries.
+    require(S_ISREG(info.st_mode)&&info.st_size>=0,6);
+    for(unsigned attempt=0;info.st_nlink==2&&attempt<63;++attempt){
+        (void)usleep(1000);require(fstat(f.handle,&info)==0);
+    }
     require(S_ISREG(info.st_mode)&&info.st_nlink==1&&info.st_size>=0,6);return static_cast<uint64_t>(info.st_size);
 #endif
 }

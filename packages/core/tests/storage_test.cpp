@@ -97,6 +97,10 @@ void digest_tests() {
     const auto held_path=d.root/"assets/sha256"/std::string(abc_asset.digest);
     const auto held=CreateFileW(held_path.c_str(),GENERIC_READ,0,nullptr,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT,nullptr);
     CHECK(held!=INVALID_HANDLE_VALUE);error(6,[&]{store.verify(abc_asset);});CHECK(CloseHandle(held)!=0);store.verify(abc_asset);
+#else
+    note("asset.persistent_hardlink_rejects_then_recovers");
+    const auto held_path=d.root/"assets/sha256"/std::string(abc_asset.digest),alias=d.root/"persistent-alias";
+    fs::create_hard_link(held_path,alias);error(6,[&]{store.verify(abc_asset);});CHECK(fs::remove(alias));store.verify(abc_asset);
 #endif
     note("asset.empty_truncated_read_write_mismatch");Input zero(0);error(8,[&]{store.ingest(zero,0);});Input truncated(2);error(6,[&]{store.ingest(truncated,3);});Input too_long(4);error(6,[&]{store.ingest(too_long,3);});Input read_failure(3);read_failure.fail=true;error(12,[&]{store.ingest(read_failure,3);});
     Input mismatch(3);error(6,[&]{store.ingest(mismatch,3,String(64,'0'));});
