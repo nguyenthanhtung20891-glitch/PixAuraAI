@@ -92,6 +92,12 @@ void digest_tests() {
     Directory d("assets");AssetStore store(d.path());Input large(1000000,'a');const auto a=store.ingest(large,1000000);CHECK(a.digest=="cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0");CHECK(large.calls>15&&large.peak==65536);store.verify(a);
     note("asset.dedup_names_and_no_overwrite");Bytes b("abc"),again("abc"),different("abcd"),different_name("abc");auto abc_asset=store.ingest(b,3,{},"../same.png");CHECK(store.ingest(again,3,{},"../same.png").digest==abc_asset.digest);CHECK(store.ingest(different_name,3,{},"other.png").digest==abc_asset.digest);CHECK(store.ingest(different,4,{},"../same.png").digest!=abc_asset.digest);
     CHECK(!fs::exists(d.root.parent_path()/"same.png"));store.verify(abc_asset);
+#ifdef _WIN32
+    note("asset.persistent_sharing_conflict_rejects_then_recovers");
+    const auto held_path=d.root/"assets/sha256"/std::string(abc_asset.digest);
+    const auto held=CreateFileW(held_path.c_str(),GENERIC_READ,0,nullptr,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT,nullptr);
+    CHECK(held!=INVALID_HANDLE_VALUE);error(6,[&]{store.verify(abc_asset);});CHECK(CloseHandle(held)!=0);store.verify(abc_asset);
+#endif
     note("asset.empty_truncated_read_write_mismatch");Input zero(0);error(8,[&]{store.ingest(zero,0);});Input truncated(2);error(6,[&]{store.ingest(truncated,3);});Input too_long(4);error(6,[&]{store.ingest(too_long,3);});Input read_failure(3);read_failure.fail=true;error(12,[&]{store.ingest(read_failure,3);});
     Input mismatch(3);error(6,[&]{store.ingest(mismatch,3,String(64,'0'));});
     for(int point=0;point<4;++point){Input i(stream_buffer+5,static_cast<uint8_t>(point));fault_point=point;error(12,[&]{store.ingest(i,stream_buffer+5);});fault_point=-1;}

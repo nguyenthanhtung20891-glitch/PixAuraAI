@@ -182,7 +182,15 @@ struct Files::Impl {
 #ifdef _WIN32
         String relative(dir);if(!dir.empty()) relative+='/';relative.append(name);auto p=wide(path(relative));
         const DWORD sharing=dir.empty()?FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE:FILE_SHARE_READ;
-        return File(CreateFileW(p.data(),create?GENERIC_WRITE:(GENERIC_READ|FILE_READ_ATTRIBUTES),sharing,nullptr,create?CREATE_NEW:OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT,nullptr));
+        for(unsigned attempt=0;attempt<64;++attempt){
+            const auto opened=CreateFileW(p.data(),create?GENERIC_WRITE:(GENERIC_READ|FILE_READ_ATTRIBUTES),sharing,nullptr,create?CREATE_NEW:OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT,nullptr);
+            // MoveFileEx can expose the destination while its private rename
+            // handle is still closing. Keep immutable readers' restrictive
+            // share flags; retry only that transient asset-open conflict.
+            if(opened!=invalid||create||dir!="assets/sha256"||GetLastError()!=ERROR_SHARING_VIOLATION||attempt==63)return File(opened);
+            Sleep(1);
+        }
+        return File();
 #else
         const auto fd=dir=="staging"?stage_dir.handle:dir=="assets/sha256"?assets_dir.handle:root_dir.handle;String text(name);
         return File(openat(fd,text.c_str(),(create?(O_WRONLY|O_CREAT|O_EXCL):O_RDONLY)|O_NOFOLLOW|O_CLOEXEC,0600));
@@ -204,7 +212,14 @@ struct Files::Impl {
     }
     void remove_temp(std::string_view name) const noexcept {
 #ifdef _WIN32
-        try{String relative("staging/");relative.append(name);auto p=wide(path(relative));DeleteFileW(p.data());}catch(...){}
+        try{String relative("staging/");relative.append(name);auto p=wide(path(relative));
+            // Only an exclusively created, owned staging name reaches cleanup.
+            // Publication now marks it read-only before moving it; failed/dedup
+            // publication must still reclaim that private temporary file.
+            const auto attributes=GetFileAttributesW(p.data());
+            if(attributes!=INVALID_FILE_ATTRIBUTES&&(attributes&FILE_ATTRIBUTE_READONLY))
+                SetFileAttributesW(p.data(),attributes&~FILE_ATTRIBUTE_READONLY);
+            DeleteFileW(p.data());}catch(...){}
 #else
         // Temp names are already owned, null-terminated String values.
         (void)unlinkat(stage_dir.handle,name.data(),0);
@@ -270,15 +285,17 @@ Asset Files::ingest(Reader& reader,uint64_t expected,std::string_view digest) {
     require(total==expected,6);Asset result{hash.finish(),total};require(digest.empty()||result.digest==digest,6);
 #ifndef _WIN32
     require(fchmod(file.handle,0444)==0);
+#else
+    // Freeze attributes on the private owned handle before publication. A
+    // post-publication SetFileAttributes opens a transient competing handle
+    // and can deny a concurrent dedup verifier's immutable read open.
+    FILE_BASIC_INFO basic{};basic.FileAttributes=FILE_ATTRIBUTE_READONLY;
+    require(SetFileInformationByHandle(file.handle,FileBasicInfo,&basic,sizeof(basic))!=0);
 #endif
     sync(file);file=File();fault(Point::before_publish);const bool published=impl_->publish(name,result.digest);
     // Even deduplication rehashes bytes; a mismatched destination is never replaced.
     verify(result);
-#ifdef _WIN32
-    if(published){String p("assets/sha256/");p+=result.digest;auto path=wide(impl_->path(p));require(SetFileAttributesW(path.data(),FILE_ATTRIBUTE_READONLY)!=0);}
-#else
     (void)published;
-#endif
     fault(Point::after_publish);return result;
 }
 String Files::database_path() {
