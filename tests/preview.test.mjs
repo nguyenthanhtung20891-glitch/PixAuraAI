@@ -18,7 +18,7 @@ test('preview is wired into C, JNI, Swift, host and sanitizer gates', () => {
   assert.ok(read('packages/core/swift/Tests/DecodeBoundaryTests.swift').includes('pixaura_preview_copy'));
   for (const file of ['.github/workflows/foundation.yml', '.github/workflows/native-shells.yml', 'scripts/check-apple.sh']) assert.ok(read(file).includes('tests/preview.test.mjs'));
   assert.match(read('CMakeLists.txt'), /preview_test PROPERTIES TIMEOUT 90/);
-  assert.ok(read('packages/core/tests/decode_allocation_test.cpp').includes('phases=16'));
+  assert.ok(read('packages/core/tests/decode_allocation_test.cpp').includes('phases=17'));
 });
 
 test('bounded preview and platform copies share native authority', () => {
@@ -28,4 +28,12 @@ test('bounded preview and platform copies share native authority', () => {
   assert.ok(read('packages/core/swift/Sources/ReferencePreview.swift').includes('CGImageAlphaInfo.last'));
   assert.ok(read('packages/core/tests/preview_test.cpp').includes('preview_not_started=true'));
   assert.ok(read('packages/core/tests/preview_test.cpp').includes('fit properties=2048'));
+});
+
+test('interactive lifecycle is wired into native and both platform gates', () => {
+  for (const p of ['packages/core/include/pixaura/preview.h','packages/core/tests/preview_boundary.h']) assert.ok(read(p).includes('pixaura_preview_render_interactive'));
+  assert.ok(read('packages/core/tests/preview_test.cpp').includes('interactive churn=10000'));
+  assert.ok(read('packages/core/swift/Sources/ReferencePreview.swift').includes('pixaura_preview_current'));
+  assert.doesNotMatch(read('packages/core/swift/Sources/ReferencePreview.swift'), /ObjectIdentifier/);
+  assert.ok(read('platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/InteractivePreview.kt').includes('nativeCurrent(storage'));
 });

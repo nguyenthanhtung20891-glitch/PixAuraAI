@@ -21,6 +21,24 @@ typedef struct pixaura_preview_metadata {
 typedef struct pixaura_preview_request {
     uint32_t version, struct_size, mode, max_width, max_height, reserved;
 } pixaura_preview_request;
+/* Interactive identities are values, never handles or owning pointers.
+ * begin/cancel/stop bypass the ordinary render mutex. stop then join before destroy.
+ * A platform owner serializes begin/cancel/check+display replacement with one lock.
+ */
+#define PIXAURA_PREVIEW_TICKET_VERSION 1u
+#define PIXAURA_PREVIEW_TICKET_KIND 0x50525631u
+typedef struct pixaura_preview_ticket {
+    uint32_t version, struct_size, kind, reserved;
+    uint8_t context_id[32];
+    uint64_t generation;
+} pixaura_preview_ticket;
+PIXAURA_API int32_t pixaura_preview_begin(pixaura_decode_context*, uint32_t version, pixaura_preview_ticket*);
+PIXAURA_API int32_t pixaura_preview_cancel(pixaura_decode_context*, const pixaura_preview_ticket*);
+PIXAURA_API int32_t pixaura_preview_stop(pixaura_decode_context*);
+/* Optional preview binds eligibility to the actual published native result. */
+PIXAURA_API int32_t pixaura_preview_current(pixaura_decode_context*, const pixaura_preview_ticket*, const pixaura_decode_handle* preview);
+PIXAURA_API int32_t pixaura_preview_render_interactive(pixaura_decode_context*, const pixaura_decode_handle* working,
+    const pixaura_preview_ticket*, const pixaura_preview_request*, pixaura_decode_handle* output);
 PIXAURA_API int32_t pixaura_preview_render(pixaura_decode_context* context,
     const pixaura_decode_handle* working, const pixaura_preview_request* request,
     const pixaura_decode_handle* cancellation, pixaura_decode_handle* output);

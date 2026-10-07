@@ -2,6 +2,7 @@
 
 | ADR | Status | Decision |
 | --- | --- | --- |
+| [0017](docs/adr/0017-interactive-preview-generation-fence.md) | Accepted | Fixed nonwrapping context request generations; latest-wins native and platform publication fences; stop/join ownership |
 | [0001](docs/adr/0001-native-shells-shared-core.md) | Accepted | Native mobile UIs; shared C++17 C ABI |
 | [0002](docs/adr/0002-local-project-history.md) | Accepted | Immutable originals, local SQLite + asset store, shared revision graph |
 | [0003](docs/adr/0003-deterministic-photo-pipeline.md) | Accepted | CPU semantic oracle, platform GPU adapters, SDR first |

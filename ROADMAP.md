@@ -1,5 +1,7 @@
 # Delivery roadmap
 
+Phase 2 Step 11 is authorized: [interactive preview request generation and publication ownership](docs/contracts/interactive-preview-lifecycle-v1.md) under [ADR 0017](docs/adr/0017-interactive-preview-generation-fence.md). Latest-wins native/platform fences, cooperative supersession and failed-request display preservation keep synchronous execution, existing ceilings and quiescent destruction. All existing local/hosted gates plus churn/races/overflow/platform ownership remain mandatory. [Step 11 report](docs/reports/phase-2-step-11.md); Step 12 is not started.
+
 Phase 2 Step 10 is authorized: bounded-fit reference previews and platform consumption under [ADR 0016](docs/adr/0016-bounded-bilinear-platform-preview.md). [Step 10 report](docs/reports/phase-2-step-10.md) tracks validation; Step 11 is not started.
 
 Current authorization: Phase 2 Step 9 bounded 1:1 CPU reference preview, including autonomous validation and commit/push/CI closure. Accepted Step 8 HEAD: 86520909fa31372c7926676650873cd105352695, Product Owner FULL PASS. Option A aggregate resource rejection/retry approved; all ceilings unchanged. Step 10 is not started. [Step 9 report](docs/reports/phase-2-step-9.md).

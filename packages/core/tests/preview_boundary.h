@@ -20,6 +20,15 @@ static int preview_boundary_check(pixaura_decode_context* c,const pixaura_decode
         if(pixaura_preview_copy(c,&fitted,0,pixel,4)!=0||pixel[3]!=255)return 14;
         if(pixaura_preview_release(c,&fitted)!=0)return 14;
     }
+    {
+        pixaura_preview_ticket first,latest; pixaura_decode_handle interactive;
+        const pixaura_preview_request fit={1,sizeof(pixaura_preview_request),1,1,2,0};
+        if(pixaura_preview_begin(c,1,&first)!=0||pixaura_preview_begin(c,1,&latest)!=0)return 14;
+        if(pixaura_preview_render_interactive(c,&evaluated,&first,&fit,&interactive)!=13)return 14;
+        if(pixaura_preview_render_interactive(c,&evaluated,&latest,&fit,&interactive)!=0)return 14;
+        if(pixaura_preview_current(c,&latest,&interactive)!=0||pixaura_preview_release(c,&interactive)!=0)return 14;
+        if(pixaura_preview_cancel(c,&latest)!=0||pixaura_preview_current(c,&latest,NULL)!=13)return 14;
+    }
     if(pixaura_decode_release(c,&evaluated)!=0)return 14;
     if(pixaura_preview_copy(c,&preview,0,repeat,24)!=0||memcmp(bytes,repeat,24))return 14;
     if(pixaura_preview_release(c,&preview)!=0||pixaura_preview_release(c,&preview)!=3)return 14;

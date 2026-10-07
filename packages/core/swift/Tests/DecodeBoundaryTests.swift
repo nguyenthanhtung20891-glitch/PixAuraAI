@@ -167,6 +167,40 @@ final class DecodeBoundaryTests: XCTestCase {
                 XCTAssertEqual(pixaura_preview_release(&context, &fitted), 0)
                 // Provider data remains owned after native release.
                 XCTAssertEqual((platformFit.dataProvider?.data as Data?)?.count, 4)
+                let interactive = try XCTUnwrap(InteractivePreview(identity: Array(UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased().utf8)))
+                let ownedWorking: pixaura_decode_handle = interactive.prepare { owner in
+                    var original = pixaura_decode_handle(), decoded = pixaura_decode_handle(), canonical = pixaura_decode_handle()
+                    XCTAssertEqual(path.withUnsafeBufferPointer { p in digest.withUnsafeBufferPointer { d in
+                        pixaura_decode_open(owner, p.baseAddress, UInt64(p.count), d.baseAddress, 64, UInt64(values.count), &original)
+                    } }, 0)
+                    XCTAssertEqual(pixaura_decode_image(owner, &original, &decoded), 0)
+                    XCTAssertEqual(pixaura_working_normalize(owner, &decoded, &workingLimits, &canonical), 0)
+                    XCTAssertEqual(pixaura_decode_release(owner, &original), 0)
+                    XCTAssertEqual(pixaura_decode_release(owner, &decoded), 0)
+                    return canonical
+                }
+                let first = try XCTUnwrap(interactive.begin())
+                let old = try XCTUnwrap(interactive.render(first, working: ownedWorking, request: fitRequest))
+                let latest = try XCTUnwrap(interactive.begin())
+                XCTAssertFalse(interactive.install(old))
+                XCTAssertNil(interactive.render(first, working: ownedWorking, request: fitRequest))
+                let current = try XCTUnwrap(interactive.render(latest, working: ownedWorking, request: fitRequest))
+                XCTAssertTrue(interactive.install(current))
+                XCTAssertFalse(interactive.install(old))
+                let cancelled = try XCTUnwrap(interactive.begin())
+                XCTAssertTrue(interactive.cancel(cancelled))
+                XCTAssertTrue(interactive.cancel(cancelled))
+                XCTAssertNil(interactive.render(cancelled, working: ownedWorking, request: fitRequest))
+                let failed = try XCTUnwrap(interactive.begin())
+                var invalidFit = fitRequest; invalidFit.max_width = 0
+                XCTAssertNil(interactive.render(failed, working: ownedWorking, request: invalidFit))
+                XCTAssertEqual(interactive.requestedGeneration, failed.generation)
+                XCTAssertEqual(interactive.displayedGeneration, latest.generation)
+                interactive.close()
+                XCTAssertFalse(interactive.install(current))
+                XCTAssertNil(interactive.begin())
+                XCTAssertEqual((current.image.dataProvider?.data as Data?)?.count, 4)
+                if name == "png" { XCTAssertEqual(current.image.dataProvider?.data as Data?, Data([188,188,255,255])) }
                 var previewCancel = pixaura_decode_handle()
                 var rejectedPreview = pixaura_decode_handle()
                 XCTAssertEqual(pixaura_cancel_create(&context, 1, &previewCancel), 0)

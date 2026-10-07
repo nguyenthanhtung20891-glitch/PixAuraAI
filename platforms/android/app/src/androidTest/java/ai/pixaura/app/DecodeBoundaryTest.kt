@@ -1,6 +1,7 @@
 package ai.pixaura.app
 
 import ai.pixaura.bridge.CoreProbe
+import ai.pixaura.bridge.InteractivePreview
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 import java.security.MessageDigest
@@ -50,6 +51,33 @@ class DecodeBoundaryTest {
                         assertEquals(128, android.graphics.Color.alpha(exact.getPixel(1, 2)))
                         exact.recycle()
                     }
+                    val interactive = InteractivePreview(root.canonicalPath.toByteArray(), digest.toByteArray(), bytes.size.toLong(), UUID.randomUUID().toString().replace("-", "").toByteArray())
+                    try {
+                        val first = interactive.begin()
+                        val old = checkNotNull(interactive.render(first, 1, 2))
+                        val latest = interactive.begin()
+                        assertTrue(!interactive.install(old))
+                        assertTrue(interactive.render(first, 1, 2) == null)
+                        val current = checkNotNull(interactive.render(latest, 1, 2))
+                        assertTrue(interactive.install(current))
+                        assertEquals(latest.generation, interactive.displayedGeneration())
+                        assertTrue(!interactive.install(old))
+                        val cancelled = interactive.begin()
+                        assertTrue(interactive.cancel(cancelled))
+                        assertTrue(interactive.cancel(cancelled))
+                        assertTrue(interactive.render(cancelled, 1, 2) == null)
+                        assertEquals(latest.generation, interactive.displayedGeneration())
+                        // Invalid newest request fails without replacing the prior display.
+                        val failed = interactive.begin()
+                        assertTrue(runCatching { interactive.render(failed, 0, 2) }.isFailure)
+                        assertEquals(latest.generation, interactive.displayedGeneration())
+                        assertEquals(failed.generation, interactive.requestedGeneration())
+                        interactive.close()
+                        assertTrue(!interactive.install(current))
+                        if (name == "png") assertEquals(0xffbcbcff.toInt(), current.bitmap.getPixel(0, 0))
+                        assertTrue(interactive.displayedBitmap() === current.bitmap)
+                        old.bitmap.recycle()
+                    } finally { interactive.close() }
                     assertEquals(-8, call(digest, bytes.size.toLong() - 1))
                     val bad = byteArrayOf(1, 2, 3)
                     val badHash = MessageDigest.getInstance("SHA-256").digest(bad).joinToString("") { "%02x".format(it) }

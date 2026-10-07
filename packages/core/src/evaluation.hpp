@@ -10,7 +10,13 @@ void validate(const Stack&);
 double gain(int32_t milli_ev);
 // Worst-case retained candidate capacity plus reusable permutation bitmap.
 uint64_t reservation(uint32_t width, uint32_t height, const Stack&, const pixaura_working_limits&);
-struct Cancellation { std::atomic<bool> requested{false}; };
+struct Cancellation {
+    std::atomic<bool> requested{false};
+    // Borrowed only by a synchronous interactive render; registry lives until quiescence.
+    const std::atomic<uint64_t>* generation=nullptr;
+    const std::atomic<bool>* revoked=nullptr;
+    uint64_t expected=0;
+};
 enum class Checkpoint { admission, allocation, tile, publication };
 // Optional internal observer supports deterministic checkpoint fault tests.
 using Observer = void (*)(Checkpoint, void*);

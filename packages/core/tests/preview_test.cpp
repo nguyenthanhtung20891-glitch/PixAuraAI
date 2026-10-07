@@ -15,7 +15,7 @@
 #include <limits>
 #include <thread>
 using namespace pixaura;
-namespace pixaura::preview { void test_context_budget(pixaura_decode_context*,uint64_t); }
+namespace pixaura::preview { void test_context_budget(pixaura_decode_context*,uint64_t); void test_generation(pixaura_decode_context*,uint64_t); pixaura_decode_handle test_working(pixaura_decode_context*,working::Image); void test_observer(pixaura_decode_context*,evaluation::Observer,void*); }
 static std::atomic<unsigned> checks{0};
 #define CHECK(x) do{++checks;if(!(x)){std::fprintf(stderr,"preview check %d\n",__LINE__);std::exit(1);}}while(false)
 template<class F> static int32_t failure(F&& f){try{f();return 0;}catch(const document::Failure& e){return e.code;}}
@@ -43,6 +43,58 @@ static std::vector<uint8_t> fit_reference(const working::Image& s,uint32_t w,uin
         out[at+3]=static_cast<uint8_t>(std::floor(channels[3]*255+.5));
     }
     return out;
+}
+struct SupersedeAt {pixaura_decode_context* context;unsigned target,count=0;pixaura_preview_ticket next{};bool cancel=false; pixaura_preview_ticket current{};};
+static void supersede_at(evaluation::Checkpoint,void* ptr){auto& state=*static_cast<SupersedeAt*>(ptr);if(state.count++==state.target){
+    if(state.cancel)CHECK(pixaura_preview_cancel(state.context,&state.current)==0);
+    else CHECK(pixaura_preview_begin(state.context,1,&state.next)==0);
+}}
+static void interactive_tests(pixaura_decode_context& c,const pixaura_decode_handle& working){
+    preview::test_context_budget(&c,decode::defaults().context_bytes);
+    const auto req=fit(1,2);pixaura_preview_ticket a{},b{};pixaura_decode_handle output{},sentinel{};std::memset(&sentinel,0x5a,sizeof(sentinel));
+    CHECK(pixaura_preview_begin(&c,1,&a)==0);CHECK(pixaura_preview_begin(&c,1,&b)==0);CHECK(b.generation==a.generation+1);
+    output=sentinel;CHECK(pixaura_preview_render_interactive(&c,&working,&a,&req,&output)==13);CHECK(std::memcmp(&output,&sentinel,sizeof(output))==0);
+    CHECK(pixaura_preview_render_interactive(&c,&working,&b,&req,&output)==0);CHECK(pixaura_preview_current(&c,&b,&output)==0);
+    CHECK(pixaura_preview_current(&c,nullptr,&output)==1);CHECK(pixaura_preview_current(&c,&b,&working)==3);
+    CHECK(pixaura_preview_render_interactive(&c,&working,&b,&req,&sentinel)==13);CHECK(pixaura_preview_release(&c,&output)==0);
+    CHECK(pixaura_preview_cancel(&c,&b)==0);CHECK(pixaura_preview_cancel(&c,&b)==0);CHECK(pixaura_preview_current(&c,&b,nullptr)==13);
+    for(unsigned i=0;i<2048;++i){auto forged=b;switch(i%6){case 0:forged.context_id[0]='f';break;case 1:forged.generation=0;break;case 2:forged.generation=UINT64_MAX;break;case 3:forged.kind=0;break;case 4:forged.struct_size=0;break;default:forged.reserved=1;break;}
+        CHECK(pixaura_preview_current(&c,&forged,nullptr)==3);}
+    const auto large=preview::test_working(&c,image(257,259));const auto large_req=fit(129,130);
+    CHECK(pixaura_preview_begin(&c,1,&a)==0);SupersedeAt baseline{&c,UINT32_MAX};preview::test_observer(&c,supersede_at,&baseline);
+    CHECK(pixaura_preview_render_interactive(&c,&large,&a,&large_req,&output)==0);CHECK(pixaura_preview_release(&c,&output)==0);
+    for(unsigned phase=0;phase<baseline.count;++phase)for(bool cancel:{false,true}){
+        CHECK(pixaura_preview_begin(&c,1,&a)==0);SupersedeAt state{&c,phase,0,{},cancel,a};preview::test_observer(&c,supersede_at,&state);output=sentinel;
+        CHECK(pixaura_preview_render_interactive(&c,&large,&a,&large_req,&output)==13);CHECK(std::memcmp(&output,&sentinel,sizeof(output))==0);
+        preview::test_observer(&c,nullptr,nullptr);CHECK(pixaura_preview_begin(&c,1,&b)==0);CHECK(pixaura_preview_render_interactive(&c,&working,&b,&req,&output)==0);CHECK(pixaura_preview_release(&c,&output)==0);
+    }
+    preview::test_observer(&c,nullptr,nullptr);CHECK(pixaura_decode_release(&c,&large)==0);
+    // In-flight source access is pinned by the ordinary mutex; release waits.
+    for(unsigned i=0;i<32;++i){auto source=preview::test_working(&c,image(257,259));CHECK(pixaura_preview_begin(&c,1,&a)==0);
+        std::thread release([&]{CHECK(pixaura_decode_release(&c,&source)==0);});const auto status=pixaura_preview_render_interactive(&c,&source,&a,&large_req,&output);release.join();CHECK(status==0||status==3);
+        if(!status)CHECK(pixaura_preview_release(&c,&output)==0);
+    }
+    // Stop can race synchronous render; destroy follows join, never races storage access.
+    pixaura_decode_context stopping{};pixaura_decode_limits limits{};CHECK(pixaura_decode_default_limits(1,&limits)==0);const uint8_t stop_id[]="12121212121212121212121212121212";
+    CHECK(pixaura_decode_context_init(1,&stopping,sizeof(stopping),stop_id,32,&limits)==0);auto stop_source=preview::test_working(&stopping,image(257,259));pixaura_preview_ticket stop_ticket{};CHECK(pixaura_preview_begin(&stopping,1,&stop_ticket)==0);
+    std::thread stop([&]{CHECK(pixaura_preview_stop(&stopping)==0);});const auto stopped=pixaura_preview_render_interactive(&stopping,&stop_source,&stop_ticket,&large_req,&output);stop.join();CHECK(stopped==0||stopped==13);CHECK(pixaura_preview_current(&stopping,&stop_ticket,nullptr)==13);CHECK(pixaura_decode_context_destroy(&stopping)==0);
+    for(unsigned count:{100u,1000u}){const auto diagnostic=std::chrono::steady_clock::now();for(unsigned i=0;i<count;++i){CHECK(pixaura_preview_begin(&c,1,&b)==0);CHECK(pixaura_preview_current(&c,&b,nullptr)==0);CHECK(pixaura_preview_cancel(&c,&b)==0);}std::printf("interactive control diagnostic begin+eligibility+cancel count=%u us=%.3f\n",count,std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-diagnostic).count());}
+    uint64_t previous=b.generation;const auto start=std::chrono::steady_clock::now();unsigned successes=0;
+    for(unsigned i=0;i<10000;++i){CHECK(pixaura_preview_begin(&c,1,&a)==0);CHECK(a.generation>previous);previous=a.generation;
+        output=sentinel;switch(i%5){case 0:CHECK(pixaura_preview_cancel(&c,&a)==0);CHECK(pixaura_preview_render_interactive(&c,&working,&a,&req,&output)==13);break;
+        case 1:CHECK(pixaura_preview_begin(&c,1,&b)==0);previous=b.generation;CHECK(pixaura_preview_render_interactive(&c,&working,&a,&req,&output)==13);break;
+        case 2:{auto bad=req;bad.max_width=0;CHECK(pixaura_preview_render_interactive(&c,&working,&a,&bad,&output)==1);break;}
+        case 3:preview::test_context_budget(&c,1);CHECK(pixaura_preview_render_interactive(&c,&working,&a,&req,&output)==8);preview::test_context_budget(&c,decode::defaults().context_bytes);break;
+        default:CHECK(pixaura_preview_render_interactive(&c,&working,&a,&req,&output)==0);CHECK(pixaura_preview_current(&c,&a,&output)==0);CHECK(pixaura_preview_release(&c,&output)==0);++successes;break;}
+        if(i%5!=4)CHECK(std::memcmp(&output,&sentinel,sizeof(output))==0);
+    }
+    // Publication-vs-supersession linearizes at the short fence; completed old results lose eligibility.
+    for(unsigned i=0;i<256;++i){CHECK(pixaura_preview_begin(&c,1,&a)==0);output=sentinel;
+        std::thread next([&]{CHECK(pixaura_preview_begin(&c,1,&b)==0);});const auto status=pixaura_preview_render_interactive(&c,&working,&a,&req,&output);next.join();CHECK(status==0||status==13);CHECK(pixaura_preview_current(&c,&a,nullptr)==13);
+        if(status==0){CHECK(pixaura_preview_current(&c,&a,&output)==13);uint8_t detached[4]{};CHECK(pixaura_preview_copy(&c,&output,0,detached,4)==0);CHECK(detached[0]==188&&detached[1]==188&&detached[2]==255&&detached[3]==255);CHECK(pixaura_preview_release(&c,&output)==0);}else CHECK(std::memcmp(&output,&sentinel,sizeof(output))==0);
+        CHECK(pixaura_preview_render_interactive(&c,&working,&b,&req,&output)==0);CHECK(pixaura_preview_release(&c,&output)==0);
+    }
+    std::printf("interactive churn=10000 successes=%u adversaries=2048 races=256 checkpoint_phases=%u ms=%.3f PASS\n",successes,baseline.count,std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-start).count());
 }
 static void fit_tests(){
     auto checker=image(2,2);for(unsigned i=0;i<4;++i)for(unsigned k=0;k<3;++k)(*checker.pixels)[i*4+k]=(i==0||i==3)?1.f:0.f;
@@ -120,6 +172,8 @@ int main(int argc,char** argv){
     pixaura_preview_metadata m{},unchanged{};std::memset(&m,0x5a,sizeof(m));unchanged=m;CHECK(pixaura_preview_query(&c,&w,&m)==3);CHECK(std::memcmp(&m,&unchanged,sizeof(m))==0);CHECK(pixaura_preview_query(&c,&out,&m)==0&&m.width==2&&m.height==3&&m.image_bytes==24&&m.row_stride==8);
     std::array<uint8_t,24> bytes{},other_bytes{};CHECK(pixaura_preview_copy(&c,&out,0,bytes.data(),24)==0);CHECK(bytes[0]==255&&bytes[23]==128);const auto before=bytes;CHECK(pixaura_preview_copy(&c,&out,UINT64_MAX,bytes.data(),1)==1&&bytes==before);CHECK(pixaura_preview_copy(&c,&out,23,bytes.data(),2)==1&&bytes==before);CHECK(pixaura_preview_copy(&c,&out,24,nullptr,0)==0);
     pixaura_working_metadata wm{};pixaura_decode_metadata dm{};CHECK(pixaura_working_query(&c,&out,&wm)==3);CHECK(pixaura_decode_query(&c,&out,&dm)==3);CHECK(pixaura_decode_image(&c,&out,&sentinel)==3);CHECK(pixaura_preview_release(&c,&w)==3);CHECK(pixaura_preview_create(&c,&out,1,nullptr,&sentinel)==3);CHECK(pixaura_preview_create(&c,&w,2,nullptr,&sentinel)==2);CHECK(pixaura_preview_query(&other,&out,&m)==3);
+    interactive_tests(c,w);
+    pixaura_preview_ticket isolated{};CHECK(pixaura_preview_begin(&other,1,&isolated)==0&&isolated.generation==1);CHECK(pixaura_preview_current(&c,&isolated,nullptr)==3);CHECK(pixaura_preview_current(&other,&isolated,nullptr)==0);
     CHECK(pixaura_decode_release(&other,&od)==0);pixaura_decode_handle op{};CHECK(pixaura_preview_create(&other,&ow,1,nullptr,&op)==0);CHECK(pixaura_preview_copy(&other,&op,0,other_bytes.data(),24)==0&&other_bytes==bytes);CHECK(pixaura_decode_context_destroy(&other)==0);
     {
         auto req=fit(1,2);pixaura_decode_handle fitted=sentinel;
@@ -133,13 +187,15 @@ int main(int argc,char** argv){
     CHECK(pixaura_preview_release(&c,&out)==0);CHECK(pixaura_preview_release(&c,&out)==3);CHECK(pixaura_preview_query(&c,&out,&m)==3);
     pixaura_decode_handle cancel{};CHECK(pixaura_cancel_create(&c,1,&cancel)==0);CHECK(pixaura_cancel_signal(&c,&cancel)==0);CHECK(pixaura_preview_create(&c,&w,1,&cancel,&sentinel)==13);CHECK(pixaura_cancel_release(&c,&cancel)==0);CHECK(pixaura_preview_create(&c,&w,1,&cancel,&sentinel)==3);
     // Combined cap includes cancellations. Resource rejection permits release/retry.
-    std::array<pixaura_decode_handle,63> tokens{};for(auto& t:tokens)CHECK(pixaura_cancel_create(&c,1,&t)==0);CHECK(pixaura_preview_create(&c,&w,1,nullptr,&sentinel)==8);CHECK(pixaura_cancel_release(&c,&tokens.back())==0);CHECK(pixaura_preview_create(&c,&w,1,nullptr,&out)==0);CHECK(pixaura_preview_release(&c,&out)==0);for(unsigned i=0;i<62;++i)CHECK(pixaura_cancel_release(&c,&tokens[i])==0);
+    std::array<pixaura_decode_handle,63> tokens{};for(auto& t:tokens)CHECK(pixaura_cancel_create(&c,1,&t)==0);CHECK(pixaura_preview_create(&c,&w,1,nullptr,&sentinel)==8);pixaura_preview_ticket capacity{};const auto capacity_request=fit(1,2);CHECK(pixaura_preview_begin(&c,1,&capacity)==0);CHECK(pixaura_preview_render_interactive(&c,&w,&capacity,&capacity_request,&sentinel)==8);CHECK(pixaura_cancel_release(&c,&tokens.back())==0);CHECK(pixaura_preview_create(&c,&w,1,nullptr,&out)==0);CHECK(pixaura_preview_release(&c,&out)==0);CHECK(pixaura_preview_begin(&c,1,&capacity)==0);CHECK(pixaura_preview_render_interactive(&c,&w,&capacity,&capacity_request,&out)==0);CHECK(pixaura_preview_release(&c,&out)==0);for(unsigned i=0;i<62;++i)CHECK(pixaura_cancel_release(&c,&tokens[i])==0);
     // Serialized read/release races have only complete success or stale status.
     CHECK(pixaura_preview_create(&c,&w,1,nullptr,&out)==0);std::thread reading([&]{for(unsigned i=0;i<100;++i){std::array<uint8_t,24> b{};const auto status=pixaura_preview_copy(&c,&out,0,b.data(),24);CHECK(status==0||status==3);if(status==0)CHECK(b==bytes);}});CHECK(pixaura_preview_release(&c,&out)==0);reading.join();
     for(unsigned i=0;i<128;++i){pixaura_decode_handle token{},result=sentinel;CHECK(pixaura_cancel_create(&c,1,&token)==0);std::thread signal([&]{CHECK(pixaura_cancel_signal(&c,&token)==0);});const auto req=fit(1,2);const auto status=i%2?pixaura_preview_create(&c,&w,1,&token,&result):pixaura_preview_render(&c,&w,&req,&token,&result);signal.join();CHECK(status==0||status==13);if(status==0)CHECK(pixaura_preview_release(&c,&result)==0);else CHECK(std::memcmp(&result,&sentinel,sizeof(result))==0);CHECK(pixaura_cancel_release(&c,&token)==0);}
     preview::test_context_budget(&c,decode::defaults().context_bytes);
     for(unsigned i=0;i<64;++i){pixaura_decode_handle working{},result=sentinel;const auto limits=working::defaults();CHECK(pixaura_working_identity(&c,&w,&limits,&working)==0);std::thread release([&]{CHECK(pixaura_decode_release(&c,&working)==0);});const auto req=fit(1,2);const auto status=i%2?pixaura_preview_create(&c,&working,1,nullptr,&result):pixaura_preview_render(&c,&working,&req,nullptr,&result);release.join();CHECK(status==0||status==3);if(status==0)CHECK(pixaura_preview_release(&c,&result)==0);else CHECK(std::memcmp(&result,&sentinel,sizeof(result))==0);}
-    CHECK(pixaura_preview_create(&c,&w,1,nullptr,&out)==0);CHECK(pixaura_decode_release(&c,&w)==0);CHECK(pixaura_preview_copy(&c,&out,0,bytes.data(),24)==0&&bytes==before);CHECK(pixaura_preview_create(&c,&w,1,nullptr,&sentinel)==3);CHECK(pixaura_preview_release(&c,&out)==0);CHECK(pixaura_decode_context_destroy(&c)==0);CHECK(pixaura_preview_query(&c,&out,&m)==3);store.verify(asset);
+    CHECK(pixaura_preview_create(&c,&w,1,nullptr,&out)==0);CHECK(pixaura_decode_release(&c,&w)==0);CHECK(pixaura_preview_copy(&c,&out,0,bytes.data(),24)==0&&bytes==before);CHECK(pixaura_preview_create(&c,&w,1,nullptr,&sentinel)==3);CHECK(pixaura_preview_release(&c,&out)==0);preview::test_generation(&c,UINT64_MAX-1);pixaura_preview_ticket last{},ticket_unchanged{};CHECK(pixaura_preview_begin(&c,1,&last)==0&&last.generation==UINT64_MAX);ticket_unchanged=last;CHECK(pixaura_preview_begin(&c,1,&last)==8);CHECK(std::memcmp(&last,&ticket_unchanged,sizeof(last))==0);
+    CHECK(pixaura_preview_stop(&c)==0);CHECK(pixaura_preview_current(&c,&last,nullptr)==13);CHECK(pixaura_preview_begin(&c,1,&last)==13);
+    CHECK(pixaura_decode_context_destroy(&c)==0);CHECK(pixaura_preview_begin(&c,1,&last)==3);CHECK(pixaura_preview_query(&c,&out,&m)==3);store.verify(asset);
     for(const auto size:{geometry::Extent{256,256},{1024,768},{4096,2048}}){auto s=image(size.width,size.height);unsigned tiles=0;const auto observe=[](evaluation::Checkpoint p,void* state){if(p==evaluation::Checkpoint::tile)++*static_cast<unsigned*>(state);};const auto start=std::chrono::steady_clock::now();auto result=preview::render(s,nullptr,observe,&tiles);CHECK(result.pixels->size()==uint64_t(size.width)*size.height*4);std::printf("preview diagnostic %ux%u input=%llu output=%llu tiles=%u ms=%.3f\n",size.width,size.height,static_cast<unsigned long long>(s.metadata.image_bytes),static_cast<unsigned long long>(result.metadata.image_bytes),tiles,std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-start).count());}
     std::printf("preview checks=%u properties=2048 checkpoints=%u cancellation_races=128 PASS\n",checks.load(),baseline.count);
 }

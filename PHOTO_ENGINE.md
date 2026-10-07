@@ -1,5 +1,7 @@
 # Non-destructive photo engine
 
+Phase 2 Step 11 is authorized: [interactive preview request generation and publication ownership](docs/contracts/interactive-preview-lifecycle-v1.md) under [ADR 0017](docs/adr/0017-interactive-preview-generation-fence.md). Latest-wins native/platform fences, cooperative supersession and failed-request display preservation keep synchronous execution, existing ceilings and quiescent destruction. All existing local/hosted gates plus churn/races/overflow/platform ownership remain mandatory. [Step 11 report](docs/reports/phase-2-step-11.md); Step 12 is not started.
+
 Phase 2 Step 10 adds [bounded-fit bilinear reference preview and platform-owned copies](docs/contracts/bounded-preview-resampling-v1.md) under [ADR 0016](docs/adr/0016-bounded-bilinear-platform-preview.md). Exact Step 9 bytes remain unchanged; shared C++ filters premultiplied linear RGBA with ordered binary64 arithmetic. Existing resource ceilings remain unchanged, and oversized diagnostic sources intentionally reject before rendering. Bounded one-shot Android Bitmap and Apple CGImage smoke consumers add no persistence or edit authority.
 
 

@@ -18,5 +18,5 @@ test('geometry execution fixtures and platform probes are included in all requir
   for (const file of ['.github/workflows/foundation.yml', '.github/workflows/native-shells.yml', 'scripts/check-apple.sh']) assert.ok(read(file).includes('tests/geometry-execution.test.mjs'));
   assert.ok(read('packages/core/tests/geometry_boundary.h').includes('float original[24],cropped[12]'));
   assert.ok(read('packages/core/swift/Tests/DecodeBoundaryTests.swift').includes('mixedPixel.map'));
-  assert.ok(read('packages/core/tests/decode_allocation_test.cpp').includes('phases=16'));
+  assert.ok(read('packages/core/tests/decode_allocation_test.cpp').includes('phases=17'));
 });

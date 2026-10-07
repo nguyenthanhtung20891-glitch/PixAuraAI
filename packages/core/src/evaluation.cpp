@@ -48,7 +48,9 @@ Stack parse(std::string_view bytes) {
 }
 void checkpoint(const Cancellation* cancel, Checkpoint point, Observer observer, void* state) {
     if(observer) observer(point,state);
-    need(!cancel || !cancel->requested.load(std::memory_order_acquire),13);
+    need(!cancel || (!cancel->requested.load(std::memory_order_acquire) &&
+        (!cancel->generation || (cancel->generation->load(std::memory_order_acquire)==cancel->expected &&
+          !cancel->revoked->load(std::memory_order_acquire)))),13);
 }
 uint64_t reservation(uint32_t width,uint32_t height,const Stack& stack,const pixaura_working_limits& limits) {
     const auto plan=geometry::plan({width,height},stack,limits);

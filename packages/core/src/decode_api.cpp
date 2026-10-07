@@ -12,9 +12,17 @@ using namespace pixaura;
 void need(bool ok,int32_t code=1){if(!ok)throw document::Failure{code};}
 template<class F> int32_t boundary(F&& fn)noexcept{try{fn();return 0;}catch(const document::Failure& e){return e.code;}catch(const std::bad_alloc&){return 8;}catch(...){return 14;}}
 constexpr uint64_t live_tag=0x5049584445433031ULL,dead_tag=0x5049584445433030ULL;
-struct Entry { std::shared_ptr<const decode::Source> source;std::unique_ptr<decode::Vector<uint8_t>> pixels;bool image=false;working::Image working{};preview::Image preview{}; };
+struct Entry { std::shared_ptr<const decode::Source> source;std::unique_ptr<decode::Vector<uint8_t>> pixels;bool image=false;working::Image working{};preview::Image preview{};uint64_t preview_generation=0; };
 struct Registry { std::mutex mutex, cancellation_mutex;pixaura_decode_limits limits;uint64_t next=1;std::map<uint64_t,Entry> entries;
-    std::map<uint64_t,std::shared_ptr<evaluation::Cancellation>> cancellations; };
+    std::map<uint64_t,std::shared_ptr<evaluation::Cancellation>> cancellations;
+    std::atomic<uint64_t> preview_generation{0};std::atomic<bool> preview_revoked{false};
+    bool preview_stopped=false,preview_started=false;
+#ifdef PIXAURA_PREVIEW_TESTING
+    evaluation::Observer observer=nullptr;void* observer_state=nullptr;
+#endif
+};
+static_assert(sizeof(pixaura_preview_ticket)==56,"ticket ABI v1");
+static_assert(sizeof(std::atomic<uint64_t>)+sizeof(std::atomic<bool>)+2*sizeof(bool)<=32,"bounded interactive fields");
 struct Header { uint64_t tag;Registry* registry;uint8_t identity[32]; };
 static_assert(sizeof(Header)<=sizeof(pixaura_decode_context::opaque),"context layout");
 Header read(pixaura_decode_context* c){need(c!=nullptr);Header h{};std::memcpy(&h,c->opaque,sizeof(h));return h;}
@@ -32,6 +40,16 @@ pixaura_decode_handle insert(const Header& h,Entry e){std::lock_guard<std::mutex
 std::shared_ptr<evaluation::Cancellation> cancellation_locked(const Header& h,const pixaura_decode_handle* token){
     need(token&&token->api_version==1&&token->struct_size==sizeof(*token)&&token->reserved==0&&std::memcmp(token->context_id,h.identity,32)==0,3);
     const auto it=h.registry->cancellations.find(token->serial);need(it!=h.registry->cancellations.end(),3);return it->second;
+}
+void ticket_valid(const Header& h,const pixaura_preview_ticket* t){
+    need(t);need(t->version==1,2);
+    need(t->struct_size==sizeof(*t)&&t->kind==PIXAURA_PREVIEW_TICKET_KIND&&t->reserved==0&&
+        std::memcmp(t->context_id,h.identity,32)==0&&t->generation!=0&&
+        t->generation<=h.registry->preview_generation.load(std::memory_order_acquire),3);
+}
+void eligible(const Header& h,const pixaura_preview_ticket* t){
+    ticket_valid(h,t);need(!h.registry->preview_stopped&&!h.registry->preview_revoked.load(std::memory_order_acquire)&&
+        t->generation==h.registry->preview_generation.load(std::memory_order_acquire),13);
 }
 std::string_view text(const uint8_t* p,uint64_t n,uint64_t limit){need(p&&n&&n<=limit&&n<=SIZE_MAX);const std::string_view v(reinterpret_cast<const char*>(p),static_cast<std::size_t>(n));need(v.find('\0')==std::string_view::npos);return v;}
 int32_t copy(pixaura_decode_context* c,const pixaura_decode_handle* handle,uint64_t offset,uint8_t* output,uint64_t bytes,bool pixels){return boundary([&]{const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);const auto& e=entry(h,handle);need(!pixels||e.image,3);need(e.source!=nullptr,3);const auto& v=pixels?*e.pixels:e.source->metadata().profile;need(offset<=v.size()&&bytes<=v.size()-offset&&(output||bytes==0));if(bytes)std::memcpy(output,v.data()+static_cast<std::size_t>(offset),static_cast<std::size_t>(bytes));});}
@@ -129,6 +147,48 @@ int32_t pixaura_working_evaluate_cancel(pixaura_decode_context* c,const pixaura_
     const auto published=insert_locked(h,std::move(result));*out=published;
 });}
 
+int32_t pixaura_preview_begin(pixaura_decode_context* c,uint32_t version,pixaura_preview_ticket* out){return boundary([&]{
+    need(version==1,2);need(out);const auto h=live(c);std::lock_guard<std::mutex> guard(h.registry->cancellation_mutex);
+    auto& r=*h.registry;need(!r.preview_stopped,13);const auto previous=r.preview_generation.load(std::memory_order_relaxed);need(previous!=UINT64_MAX,8);
+    pixaura_preview_ticket t{};t.version=1;t.struct_size=sizeof(t);t.kind=PIXAURA_PREVIEW_TICKET_KIND;
+    std::memcpy(t.context_id,h.identity,32);t.generation=previous+1;
+    r.preview_generation.store(t.generation,std::memory_order_release);r.preview_revoked.store(false,std::memory_order_release);r.preview_started=false;*out=t;
+});}
+int32_t pixaura_preview_cancel(pixaura_decode_context* c,const pixaura_preview_ticket* t){return boundary([&]{
+    const auto h=live(c);std::lock_guard<std::mutex> guard(h.registry->cancellation_mutex);ticket_valid(h,t);
+    need(t->generation==h.registry->preview_generation.load(std::memory_order_acquire),13);
+    h.registry->preview_revoked.store(true,std::memory_order_release);
+});}
+int32_t pixaura_preview_stop(pixaura_decode_context* c){return boundary([&]{
+    const auto h=live(c);std::lock_guard<std::mutex> guard(h.registry->cancellation_mutex);
+    h.registry->preview_stopped=true;h.registry->preview_revoked.store(true,std::memory_order_release);
+});}
+int32_t pixaura_preview_current(pixaura_decode_context* c,const pixaura_preview_ticket* t,const pixaura_decode_handle* result){return boundary([&]{
+    need(t);const auto h=live(c);ticket_valid(h,t);
+    if(result){std::lock_guard<std::mutex> lock(h.registry->mutex);const auto& e=entry(h,result);need(e.preview.pixels&&e.preview_generation==t->generation,3);
+        std::lock_guard<std::mutex> guard(h.registry->cancellation_mutex);eligible(h,t);
+    }else{std::lock_guard<std::mutex> guard(h.registry->cancellation_mutex);eligible(h,t);}
+});}
+int32_t pixaura_preview_render_interactive(pixaura_decode_context* c,const pixaura_decode_handle* source,
+    const pixaura_preview_ticket* t,const pixaura_preview_request* request,pixaura_decode_handle* out){return boundary([&]{
+    need(t&&request&&out);const auto h=live(c);evaluation::Cancellation cancel;
+    {std::lock_guard<std::mutex> guard(h.registry->cancellation_mutex);eligible(h,t);need(!h.registry->preview_started,13);
+        h.registry->preview_started=true;cancel.generation=&h.registry->preview_generation;cancel.revoked=&h.registry->preview_revoked;cancel.expected=t->generation;}
+    #ifdef PIXAURA_PREVIEW_TESTING
+    const auto observe=h.registry->observer;auto* state=h.registry->observer_state;
+#else
+    const evaluation::Observer observe=nullptr;void* state=nullptr;
+#endif
+    evaluation::checkpoint(&cancel,evaluation::Checkpoint::admission,observe,state);
+    std::lock_guard<std::mutex> lock(h.registry->mutex);
+    evaluation::checkpoint(&cancel,evaluation::Checkpoint::admission);
+    const auto& e=entry(h,source);need(e.working.pixels!=nullptr,3);
+    const auto metadata=preview::layout(e.working,*request);room(*h.registry,metadata.image_bytes);
+    Entry result;result.preview=preview::render(e.working,*request,&cancel,observe,state);result.preview_generation=t->generation;
+    std::lock_guard<std::mutex> guard(h.registry->cancellation_mutex);eligible(h,t);
+    evaluation::checkpoint(&cancel,evaluation::Checkpoint::publication);
+    const auto published=insert_locked(h,std::move(result));*out=published;
+});}
 int32_t pixaura_preview_create(pixaura_decode_context* c,const pixaura_decode_handle* source,uint32_t version,
     const pixaura_decode_handle* token,pixaura_decode_handle* out){return boundary([&]{
     need(version==1,2);need(out);const auto h=live(c);std::shared_ptr<evaluation::Cancellation> cancel;
@@ -169,6 +229,9 @@ int32_t pixaura_preview_release(pixaura_decode_context* c,const pixaura_decode_h
 
 #ifdef PIXAURA_PREVIEW_TESTING
 namespace pixaura::preview {
+pixaura_decode_handle test_working(pixaura_decode_context* c,working::Image image){const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);room(*h.registry,image.metadata.image_bytes);Entry e;e.working=std::move(image);return insert(h,std::move(e));}
+void test_observer(pixaura_decode_context* c,evaluation::Observer observer,void* state){const auto h=live(c);h.registry->observer=observer;h.registry->observer_state=state;}
+void test_generation(pixaura_decode_context* c,uint64_t value){const auto h=live(c);h.registry->preview_generation.store(value);}
 void test_context_budget(pixaura_decode_context* c,uint64_t bytes){const auto h=live(c);need(bytes>0&&bytes<=decode::defaults().context_bytes);h.registry->limits.context_bytes=bytes;}
 }
 #endif
