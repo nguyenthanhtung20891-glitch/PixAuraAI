@@ -1,5 +1,8 @@
 # Non-destructive photo engine
 
+Phase 2 Step 10 adds [bounded-fit bilinear reference preview and platform-owned copies](docs/contracts/bounded-preview-resampling-v1.md) under [ADR 0016](docs/adr/0016-bounded-bilinear-platform-preview.md). Exact Step 9 bytes remain unchanged; shared C++ filters premultiplied linear RGBA with ordered binary64 arithmetic. Existing resource ceilings remain unchanged, and oversized diagnostic sources intentionally reject before rendering. Bounded one-shot Android Bitmap and Apple CGImage smoke consumers add no persistence or edit authority.
+
+
 Phase 2 Step 9 adds a bounded CPU 1:1 disposable reference preview under [ADR 0015](docs/adr/0015-bounded-reference-preview.md) and [reference-preview-v1](docs/contracts/reference-preview-v1.md): shared C++ converts evaluated premultiplied linear-sRGB RGBA32F to independently owned RGBA8 straight-alpha sRGB. Existing context ceiling/cap remain unchanged; aggregate rejection preserves all handles and permits explicit release/retry. No resize, GPU, persistent preview cache or production display pipeline.
 
 Phase 2 Step 8 activates exact bit-preserving crop/rotate execution through the existing evaluation APIs. [ADR 0014](docs/adr/0014-two-raster-geometry-execution.md) and [execution contract](docs/contracts/geometry-execution-v1.md) specify two rasters, in-place crop/permutation rotation and a bounded reusable bitmap. No resampling, renderer or export.

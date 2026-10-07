@@ -3,6 +3,8 @@ import Foundation
 import Darwin
 import CryptoKit
 import CPixAuraCore
+import PixAuraCore
+import CoreGraphics
 
 final class DecodeBoundaryTests: XCTestCase {
     func testSharedAdmissionDecodeAndOwnership() async throws {
@@ -136,6 +138,21 @@ final class DecodeBoundaryTests: XCTestCase {
                 }, 0)
                 XCTAssertEqual(previewBytes[3], 255)
                 XCTAssertEqual(previewBytes[23], name == "png" ? 128 : 255)
+                let platformExact = try XCTUnwrap(ReferencePreview.copyImage(context: &context, preview: &preview))
+                XCTAssertEqual(platformExact.width, 2)
+                XCTAssertEqual(platformExact.alphaInfo, .last)
+                XCTAssertEqual(platformExact.colorSpace?.name, CGColorSpace.sRGB)
+                XCTAssertEqual(platformExact.dataProvider?.data as Data?, Data(previewBytes))
+                var fitRequest = pixaura_preview_request(version: 1, struct_size: UInt32(MemoryLayout<pixaura_preview_request>.size), mode: 1, max_width: 1, max_height: 2, reserved: 0)
+                var fitted = pixaura_decode_handle()
+                XCTAssertEqual(pixaura_preview_render(&context, &evaluated, &fitRequest, nil, &fitted), 0)
+                let platformFit = try XCTUnwrap(ReferencePreview.copyImage(context: &context, preview: &fitted))
+                XCTAssertEqual(platformFit.width, 1)
+                XCTAssertEqual(platformFit.height, 1)
+                if name == "png" { XCTAssertEqual(platformFit.dataProvider?.data as Data?, Data([188, 188, 255, 255])) }
+                XCTAssertEqual(pixaura_preview_release(&context, &fitted), 0)
+                // Provider data remains owned after native release.
+                XCTAssertEqual((platformFit.dataProvider?.data as Data?)?.count, 4)
                 var previewCancel = pixaura_decode_handle()
                 var rejectedPreview = pixaura_decode_handle()
                 XCTAssertEqual(pixaura_cancel_create(&context, 1, &previewCancel), 0)

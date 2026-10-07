@@ -1,5 +1,7 @@
 # Quality gates and promotion policy
 
+Step 10 requires existing reference-preview regressions plus rational-fit, premultiplied-linear bilinear goldens/oracle, malformed requests, cancellation/lifecycle/resource/fault recovery and real bounded Bitmap/CGImage consumers. All existing source/native/sanitizer/mobile/hosted gates remain mandatory; exact evidence is tracked in [Step 10 report](docs/reports/phase-2-step-10.md).
+
 Phase 2 Step 9 requires independently owned 1:1 reference preview, exact RGBA8 goldens/transfer/alpha transitions, source immutability, aggregate admission/retry, lifecycle/stale/wrong-kind/cap/race/cancellation/failure injection, independent numerical properties and full existing local/hosted matrix. Real MSVC/Apple execution and actual ASan/UBSan remain mandatory. No GPU parity or production display certification. [Contract](docs/contracts/reference-preview-v1.md); [report](docs/reports/phase-2-step-9.md).
 
 Current Product Owner authorization is Phase 2 Step 8, superseding historical limits below. Step 7 is user-attested FULL PASS at 2e0f975ca894372684c3febbc391dc3ac92d5407. Gates add bit-exact crop/rotate/mixed execution, plan agreement, bounded bitmap admission, cancellation/failure injection, C/JNI/Swift execution and the full existing local/hosted matrix. Autonomous commit/push/CI closure is authorized. Step 9 is not authorized. [Step 8 report](docs/reports/phase-2-step-8.md).

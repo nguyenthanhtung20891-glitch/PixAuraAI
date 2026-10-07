@@ -8,6 +8,48 @@
 #include "../../../packages/core/tests/geometry_boundary.h"
 #include "../../../packages/core/tests/preview_boundary.h"
 #include <vector>
+#include <cstring>
+
+extern "C" JNIEXPORT jintArray JNICALL
+Java_ai_pixaura_bridge_CoreProbe_nativePreviewPixels(JNIEnv* env,jobject,jbyteArray root,jbyteArray digest,
+    jlong asset_bytes,jbyteArray identity,jint max_width,jint max_height){
+    if(!root||!digest||!identity||asset_bytes<=0||max_width<1||max_height<1||max_width>1024||max_height>1024)return nullptr;
+    const auto n=env->GetArrayLength(root);
+    if(n<=0||n>1024||env->GetArrayLength(digest)!=64||env->GetArrayLength(identity)!=32)return nullptr;
+    uint8_t path[1024],hash[64],id[32];
+    env->GetByteArrayRegion(root,0,n,reinterpret_cast<jbyte*>(path));
+    env->GetByteArrayRegion(digest,0,64,reinterpret_cast<jbyte*>(hash));
+    env->GetByteArrayRegion(identity,0,32,reinterpret_cast<jbyte*>(id));
+    if(env->ExceptionCheck())return nullptr;
+    pixaura_decode_limits limits{};if(pixaura_decode_default_limits(1,&limits)!=0)return nullptr;
+    pixaura_decode_context context{};
+    if(pixaura_decode_context_init(1,&context,sizeof(context),id,32,&limits)!=0)return nullptr;
+    struct Cleanup{pixaura_decode_context& c;~Cleanup(){pixaura_decode_context_destroy(&c);}} cleanup{context};
+    pixaura_decode_handle source{},decoded{},working{},evaluated{},preview{};pixaura_working_limits wl{};
+    if(pixaura_decode_open(&context,path,static_cast<uint64_t>(n),hash,64,static_cast<uint64_t>(asset_bytes),&source)!=0||
+       pixaura_decode_image(&context,&source,&decoded)!=0||pixaura_working_default_limits(1,&wl)!=0||
+       pixaura_working_normalize(&context,&decoded,&wl,&working)!=0)return nullptr;
+    if(pixaura_decode_release(&context,&source)!=0||pixaura_decode_release(&context,&decoded)!=0)return nullptr;
+    const uint8_t request[]="{\"operations\":[]}";
+    if(pixaura_working_evaluate(&context,&working,1,request,sizeof(request)-1,&wl,&evaluated)!=0)return nullptr;
+    if(pixaura_decode_release(&context,&working)!=0)return nullptr;
+    const pixaura_preview_request fit{1,sizeof(pixaura_preview_request),1,static_cast<uint32_t>(max_width),static_cast<uint32_t>(max_height),0};
+    if(pixaura_preview_render(&context,&evaluated,&fit,nullptr,&preview)!=0||pixaura_decode_release(&context,&evaluated)!=0)return nullptr;
+    pixaura_preview_metadata m{};if(pixaura_preview_query(&context,&preview,&m)!=0)return nullptr;
+    if(m.width>1024||m.height>1024||m.image_bytes!=uint64_t(m.width)*m.height*4)return nullptr;
+    const auto result=env->NewIntArray(static_cast<jsize>(2+uint64_t(m.width)*m.height));if(!result)return nullptr;
+    const jint dims[2]={static_cast<jint>(m.width),static_cast<jint>(m.height)};env->SetIntArrayRegion(result,0,2,dims);
+    // Fixed bounded stack row only; all returned pixels are VM-owned copies.
+    uint8_t row[4096];jint words[1024];
+    for(uint32_t y=0;y<m.height;++y){
+        if(pixaura_preview_copy(&context,&preview,uint64_t(y)*m.row_stride,row,m.row_stride)!=0)return nullptr;
+        for(uint32_t x=0;x<m.width;++x){const auto* p=row+x*4;const uint32_t word=(uint32_t(p[3])<<24)|(uint32_t(p[0])<<16)|(uint32_t(p[1])<<8)|p[2];std::memcpy(&words[x],&word,4);}
+        env->SetIntArrayRegion(result,static_cast<jsize>(2+uint64_t(y)*m.width),static_cast<jsize>(m.width),words);
+        if(env->ExceptionCheck())return nullptr;
+    }
+    if(pixaura_preview_release(&context,&preview)!=0)return nullptr;
+    return env->ExceptionCheck()?nullptr:result;
+}
 
 extern "C" JNIEXPORT jint JNICALL
 Java_ai_pixaura_bridge_CoreProbe_nativeDecodeCheck(JNIEnv* env,jobject,jbyteArray root,jbyteArray digest,

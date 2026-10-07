@@ -12,6 +12,14 @@ static int preview_boundary_check(pixaura_decode_context* c,const pixaura_decode
     if(pixaura_preview_create(c,&evaluated,1,NULL,&preview)!=0)return 14;
     if(pixaura_preview_query(c,&preview,&metadata)!=0||metadata.width!=2||metadata.height!=3||metadata.pixel_format!=1||metadata.row_stride!=8||metadata.image_bytes!=24)return 14;
     if(pixaura_preview_copy(c,&preview,0,bytes,24)!=0)return 14;
+    {
+        const pixaura_preview_request fit={1,sizeof(pixaura_preview_request),1,1,2,0};
+        pixaura_decode_handle fitted; pixaura_preview_metadata fm; uint8_t pixel[4];
+        if(pixaura_preview_render(c,&evaluated,&fit,NULL,&fitted)!=0)return 14;
+        if(pixaura_preview_query(c,&fitted,&fm)!=0||fm.width!=1||fm.height!=1||fm.image_bytes!=4)return 14;
+        if(pixaura_preview_copy(c,&fitted,0,pixel,4)!=0||pixel[3]!=255)return 14;
+        if(pixaura_preview_release(c,&fitted)!=0)return 14;
+    }
     if(pixaura_decode_release(c,&evaluated)!=0)return 14;
     if(pixaura_preview_copy(c,&preview,0,repeat,24)!=0||memcmp(bytes,repeat,24))return 14;
     if(pixaura_preview_release(c,&preview)!=0||pixaura_preview_release(c,&preview)!=3)return 14;

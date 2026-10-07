@@ -142,6 +142,19 @@ int32_t pixaura_preview_create(pixaura_decode_context* c,const pixaura_decode_ha
     evaluation::checkpoint(cancel.get(),evaluation::Checkpoint::publication);
     const auto published=insert_locked(h,std::move(result));*out=published;
 });}
+int32_t pixaura_preview_render(pixaura_decode_context* c,const pixaura_decode_handle* source,const pixaura_preview_request* request,
+    const pixaura_decode_handle* token,pixaura_decode_handle* out){return boundary([&]{
+    need(request&&out);const auto h=live(c);std::shared_ptr<evaluation::Cancellation> cancel;
+    if(token){std::lock_guard<std::mutex> guard(h.registry->cancellation_mutex);cancel=cancellation_locked(h,token);}
+    evaluation::checkpoint(cancel.get(),evaluation::Checkpoint::admission);
+    std::lock_guard<std::mutex> lock(h.registry->mutex);
+    const auto& e=entry(h,source);need(e.working.pixels!=nullptr,3);
+    const auto metadata=preview::layout(e.working,*request);room(*h.registry,metadata.image_bytes);
+    Entry result;result.preview=preview::render(e.working,*request,cancel.get());
+    std::lock_guard<std::mutex> guard(h.registry->cancellation_mutex);
+    evaluation::checkpoint(cancel.get(),evaluation::Checkpoint::publication);
+    const auto published=insert_locked(h,std::move(result));*out=published;
+});}
 int32_t pixaura_preview_query(pixaura_decode_context* c,const pixaura_decode_handle* handle,pixaura_preview_metadata* out){return boundary([&]{
     need(out);const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);const auto& e=entry(h,handle);need(e.preview.pixels!=nullptr,3);*out=e.preview.metadata;
 });}

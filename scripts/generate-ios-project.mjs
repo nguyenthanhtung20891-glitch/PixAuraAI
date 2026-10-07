@@ -36,6 +36,10 @@ const privacyRef = id(), privacyBuild = id(), resources = id();
 add(privacyRef, 'isa = PBXFileReference; lastKnownFileType = text.xml; path = PixAuraAI/PrivacyInfo.xcprivacy; sourceTree = "<group>";');
 add(privacyBuild, `isa = PBXBuildFile; fileRef = ${privacyRef};`);
 add(resources, `isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (${privacyBuild}); runOnlyForDeploymentPostprocessing = 0;`);
+const previewFixtureRef = id(), previewFixtureBuild = id(), testResources = id();
+add(previewFixtureRef, 'isa = PBXFileReference; lastKnownFileType = text.json; path = "../../tests/fixtures/decode/fixtures.json"; sourceTree = "<group>";');
+add(previewFixtureBuild, `isa = PBXBuildFile; fileRef = ${previewFixtureRef};`);
+add(testResources, `isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (${previewFixtureBuild}); runOnlyForDeploymentPostprocessing = 0;`);
 function frameworks(product) {
   const phase = id(), build = id();
   add(build, `isa = PBXBuildFile; productRef = ${product};`);
@@ -59,6 +63,7 @@ function target(key, name, product, phase, packageProduct, extraSettings, kind, 
   const phases = [phase];
   if (packageProduct) phases.push(frameworks(packageProduct));
   if (key === appTarget) phases.push(resources);
+  if (key === testTarget) phases.push(testResources);
   add(key, `isa = PBXNativeTarget; buildConfigurationList = ${config}; buildPhases = (${phases.join(',')}); buildRules = (); dependencies = (${dependencies.join(',')}); name = ${name}; productName = ${name}; productReference = ${product}; productType = "com.apple.product-type.${kind}"; packageProductDependencies = (${packageProduct ?? ''});`);
 }
 function dependency() {
@@ -77,7 +82,7 @@ for (const [key, name, type] of [[appProduct, 'PixAuraAI.app', 'wrapper.applicat
   add(key, `isa = PBXFileReference; explicitFileType = ${type}; path = ${name}; sourceTree = BUILT_PRODUCTS_DIR;`);
 }
 add(productsGroup, `isa = PBXGroup; children = (${appProduct},${testProduct},${uiProduct}); name = Products; sourceTree = "<group>";`);
-add(mainGroup, `isa = PBXGroup; children = (${groups.join(',')},${privacyRef},${productsGroup}); sourceTree = "<group>";`);
+add(mainGroup, `isa = PBXGroup; children = (${groups.join(',')},${privacyRef},${previewFixtureRef},${productsGroup}); sourceTree = "<group>";`);
 add(project, `isa = PBXProject; attributes = { BuildIndependentTargetsInParallel = YES; LastUpgradeCheck = 2600; }; buildConfigurationList = ${projectConfigs}; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en,Base); mainGroup = ${mainGroup}; productRefGroup = ${productsGroup}; projectDirPath = ""; projectRoot = ""; targets = (${appTarget},${testTarget},${uiTarget}); packageReferences = (${packageRef});`);
 const directory = path.join(root, 'platforms/ios/PixAuraAI.xcodeproj');
 fs.mkdirSync(path.join(directory, 'xcshareddata/xcschemes'), { recursive: true });

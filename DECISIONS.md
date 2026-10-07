@@ -15,6 +15,7 @@
 | [0011](docs/adr/0011-shared-bounded-sdr-decode.md) | Accepted | Shared portable bounded JPEG/PNG SDR decoders; supersedes platform codec ownership for these formats only; transient RGBA8 and configurable hard limits |
 | [0012](docs/adr/0012-bounded-cpu-exposure-evaluation.md) | Accepted | Frozen CPU exposure recipe, finite unclamped RGB, bounded ordered stacks and one private output raster |
 | [0013](docs/adr/0013-bounded-geometry-and-cancellation.md) | Accepted | Approved outward crop rasterization, ordered geometry preflight, lazy tiles and cooperative atomic cancellation |
+| [0016](docs/adr/0016-bounded-bilinear-platform-preview.md) | Accepted | Rational-floor no-upscale preview fit; binary64 premultiplied-linear bilinear; bounded platform-owned Bitmap/CGImage copies; unchanged ceilings |
 | [0015](docs/adr/0015-bounded-reference-preview.md) | Accepted | Independently owned 1:1 SDR RGBA8 preview; unchanged ceilings and explicit aggregate resource rejection/retry |
 | [0014](docs/adr/0014-two-raster-geometry-execution.md) | Accepted | Exact ordered geometry movement within two rasters using in-place compaction and a bounded bitmap |
 

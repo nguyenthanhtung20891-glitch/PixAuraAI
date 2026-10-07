@@ -34,6 +34,22 @@ class DecodeBoundaryTest {
                         UUID.randomUUID().toString().replace("-", "").toByteArray(), limit,
                     )
                     assertEquals(2, call(digest, 64L * 1024 * 1024))
+                    val bitmap = bridge.referenceBitmap(root.canonicalPath.toByteArray(), digest.toByteArray(), bytes.size.toLong(), UUID.randomUUID().toString().replace("-", "").toByteArray(), 1, 2)
+                    checkNotNull(bitmap)
+                    assertEquals(1, bitmap.width)
+                    assertEquals(1, bitmap.height)
+                    if (name == "png") assertEquals(0xffbcbcff.toInt(), bitmap.getPixel(0, 0))
+                    bitmap.recycle()
+                    if (name == "png") {
+                        val exact = bridge.referenceBitmap(root.canonicalPath.toByteArray(), digest.toByteArray(), bytes.size.toLong(), UUID.randomUUID().toString().replace("-", "").toByteArray(), 2, 3)
+                        checkNotNull(exact)
+                        assertEquals(0xffff0000.toInt(), exact.getPixel(0, 0))
+                        assertEquals(0xff00ff00.toInt(), exact.getPixel(1, 0))
+                        assertEquals(0xff0000ff.toInt(), exact.getPixel(0, 1))
+                        assertEquals(0xffffffff.toInt(), exact.getPixel(1, 1))
+                        assertEquals(128, android.graphics.Color.alpha(exact.getPixel(1, 2)))
+                        exact.recycle()
+                    }
                     assertEquals(-8, call(digest, bytes.size.toLong() - 1))
                     val bad = byteArrayOf(1, 2, 3)
                     val badHash = MessageDigest.getInstance("SHA-256").digest(bad).joinToString("") { "%02x".format(it) }

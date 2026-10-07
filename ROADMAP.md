@@ -1,5 +1,7 @@
 # Delivery roadmap
 
+Phase 2 Step 10 is authorized: bounded-fit reference previews and platform consumption under [ADR 0016](docs/adr/0016-bounded-bilinear-platform-preview.md). [Step 10 report](docs/reports/phase-2-step-10.md) tracks validation; Step 11 is not started.
+
 Current authorization: Phase 2 Step 9 bounded 1:1 CPU reference preview, including autonomous validation and commit/push/CI closure. Accepted Step 8 HEAD: 86520909fa31372c7926676650873cd105352695, Product Owner FULL PASS. Option A aggregate resource rejection/retry approved; all ceilings unchanged. Step 10 is not started. [Step 9 report](docs/reports/phase-2-step-9.md).
 
 Current authorization: Phase 2 Step 8 minimal geometry pixel execution, including autonomous local validation and commit/push/CI closure. Accepted Step 7 HEAD: 2e0f975ca894372684c3febbc391dc3ac92d5407, user-attested FULL PASS. Frozen outward crop and clockwise turns execute with two rasters under existing ceilings. Step 9 is not started. [Step 8 report](docs/reports/phase-2-step-8.md).

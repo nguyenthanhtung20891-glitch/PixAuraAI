@@ -18,5 +18,14 @@ test('preview is wired into C, JNI, Swift, host and sanitizer gates', () => {
   assert.ok(read('packages/core/swift/Tests/DecodeBoundaryTests.swift').includes('pixaura_preview_copy'));
   for (const file of ['.github/workflows/foundation.yml', '.github/workflows/native-shells.yml', 'scripts/check-apple.sh']) assert.ok(read(file).includes('tests/preview.test.mjs'));
   assert.match(read('CMakeLists.txt'), /preview_test PROPERTIES TIMEOUT 90/);
-  assert.ok(read('packages/core/tests/decode_allocation_test.cpp').includes('phases=14'));
+  assert.ok(read('packages/core/tests/decode_allocation_test.cpp').includes('phases=16'));
+});
+
+test('bounded preview and platform copies share native authority', () => {
+  assert.ok(read('packages/core/include/pixaura/preview.h').includes('pixaura_preview_request'));
+  assert.ok(read('packages/core/src/preview.cpp').includes('Validate even unsampled pixels'));
+  assert.ok(read('platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/CoreProbe.kt').includes('Bitmap.createBitmap(pixels, 2, width'));
+  assert.ok(read('packages/core/swift/Sources/ReferencePreview.swift').includes('CGImageAlphaInfo.last'));
+  assert.ok(read('packages/core/tests/preview_test.cpp').includes('preview_not_started=true'));
+  assert.ok(read('packages/core/tests/preview_test.cpp').includes('fit properties=2048'));
 });
