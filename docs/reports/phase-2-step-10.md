@@ -43,7 +43,7 @@ Times include full input validation; exact timings use existing converter. Logs 
 | Local gate | Observed result |
 | --- | --- |
 | Windows applicable source |47/47, zero skips|
-| Linux full source |76/76, zero skips|
+| Linux full source |78/78, zero skips (includes SDK provisioning failure/recovery tests)|
 | Windows Zig native fallback |15/15; 894360 preview checks; 450 injected failures recovered/16 phases|
 | Linux native |15/15; 894360 preview checks; 588 injected failures recovered/16 phases|
 | ASan/UBSan |17/17 including actual negative instrumentation probes|
@@ -59,6 +59,8 @@ WSL DrvFS cannot enforce POSIX permission-denial fixtures; rerun uses an ephemer
 Windows native regression reproduced an existing concurrent immutable-asset publication race: verifier read-open intermittently returns OS sharing violation32 while MoveFileExW's publication handle is closing. Remediation marks the owned private staging file read-only before publication, reclaims read-only staging files on failure/dedup and retries only immutable asset-open sharing conflicts at most64 attempts with63 one-millisecond waits. Read handles still deny write/delete sharing, and reparse/link/hash/no-overwrite checks remain unchanged. Persistent held-handle conflict rejects with6 and recovers after release. Eight complete Windows storage reruns pass, including32 concurrent dedup rounds each. No process-global lock/cache, permission change or test weakening.
 
 Exact changed-file inventory is [phase-2-step-10-files.txt](phase-2-step-10-files.txt). Commit SHA and hosted IDs will be recorded after validation. Real MSVC/Apple evidence pending; Step 10 is not yet ready for FULL PASS.
+
+Initial implementation SHA d8df83ead888c09d6f3221c4ae36cf80e1d8d341: Foundation run37636514502 observes real MSVC19.51.36260.0 job112844048988 PASS15/15,894360 preview checks,1771 recovered allocation failures/16 phases, including the persistent-sharing conflict scenario. Linux/sanitizer/ARM64/ARMv7/lint jobs pass. Native shells run37636514441 Android job112844049728 fails before compilation because Google SDK Manager downloads an invalid API35 system-image zip (`ZipFile unknown archive`). Remediation introduces at most3 SDK installation attempts for the identical pinned package list; persistent failure still stops CI. Isolated fake SDK tests prove transient recovery and persistent3-attempt failure; no local installed SDK mutation, timeout increase, skip or weakened gate. Apple execution and final exact-SHA closure remain pending.
 
 ## Limitations and next authorization
 

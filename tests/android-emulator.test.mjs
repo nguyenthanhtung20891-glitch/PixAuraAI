@@ -356,3 +356,30 @@ for (const scenario of ['low-disk', 'local-low-disk', 'symlink-cleanup', 'invali
     if (scenario === 'symlink-cleanup') assert.match(result.diskLog, /Refusing cleanup/);
   });
 }
+
+for (const scenario of ['transient', 'persistent']) {
+  test('SDK provisioning bounds retries and preserves failure: ' + scenario, () => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'pixaura-sdk-retry-'));
+    const manager = path.join(directory, 'cmdline-tools/latest/bin/sdkmanager');
+    fs.mkdirSync(path.dirname(manager), { recursive: true });
+    fs.writeFileSync(manager, `#!/usr/bin/env bash
+set -eu
+count=0
+if [[ -f "$ANDROID_HOME/count" ]]; then count=$(cat "$ANDROID_HOME/count"); fi
+count=$((count+1)); printf '%s' "$count" > "$ANDROID_HOME/count"
+printf '%s\\n' "$@" > "$ANDROID_HOME/args"
+if [[ "$SCENARIO" == transient && "$count" == 2 ]]; then exit 0; fi
+exit 1
+`, { mode: 0o755 });
+    try {
+      const result = spawnSync('bash', ['scripts/install-android-sdk.sh'], {
+        cwd: root, env: { ...process.env, ANDROID_HOME: directory, SCENARIO: scenario }, encoding: 'utf8', timeout: 10000,
+      });
+      assert.ifError(result.error);
+      assert.equal(result.status, scenario === 'transient' ? 0 : 1);
+      assert.equal(fs.readFileSync(path.join(directory, 'count'), 'utf8'), scenario === 'transient' ? '2' : '3');
+      assert.equal(fs.readFileSync(path.join(directory, 'args'), 'utf8').trim(), 'platforms;android-36\nbuild-tools;35.0.0\nndk;28.2.13676358\ncmake;3.22.1\nsystem-images;android-35;google_apis;x86_64');
+      if (scenario === 'persistent') assert.match(result.stderr, /failed after three attempts/);
+    } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+  });
+}

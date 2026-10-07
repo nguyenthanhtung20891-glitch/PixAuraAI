@@ -20,8 +20,7 @@ jobs:
           distribution: temurin
           java-version: 21.0.10
       - name: Install pinned SDK inputs
-        run: |
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;35.0.0" "ndk;28.2.13676358" "cmake;3.22.1" "system-images;android-35;google_apis;x86_64"
+        run: bash scripts/install-android-sdk.sh
       - name: Build debug, unsigned release, JVM tests, lint and instrumentation APK
         working-directory: platforms/android
         run: bash gradlew --no-daemon --dependency-verification strict assembleDebug assembleRelease testDebugUnitTest lintDebug lintRelease assembleDebugAndroidTest
