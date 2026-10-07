@@ -100,7 +100,13 @@ void digest_tests() {
     temp_name_override="temp-collision";Bytes collision("abc");error(12,[&]{store.ingest(collision,3);});temp_name_override=nullptr;
     CHECK(fixture(other_temp.string().c_str())=="other owner");
     note("asset.tamper_collision_rejected");const auto path=d.root/"assets/sha256"/std::string(abc_asset.digest);fs::permissions(path,fs::perms::owner_write,fs::perm_options::add);{std::ofstream f(path,std::ios::binary|std::ios::trunc);f<<"xyz";}error(6,[&]{store.verify(abc_asset);});Bytes same("abc");error(6,[&]{store.ingest(same,3);});CHECK(fixture(path.string().c_str())=="xyz");
-    note("asset.concurrent_dedup");auto ingest=[&]{AssetStore s(d.path());Input i(12345,91);return s.ingest(i,12345);};auto one=std::async(std::launch::async,ingest),two=std::async(std::launch::async,ingest);const auto x=one.get(),y=two.get();CHECK(x.digest==y.digest);store.verify(x);
+    note("asset.concurrent_dedup");
+    for(unsigned round=0;round<32;++round){
+        std::atomic<unsigned> ready{0};
+        auto ingest=[&]{AssetStore s(d.path());Input i(12345+round,91);++ready;while(ready.load()<2)std::this_thread::yield();return s.ingest(i,12345+round);};
+        auto one=std::async(std::launch::async,ingest),two=std::async(std::launch::async,ingest);
+        const auto x=one.get(),y=two.get();CHECK(x.digest==y.digest);store.verify(x);
+    }
     note("asset.traversal_and_symlink");error(1,[&]{store.verify({"../escape",3});});error(1,[&]{AssetStore s(d.path()+"/../escape");});
     Directory links("links");std::error_code ec;fs::create_directory_symlink(d.root,links.root/"staging",ec);if(!ec){error(6,[&]{AssetStore s(links.path());});}
     else {

@@ -215,6 +215,14 @@ struct Files::Impl {
         String a("staging/");a.append(name);String b("assets/sha256/");b.append(digest);auto from=wide(path(a)),to=wide(path(b));
         if(MoveFileExW(from.data(),to.data(),MOVEFILE_WRITE_THROUGH)!=0) return true;
         require(GetLastError()==ERROR_ALREADY_EXISTS||GetLastError()==ERROR_FILE_EXISTS);return false;
+#elif defined(__APPLE__)
+        // Atomically move without replacement: link+unlink exposes a transient
+        // second link to competing dedup verifiers, which must reject aliases.
+        String a(name),b(digest);
+        if(renameatx_np(stage_dir.handle,a.c_str(),assets_dir.handle,b.c_str(),RENAME_EXCL)==0){
+            require(fsync(assets_dir.handle)==0&&fsync(stage_dir.handle)==0);return true;
+        }
+        require(errno==EEXIST);return false;
 #else
         String a(name),b(digest);if(linkat(stage_dir.handle,a.c_str(),assets_dir.handle,b.c_str(),0)==0) {
             require(unlinkat(stage_dir.handle,a.c_str(),0)==0);require(fsync(assets_dir.handle)==0&&fsync(stage_dir.handle)==0);return true;
