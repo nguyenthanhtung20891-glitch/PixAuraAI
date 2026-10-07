@@ -110,6 +110,11 @@ switch ($Action) {
             $Rest[0],
             "--repo", $Repo
         )
+        # Exact commit provenance and job IDs are required for certification.
+        Invoke-Gh @(
+            "run", "view", $Rest[0], "--repo", $Repo,
+            "--json", "headSha,status,conclusion,jobs,url"
+        )
     }
 
     "run-failed" {

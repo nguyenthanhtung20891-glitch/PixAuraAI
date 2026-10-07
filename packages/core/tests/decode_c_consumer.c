@@ -2,6 +2,7 @@
 #include "pixaura/working.h"
 #include "pixaura/evaluation.h"
 #include "geometry_boundary.h"
+#include "preview_boundary.h"
 #include "../../../tests/fixtures/decode/fixtures.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,6 +45,7 @@ int main(int argc,char** argv){
         CHECK(pixaura_working_query(&c,&working,&wm)==0&&wm.width==2&&wm.height==3&&wm.orientation==1&&wm.row_stride==32);
         CHECK(pixaura_working_copy(&c,&working,0,values,24)==0&&values[0]==1.0f);
         CHECK(pixaura_working_identity(&c,&working,&wl,&identity_image)==0);
+        CHECK(preview_boundary_check(&c,&working,&wl)==0);
         CHECK(geometry_boundary_check(&c,&working,&wl)==0);
         {
             const uint8_t request[]="{\"operations\":[{\"id\":\"00000000000000000000000000000001\",\"type\":\"pixaura.exposure\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":1000}}]}";

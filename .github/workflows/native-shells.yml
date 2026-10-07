@@ -8,7 +8,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0, Node 24
-      - run: node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs tests/android-emulator.test.mjs tests/document-contract.test.mjs tests/native-document.test.mjs tests/persistence.test.mjs tests/decode.test.mjs tests/working.test.mjs tests/evaluation.test.mjs tests/geometry.test.mjs tests/geometry-execution.test.mjs
+      - run: node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs tests/android-emulator.test.mjs tests/document-contract.test.mjs tests/native-document.test.mjs tests/persistence.test.mjs tests/decode.test.mjs tests/working.test.mjs tests/evaluation.test.mjs tests/geometry.test.mjs tests/geometry-execution.test.mjs tests/preview.test.mjs
       - run: bash -n scripts/check-apple.sh scripts/check-ios-shell.sh scripts/check-sanitizers.sh scripts/check-android-emulator.sh
   android-app:
     runs-on: ubuntu-24.04

@@ -1,5 +1,7 @@
 # System architecture
 
+Phase 2 Step 9 adds a bounded CPU 1:1 disposable reference preview under [ADR 0015](docs/adr/0015-bounded-reference-preview.md) and [reference-preview-v1](docs/contracts/reference-preview-v1.md): shared C++ converts evaluated premultiplied linear-sRGB RGBA32F to independently owned RGBA8 straight-alpha sRGB. Existing context ceiling/cap remain unchanged; aggregate rejection preserves all handles and permits explicit release/retry. No resize, GPU, persistent preview cache or production display pipeline.
+
 For JPEG/PNG SDR, accepted [ADR 0011](docs/adr/0011-shared-bounded-sdr-decode.md) supersedes the earlier platform codec ownership below: shared C++ owns admission, bounds, decode semantics and transient image ownership using pinned portable decoders. Platforms retain OS/file integration. This exception does not extend to other formats, HDR, animation or encoding/export.
 
 ## Stack and rationale

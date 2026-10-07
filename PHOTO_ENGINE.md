@@ -1,5 +1,7 @@
 # Non-destructive photo engine
 
+Phase 2 Step 9 adds a bounded CPU 1:1 disposable reference preview under [ADR 0015](docs/adr/0015-bounded-reference-preview.md) and [reference-preview-v1](docs/contracts/reference-preview-v1.md): shared C++ converts evaluated premultiplied linear-sRGB RGBA32F to independently owned RGBA8 straight-alpha sRGB. Existing context ceiling/cap remain unchanged; aggregate rejection preserves all handles and permits explicit release/retry. No resize, GPU, persistent preview cache or production display pipeline.
+
 Phase 2 Step 8 activates exact bit-preserving crop/rotate execution through the existing evaluation APIs. [ADR 0014](docs/adr/0014-two-raster-geometry-execution.md) and [execution contract](docs/contracts/geometry-execution-v1.md) specify two rasters, in-place crop/permutation rotation and a bounded reusable bitmap. No resampling, renderer or export.
 
 Phase 2 Step 7 adds [geometry planning](docs/contracts/geometry-v1.md) and [cooperative cancellation](docs/contracts/cancellation-v1.md) under [ADR 0013](docs/adr/0013-bounded-geometry-and-cancellation.md). Crop uses approved outward integer rasterization; quarter-turn mappings are unchanged. Geometry is planning-only; tiled scalar exposure evaluation supports sticky context tokens and atomic cancellation. Existing raster/context ceilings remain unchanged. No renderer or geometry pixel execution is introduced.
