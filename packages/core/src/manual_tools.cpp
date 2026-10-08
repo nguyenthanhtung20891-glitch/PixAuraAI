@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cstring>
 #include <new>
+#include <charconv>
 
 namespace pixaura::manual {
 using namespace document;
@@ -29,12 +30,25 @@ bool text(std::string_view value, bool spaces = false) {
             (c >= '0' && c <= '9') || c == '.' || c == '_' || (spaces && c == ' ');
     });
 }
+void number(String& output, int64_t value) {
+    char buffer[32];
+    const auto result = std::to_chars(buffer, buffer + sizeof(buffer), value);
+    require(result.ec == std::errc{}, PIXAURA_DOCUMENT_INTERNAL_ERROR);
+    output.append(buffer, static_cast<std::size_t>(result.ptr - buffer));
+}
 String parameters(const EditOperation& op) {
-    if (const auto* e = std::get_if<Exposure>(&op.parameters)) return "{\"milli_ev\":" + std::to_string(e->milli_ev) + "}";
-    if (const auto* c = std::get_if<Crop>(&op.parameters)) return "{\"height_ppm\":" + std::to_string(c->height_ppm) +
-        ",\"width_ppm\":" + std::to_string(c->width_ppm) + ",\"x_ppm\":" + std::to_string(c->x_ppm) +
-        ",\"y_ppm\":" + std::to_string(c->y_ppm) + "}";
-    return "{\"quarter_turns\":" + std::to_string(std::get<Rotate>(op.parameters).quarter_turns) + "}";
+    String output;
+    if (const auto* e = std::get_if<Exposure>(&op.parameters)) {
+        output += "{\"milli_ev\":"; number(output, e->milli_ev);
+    } else if (const auto* c = std::get_if<Crop>(&op.parameters)) {
+        output += "{\"height_ppm\":"; number(output, c->height_ppm);
+        output += ",\"width_ppm\":"; number(output, c->width_ppm);
+        output += ",\"x_ppm\":"; number(output, c->x_ppm);
+        output += ",\"y_ppm\":"; number(output, c->y_ppm);
+    } else {
+        output += "{\"quarter_turns\":"; number(output, std::get<Rotate>(op.parameters).quarter_turns);
+    }
+    output += '}'; return output;
 }
 bool neutral(const EditOperation& op) {
     if (const auto* e = std::get_if<Exposure>(&op.parameters)) return e->milli_ev == 0;
@@ -48,18 +62,23 @@ String registry_json() {
     for (const auto& d : descriptors) {
         if (!first) output += ',';
         first = false;
-        output += "{\"capability\":\"offline_cpu\",\"category\":\"" + String(d.category) +
-            "\",\"commit\":\"one_immutable_revision_per_changed_gesture\",\"invalid\":\"reject\",\"name\":\"" + String(d.name) +
-            "\",\"operation_version\":" + std::to_string(d.operation_version) + ",\"parameter_version\":" + std::to_string(d.parameter_version) + ",\"parameters\":[";
+        output += "{\"capability\":\"offline_cpu\",\"category\":\""; output += d.category;
+        output += "\",\"commit\":\"one_immutable_revision_per_changed_gesture\",\"invalid\":\"reject\",\"name\":\""; output += d.name;
+        output += "\",\"operation_version\":"; number(output, d.operation_version);
+        output += ",\"parameter_version\":"; number(output, d.parameter_version);
+        output += ",\"parameters\":[";
         for (std::size_t i = 0; i < d.parameter_count; ++i) {
             if (i) output += ',';
             const auto& p = d.parameters[i];
-            output += "{\"default\":" + std::to_string(p.neutral) + ",\"maximum\":" + std::to_string(p.maximum) +
-                ",\"minimum\":" + std::to_string(p.minimum) + ",\"name\":\"" + String(p.name) +
-                "\",\"step\":" + std::to_string(p.step) + ",\"type\":\"integer\",\"unit\":\"" + String(p.unit) + "\"}";
+            output += "{\"default\":"; number(output, p.neutral);
+            output += ",\"maximum\":"; number(output, p.maximum);
+            output += ",\"minimum\":"; number(output, p.minimum);
+            output += ",\"name\":\""; output += p.name;
+            output += "\",\"step\":"; number(output, p.step);
+            output += ",\"type\":\"integer\",\"unit\":\""; output += p.unit; output += "\"}";
         }
-        output += "],\"preview\":\"detached_latest_generation\",\"replay\":\"ordered_phase2_versions\",\"serialization\":\"schema1_canonical_integer_json\",\"tool_id\":\"" +
-            String(d.tool_id) + "\",\"type\":\"" + String(d.type) + "\"}";
+        output += "],\"preview\":\"detached_latest_generation\",\"replay\":\"ordered_phase2_versions\",\"serialization\":\"schema1_canonical_integer_json\",\"tool_id\":\"";
+        output += d.tool_id; output += "\",\"type\":\""; output += d.type; output += "\"}";
     }
     output += "]}\n";
     require(output.size() <= PIXAURA_MANUAL_MAX_REGISTRY_BYTES, PIXAURA_DOCUMENT_RESOURCE_LIMIT);
@@ -93,9 +112,12 @@ const Descriptor* find(std::string_view tool, uint32_t ov, uint32_t pv) {
     return nullptr;
 }
 String canonical_operation(const EditOperation& op) {
-    return "{\"id\":\"" + op.id.text() + "\",\"operation_version\":" + std::to_string(op.operation_version) +
-        ",\"parameter_version\":" + std::to_string(op.parameter_version) + ",\"parameters\":" + parameters(op) +
-        ",\"type\":\"" + op.type + "\"}";
+    String output = "{\"id\":\""; output += op.id.text();
+    output += "\",\"operation_version\":"; number(output, op.operation_version);
+    output += ",\"parameter_version\":"; number(output, op.parameter_version);
+    output += ",\"parameters\":"; output += parameters(op);
+    output += ",\"type\":\""; output += op.type; output += "\"}";
+    return output;
 }
 EditOperation single_operation(std::string_view request) {
     const auto parsed = parse_evaluation(request);
@@ -227,6 +249,8 @@ extern "C" int32_t pixaura_manual_canonical_operation(uint32_t version, const ui
         if (!request || bytes == 0) throw pixaura::document::Failure{PIXAURA_INVALID_ARGUMENT};
         if (bytes > pixaura::document::command_limit) throw pixaura::document::Failure{PIXAURA_DOCUMENT_RESOURCE_LIMIT};
         const auto op = pixaura::manual::single_operation(std::string_view(reinterpret_cast<const char*>(request), static_cast<std::size_t>(bytes)));
-        return pixaura::document::String("{\"operations\":[") + pixaura::manual::canonical_operation(op) + "]}\n";
+        pixaura::document::String output = "{\"operations\":[";
+        output += pixaura::manual::canonical_operation(op); output += "]}\n";
+        return output;
     });
 }

@@ -67,12 +67,21 @@ consumer to the existing C++ sanitizer linker rule while preserving compilation
 as C, and applies existing strict sanitizer environment settings to both new tests.
 The new source gate checks this integration. No sanitizer or security gate is waived.
 
+The initial hosted MSVC manual fault sweep timed out while the other 18 native
+tests passed. Native JSON builders now append into the existing fallible String
+container and format integers with allocation-free, locale-independent to_chars;
+they avoid temporary standard-string concatenations and MSVC debug allocating
+noexcept moves. Fault tests disable interactive CRT reports and emit path/index
+and terminate diagnostics; their 90-second guard is retained. Canonical C output
+also receives an exhaustive allocation sweep. Canonical bytes remain unchanged.
+
 New C/native tests cover canonical bytes, preserved error outputs, parameter
 edges/invalid notation, versions, duplicate/excess registry counts, defaults,
 coalescing, cancellation/stale source/session/revision results, the 256-operation
 ceiling, replacement ordering and immutable replay. Exhaustive one-shot allocation
 sweeps prove unchanged outputs/base/pending state and successful retry for registry,
-update and commit (853 recovered injected failures on Linux fallible-container build).
+update, commit and canonical C output (882 recovered injected failures on the
+Linux fallible-container build).
 Android and Swift tests consume shared descriptor identities/ranges.
 
 ## Scope and limits

@@ -5,9 +5,16 @@
 #include <cstdlib>
 #include <new>
 #include <algorithm>
+#include <cstdio>
+#include <exception>
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#endif
 // Test-only one-shot allocation failure; no allocator hook ships.
 static thread_local int64_t fail_after = -1;
 static thread_local bool injected = false;
+static int active_path = -1;
+static int64_t active_index = -1;
 void* operator new(std::size_t size) {
     if (fail_after == 0) { fail_after = -1; injected = true; throw std::bad_alloc(); }
     if (fail_after > 0) --fail_after;
@@ -42,6 +49,20 @@ int32_t validate(const std::string& json) {
 }
 }
 int main(int argc, char** argv) {
+#ifdef _MSC_VER
+    _set_error_mode(_OUT_TO_STDERR);
+    _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
+#ifdef _DEBUG
+    for (const int kind : {_CRT_WARN, _CRT_ERROR, _CRT_ASSERT}) {
+        _CrtSetReportMode(kind, _CRTDBG_MODE_FILE);
+        _CrtSetReportFile(kind, _CRTDBG_FILE_STDERR);
+    }
+#endif
+#endif
+    std::set_terminate([] {
+        std::fprintf(stderr, "manual terminate path=%d allocation=%lld\n", active_path, static_cast<long long>(active_index));
+        std::fflush(stderr); std::_Exit(1);
+    });
     CHECK(argc == 3);
     CHECK(registry().size() == 3 && validate_descriptors(registry().data(), registry().size()) == 0);
     CHECK(find("pixaura.resize") == nullptr && find("pixaura.exposure", 2) == nullptr);
@@ -150,9 +171,12 @@ int main(int argc, char** argv) {
     const auto update = request("exposure", "{\"milli_ev\":2400}");
     const auto previous = request("exposure", "{\"milli_ev\":1200}");
     const auto revision = id("210"), gesture_id = id("a1");
-    for (int path = 0; path < 3; ++path) {
+    for (int path = 0; path < 4; ++path) {
         bool completed = false;
         for (int64_t index = 0; index < 2000; ++index) {
+            active_path = path; active_index = index;
+            std::fprintf(stderr, "manual fault path=%d allocation=%lld\n", path, static_cast<long long>(index));
+            std::fflush(stderr);
             auto fault = gesture(base); CHECK(fault->update(previous).code == 0);
             uint64_t required = 777;
             uint8_t sentinel[32768]; std::fill(std::begin(sentinel), std::end(sentinel), uint8_t{0x5a});
@@ -160,12 +184,13 @@ int main(int argc, char** argv) {
             int32_t code = 0;
             if (path == 0) code = pixaura_manual_registry_json(1, sentinel, sizeof(sentinel), &required);
             else if (path == 1) code = fault->update(update).code;
-            else code = fault->commit(base, revision).code;
+            else if (path == 2) code = fault->commit(base, revision).code;
+            else code = pixaura_manual_canonical_operation(1, reinterpret_cast<const uint8_t*>(update.data()), update.size(), sentinel, sizeof(sentinel), &required);
             fail_after = -1;
             if (!injected) { CHECK(code == 0); completed = true; break; }
             ++allocation_failures; CHECK(code == PIXAURA_DOCUMENT_RESOURCE_LIMIT);
             CHECK(bytes(base) == original);
-            if (path == 0) {
+            if (path == 0 || path == 3) {
                 CHECK(required == 777 && std::all_of(std::begin(sentinel), std::end(sentinel), [](uint8_t c) { return c == 0x5a; }));
             } else {
                 CHECK(fault->eligible(gesture_id, 1, base));
