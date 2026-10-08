@@ -2,6 +2,11 @@
 set -euo pipefail
 workspace_path="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$workspace_path"
+source_changes="$(git status --porcelain --untracked-files=normal)"
+if [[ -n "$source_changes" ]]; then
+    echo 'FAIL: hardware certification requires a clean committed checkout' >&2
+    exit 1
+fi
 destination="${1:?Usage: bash scripts/check-gpu-apple-hardware.sh 'platform=iOS,name=DEVICE_NAME' [EXISTING_TEAM_ID]}"
 if [[ "$destination" != platform=iOS,* || "$destination" == *Simulator* ]]; then
     echo 'UNSUPPORTED: connected physical iPhone/iPad destination required' >&2

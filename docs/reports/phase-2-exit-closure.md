@@ -37,6 +37,7 @@ bash scripts/check-gpu-apple-hardware.sh 'platform=iOS,name=YOUR_DEVICE_NAME' EX
 Both need actual physical-device hardware PASS with completed dispatch/readback and 14/14 shared parity cases, fallback disabled, exact source SHA and reviewed model/OS/GPU/API evidence. Apple needs existing owner-authorized signing/provisioning; scripts do not provision credentials. No device serial/UUID is included in diagnostic JSON.
 
 Android evidence additionally binds a fresh wrapper-generated validation_run/source_sha to the current invocation, rejecting stale saved device JSON. Apple uses a new result bundle per run. Final hosted closure includes this evidence-freshness hardening and is supplied in delivery.
+Both hardware controllers reject an uncommitted source tree before certification, preserving exact-SHA evidence provenance.
 
 ## Limitations and acceptance
 

@@ -3,6 +3,8 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $workspacePath = Split-Path $PSScriptRoot -Parent
 Set-Location -LiteralPath $workspacePath
+$sourceChanges = & git status --porcelain --untracked-files=normal
+if ($LASTEXITCODE -ne 0 -or $sourceChanges) { throw 'FAIL: hardware certification requires a clean committed checkout.' }
 if (-not $SdkRoot) { throw 'Set ANDROID_HOME or supply -SdkRoot for the installed SDK.' }
 $adbPath = Join-Path $SdkRoot 'platform-tools\adb.exe'
 if (-not (Test-Path -LiteralPath $adbPath)) { throw 'Installed adb.exe is required.' }

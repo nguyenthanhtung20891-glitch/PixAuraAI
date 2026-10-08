@@ -34,6 +34,8 @@ Fault regression distinguishes injected adapter status/parity faults from real d
 
 ## Controlled execution
 
+Both controllers require a clean committed checkout so the recorded source SHA identifies the tested repository content.
+
 Android, one previously authorized connected physical device, installed SDK/JDK and Gradle inputs:
 
 ```powershell
