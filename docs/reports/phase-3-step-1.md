@@ -84,6 +84,27 @@ update, commit and canonical C output (882 recovered injected failures on the
 Linux fallible-container build).
 Android and Swift tests consume shared descriptor identities/ranges.
 
+## Observed hosted closure and infrastructure retry
+
+Implementation SHA: 9bb2460a686026dd0e6539e2ee9cd6d7752f59a0.
+[Foundation run 37803753967](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37803753967)
+is SUCCESS: all 7 jobs passed, including Linux/Windows 19/19 native tests,
+21/21 ASan/UBSan, Android arm64-v8a/armeabi-v7a builds, workflow lint and Apple
+native/Swift/iOS simulator boundaries. MSVC recovered 2304 injected allocation
+failures with 17526 manual checks. The Swift suite passed 8/8 on macOS and 8/8 on
+iOS simulator, including ManualBoundaryTests; unsigned iOS package build passed.
+
+[Application-shell run 37803753812](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37803753812)
+passed source and Android jobs, including debug/release, lint/JVM and 7/7 Android
+instrumentation tests. Its iOS job was CANCELLED with zero steps executed:
+GitHub reported that the job was not acquired by a hosted runner after multiple
+attempts and annotated macOS arm64 capacity constraints. This is infrastructure
+BLOCKED, not an iOS test PASS or implementation failure. Full hosted acceptance
+still requires the application-shell iOS job. This report-only delivery update
+triggers a fresh exact-SHA attempt; its observed outcome is supplied in the final
+delivery response. No runner selection, gate, implementation or timeout is changed
+to bypass this blocker. No physical Apple certification gate was executed.
+
 ## Scope and limits
 
 PROPOSED MVP: resize; brightness, contrast, highlights, shadows, saturation,
