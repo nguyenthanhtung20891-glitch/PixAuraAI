@@ -1,12 +1,21 @@
 package ai.pixaura.app
 
 import ai.pixaura.bridge.CoreProbe
+import androidx.test.platform.app.InstrumentationRegistry
+import java.util.UUID
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ManualBoundaryTest {
+    @Test fun geometryGestureBoundary() {
+        val fixture = InstrumentationRegistry.getInstrumentation().context.assets
+            .open("image-document-v1.json").use { it.readBytes() }
+        fun identity() = UUID.randomUUID().toString().replace("-", "").toByteArray(Charsets.US_ASCII)
+        assertEquals(0, CoreProbe().nativeGeometryBoundary(fixture, identity()))
+        assertTrue(CoreProbe().nativeGeometryBoundary("{".toByteArray(), identity()) != 0)
+    }
     @Test fun sharedOfflineRegistry() {
         val bytes = requireNotNull(CoreProbe().nativeManualRegistry())
         assertTrue(bytes.size <= 32768 && bytes.last() == 10.toByte())

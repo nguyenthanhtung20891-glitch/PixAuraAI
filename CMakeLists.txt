@@ -6,7 +6,8 @@ if(PIXAURA_SANITIZERS AND (MSVC OR ANDROID))
 endif()
 
 add_library(pixaura_core SHARED packages/core/src/core.cpp
-    packages/core/src/document.cpp packages/core/src/document_api.cpp packages/core/src/storage_api.cpp)
+    packages/core/src/document.cpp packages/core/src/document_api.cpp packages/core/src/storage_api.cpp
+    packages/core/src/manual_geometry_preview.cpp)
 target_include_directories(pixaura_core PUBLIC packages/core/include)
 target_compile_features(pixaura_core PUBLIC cxx_std_17)
 target_compile_definitions(pixaura_core PUBLIC PIXAURA_SHARED PRIVATE PIXAURA_BUILDING)
@@ -82,6 +83,15 @@ if(BUILD_TESTING)
     target_link_libraries(manual_c_consumer PRIVATE pixaura_core)
     pixaura_strict(manual_c_consumer)
     add_test(NAME manual_c_consumer COMMAND manual_c_consumer)
+    add_executable(manual_geometry_c_consumer packages/core/tests/manual_geometry_c_consumer.c)
+    target_link_libraries(manual_geometry_c_consumer PRIVATE pixaura_core)
+    pixaura_strict(manual_geometry_c_consumer)
+    add_test(NAME manual_geometry_c_consumer COMMAND manual_geometry_c_consumer "${CMAKE_SOURCE_DIR}/tests/fixtures/image-document-v1.json")
+    add_executable(manual_geometry_test packages/core/tests/manual_geometry_test.cpp packages/core/src/document.cpp)
+    target_link_libraries(manual_geometry_test PRIVATE pixaura_core pixaura_storage)
+    pixaura_strict(manual_geometry_test)
+    add_test(NAME manual_geometry_test COMMAND manual_geometry_test "${CMAKE_BINARY_DIR}")
+    set_tests_properties(manual_geometry_test PROPERTIES TIMEOUT 120)
     add_executable(gpu_test packages/core/tests/gpu_test.cpp)
     target_link_libraries(gpu_test PRIVATE pixaura_core)
     target_compile_features(gpu_test PRIVATE cxx_std_17)
@@ -195,7 +205,7 @@ if(BUILD_TESTING)
     add_test(NAME document_c_consumer COMMAND document_c_consumer "${CMAKE_SOURCE_DIR}/tests/fixtures/image-document-v1.json" "${CMAKE_BINARY_DIR}/document-canonical.json")
     # Fault injection lives only in this independent test executable, never the DLL.
     add_executable(document_allocation_test packages/core/tests/document_allocation_test.cpp
-        packages/core/src/document.cpp packages/core/src/document_api.cpp)
+        packages/core/src/document.cpp packages/core/src/document_api.cpp packages/core/src/manual_tools.cpp)
     target_include_directories(document_allocation_test PRIVATE packages/core/include)
     target_compile_features(document_allocation_test PRIVATE cxx_std_17)
     target_compile_definitions(document_allocation_test PRIVATE PIXAURA_TEST_FALLIBLE_STL)
@@ -223,7 +233,8 @@ if(BUILD_TESTING)
         # Keep C ABI consumers compiled as C, but link the C++ UBSan runtime
         # required by the instrumented C++ shared library (including vptr).
         set_target_properties(c_consumer document_c_consumer manual_c_consumer storage_c_consumer PROPERTIES LINKER_LANGUAGE CXX)
-        set_tests_properties(core_test c_consumer document_test document_c_consumer document_allocation_test storage_test storage_c_consumer manual_test manual_c_consumer PROPERTIES ENVIRONMENT
+        set_target_properties(manual_geometry_c_consumer PROPERTIES LINKER_LANGUAGE CXX)
+        set_tests_properties(core_test c_consumer document_test document_c_consumer document_allocation_test storage_test storage_c_consumer manual_test manual_c_consumer manual_geometry_test manual_geometry_c_consumer PROPERTIES ENVIRONMENT
             "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1;UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1")
         add_executable(asan_negative packages/core/tests/asan_negative.cpp)
         target_link_libraries(asan_negative PRIVATE pixaura_core)

@@ -1,10 +1,24 @@
 # Quality gates and promotion policy
 
+## Phase 3 Step 2 acceptance
+
+Explicitly authorized: crop and clockwise orthogonal rotation only. Acceptance
+requires the [manual geometry contract](docs/contracts/manual-geometry-v1.md):
+exact existing /1/1 parameters and rasterization, shared checked C/JNI/Swift
+boundaries, ordered pixels/replay, one detached proposal for 1,001 updates,
+neutral/cancel/stale/failure safety, PRV1 publication checks and unchanged ceilings.
+Verify canonical SQLite commit/reopen and immutable source hash, boundary/invalid
+cases, exhaustive allocation failures, Windows/Linux native and ASan/UBSan,
+Android JVM/instrumentation, Apple compile/Swift/simulator and exact-SHA hosted
+regression closure. No unexecuted check is PASS. Resize remains PROPOSED.
+Steps 3–8 are not started. DH-APPLE-METAL-01 is unchanged and not executed.
+See the [Step 2 report](docs/reports/phase-3-step-2.md).
+
 ## Phase 3 Step 1 acceptance
 
 Step 1 is COMPLETE / FULL PASS, accepted by the Product Owner at
 `b29123037effd76d984780f59889f1fcbb3c8c76`. The following criteria retain its
-acceptance requirements; the current task freezes documentation only.
+acceptance requirements; that acceptance is unchanged by Step 2.
 Acceptance requires shared bounded descriptors, exact integer validation and
 canonical serialization, unknown version rejection, ordered replay, neutral/no-op
 behavior, one revision per changed gesture and cancel/stale/failure atomicity.
@@ -13,7 +27,7 @@ Android JVM/native boundaries and Apple compile/Swift contract gates. Existing
 gates and ceilings remain mandatory. See [report](docs/reports/phase-3-step-1.md)
 and [contract](docs/contracts/manual-tools-v1.md). The official [eight-step Phase 3
 roadmap](ROADMAP.md#frozen-phase-3-numbered-roadmap--manual-tools) is frozen;
-Steps 2–8 are NOT STARTED and require separate implementation authorization.
+Step 2 is now separately authorized; Steps 3–8 remain NOT STARTED.
 
 ## Phase 3 scope discipline
 

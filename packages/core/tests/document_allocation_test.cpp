@@ -1,6 +1,7 @@
 // Test-only replacement allocator. This executable compiles the production
 // sources independently; no failure hook or replacement allocator ships.
 #include "pixaura/document.h"
+#include "pixaura/manual.h"
 #include "../src/document.hpp"
 #include <atomic>
 #include <chrono>
@@ -209,6 +210,35 @@ int main(int argc, char** argv) {
         failure("allocation sweep exhausted all 10000 indices without success", __LINE__);
     };
     sweep(0); sweep(1); sweep(2); sweep(3);
+    // Geometry C adapter: failed begin/update/commit never consumes ownership
+    // or pending state. Sweep every allocation through first uninjected success.
+    const uint8_t gesture_id[]="00000000000000000000000000000701";
+    const uint8_t tool[]="pixaura.rotate", revision_id[]="00000000000000000000000000000702";
+    const uint8_t operation[]="{\"operations\":[{\"id\":\"00000000000000000000000000000703\",\"type\":\"pixaura.rotate\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"quarter_turns\":1}}]}";
+    pixaura_manual_gesture gesture{};
+    for (int path=0;path<3;++path) {
+        int failures=0;
+        for(int64_t n=0;n<10000;++n) {
+            pixaura_manual_gesture token{}; std::memset(&token,0x5a,sizeof(token)); const auto old_token=token;
+            auto output=sentinel; uint32_t changed=777; uint64_t sequence=777;
+            progress("geometry.sweep",path,n); fail_after=n;
+            const auto status=path==0?pixaura_manual_geometry_begin(1,&context,&stable,gesture_id,32,tool,sizeof(tool)-1,nullptr,0,&token):
+                path==1?pixaura_manual_geometry_update(&context,&gesture,&stable,operation,sizeof(operation)-1,&sequence):
+                pixaura_manual_geometry_commit(&context,&gesture,&stable,revision_id,32,&output,&changed);
+            fail_after=-1;
+            if(status==0) {
+                if(path==0) gesture=token;
+                if(path==1) CHECK(sequence==1);
+                if(path==2) CHECK(changed==1 && pixaura_document_release(&context,&output)==0);
+                CHECK(failures>0); std::printf("Geometry C allocation path %d: %d injected failures before success\n",path,failures); break;
+            }
+            CHECK(status==8 && std::memcmp(&token,&old_token,sizeof(token))==0 &&
+                std::memcmp(&output,&sentinel,sizeof(output))==0 && changed==777 && sequence==777);
+            if(path==2) CHECK(pixaura_manual_geometry_current(&context,&gesture,&stable,1)==0);
+            verify_stable(); ++failures; CHECK(n<9999);
+        }
+    }
+    CHECK(pixaura_manual_geometry_release(&context,&gesture)==0);
     // The first serialization allocation occurs after acquire pins the snapshot.
     // Hold that call while another thread releases its registry ownership.
     progress("concurrency.start");
