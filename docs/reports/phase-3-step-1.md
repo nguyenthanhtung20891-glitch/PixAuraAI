@@ -1,5 +1,15 @@
 # Phase 3 Step 1 — Manual Tool Contract & Registry Foundation
 
+**Status: COMPLETE / FULL PASS.** Product Owner accepted delivery commit
+`b29123037effd76d984780f59889f1fcbb3c8c76`. Both exact-SHA workflows passed:
+[Foundation](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37806040238)
+and [application shells](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/37806040314).
+The later Product Owner / Architect decision freezes the official
+[Phase 3 Steps 1–8](../../ROADMAP.md#frozen-phase-3-numbered-roadmap--manual-tools);
+Steps 2–8 remain NOT STARTED. The delivery-time sequencing statements and earlier
+CI attempts below are historical evidence, superseded by this accepted status and
+roadmap decision. No implementation or frozen parameter semantics change here.
+
 Baseline: 67454642c3f918ef67618d78ace41cef150c1c03 (Phase 2 CLOSED).
 Scope: explicitly authorized Step 1 only. Local acceptance evidence is below;
 hosted closure requires observed green runs on the delivery commit. Exact-SHA

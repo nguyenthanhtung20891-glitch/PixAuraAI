@@ -1,5 +1,22 @@
 # Architectural decision index
 
+## Phase 3 numbered roadmap freeze (2026-10-08)
+
+Authority: explicit Product Owner / Architect decision. The official Phase 3
+sequence is frozen as [Steps 1–8](ROADMAP.md#frozen-phase-3-numbered-roadmap--manual-tools).
+Step 1 is COMPLETE / FULL PASS at `b29123037effd76d984780f59889f1fcbb3c8c76`;
+Steps 2–8 are NOT STARTED. This supersedes the earlier absence of a numbered
+roadmap, not the accepted Step 1 operation/parameter contracts. Approved future
+tool scopes still require their specified units/ranges/versioned semantics or
+separate recipe freezes before implementation/shipping as applicable.
+
+Apply [A/B/C scope discipline](QUALITY_GATES.md#phase-3-scope-discipline) to every
+new proposal. No additional steps, shipping tools, Phase 3.5, AI behavior or
+Phase 4 work may be introduced without explicit Product Owner approval. Close
+Phase 3 at Step 8 only after all exit criteria pass; no automatic Step 9.
+This task records the plan only and does not authorize Step 2 implementation.
+DH-APPLE-METAL-01 and its existing decision/requirements remain unchanged.
+
 ## Phase 3 Step 1 authorization (2026-10-08)
 
 The Product Owner authorizes only Manual Tool Contract & Registry Foundation after

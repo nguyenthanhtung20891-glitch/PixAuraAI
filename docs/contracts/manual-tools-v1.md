@@ -2,7 +2,12 @@
 
 Status: Phase 3 Step 1 contract and executable reference. This refines the accepted
 Phase 2 model; it adds no editing kernel, shipping control, AI behavior or final UI.
-The Product Owner authorized Step 1 only. No subsequent step sequence is frozen.
+At Step 1 delivery, the Product Owner authorized Step 1 only and no subsequent
+step sequence was frozen. The later Product Owner / Architect decision freezes
+[Phase 3 Steps 1–8](../../ROADMAP.md#frozen-phase-3-numbered-roadmap--manual-tools),
+accepts Step 1 as COMPLETE / FULL PASS and leaves Steps 2–8 NOT STARTED. Approved
+future tool scopes do not freeze their missing parameter tuples or recipes;
+this contract's executable registry and parameter semantics remain unchanged.
 
 ## Authority and integration
 
@@ -27,7 +32,7 @@ unchanged. No architecture incompatibility was found; no superseding ADR is need
 | detail | None | Sharpen, Blur |
 | filters_presets | None | Basic filters/presets; names and recipes unfrozen |
 
-The inventory comes from PRODUCT_SPEC P02-P04. PROPOSED means no registered
+This is the Step 1 delivery inventory from PRODUCT_SPEC P02-P04. PROPOSED here means no registered
 operation/version, parameter range, default, recipe or shipping claim. Reserved
 operation identifiers do not freeze behavior. Whites, blacks, tint, vibrance and
 free-angle rotation are backlog/non-MVP proposals, not additional shipping tools.
@@ -148,5 +153,7 @@ future versions, duplicate registry IDs, neutral edits, 1000 coalesced updates,
 stale/cancelled results, replacement ordering and canonical round trips. Android
 JNI and Swift consume the same descriptor metadata; neither redefines semantics.
 Required work for this acceptance is category A. Future MVP controls/parameter
-freezes await separately reviewed Phase 3 sequencing; no later step is assigned.
+freezes belong to the frozen later Phase 3 steps (category B), whose implementation
+requires separate authorization. Resize remains PROPOSED/category C and requires
+separate product approval before inclusion in any frozen step.
 Non-MVP reservations and optional extensibility are category C backlog.

@@ -1,12 +1,30 @@
 # Delivery roadmap
 
-**Current authorization: Phase 3 Step 1 — Manual Tool Contract & Registry Foundation.**
-Only this foundation is authorized after Phase 2 closure at
-67454642c3f918ef67618d78ace41cef150c1c03. See the [contract](docs/contracts/manual-tools-v1.md)
-and [report](docs/reports/phase-3-step-1.md). There is no frozen numbered Phase 3
-roadmap; subsequent sequencing requires separate Product Owner/Architect review.
-No later step, final editor UI, AI behavior or Phase 4 starts here. Historical
-authorization records below predate this instruction.
+## Frozen Phase 3 numbered roadmap — Manual Tools
+
+Authority: explicit Product Owner / Architect decision. Step 1 is accepted
+**COMPLETE / FULL PASS** at `b29123037effd76d984780f59889f1fcbb3c8c76`;
+see the [contract](docs/contracts/manual-tools-v1.md) and [report](docs/reports/phase-3-step-1.md).
+Steps 2–8 are **NOT STARTED**. Freezing this plan authorizes documentation only;
+implementation of Step 2 or any later step requires separate authorization.
+
+| Step | Official name | Status | Frozen scope and acceptance boundary |
+| --- | --- | --- | --- |
+| 1 | Manual Tool Contract & Registry Foundation | COMPLETE / FULL PASS | Accepted shared descriptors, bounded deterministic registry, versioned parameter validation/serialization/replay and gesture reference semantics. |
+| 2 | Geometry Tools | NOT STARTED | Implement approved MVP crop and orthogonal rotation controls on shared non-destructive operations/history. Resize remains PROPOSED and requires separate approval. Do not add perspective, free-angle rotation or other geometry tools. |
+| 3 | Tone & Color Tools | NOT STARTED | Implement exposure, brightness, contrast, highlights, shadows, saturation and temperature. Each requires explicit units/ranges, versioned semantics, deterministic validation and replay. Whites, blacks, tint and vibrance remain backlog unless separately approved. |
+| 4 | Detail Tools | NOT STARTED | Implement sharpen and blur. Denoise, clarity, texture and other detail controls require separate approval. |
+| 5 | Filters & Presets Foundation | NOT STARTED | Define and implement deterministic, inspectable, non-destructive filter/preset representation. Names and recipes must be separately frozen before shipping. No destructive hidden processing. |
+| 6 | Gesture Editing Lifecycle Integration | NOT STARTED | Integrate BEGIN -> UPDATE/PREVIEW -> COMMIT once, or CANCEL without history mutation, into real editing flows. Preserve stale rejection, coalescing, interruption, tool switching and failure semantics from Step 1. |
+| 7 | Cross-platform Manual Editor Integration | NOT STARTED | Integrate Android Compose and iOS SwiftUI against the same shared-core tool IDs, ranges, validation, serialization, replay and history semantics. Do not duplicate core business rules per platform. |
+| 8 | Phase 3 Certification & Closure | NOT STARTED | Validate offline tool matrix, documented units/ranges, deterministic replay, gesture history, restart/reload consistency, invalid/boundary cases, Android/iOS parity and regression closure. CLOSE Phase 3 here only if all exit criteria pass; do not create Step 9 automatically. |
+
+Approved future tool scope does not freeze missing parameter tuples or numerical
+recipes, register tools, or establish implementation PASS. Step 1's frozen
+parameters remain unchanged. [Scope discipline](QUALITY_GATES.md#phase-3-scope-discipline)
+governs all new proposals. No additional Phase 3 steps, shipping tools, Phase 3.5,
+AI behavior or Phase 4 work may be introduced without explicit Product Owner approval.
+Historical authorization records below predate this decision and do not reopen work.
 
 **Phase 2 COMPLETE / CLOSED.** Steps 1-11 are accepted FULL PASS, the original first GPU pipeline is complete, hosted compile/regression is green, and physical Z Fold7 / Adreno 830 Vulkan certification is accepted PASS 14/14. The explicit [Product Owner/Architect decision](DECISIONS.md#phase-2-closure-decision-2026-10-08) defers Apple physical Metal certification because no real Apple hardware is available. It is not waived or removed: [DH-APPLE-METAL-01](QUALITY_GATES.md#dh-apple-metal-01-deferred-physical-apple-metal-certification) remains mandatory at Phase 11 hardening acceptance and before Phase 12 Beta readiness completion, production release, or any physical Apple GPU certification claim. See the [exit-closure report](docs/reports/phase-2-exit-closure.md). No new Phase 2 step is added; no further Phase 2 work is authorized. Phase 3 has not started and requires separate authorization. The milestone entries below are historical and do not reopen work.
 

@@ -2,15 +2,37 @@
 
 ## Phase 3 Step 1 acceptance
 
-Current authorization is Manual Tool Contract & Registry Foundation only.
+Step 1 is COMPLETE / FULL PASS, accepted by the Product Owner at
+`b29123037effd76d984780f59889f1fcbb3c8c76`. The following criteria retain its
+acceptance requirements; the current task freezes documentation only.
 Acceptance requires shared bounded descriptors, exact integer validation and
 canonical serialization, unknown version rejection, ordered replay, neutral/no-op
 behavior, one revision per changed gesture and cancel/stale/failure atomicity.
 Run existing source/documentation/native regressions, Windows and Linux ASan/UBSan,
 Android JVM/native boundaries and Apple compile/Swift contract gates. Existing
 gates and ceilings remain mandatory. See [report](docs/reports/phase-3-step-1.md)
-and [contract](docs/contracts/manual-tools-v1.md). No later sequence is frozen or
-authorized; historical records below are evidence, not current scope authority.
+and [contract](docs/contracts/manual-tools-v1.md). The official [eight-step Phase 3
+roadmap](ROADMAP.md#frozen-phase-3-numbered-roadmap--manual-tools) is frozen;
+Steps 2–8 are NOT STARTED and require separate implementation authorization.
+
+## Phase 3 scope discipline
+
+Every new proposal must be classified as:
+
+- **A:** required for current step acceptance.
+- **B:** belongs to an already frozen later Phase 3 step; defer implementation until
+  that step is separately authorized.
+- **C:** backlog / nice-to-have; no shipping commitment or implementation approval.
+
+Codex must not create additional Phase 3 steps, new shipping tools, Phase 3.5,
+AI behavior or Phase 4 work without explicit Product Owner approval. A frozen
+roadmap is not permission to begin the next step. Tool exclusions and separate
+parameter/recipe freezes in ROADMAP.md are mandatory. Step 8 closes Phase 3 only
+after all phase exit criteria pass: offline tool matrix, documented units/ranges,
+deterministic replay, gesture history, restart/reload consistency, invalid/boundary
+cases, Android/iOS parity and regression closure. Do not create Step 9 automatically.
+Existing gates and resource/security invariants remain mandatory; no unexecuted
+check is PASS. Historical records below are evidence, not current scope authority.
 
 Phase 2 is CLOSED by the explicit [Product Owner/Architect decision](DECISIONS.md#phase-2-closure-decision-2026-10-08). Steps 1-11 are accepted FULL PASS; original first GPU pipeline implementation and hosted compile/regression are complete, with accepted physical Android Vulkan PASS 14/14. Apple physical Metal certification is DEFERRED, not waived, under DH-APPLE-METAL-01 below. Existing ceilings, CPU authority and GPU semantics remain unchanged. No new Phase 2 step is added; Phase 3 has not started and requires separate authorization. Historical milestone authorizations below do not reopen Phase 2.
 

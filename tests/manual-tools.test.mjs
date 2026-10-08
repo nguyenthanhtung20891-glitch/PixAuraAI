@@ -21,6 +21,6 @@ test('manual foundation is shared, bounded and compiled across platforms', () =>
 test('manual contract freezes only accepted parameter semantics and separates proposals', () => {
   const contract = read('docs/contracts/manual-tools-v1.md');
   for (const term of ['PROPOSED', '-5000..5000', '0..999999', '1..1000000', '1000 coalesced', 'CANCEL', 'PRV1', 'STALE_BASE']) assert.ok(contract.includes(term));
-  assert.match(contract, /No subsequent step sequence is frozen/);
+  assert.match(contract, /accepts Step 1 as COMPLETE \/ FULL PASS and leaves Steps 2–8 NOT STARTED/);
   assert.match(contract, /No clamp/);
 });
