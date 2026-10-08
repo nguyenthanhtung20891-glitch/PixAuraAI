@@ -1,5 +1,13 @@
 # Delivery roadmap
 
+**Current authorization: Phase 3 Step 1 — Manual Tool Contract & Registry Foundation.**
+Only this foundation is authorized after Phase 2 closure at
+67454642c3f918ef67618d78ace41cef150c1c03. See the [contract](docs/contracts/manual-tools-v1.md)
+and [report](docs/reports/phase-3-step-1.md). There is no frozen numbered Phase 3
+roadmap; subsequent sequencing requires separate Product Owner/Architect review.
+No later step, final editor UI, AI behavior or Phase 4 starts here. Historical
+authorization records below predate this instruction.
+
 **Phase 2 COMPLETE / CLOSED.** Steps 1-11 are accepted FULL PASS, the original first GPU pipeline is complete, hosted compile/regression is green, and physical Z Fold7 / Adreno 830 Vulkan certification is accepted PASS 14/14. The explicit [Product Owner/Architect decision](DECISIONS.md#phase-2-closure-decision-2026-10-08) defers Apple physical Metal certification because no real Apple hardware is available. It is not waived or removed: [DH-APPLE-METAL-01](QUALITY_GATES.md#dh-apple-metal-01-deferred-physical-apple-metal-certification) remains mandatory at Phase 11 hardening acceptance and before Phase 12 Beta readiness completion, production release, or any physical Apple GPU certification claim. See the [exit-closure report](docs/reports/phase-2-exit-closure.md). No new Phase 2 step is added; no further Phase 2 work is authorized. Phase 3 has not started and requires separate authorization. The milestone entries below are historical and do not reopen work.
 
 Phase 2 Step 11 is authorized: [interactive preview request generation and publication ownership](docs/contracts/interactive-preview-lifecycle-v1.md) under [ADR 0017](docs/adr/0017-interactive-preview-generation-fence.md). Latest-wins native/platform fences, cooperative supersession and failed-request display preservation keep synchronous execution, existing ceilings and quiescent destruction. All existing local/hosted gates plus churn/races/overflow/platform ownership remain mandatory. [Step 11 report](docs/reports/phase-2-step-11.md); Step 12 is not started.

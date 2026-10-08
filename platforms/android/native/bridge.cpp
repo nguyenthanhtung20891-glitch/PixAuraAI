@@ -5,6 +5,7 @@
 #include "pixaura/decode.h"
 #include "pixaura/working.h"
 #include "pixaura/evaluation.h"
+#include "pixaura/manual.h"
 #include "../../../packages/core/tests/geometry_boundary.h"
 #include "../../../packages/core/tests/preview_boundary.h"
 #include <vector>
@@ -38,6 +39,18 @@ jintArray preview_words(JNIEnv* env,pixaura_decode_context& context,const pixaur
     }
     return env->ExceptionCheck()?nullptr:result;
 }
+}
+extern "C" JNIEXPORT jbyteArray JNICALL Java_ai_pixaura_bridge_CoreProbe_nativeManualRegistry(JNIEnv* env, jobject) {
+    try {
+        uint64_t required = 0;
+        if (pixaura_manual_registry_json(1, nullptr, 0, &required) != PIXAURA_DOCUMENT_BUFFER_TOO_SMALL || required > PIXAURA_MANUAL_MAX_REGISTRY_BYTES) return nullptr;
+        std::vector<uint8_t> bytes(static_cast<std::size_t>(required));
+        if (pixaura_manual_registry_json(1, bytes.data(), bytes.size(), &required) != 0) return nullptr;
+        auto result = env->NewByteArray(static_cast<jsize>(required));
+        if (!result) return nullptr;
+        env->SetByteArrayRegion(result, 0, static_cast<jsize>(required), reinterpret_cast<const jbyte*>(bytes.data()));
+        return env->ExceptionCheck() ? nullptr : result;
+    } catch (...) { return nullptr; }
 }
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_InteractivePreview_nativeStorageSize(JNIEnv*,jobject){return sizeof(InteractiveStorage);}
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_InteractivePreview_nativeInit(JNIEnv* env,jobject,jobject buffer,jbyteArray root,jbyteArray digest,jlong bytes,jbyteArray identity){

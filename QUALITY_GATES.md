@@ -1,5 +1,17 @@
 # Quality gates and promotion policy
 
+## Phase 3 Step 1 acceptance
+
+Current authorization is Manual Tool Contract & Registry Foundation only.
+Acceptance requires shared bounded descriptors, exact integer validation and
+canonical serialization, unknown version rejection, ordered replay, neutral/no-op
+behavior, one revision per changed gesture and cancel/stale/failure atomicity.
+Run existing source/documentation/native regressions, Windows and Linux ASan/UBSan,
+Android JVM/native boundaries and Apple compile/Swift contract gates. Existing
+gates and ceilings remain mandatory. See [report](docs/reports/phase-3-step-1.md)
+and [contract](docs/contracts/manual-tools-v1.md). No later sequence is frozen or
+authorized; historical records below are evidence, not current scope authority.
+
 Phase 2 is CLOSED by the explicit [Product Owner/Architect decision](DECISIONS.md#phase-2-closure-decision-2026-10-08). Steps 1-11 are accepted FULL PASS; original first GPU pipeline implementation and hosted compile/regression are complete, with accepted physical Android Vulkan PASS 14/14. Apple physical Metal certification is DEFERRED, not waived, under DH-APPLE-METAL-01 below. Existing ceilings, CPU authority and GPU semantics remain unchanged. No new Phase 2 step is added; Phase 3 has not started and requires separate authorization. Historical milestone authorizations below do not reopen Phase 2.
 
 ## DH-APPLE-METAL-01: Deferred physical Apple Metal certification

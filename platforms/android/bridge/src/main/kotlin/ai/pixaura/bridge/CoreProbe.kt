@@ -13,6 +13,9 @@ class CoreProbe {
 
     external fun nativeAbiVersion(): Int
 
+    // Small offline metadata boundary probe; native owns the tool contract.
+    external fun nativeManualRegistry(): ByteArray?
+
     private external fun nativePreviewPixels(
         privateRoot: ByteArray, digest: ByteArray, assetBytes: Long,
         contextIdentity: ByteArray, maxWidth: Int, maxHeight: Int,

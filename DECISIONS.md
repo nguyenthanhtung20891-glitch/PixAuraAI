@@ -1,5 +1,16 @@
 # Architectural decision index
 
+## Phase 3 Step 1 authorization (2026-10-08)
+
+The Product Owner authorizes only Manual Tool Contract & Registry Foundation after
+Phase 2 closure at 67454642c3f918ef67618d78ace41cef150c1c03. Reuse accepted Phase 2
+document/history/storage/preview semantics; descriptors freeze only accepted
+operation tuples. Other required MVP tools remain PROPOSED until separately
+reviewed parameter/behavior freezes. No numbered Phase 3 roadmap is committed;
+later steps must not be assigned numbers or scope. This refines ADR 0008/0009
+without superseding architecture. See [contract](docs/contracts/manual-tools-v1.md)
+and [report](docs/reports/phase-3-step-1.md).
+
 Phase 2 is CLOSED by the explicit Product Owner/Architect decision below. Steps 1-11 are accepted FULL PASS; the original first GPU pipeline is complete, hosted compile/regression is green, and physical Android Vulkan certification is accepted PASS 14/14. Apple physical Metal certification is DEFERRED, not waived, under [DH-APPLE-METAL-01](QUALITY_GATES.md#dh-apple-metal-01-deferred-physical-apple-metal-certification). Existing ceilings, CPU authority and GPU semantics remain unchanged. Phase 3 has not started; no additional Phase 2 work is authorized.
 
 ## Phase 2 closure decision (2026-10-08)
