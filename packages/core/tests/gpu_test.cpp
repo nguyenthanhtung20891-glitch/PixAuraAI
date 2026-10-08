@@ -14,7 +14,8 @@ int32_t dispatch(void* p,const float* in,float* out,uint32_t n,float gain,uint32
     if(s.cancel)s.current=0;
     if(s.status)return s.status;
     for(uint32_t i=0;i<n*4;++i){if(i%4==3||identity)std::memcpy(out+i,in+i,4);else out[i]=in[i]*gain;}
-    if(s.corrupt)out[0]=std::numeric_limits<float>::infinity();return 0;
+    if(s.corrupt)out[0]=std::numeric_limits<float>::infinity();
+    return 0;
 }
 struct PreviewOwner{pixaura_decode_context context{};pixaura_preview_ticket ticket{};};
 int32_t preview_current(void* p){auto& s=*static_cast<PreviewOwner*>(p);return pixaura_preview_current(&s.context,&s.ticket,nullptr)==0?1:0;}
