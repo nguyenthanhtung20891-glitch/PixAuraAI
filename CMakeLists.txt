@@ -222,8 +222,8 @@ if(BUILD_TESTING)
     if(PIXAURA_SANITIZERS)
         # Keep C ABI consumers compiled as C, but link the C++ UBSan runtime
         # required by the instrumented C++ shared library (including vptr).
-        set_target_properties(c_consumer document_c_consumer storage_c_consumer PROPERTIES LINKER_LANGUAGE CXX)
-        set_tests_properties(core_test c_consumer document_test document_c_consumer document_allocation_test storage_test storage_c_consumer PROPERTIES ENVIRONMENT
+        set_target_properties(c_consumer document_c_consumer manual_c_consumer storage_c_consumer PROPERTIES LINKER_LANGUAGE CXX)
+        set_tests_properties(core_test c_consumer document_test document_c_consumer document_allocation_test storage_test storage_c_consumer manual_test manual_c_consumer PROPERTIES ENVIRONMENT
             "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1;UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1")
         add_executable(asan_negative packages/core/tests/asan_negative.cpp)
         target_link_libraries(asan_negative PRIVATE pixaura_core)

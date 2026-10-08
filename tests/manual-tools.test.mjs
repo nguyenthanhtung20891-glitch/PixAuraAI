@@ -8,6 +8,7 @@ test('manual foundation is shared, bounded and compiled across platforms', () =>
   const header = read('packages/core/include/pixaura/manual.h');
   assert.match(header, /MAX_DESCRIPTORS 16u/);
   assert.match(header, /MAX_PARAMETERS 8u/);
+  assert.match(read('CMakeLists.txt'), /manual_c_consumer storage_c_consumer PROPERTIES LINKER_LANGUAGE CXX/);
   const implementation = read('packages/core/src/manual_tools.cpp');
   assert.match(implementation, /parse_evaluation\(request\)/);
   assert.match(implementation, /transition\(\*live, candidate\)/);

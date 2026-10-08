@@ -60,6 +60,13 @@ logical state; canonical round trips are stable. No new GPU numerical claim.
 - Actionlint and git diff --check PASS. Hosted Windows/MSVC, Apple compile/Swift
   and Android instrumentation results must be observed at the exact delivery SHA.
 
+Hosted remediation: foundation run 37802462220 at
+9612e3d0e2ce9c0a741ff8545a895a119a97f4f9 exposed missing C++ UBSan vptr runtime
+linkage for the new C consumer under hosted Clang 18. The narrow fix adds that
+consumer to the existing C++ sanitizer linker rule while preserving compilation
+as C, and applies existing strict sanitizer environment settings to both new tests.
+The new source gate checks this integration. No sanitizer or security gate is waived.
+
 New C/native tests cover canonical bytes, preserved error outputs, parameter
 edges/invalid notation, versions, duplicate/excess registry counts, defaults,
 coalescing, cancellation/stale source/session/revision results, the 256-operation
