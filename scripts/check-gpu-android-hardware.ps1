@@ -11,7 +11,8 @@ $state = & $adbPath get-state
 if ($LASTEXITCODE -ne 0 -or "$state".Trim() -ne 'device') { throw 'One authorized physical Android device must be connected.' }
 $qemu = & $adbPath shell getprop ro.kernel.qemu
 if ($LASTEXITCODE -ne 0 -or "$qemu".Trim() -eq '1') { throw 'UNSUPPORTED: emulator cannot certify physical hardware.' }
-$runPath = Join-Path $workspacePath ('build\gpu-android-hardware\run-' + [Guid]::NewGuid().ToString('N'))
+$validationRun = [Guid]::NewGuid().ToString('N')
+$runPath = Join-Path $workspacePath ('build\gpu-android-hardware\run-' + $validationRun)
 New-Item -ItemType Directory -Force -Path $runPath | Out-Null
 $previousTemp = $env:TEMP
 $previousTmp = $env:TMP
@@ -22,17 +23,24 @@ try {
     $env:TMP = $runPath
     $env:ANDROID_HOME = $SdkRoot
     $env:ANDROID_USER_HOME = Join-Path $workspacePath 'build\android-user'
-    & git rev-parse HEAD | Set-Content -LiteralPath (Join-Path $runPath 'commit.txt')
+    $sourceSha = (& git rev-parse HEAD).Trim()
+    if ($LASTEXITCODE -ne 0 -or $sourceSha -notmatch '^[0-9a-f]{40}$') { throw 'Source SHA unavailable.' }
+    $sourceSha | Set-Content -LiteralPath (Join-Path $runPath 'commit.txt')
     & "$workspacePath\platforms\android\gradlew.bat" -p "$workspacePath\platforms\android" --no-daemon `
         --gradle-user-home "$workspacePath\build\gradle-home" --project-cache-dir "$workspacePath\build\gpu-android-hardware\gradle-cache" `
         --dependency-verification strict :app:connectedDebugAndroidTest `
         '-Pandroid.testInstrumentationRunnerArguments.class=ai.pixaura.app.GpuHardwareTest' `
-        '-Pandroid.testInstrumentationRunnerArguments.pixauraHardware=true' 2>&1 | Tee-Object -FilePath (Join-Path $runPath 'gradle.log')
+        '-Pandroid.testInstrumentationRunnerArguments.pixauraHardware=true' `
+        "-Pandroid.testInstrumentationRunnerArguments.pixauraRun=$validationRun" `
+        "-Pandroid.testInstrumentationRunnerArguments.pixauraSha=$sourceSha" 2>&1 | Tee-Object -FilePath (Join-Path $runPath 'gradle.log')
     $testExit = $LASTEXITCODE
     $json = & $adbPath shell run-as ai.pixaura.app cat files/gpu-hardware.json
     if ($LASTEXITCODE -ne 0) { throw 'FAIL: hardware evidence readback failed.' }
     $json | Set-Content -LiteralPath (Join-Path $runPath 'evidence.json') -Encoding UTF8
     $evidence = ($json -join "`n") | ConvertFrom-Json
+    if ($evidence.validation_run -ne $validationRun -or $evidence.source_sha -ne $sourceSha) {
+        throw 'FAIL: stale or mismatched hardware evidence; current execution is not certified.'
+    }
     Write-Output "Vulkan hardware validation: $($evidence.status) $($evidence.parity_passed)/$($evidence.test_count) parity cases; GPU=$($evidence.gpu)"
     Write-Output "Evidence: $runPath"
     if ($testExit -ne 0 -or $evidence.status -ne 'PASS' -or -not $evidence.hardware -or -not $evidence.controlled_hardware_gate) {

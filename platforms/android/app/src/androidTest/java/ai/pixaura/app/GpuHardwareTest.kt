@@ -13,10 +13,20 @@ class GpuHardwareTest {
     @Test fun physicalVulkanCertification() {
         val args = InstrumentationRegistry.getArguments()
         val controlled = args.getString("pixauraHardware") == "true"
+        val validationRun = args.getString("pixauraRun") ?: ""
+        val sourceSha = args.getString("pixauraSha") ?: ""
+        if (controlled) {
+            require(validationRun.matches(Regex("[0-9a-f]{32}")))
+            require(sourceSha.matches(Regex("[0-9a-f]{40}")))
+        }
         val evidence = JSONObject(GpuValidation().nativeEvidence())
         evidence.put("device_model", "${Build.MANUFACTURER} ${Build.MODEL}")
         evidence.put("os_version", Build.VERSION.RELEASE)
         evidence.put("controlled_hardware_gate", controlled)
+        if (controlled) {
+            evidence.put("validation_run", validationRun)
+            evidence.put("source_sha", sourceSha)
+        }
         // Physical provenance is required in addition to the native device probe.
         val emulator = Build.FINGERPRINT.startsWith("generic") ||
             Build.MODEL.contains("Emulator", ignoreCase = true) ||

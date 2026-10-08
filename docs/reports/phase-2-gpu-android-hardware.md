@@ -9,3 +9,5 @@ Command: `powershell -NoProfile -File scripts/check-gpu-android-hardware.ps1 -Sd
 Required record after execution: exact tested commit SHA; device model (no serial), OS; GPU name/vendor/type/API/driver; hardware classification and controlled physical provenance; shader/pipeline result; completed dispatch/readback; all 14/14 parity cases with fallback disabled; PASS/UNSUPPORTED/FAIL; reviewed JSON/log location and execution date. Keep raw builds outside Git and attach only reviewed synthetic evidence. A harness process/test success without its hardware PASS evidence is insufficient.
 
 Contract: [GPU tile v1](../contracts/gpu-tile-v1.md). Apple gate: [pending evidence](phase-2-gpu-apple-hardware.md).
+
+The wrapper must match JSON validation_run/source_sha to its fresh invocation/SHA sidecar and require a successful instrumentation process. Stale saved device evidence is a FAIL; the run identifier contains no device identity or secret.
