@@ -76,11 +76,13 @@ test('hardware certification remains separate from hosted compilation and regres
   assert.match(android, /assertEquals\(evidence.toString\(\), "PASS"/);
   assert.match(read('scripts/check-android-emulator.sh'), /swiftshader_indirect/);
   const report = read('docs/reports/phase-2-exit-closure.md');
-  assert.match(report, /BLOCKED/);
-  assert.match(report, /NOT CLOSED/);
-  for (const platform of ['android', 'apple']) {
-    assert.match(read(`docs/reports/phase-2-gpu-${platform}-hardware.md`), /PENDING REAL HARDWARE EXECUTION/);
-  }
+  assert.match(report, /^Status: PHASE 2 CLOSED/m);
+  assert.match(report, /DH-APPLE-METAL-01/);
+  assert.match(report, /not waived or removed/);
+  assert.match(report, /before Beta readiness completion, production release or any claim of physical Apple GPU certification/);
+  assert.match(read('docs/reports/phase-2-gpu-android-hardware.md'), /^Status: ACCEPTED PHYSICAL-DEVICE ANDROID VULKAN CERTIFICATION/m);
+  assert.match(read('docs/reports/phase-2-gpu-apple-hardware.md'), /^Status: DEFERRED \/ PENDING REAL HARDWARE EXECUTION/m);
+  assert.match(read('QUALITY_GATES.md'), /Promotion rule.*remain blocked while this gate is DEFERRED/);
 });
 
 test('both platform adapters use the shared numerical authority and owned shaders', () => {

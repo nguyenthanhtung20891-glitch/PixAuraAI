@@ -1,10 +1,22 @@
 # Architectural decision index
 
-Phase 2 exit closure addresses only the ORIGINAL first GPU pipeline criterion (identity and exposure/1/1); it is not an additional Phase 2 step. Accepted Steps 1-11 remain complete. Physical-device Vulkan/Metal certification is authorized under [ADR 0018](docs/adr/0018-physical-gpu-certification.md) and [GPU tile v1](docs/contracts/gpu-tile-v1.md). Hardware certification remains BLOCKED pending real Android Vulkan and Apple Metal dispatch/readback/parity evidence; hosted SwiftShader and Apple compilation do not satisfy this gate. See [exit-closure report](docs/reports/phase-2-exit-closure.md). Existing ceilings and CPU authority remain unchanged. Phase 3 is not started.
+Phase 2 is CLOSED by the explicit Product Owner/Architect decision below. Steps 1-11 are accepted FULL PASS; the original first GPU pipeline is complete, hosted compile/regression is green, and physical Android Vulkan certification is accepted PASS 14/14. Apple physical Metal certification is DEFERRED, not waived, under [DH-APPLE-METAL-01](QUALITY_GATES.md#dh-apple-metal-01-deferred-physical-apple-metal-certification). Existing ceilings, CPU authority and GPU semantics remain unchanged. Phase 3 has not started; no additional Phase 2 work is authorized.
+
+## Phase 2 closure decision (2026-10-08)
+
+Authority: explicit Product Owner/Architect instruction, accepted Android evidence publication `bd10239c38f069a2d683b0f513d5c77a02995598`.
+
+**Apple physical Metal certification deferred due unavailable hardware; mandatory before Beta/production; Phase 2 closure allowed.**
+
+Apple execution is blocked by unavailable physical hardware, not implementation. This decision supersedes only the requirement in [ADR 0018](docs/adr/0018-physical-gpu-certification.md) and [GPU tile v1](docs/contracts/gpu-tile-v1.md) that Apple physical execution block Phase 2 closure. The historical ADR is retained unchanged; the physical certification requirement and every technical acceptance criterion remain mandatory. The gate is not waived or removed.
+
+Track the deferred gate as **DH-APPLE-METAL-01**, owned by the Product Owner/Architect, at Phase 11 hardening acceptance and before Phase 12 Beta readiness completion or any production release. A physical Apple GPU certification claim requires actual physical Metal dispatch/completion/readback and 14/14 shared CPU parity, fallback disabled, exact tested source SHA and reviewed device/runtime evidence. Hosted compilation, simulator execution, Android PASS and this phase-closure decision cannot satisfy it. Hardware unavailability must continue to block those later acceptance/release boundaries until the gate passes; agents must not silently forget or auto-waive it.
+
+Phase 2 Steps 1-11 remain FULL PASS; no additional step is added. The [exit-closure report](docs/reports/phase-2-exit-closure.md) preserves implementation, hosted and accepted physical Android evidence and limitations. This decision closes Phase 2 only and does not authorize Phase 3 implementation or further Phase 2 work.
 
 | ADR | Status | Decision |
 | --- | --- | --- |
-| [0018](docs/adr/0018-physical-gpu-certification.md) | Accepted | Physical Vulkan/Metal dispatch and shared CPU parity; bounded FP32 tiles and fallback; separate hardware certification |
+| [0018](docs/adr/0018-physical-gpu-certification.md) | Accepted; Phase 2 closure timing superseded by the decision above | Physical Vulkan/Metal dispatch and shared CPU parity; bounded FP32 tiles and fallback; separate hardware certification; technical criteria remain mandatory |
 | [0017](docs/adr/0017-interactive-preview-generation-fence.md) | Accepted | Fixed nonwrapping context request generations; latest-wins native and platform publication fences; stop/join ownership |
 | [0001](docs/adr/0001-native-shells-shared-core.md) | Accepted | Native mobile UIs; shared C++17 C ABI |
 | [0002](docs/adr/0002-local-project-history.md) | Accepted | Immutable originals, local SQLite + asset store, shared revision graph |

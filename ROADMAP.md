@@ -1,6 +1,6 @@
 # Delivery roadmap
 
-Phase 2 exit closure addresses only the ORIGINAL first GPU pipeline criterion (identity and exposure/1/1); it is not an additional Phase 2 step. Accepted Steps 1-11 remain complete. Physical-device Vulkan/Metal certification is authorized under [ADR 0018](docs/adr/0018-physical-gpu-certification.md) and [GPU tile v1](docs/contracts/gpu-tile-v1.md). Hardware certification remains BLOCKED pending real Android Vulkan and Apple Metal dispatch/readback/parity evidence; hosted SwiftShader and Apple compilation do not satisfy this gate. See [exit-closure report](docs/reports/phase-2-exit-closure.md). Existing ceilings and CPU authority remain unchanged. Phase 3 is not started.
+**Phase 2 COMPLETE / CLOSED.** Steps 1-11 are accepted FULL PASS, the original first GPU pipeline is complete, hosted compile/regression is green, and physical Z Fold7 / Adreno 830 Vulkan certification is accepted PASS 14/14. The explicit [Product Owner/Architect decision](DECISIONS.md#phase-2-closure-decision-2026-10-08) defers Apple physical Metal certification because no real Apple hardware is available. It is not waived or removed: [DH-APPLE-METAL-01](QUALITY_GATES.md#dh-apple-metal-01-deferred-physical-apple-metal-certification) remains mandatory at Phase 11 hardening acceptance and before Phase 12 Beta readiness completion, production release, or any physical Apple GPU certification claim. See the [exit-closure report](docs/reports/phase-2-exit-closure.md). No new Phase 2 step is added; no further Phase 2 work is authorized. Phase 3 has not started and requires separate authorization. The milestone entries below are historical and do not reopen work.
 
 Phase 2 Step 11 is authorized: [interactive preview request generation and publication ownership](docs/contracts/interactive-preview-lifecycle-v1.md) under [ADR 0017](docs/adr/0017-interactive-preview-generation-fence.md). Latest-wins native/platform fences, cooperative supersession and failed-request display preservation keep synchronous execution, existing ceilings and quiescent destruction. All existing local/hosted gates plus churn/races/overflow/platform ownership remain mandatory. [Step 11 report](docs/reports/phase-2-step-11.md); Step 12 is not started.
 
@@ -24,7 +24,7 @@ Current status: the user reports Phase 0 and Phase 1 fully passed GitHub Actions
 | --- | --- | --- |
 | 0 Engineering foundation | Specifications, ADRs, checked native ABI and platform boundary probes | G0-G4 applicable checks pass on host/platform runners; no feature implementation |
 | 1 Native shells | Android Compose/iOS SwiftUI, shared bridge, navigation, services, storage policy, build locks | Debug and unsigned release builds both platforms; boundary smoke screen; no permissions before use; UI state tests |
-| 2 Non-destructive engine | Source import, versioned graph, SQLite revisions, CPU reference/color/geometry and first GPU pipeline | Source hash invariance; crash recovery; golden pixel/tile parity; JPEG/PNG fixtures; bounded memory |
+| 2 Non-destructive engine — COMPLETE / CLOSED | Source import, versioned graph, SQLite revisions, CPU reference/color/geometry and first GPU pipeline | Steps 1-11 FULL PASS; source hash invariance, recovery, CPU/parity and bounded memory validated; physical Android Vulkan PASS 14/14; Apple physical gate deferred by explicit product decision to DH-APPLE-METAL-01 |
 | 3 Manual tools | All MVP geometry/tone/detail/filter controls | Offline tool matrix; documented units/ranges; deterministic replay and gesture history |
 | 4 Capability profiling | Probe service, budget admission, dynamic downgrade | Recorded low/mid/high devices; T0 manual flows; pressure/thermal fallback evidence |
 | 5 Local inference | Verified model packages, provider adapters and compact segmentation evaluation | CPU fallback offline; signed-manifest rejection; provider parity/license/size/task thresholds |
@@ -33,12 +33,14 @@ Current status: the user reports Phase 0 and Phase 1 fully passed GitHub Actions
 | 8 Full review experience | Compare, detailed history, cross-mode undo/redo | Restart/branching/AI batch behavior; accessible compare; candidate distinction |
 | 9 Export/media integration | Save copy, JPEG/PNG quality/metadata, destination lifecycle | No source overwrite; interrupted export cleanup; color/dimension parity both OSs |
 | 10 Licensing | Trial/subscription/lifetime/store restoration | Sandbox lifecycle and clock/offline tests; exact policy/pricing verified; no AI credits |
-| 11 Hardening | Device regression, privacy/security/performance/accessibility | G7-G11 complete; fuzz corpus, backup/network audit, no critical defects |
-| 12 Beta | Release packaging, support/recovery notes, beta cohort | G12 complete with signed platform builds and human store approval |
+| 11 Hardening | Device regression, privacy/security/performance/accessibility; tracked deferred Apple physical Metal certification | G7-G11 complete; fuzz corpus, backup/network audit, no critical defects; DH-APPLE-METAL-01 physical Apple PASS required for hardening acceptance |
+| 12 Beta | Release packaging, support/recovery notes, beta cohort | G12 complete with signed platform builds and human store approval; DH-APPLE-METAL-01 must PASS before Beta readiness completion or production release |
 
 History, compare, basic save-copy and capability admission cannot wait until late phases: their minimal contracts land with engine/manual work, and phases 8/9 complete their user experience. Likewise resource bounds exist before AI. Phase 4 refines existing safe baseline. Monetization never dictates engine design.
 
-## Next milestone definition
+## Historical milestone definitions
+
+Phase 2 is CLOSED. The entries below preserve historical scope and evidence; they authorize no further Phase 2 work or Phase 3 implementation.
 Phase 2 Step 1 acceptance: audited existing boundaries; approved [document/operation/history/persistence/ABI contracts](docs/contracts/image-document-v1.md); ADR 0008; deterministic metadata fixtures and failure-path tests; preservation and rerun of applicable Phase 0/1 gates. No shipping parser, pixel algorithms, GPU, AI or editing UI. Stop and report for human review.
 
 Step 2 is approved and user-attested fully CI passed. Authorized Step 3 implements the persistence/managed-asset foundation; current evidence and pending gates are in the [Step 3 report](docs/reports/phase-2-step-3.md). Proposed Step 4 is a separately reviewed bounded decode/metadata-verification contract and implementation milestone, with exact scope frozen before code. Image decoding/rendering require later authorization. The overall Phase 2 exit still requires reference pixels and renderer parity; Step 3 does not meet that full-phase exit.
