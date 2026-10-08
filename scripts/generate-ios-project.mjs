@@ -30,7 +30,7 @@ function sources(directory, files) {
   return { group, phase };
 }
 const appSources = sources('PixAuraAI', ['PixAuraApp.swift', 'ShellView.swift', 'ShellModel.swift', 'ShellState.swift']);
-const tests = sources('PixAuraAITests', ['ShellTests.swift']);
+const tests = sources('PixAuraAITests', ['ShellTests.swift', 'GpuHardwareTests.swift']);
 const uiTests = sources('PixAuraAIUITests', ['ShellUITests.swift']);
 const privacyRef = id(), privacyBuild = id(), resources = id();
 add(privacyRef, 'isa = PBXFileReference; lastKnownFileType = text.xml; path = PixAuraAI/PrivacyInfo.xcprivacy; sourceTree = "<group>";');

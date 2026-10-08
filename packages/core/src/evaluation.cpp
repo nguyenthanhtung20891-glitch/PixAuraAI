@@ -1,5 +1,5 @@
 #include "evaluation.hpp"
-#include "exposure_table.hpp"
+#include "exposure_gain.hpp"
 #include "geometry.hpp"
 #include <cmath>
 #include <limits>
@@ -19,9 +19,7 @@ double gain(int32_t ev) {
     need(ev >= -5000 && ev <= 5000, 7);
     // Floor quotient, nonnegative remainder: exact power-of-two scale of a
     // frozen binary64 constant, with no runtime transcendental function.
-    const int q = ev >= 0 ? ev / 1000 : (ev - 999) / 1000;
-    const int r = ev - q * 1000;
-    return std::ldexp(exposure_fraction[r], q);
+    return exposure_gain(ev);
 }
 void validate(const Stack& stack) {
     need(stack.size() <= PIXAURA_EVALUATION_MAX_OPERATIONS, 8);

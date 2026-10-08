@@ -67,9 +67,20 @@ set_source_files_properties(packages/core/src/decode_codec.c PROPERTIES COMPILE_
     "$<$<C_COMPILER_ID:MSVC>:/W4;/WX>;$<$<NOT:$<C_COMPILER_ID:MSVC>>:-Wall;-Wextra;-Wpedantic;-Werror>")
 target_sources(pixaura_core PRIVATE packages/core/src/decode.cpp packages/core/src/decode_api.cpp packages/core/src/working.cpp packages/core/src/evaluation.cpp packages/core/src/geometry.cpp packages/core/src/preview.cpp)
 target_link_libraries(pixaura_core PRIVATE pixaura_codecs)
+target_sources(pixaura_core PRIVATE packages/core/src/gpu.cpp)
 
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(gpu_test packages/core/tests/gpu_test.cpp)
+    target_link_libraries(gpu_test PRIVATE pixaura_core)
+    target_compile_features(gpu_test PRIVATE cxx_std_17)
+    pixaura_strict(gpu_test)
+    add_test(NAME gpu_test COMMAND gpu_test)
+    add_executable(gpu_allocation_test packages/core/tests/gpu_allocation_test.cpp packages/core/src/gpu.cpp)
+    target_include_directories(gpu_allocation_test PRIVATE packages/core/include)
+    target_compile_features(gpu_allocation_test PRIVATE cxx_std_17)
+    pixaura_strict(gpu_allocation_test)
+    add_test(NAME gpu_allocation_test COMMAND gpu_allocation_test)
     add_executable(preview_test packages/core/tests/preview_test.cpp packages/core/src/decode_api.cpp packages/core/src/preview.cpp
         packages/core/src/geometry.cpp packages/core/src/evaluation.cpp packages/core/src/working.cpp
         packages/core/src/document.cpp packages/core/src/decode.cpp)

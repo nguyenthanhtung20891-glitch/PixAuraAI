@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
       - run: node --version
-      - run: node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/document-contract.test.mjs tests/native-document.test.mjs tests/persistence.test.mjs tests/decode.test.mjs tests/working.test.mjs tests/evaluation.test.mjs tests/geometry.test.mjs tests/geometry-execution.test.mjs tests/preview.test.mjs
+      - run: node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/document-contract.test.mjs tests/native-document.test.mjs tests/persistence.test.mjs tests/decode.test.mjs tests/working.test.mjs tests/evaluation.test.mjs tests/geometry.test.mjs tests/geometry-execution.test.mjs tests/preview.test.mjs tests/gpu.test.mjs
       - run: cmake -S . -B build/host -DCMAKE_BUILD_TYPE=Debug
       - run: cmake --build build/host --config Debug
       - run: ctest --test-dir build/host -C Debug --output-on-failure --verbose
@@ -47,7 +47,7 @@ jobs:
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
       - name: Cross-host document contract fixtures
-        run: node --test tests/document-contract.test.mjs tests/native-document.test.mjs tests/persistence.test.mjs tests/decode.test.mjs tests/working.test.mjs tests/evaluation.test.mjs tests/geometry.test.mjs tests/geometry-execution.test.mjs tests/preview.test.mjs
+        run: node --test tests/document-contract.test.mjs tests/native-document.test.mjs tests/persistence.test.mjs tests/decode.test.mjs tests/working.test.mjs tests/evaluation.test.mjs tests/geometry.test.mjs tests/geometry-execution.test.mjs tests/preview.test.mjs tests/gpu.test.mjs
       - name: macOS core, Swift C ABI, unsigned iOS build and simulator tests
         run: bash scripts/check-apple.sh
       - name: Preserve Apple test evidence

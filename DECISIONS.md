@@ -1,7 +1,10 @@
 # Architectural decision index
 
+Phase 2 exit closure addresses only the ORIGINAL first GPU pipeline criterion (identity and exposure/1/1); it is not an additional Phase 2 step. Accepted Steps 1-11 remain complete. Physical-device Vulkan/Metal certification is authorized under [ADR 0018](docs/adr/0018-physical-gpu-certification.md) and [GPU tile v1](docs/contracts/gpu-tile-v1.md). Hardware certification remains BLOCKED pending real Android Vulkan and Apple Metal dispatch/readback/parity evidence; hosted SwiftShader and Apple compilation do not satisfy this gate. See [exit-closure report](docs/reports/phase-2-exit-closure.md). Existing ceilings and CPU authority remain unchanged. Phase 3 is not started.
+
 | ADR | Status | Decision |
 | --- | --- | --- |
+| [0018](docs/adr/0018-physical-gpu-certification.md) | Accepted | Physical Vulkan/Metal dispatch and shared CPU parity; bounded FP32 tiles and fallback; separate hardware certification |
 | [0017](docs/adr/0017-interactive-preview-generation-fence.md) | Accepted | Fixed nonwrapping context request generations; latest-wins native and platform publication fences; stop/join ownership |
 | [0001](docs/adr/0001-native-shells-shared-core.md) | Accepted | Native mobile UIs; shared C++17 C ABI |
 | [0002](docs/adr/0002-local-project-history.md) | Accepted | Immutable originals, local SQLite + asset store, shared revision graph |

@@ -1,0 +1,49 @@
+package ai.pixaura.app
+
+import ai.pixaura.bridge.GpuValidation
+import android.os.Build
+import android.util.Log
+import androidx.test.platform.app.InstrumentationRegistry
+import org.json.JSONObject
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class GpuHardwareTest {
+    @Test fun physicalVulkanCertification() {
+        val args = InstrumentationRegistry.getArguments()
+        val controlled = args.getString("pixauraHardware") == "true"
+        val evidence = JSONObject(GpuValidation().nativeEvidence())
+        evidence.put("device_model", "${Build.MANUFACTURER} ${Build.MODEL}")
+        evidence.put("os_version", Build.VERSION.RELEASE)
+        evidence.put("controlled_hardware_gate", controlled)
+        // Physical provenance is required in addition to the native device probe.
+        val emulator = Build.FINGERPRINT.startsWith("generic") ||
+            Build.MODEL.contains("Emulator", ignoreCase = true) ||
+            Build.HARDWARE in setOf("ranchu", "goldfish")
+        if (emulator && evidence.optString("status") == "PASS") {
+            evidence.put("status", "UNSUPPORTED")
+            evidence.put("reason", "Physical Android device required")
+        }
+        InstrumentationRegistry.getInstrumentation().targetContext.openFileOutput(
+            "gpu-hardware.json", android.content.Context.MODE_PRIVATE,
+        ).use { it.write(evidence.toString().toByteArray(Charsets.UTF_8)) }
+        Log.i("PixAuraGPU", evidence.toString())
+        println("PIXAURA_GPU_EVIDENCE ${evidence}")
+        println("Vulkan hardware validation: ${evidence.getString("status")} " +
+            "${evidence.optInt("parity_passed")}/${evidence.optInt("expected_test_count")} expected parity cases; " +
+            "GPU=${evidence.optString("gpu")}")
+        if (controlled) {
+            assertTrue("Physical device required: $evidence", !emulator)
+            assertEquals(evidence.toString(), "PASS", evidence.getString("status"))
+            assertTrue(evidence.getBoolean("hardware"))
+            assertTrue(evidence.getBoolean("pipeline") && evidence.getBoolean("dispatch"))
+            assertEquals(evidence.getInt("test_count"), evidence.getInt("parity_passed"))
+            assertEquals(evidence.getInt("expected_test_count"), evidence.getInt("test_count"))
+        } else {
+            // Hosted SwiftShader is a rejection regression, never certification.
+            if (emulator) assertEquals(evidence.toString(), "UNSUPPORTED", evidence.getString("status"))
+            assertTrue(evidence.toString(), evidence.getString("status") != "FAIL")
+        }
+    }
+}
