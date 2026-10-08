@@ -36,6 +36,8 @@ Fault regression distinguishes injected adapter status/parity faults from real d
 
 Both controllers require a clean committed checkout so the recorded source SHA identifies the tested repository content.
 
+Android evidence transport uses an exclusive wrapper-created run directory under `/data/local/tmp`, a repository-owned publisher invoked by instrumentation as shell, and at most 16 KiB of synthetic diagnostic JSON. It survives Gradle/UTP uninstall and never relies on app-private readback or a hardcoded application ID. The wrapper reads only the exact current artifact, requires current validation_run/source_sha, successful test exit, hardware/controlled provenance, completed pipeline/dispatch and exactly 14/14 parity, then removes its artifact and publisher. Existing Node engineering tooling validates the bounded host artifact. Hosted synthetic transport regression has no hardware certification authority.
+
 Android, one previously authorized connected physical device, installed SDK/JDK and Gradle inputs:
 
 ```powershell

@@ -8,19 +8,28 @@ if ($LASTEXITCODE -ne 0 -or $sourceChanges) { throw 'FAIL: hardware certificatio
 if (-not $SdkRoot) { throw 'Set ANDROID_HOME or supply -SdkRoot for the installed SDK.' }
 $adbPath = Join-Path $SdkRoot 'platform-tools\adb.exe'
 if (-not (Test-Path -LiteralPath $adbPath)) { throw 'Installed adb.exe is required.' }
+if (-not (Get-Command node -ErrorAction SilentlyContinue)) { throw 'Node is required for bounded evidence validation.' }
 # A single previously authorized connected device; no serial recorded.
 $state = & $adbPath get-state
 if ($LASTEXITCODE -ne 0 -or "$state".Trim() -ne 'device') { throw 'One authorized physical Android device must be connected.' }
 $qemu = & $adbPath shell getprop ro.kernel.qemu
 if ($LASTEXITCODE -ne 0 -or "$qemu".Trim() -eq '1') { throw 'UNSUPPORTED: emulator cannot certify physical hardware.' }
 $validationRun = [Guid]::NewGuid().ToString('N')
+$deviceRunPath = "/data/local/tmp/pixaura-gpu-$validationRun"
 $runPath = Join-Path $workspacePath ('build\gpu-android-hardware\run-' + $validationRun)
 New-Item -ItemType Directory -Force -Path $runPath | Out-Null
 $previousTemp = $env:TEMP
 $previousTmp = $env:TMP
 $previousSdk = $env:ANDROID_HOME
 $previousAndroidUser = $env:ANDROID_USER_HOME
+$deviceDirectoryCreated = $false
 try {
+    # Exclusive fresh directory: never read an old app-private file or scan artifacts.
+    & $adbPath shell "umask 077; mkdir '$deviceRunPath'"
+    if ($LASTEXITCODE -ne 0) { throw 'FAIL: fresh evidence directory creation failed.' }
+    $deviceDirectoryCreated = $true
+    & $adbPath push "$PSScriptRoot\publish-gpu-android-evidence.sh" "$deviceRunPath/publish.sh" | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'FAIL: evidence publisher setup failed.' }
     $env:TEMP = $runPath
     $env:TMP = $runPath
     $env:ANDROID_HOME = $SdkRoot
@@ -36,19 +45,20 @@ try {
         "-Pandroid.testInstrumentationRunnerArguments.pixauraRun=$validationRun" `
         "-Pandroid.testInstrumentationRunnerArguments.pixauraSha=$sourceSha" 2>&1 | Tee-Object -FilePath (Join-Path $runPath 'gradle.log')
     $testExit = $LASTEXITCODE
-    $json = & $adbPath shell run-as ai.pixaura.app cat files/gpu-hardware.json
+    # Bounded read of the exact current shell-owned artifact after UTP uninstall.
+    $json = & $adbPath shell "test -f '$deviceRunPath/evidence.json' && head -c 16385 '$deviceRunPath/evidence.json'"
     if ($LASTEXITCODE -ne 0) { throw 'FAIL: hardware evidence readback failed.' }
-    $json | Set-Content -LiteralPath (Join-Path $runPath 'evidence.json') -Encoding UTF8
-    $evidence = ($json -join "`n") | ConvertFrom-Json
-    if ($evidence.validation_run -ne $validationRun -or $evidence.source_sha -ne $sourceSha) {
-        throw 'FAIL: stale or mismatched hardware evidence; current execution is not certified.'
-    }
-    Write-Output "Vulkan hardware validation: $($evidence.status) $($evidence.parity_passed)/$($evidence.test_count) parity cases; GPU=$($evidence.gpu)"
+    [System.IO.File]::WriteAllText((Join-Path $runPath 'evidence.json'), ($json -join "`n"),
+        (New-Object System.Text.UTF8Encoding($false)))
+    & node "$PSScriptRoot\gpu-android-evidence.mjs" (Join-Path $runPath 'evidence.json') $validationRun $sourceSha $testExit
+    if ($LASTEXITCODE -ne 0) { throw 'Hardware certification did not PASS; Phase 2 remains BLOCKED.' }
     Write-Output "Evidence: $runPath"
-    if ($testExit -ne 0 -or $evidence.status -ne 'PASS' -or -not $evidence.hardware -or -not $evidence.controlled_hardware_gate) {
-        throw 'Hardware certification did not PASS; Phase 2 remains BLOCKED.'
-    }
 } finally {
+    # Only this invocation's synthetic diagnostic artifact; no phone data scans.
+    if ($deviceDirectoryCreated) {
+        & $adbPath shell "rm -f '$deviceRunPath/evidence.json' '$deviceRunPath/publish.sh'; rmdir '$deviceRunPath'" | Out-Null
+        if ($LASTEXITCODE -ne 0) { Write-Warning 'Current synthetic evidence cleanup failed.' }
+    }
     $env:TEMP = $previousTemp
     $env:TMP = $previousTmp
     $env:ANDROID_HOME = $previousSdk

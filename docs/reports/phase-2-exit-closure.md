@@ -39,6 +39,8 @@ Both need actual physical-device hardware PASS with completed dispatch/readback 
 Android evidence additionally binds a fresh wrapper-generated validation_run/source_sha to the current invocation, rejecting stale saved device JSON. Apple uses a new result bundle per run. Final hosted closure includes this evidence-freshness hardening and is supplied in delivery.
 Both hardware controllers reject an uncommitted source tree before certification, preserving exact-SHA evidence provenance.
 
+Android evidence readback remediation: the owner observed physical test success followed by harness failure on baseline `4f628e0737b6895194e3494f111b3fb01317b4ca`; UTP legitimately uninstalled both correct application IDs. The fixed wrapper uses a bounded run-specific shell-owned diagnostic artifact that survives uninstall, preserves all provenance/hardware/parity checks, and adds host and Android lifecycle regressions. See the [Android remediation audit](phase-2-gpu-android-hardware.md). This is transport evidence only; Android certification awaits the owner's fixed-harness rerun. Apple status is unchanged.
+
 ## Limitations and acceptance
 
 Only single-operation identity/exposure tiles and dedicated diagnostics. No whole-stack GPU scheduler, context/preview GPU integration, production editing UI or additional GPU tools. Driver internal memory/terminal waits are opaque and not a peak-RSS or hard-latency guarantee. Injected failure tests do not prove physical vendor-driver loss behavior. Final Phase 2 acceptance requires both physical Android Vulkan and physical Apple Metal evidence; until then Phase 2 remains BLOCKED / NOT CLOSED.

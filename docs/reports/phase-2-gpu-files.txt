@@ -30,9 +30,12 @@ platforms/ios/PixAuraAITests/GpuHardwareTests.swift
 QUALITY_GATES.md
 ROADMAP.md
 scripts/check-apple.sh
+scripts/check-android-emulator.sh
 scripts/check-gpu-android-hardware.ps1
 scripts/check-gpu-apple-hardware.sh
 scripts/check-metal-shaders.sh
 scripts/embed-spirv.cmake
 scripts/generate-ios-project.mjs
+scripts/gpu-android-evidence.mjs
+scripts/publish-gpu-android-evidence.sh
 tests/gpu.test.mjs

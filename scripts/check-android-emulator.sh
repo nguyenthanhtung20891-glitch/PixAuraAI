@@ -304,7 +304,18 @@ phase=unlock
 adb_command -s "$ANDROID_SERIAL" shell input keyevent 82
 phase=instrumentation
 echo "Executing JNI/Compose tests (independent budget ${test_timeout}s)"
+transport_run="$("$node_command" -e 'process.stdout.write(require("node:crypto").randomBytes(16).toString("hex"))')"
+transport_path="/data/local/tmp/pixaura-gpu-$transport_run"
+adb_command -s "$ANDROID_SERIAL" shell "umask 077; mkdir '$transport_path'"
+adb_command -s "$ANDROID_SERIAL" push scripts/publish-gpu-android-evidence.sh "$transport_path/publish.sh"
 cd platforms/android
 timeout --kill-after=10s "${test_timeout}s" bash gradlew --no-daemon --dependency-verification strict \
+    "-Pandroid.testInstrumentationRunnerArguments.pixauraTransportRun=$transport_run" \
     connectedDebugAndroidTest 2>&1 | tee "$evidence/instrumentation.log"
+# Read the exact synthetic artifact after UTP's package lifecycle completes.
+# This regression has no GPU PASS authority and reads no app-private phone data.
+transport_json="$(adb_command -s "$ANDROID_SERIAL" shell "test -f '$transport_path/evidence.json' && head -c 16385 '$transport_path/evidence.json'")"
+[[ "$transport_json" == "{\"validation_run\":\"$transport_run\",\"status\":\"TRANSPORT_TEST_ONLY\"}" ]]
+printf '%s\n' "$transport_json" > "$evidence/transport-regression.json"
+adb_command -s "$ANDROID_SERIAL" shell "rm -f '$transport_path/evidence.json' '$transport_path/publish.sh' && rmdir '$transport_path'"
 phase=complete
