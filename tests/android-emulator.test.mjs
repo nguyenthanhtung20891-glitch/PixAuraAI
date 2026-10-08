@@ -18,6 +18,7 @@ function runScenario(scenario) {
   fs.mkdirSync(path.join(directory, 'state'));
   write('scripts/check-android-emulator.sh', fs.readFileSync(path.join(root, 'scripts/check-android-emulator.sh')));
   write('scripts/assert-android-userdata.mjs', fs.readFileSync(path.join(root, 'scripts/assert-android-userdata.mjs')));
+  write('scripts/publish-gpu-android-evidence.sh', fs.readFileSync(path.join(root, 'scripts/publish-gpu-android-evidence.sh')));
   write('sdk/system-images/android-35/google_apis/x86_64/data/empty_data_disk', 'factory-empty userdata marker');
   if (scenario === 'unsupported-factory-data') {
     fs.unlinkSync(path.join(directory, 'sdk/system-images/android-35/google_apis/x86_64/data/empty_data_disk'));
@@ -126,6 +127,23 @@ case "$*" in
       echo 'Error: package manager not ready'
     else echo 'package:/system/framework/framework-res.apk'; fi ;;
   'shell input keyevent 82') echo unlocked ;;
+  'shell umask 077; mkdir '*)
+    if [[ "$MOCK_SCENARIO" == transport-setup-failure ]]; then exit 1; fi
+    if [[ "$*" =~ pixaura-gpu-([0-9a-f]{32}) ]]; then
+      echo "\${BASH_REMATCH[1]}" > "$MOCK_STATE_DIRECTORY/transport-run"
+      mkdir "$MOCK_STATE_DIRECTORY/artifact"
+    else exit 92; fi ;;
+  'push scripts/publish-gpu-android-evidence.sh '*)
+    cp "$2" "$MOCK_STATE_DIRECTORY/artifact/publish.sh" ;;
+  'shell test -f '*)
+    run="$(cat "$MOCK_STATE_DIRECTORY/transport-run")"
+    [[ "$*" == *"/data/local/tmp/pixaura-gpu-$run/evidence.json"* ]] || exit 92
+    [[ -f "$MOCK_STATE_DIRECTORY/artifact/evidence.json" ]] || exit 1
+    [[ ! -f "$MOCK_STATE_DIRECTORY/installed-target" ]] || exit 93
+    head -c 16385 "$MOCK_STATE_DIRECTORY/artifact/evidence.json" ;;
+  'shell rm -f '*)
+    rm "$MOCK_STATE_DIRECTORY/artifact/evidence.json" "$MOCK_STATE_DIRECTORY/artifact/publish.sh"
+    rmdir "$MOCK_STATE_DIRECTORY/artifact" ;;
   'logcat -d -t 200') echo synthetic-logcat ;;
   *) exit 91 ;;
 esac
@@ -142,6 +160,23 @@ if [[ "$MOCK_SCENARIO" == test-failure ]]; then
   exit 7
 fi
 if [[ "$MOCK_SCENARIO" == test-timeout ]]; then sleep 30; fi
+run=''
+for argument in "$@"; do
+  if [[ "$argument" == -Pandroid.testInstrumentationRunnerArguments.pixauraTransportRun=* ]]; then
+    run="\${argument#*=}"
+  fi
+done
+[[ "$run" =~ ^[0-9a-f]{32}$ ]] || exit 94
+[[ "$run" == "$(cat "$MOCK_STATE_DIRECTORY/transport-run")" ]] || exit 95
+touch "$MOCK_STATE_DIRECTORY/installed-target"
+json="{\\"validation_run\\":\\"$run\\",\\"status\\":\\"TRANSPORT_TEST_ONLY\\"}"
+if [[ "$MOCK_SCENARIO" == stale-transport ]]; then json='{"validation_run":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","status":"TRANSPORT_TEST_ONLY"}'; fi
+if [[ "$MOCK_SCENARIO" != missing-transport ]]; then
+  encoded="$(printf %s "$json" | base64 -w0)"
+  bash "$MOCK_STATE_DIRECTORY/artifact/publish.sh" "$encoded" || exit 96
+fi
+rm "$MOCK_STATE_DIRECTORY/installed-target"
+echo uninstall-target-and-test >> "$MOCK_STATE_DIRECTORY/calls.log"
 `);
   let executionPath = `${path.join(directory, 'bin')}:${path.dirname(process.execPath)}:${process.env.PATH}`;
   if (scenario === 'missing-mke2fs' || scenario === 'missing-node') {
@@ -230,7 +265,9 @@ test('emulator orchestration waits for device, boot and package manager before i
   assert.equal(result.status, 0, result.stderr);
   assert.equal(result.phase, 'complete');
   assert.match(result.stdout, /device-visibility ready[\s\S]*boot-completion ready[\s\S]*package-manager ready/);
-  assert.match(result.gradleArgs, /--dependency-verification strict connectedDebugAndroidTest/);
+  assert.match(result.gradleArgs, /--dependency-verification strict/);
+  assert.match(result.gradleArgs, /-Pandroid.testInstrumentationRunnerArguments.pixauraTransportRun=[0-9a-f]{32} connectedDebugAndroidTest/);
+  assert.match(result.calls, /uninstall-target-and-test[\s\S]*shell test -f/);
   assert.equal(result.testResultsWritten, true);
   assert.match(result.calls, /emulator-cleanup/);
   assert.match(result.acceleration, /Emulator acceleration: off/);
@@ -238,6 +275,15 @@ test('emulator orchestration waits for device, boot and package manager before i
   assert.equal(result.versionArgs.trim(), '-no-window -version');
   assert.match(result.toolLog, /PATH=.*\nmke2fs=|PATH=[\s\S]*mke2fs=/);
 });
+
+for (const scenario of ['transport-setup-failure', 'missing-transport', 'stale-transport']) {
+  test(scenario + ': current synthetic evidence is mandatory after the package lifecycle', () => {
+    const result = runScenario(scenario);
+    assert.notEqual(result.status, 0);
+    assert.equal(result.phase, 'instrumentation');
+    if (scenario !== 'transport-setup-failure') assert.match(result.calls, /uninstall-target-and-test/);
+  });
+}
 
 for (const scenario of ['missing-mke2fs', 'missing-node', 'missing-sdk-qemu-img']) {
   test(scenario + ': availability preflight names the absent tool and never prepares or launches a disk', () => {

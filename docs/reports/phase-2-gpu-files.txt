@@ -39,3 +39,4 @@ scripts/generate-ios-project.mjs
 scripts/gpu-android-evidence.mjs
 scripts/publish-gpu-android-evidence.sh
 tests/gpu.test.mjs
+tests/android-emulator.test.mjs
