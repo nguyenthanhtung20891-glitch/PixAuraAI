@@ -249,10 +249,10 @@ int main(int argc,char** argv) {
         CHECK(pixaura_preview_begin(&raster,1,&ticket)==0);
         CHECK(pixaura_manual_render(&context,&g,&base,&raster,&original,&wl,nullptr,&ticket,&pr,&preview,&rendered)==0&&rendered==1001);
         CHECK(pixaura_preview_query(&raster,&preview,&pm)==0);
-        const auto displayed=preview;failed=preview;restricted=wl;restricted.image_bytes=16;
+        const auto tone_displayed=preview;failed=preview;restricted=wl;restricted.image_bytes=16;
         CHECK(pixaura_preview_begin(&raster,1,&ticket)==0);
-        CHECK(pixaura_manual_render(&context,&g,&base,&raster,&original,&restricted,nullptr,&ticket,&pr,&failed,&rendered)==8&&failed.serial==displayed.serial&&rendered==1001);
-        CHECK(pixaura_preview_query(&raster,&displayed,&pm)==0&&pixaura_preview_release(&raster,&preview)==0);
+        CHECK(pixaura_manual_render(&context,&g,&base,&raster,&original,&restricted,nullptr,&ticket,&pr,&failed,&rendered)==8&&failed.serial==tone_displayed.serial&&rendered==1001);
+        CHECK(pixaura_preview_query(&raster,&tone_displayed,&pm)==0&&pixaura_preview_release(&raster,&preview)==0);
         pixaura_document_handle proposal{};revision=id(++fresh);
         CHECK(pixaura_manual_commit(&context,&g,&base,ptr(revision),32,&proposal,&tone_changed)==0&&tone_changed==1);
         CHECK(pixaura_manual_commit(&context,&g,&base,ptr(revision),32,&proposal,&tone_changed)==13);
