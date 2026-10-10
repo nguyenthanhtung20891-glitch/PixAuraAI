@@ -1,6 +1,6 @@
 # Phase 3 Step 4: Detail Tools
 
-Status: IN PROGRESS, not FULL PASS. Authorized baseline
+Status: COMPLETE / FULL PASS. Authorized baseline
 `cc01732644fc97199529802a8cf2db11e23bfea5`. No Step 5 work.
 
 ## Contract freeze and audit
@@ -43,7 +43,17 @@ Observed local results on the Step 4 implementation:
 - Storage: old 1->2 coverage retained; empty/populated/mixed tone/branch/redo 2->3, exact schema fingerprints, complete canonical envelope equality, reopen, IDs/order/source/current/session/generation/epoch preservation, malformed/application/version rejection and repeated migration rejection PASS. Four controlled precommit faults, allocation and SQLite NOMEM/IOERR/FULL/INTERRUPT rollback PASS. Five new 2->3 process-crash boundaries PASS (19 crash children total including existing durability cases).
 - Shell syntax, actionlint, frozen schema-1/2 source fingerprint assertions, deferred Apple gate equality and git diff --check: PASS.
 
-Full Linux source checks: 103/103 PASS, zero skipped. Android debug/release assembly, debug/release lint, JVM tests (2 debug + 2 release) and instrumentation APK build: BUILD SUCCESSFUL. Local emulator execution is not claimed. On cf35ac863f95276e1183bad4dc992d2df565ab5b, Linux/source/sanitizer/workflow-lint and both Android ABI jobs passed; Android app build/JVM and 9 emulator instrumentation tests passed. Apple native passed 23/23. MSVC rejected an integer initializer in the new float fixture; Swift exposed an old positional exposure lookup after registry expansion. Both test-only defects are corrected (typed 0.0f; stable tool-ID lookup), preserving warnings and assertions. On b7b690708f476aa506ae7f3103c48f10d6da202b, all seven Foundation jobs passed, including MSVC and Apple native/Swift/iOS contracts. Android app build passed but emulator unlock timed out before instrumentation: an infrastructure readiness failure, not a detail pixel failure. Unlock now uses the existing bounded readiness retry with unchanged per-command timeout and required successful unlock; transient/persistent negative regression coverage was added. Local complete source regression after unlock correction: 104/104 PASS, zero skipped. iOS app on b7b6907 passed debug/release builds, Swift contracts and six app/UI tests. Hosted closure remains pending. No pending or skipped gate is PASS. Initial hosted Windows found a source-checkout CRLF hashing defect in the new historical-file assertion; it is corrected by LF normalization, without changing either historical SQL or the native exact SQL fingerprint policy. Corrected focused source tests: 4/4 PASS.
+Full Linux source checks: initially 103/103, and 104/104 after the added unlock regression, zero skipped. Local Android debug/release assembly, debug/release lint, JVM tests (2 debug + 2 release) and instrumentation APK build: BUILD SUCCESSFUL. Local emulator execution is not claimed.
+
+Final implementation SHA: `333d3e9c5d8ff8ffb5ce1934ff8d7a93385df893`.
+All ten hosted jobs passed on this exact SHA:
+
+- [Foundation boundaries 38068770000](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38068770000): SUCCESS, 7/7 jobs. Windows MSVC and Linux 23/23 native; ASan/UBSan 25/25; both Android NDK ABIs; workflow lint; Apple native 23/23, macOS Swift 10/10, iOS simulator Swift 10/10 and unsigned boundary build.
+- [Native application shells 38068769987](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38068769987): SUCCESS, 3/3 jobs. Source 104/104; Android debug/release builds, JVM, lint and 9/9 emulator JNI/Compose/transport instrumentation; iOS debug/release app builds and 6/6 app/UI tests (5 unit + 1 UI), plus shared Swift contracts.
+
+Initial hosted remediation was limited to test portability: LF-normalized historical-source hashes for CRLF checkouts; typed `0.0f` fixture initialization under MSVC warnings-as-errors; stable exposure tool-ID lookup in Swift after registry expansion. A subsequent Android infrastructure failure timed out at unlock before instrumentation. The existing bounded readiness retry now requires successful unlock, retaining per-command timeout, no skipped tests, and transient/persistent failure regression coverage. No numerical, schema, warning or sanitizer gate was weakened.
+
+The closure documentation commit is validated again on its own exact SHA; its final workflow IDs/conclusions are supplied with delivery. This does not replace or waive any implementation gate. No pending or unobserved execution is counted as PASS. Physical Apple hardware certification is not claimed.
 
 ## Scope and conflicts
 
