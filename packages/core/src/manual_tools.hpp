@@ -15,7 +15,7 @@ struct Descriptor {
     const Parameter* parameters;
     std::size_t parameter_count;
 };
-const std::array<Descriptor, 9>& registry();
+const std::array<Descriptor, 11>& registry();
 // Validates controlled startup tables; never installs or changes the registry.
 int32_t validate_descriptors(const Descriptor* descriptors, std::size_t count);
 const Descriptor* find(std::string_view tool, uint32_t operation_version = 1,

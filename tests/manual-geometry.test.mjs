@@ -14,7 +14,7 @@ test('geometry manual integration reuses shared history and preview boundaries',
 });
 test('geometry scope and remaining frozen steps stay bounded', () => {
   const roadmap = read('ROADMAP.md');
-  for (let n=4;n<=8;n++) assert.match(roadmap, new RegExp(`\\| ${n} \\|[^\\n]+\\| NOT STARTED \\|`));
+  for (let n=5;n<=8;n++) assert.match(roadmap, new RegExp(`\\| ${n} \\|[^\\n]+\\| NOT STARTED \\|`));
   assert.match(roadmap, /\| 3 \| Tone & Color Tools \| (IN PROGRESS|COMPLETE \/ FULL PASS) \|/);
   const contract = read('docs/contracts/manual-geometry-v1.md');
   for (const term of ['PROPOSED / unimplemented', '0..999999', '1..1000000', '0..3', 'No clamp', '64 owned handles', 'STALE_BASE', '1,001 updates', 'both', 'PRV1']) assert.ok(contract.includes(term));

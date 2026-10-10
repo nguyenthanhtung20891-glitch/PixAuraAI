@@ -15,7 +15,7 @@ int32_t pixaura_storage_check(uint32_t version,const uint8_t* root,uint64_t byte
 int32_t pixaura_storage_migrate(uint32_t version,const uint8_t* root,uint64_t bytes,uint32_t expected,uint32_t target,pixaura_storage_info* output){
     if(version!=1)return 2;
     if(!root||!output||bytes==0||bytes>1024)return 1;
-    if(!((expected==1&&(target==1||target==2))||(expected==2&&target==2)))return 4;
+    if(!((expected==1&&(target==1||target==2))||(expected==2&&(target==2||target==3))||(expected==3&&target==3)))return 4;
     try{
         pixaura::storage::Repository repository(std::string_view(reinterpret_cast<const char*>(root),static_cast<std::size_t>(bytes)));
         repository.migrate(expected,target);

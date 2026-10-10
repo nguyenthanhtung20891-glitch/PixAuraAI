@@ -21,7 +21,7 @@ final class ManualBoundaryTests: XCTestCase {
         XCTAssertEqual(fixture.withUnsafeBufferPointer { m in session.withUnsafeBufferPointer { s in
             pixaura_document_open(1, &context, m.baseAddress, UInt64(m.count), s.baseAddress, 32, &base, nil)
         } }, 0)
-        for descriptor in tools where descriptor["category"] as? String == "tone_color" {
+        for descriptor in tools where ["tone_color", "detail"].contains(descriptor["category"] as? String ?? "") {
             let tool = try XCTUnwrap(descriptor["tool_id"] as? String)
             let parameters = try XCTUnwrap(descriptor["parameters"] as? [[String: Any]])
             let name = try XCTUnwrap(parameters[0]["name"] as? String)
@@ -128,7 +128,7 @@ final class ManualBoundaryTests: XCTestCase {
         XCTAssertEqual(bytes.last, 10)
         let object = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(bytes)) as? [String: Any])
         let tools = try XCTUnwrap(object["tools"] as? [[String: Any]])
-        XCTAssertEqual(tools.compactMap { $0["tool_id"] as? String }, ["pixaura.brightness", "pixaura.contrast", "pixaura.crop", "pixaura.exposure", "pixaura.highlights", "pixaura.rotate", "pixaura.saturation", "pixaura.shadows", "pixaura.temperature"])
+        XCTAssertEqual(tools.compactMap { $0["tool_id"] as? String }, ["pixaura.blur", "pixaura.brightness", "pixaura.contrast", "pixaura.crop", "pixaura.exposure", "pixaura.highlights", "pixaura.rotate", "pixaura.saturation", "pixaura.shadows", "pixaura.sharpen", "pixaura.temperature"])
         let parameters = try XCTUnwrap(tools[3]["parameters"] as? [[String: Any]])
         XCTAssertEqual(parameters[0]["minimum"] as? Int, -5000)
         XCTAssertEqual(parameters[0]["maximum"] as? Int, 5000)

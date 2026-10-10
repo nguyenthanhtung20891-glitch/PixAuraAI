@@ -94,7 +94,7 @@ int main(int argc, char** argv) {
     invalid(replace(golden, "\"schema_version\":1", "\"schema_version\":2"), PIXAURA_DOCUMENT_UNSUPPORTED_SCHEMA);
     for (const auto& token : {"1.0", "1e0", "01", "-0", "NaN", "Infinity", "9007199254740992", "99999999999999999999999999999", "true", "null"})
         invalid(replace(golden, "\"schema_version\":1", std::string("\"schema_version\":") + token));
-    invalid(replace(golden, "pixaura.exposure", "pixaura.blur"), PIXAURA_DOCUMENT_UNSUPPORTED_OPERATION);
+    invalid(replace(golden, "pixaura.exposure", "pixaura.denoise"), PIXAURA_DOCUMENT_UNSUPPORTED_OPERATION);
     invalid(replace(golden, "\"operation_version\":1", "\"operation_version\":2"), PIXAURA_DOCUMENT_UNSUPPORTED_OPERATION);
     invalid(replace(golden, "\"parameter_version\":1", "\"parameter_version\":2"), PIXAURA_DOCUMENT_UNSUPPORTED_OPERATION);
     invalid(replace(golden, "1250", "5001"), PIXAURA_DOCUMENT_INVALID_PARAMETERS);

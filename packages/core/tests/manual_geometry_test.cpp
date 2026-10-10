@@ -1,6 +1,7 @@
 #include "../src/document.hpp"
 #include "../src/storage.hpp"
 #include "../src/tone.hpp"
+#include "../src/detail.hpp"
 #include "pixaura/manual.h"
 #include "pixaura/geometry.h"
 #include "../../../tests/fixtures/decode/fixtures.h"
@@ -228,7 +229,10 @@ int main(int argc,char** argv) {
     // Step 3 shared boundary: the same controller and PRV1 compose tone with
     // the durable geometry stack. No platform slider/domain implementation.
     CHECK(repository->version()==1);repository->migrate(1,2);CHECK(repository->version()==2);
-    for(const auto& spec:tone::specs){
+    std::vector<tone::Spec> manual_specs;for(const auto& spec:tone::specs)manual_specs.push_back(spec);
+    for(const auto& spec:detail::specs)manual_specs.push_back({spec.type,spec.parameter,spec.unit,spec.low,spec.high,spec.neutral});
+    for(const auto& spec:manual_specs){
+        if(detail::find(spec.type)&&repository->version()==2){const auto prior_state=document::serialize(*repository->read().snapshot).value;repository->migrate(2,3);CHECK(repository->version()==3&&document::serialize(*repository->read().snapshot).value==prior_state);}
         const std::string tool(spec.type),parameter(spec.parameter);
         const auto value=spec.neutral==spec.high?spec.low:spec.high;
         const auto edit_id=id(++fresh);

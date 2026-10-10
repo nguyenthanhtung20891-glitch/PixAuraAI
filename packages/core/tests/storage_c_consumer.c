@@ -69,6 +69,10 @@ int main(int argc,char** argv) {
         assert(pixaura_storage_check(1,(const uint8_t*)path,strlen(path),&info)==0&&info.storage_version==2);
         info=before;assert(pixaura_storage_migrate(1,(const uint8_t*)path,strlen(path),1,2,&info)==4&&memcmp(&info,&before,sizeof(info))==0);
         assert(pixaura_storage_migrate(1,(const uint8_t*)path,strlen(path),2,2,&info)==0&&info.storage_version==2);
+        assert(pixaura_storage_migrate(1,(const uint8_t*)path,strlen(path),2,3,&info)==0&&info.storage_version==3);
+        assert(pixaura_storage_check(1,(const uint8_t*)path,strlen(path),&info)==0&&info.storage_version==3);
+        info=before;assert(pixaura_storage_migrate(1,(const uint8_t*)path,strlen(path),2,3,&info)==4&&memcmp(&info,&before,sizeof(info))==0);
+        assert(pixaura_storage_migrate(1,(const uint8_t*)path,strlen(path),3,3,&info)==0&&info.storage_version==3);
     }
     puts("C storage schema/reopen/explicit migration boundary PASS");return 0;
 }

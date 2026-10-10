@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
         std::fflush(stderr); std::_Exit(1);
     });
     CHECK(argc == 3);
-    CHECK(registry().size() == 9 && validate_descriptors(registry().data(), registry().size()) == 0);
+    CHECK(registry().size() == 11 && validate_descriptors(registry().data(), registry().size()) == 0);
     CHECK(find("pixaura.resize") == nullptr && find("pixaura.exposure", 2) == nullptr);
     for(const auto& spec:pixaura::tone::specs){const auto* descriptor=find(spec.type);CHECK(descriptor&&descriptor->parameter_count==1);const auto& p=descriptor->parameters[0];CHECK(p.name==spec.parameter&&p.unit==spec.unit&&p.minimum==spec.low&&p.maximum==spec.high&&p.neutral==spec.neutral&&p.step==1);}
     auto table = registry(); table[1] = table[0]; CHECK(validate_descriptors(table.data(), table.size()) != 0);
@@ -135,7 +135,7 @@ int main(int argc, char** argv) {
     auto unchanged = gesture(base, "pixaura.exposure", replace_id); CHECK(unchanged->update(request("exposure", "{\"milli_ev\":1250}")).code == 0);
     CHECK(unchanged->commit(base, id("208")).value == base);
     CHECK(Gesture::begin(base, id("a3"), "pixaura.exposure", id("12")).code != 0);
-    CHECK(Gesture::begin(base, id("a3"), "pixaura.blur").code == PIXAURA_DOCUMENT_UNSUPPORTED_OPERATION);
+    CHECK(Gesture::begin(base, id("a3"), "pixaura.denoise").code == PIXAURA_DOCUMENT_UNSUPPORTED_OPERATION);
     CHECK(validate("{\"operations\":[]}") != 0);
     CHECK(validate(request("rotate", "{\"quarter_turns\":-1}")) != 0);
     CHECK(validate(request("exposure", "{}")) != 0);
@@ -171,9 +171,10 @@ int main(int argc, char** argv) {
     CHECK(at_limit->update(request("exposure", "{\"milli_ev\":0}", "8000")).code == 0);
     CHECK(at_limit->commit(full.value, id("214")).value == full.value);
     unsigned allocation_failures = 0;
-    for(const auto* tool:{"exposure","brightness"}){
-    const auto update = request(tool,std::strcmp(tool,"exposure")==0?"{\"milli_ev\":2400}":"{\"milli_linear\":400}");
-    const auto previous = request(tool,std::strcmp(tool,"exposure")==0?"{\"milli_ev\":1200}":"{\"milli_linear\":200}");
+    for(const auto* tool:{"exposure","brightness","blur","sharpen"}){
+    const auto parameter=std::strcmp(tool,"exposure")==0?"milli_ev":std::strcmp(tool,"brightness")==0?"milli_linear":std::strcmp(tool,"blur")==0?"milli_strength":"milli_amount";
+    const auto update=request(tool,std::string("{\"")+parameter+"\":400}");
+    const auto previous=request(tool,std::string("{\"")+parameter+"\":200}");
     const auto revision = id("210"), gesture_id = id("a1");
     for (int path = 0; path < 4; ++path) {
         bool completed = false;

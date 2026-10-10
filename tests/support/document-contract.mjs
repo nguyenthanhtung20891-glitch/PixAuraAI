@@ -55,6 +55,8 @@ export function validateOperation(operation) {
         'pixaura.shadows': ['milli_ev', -2000, 2000],
         'pixaura.saturation': ['milli_ratio', 0, 2000],
         'pixaura.temperature': ['kelvin', 4000, 25000],
+        'pixaura.blur': ['milli_strength', 0, 1000],
+        'pixaura.sharpen': ['milli_amount', 0, 1000],
       };
       const contract = contracts[operation.type];
       require(contract !== undefined, 'UNSUPPORTED_OPERATION');

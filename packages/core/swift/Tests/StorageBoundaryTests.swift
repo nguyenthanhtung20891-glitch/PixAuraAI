@@ -87,6 +87,20 @@ final class StorageBoundaryTests: XCTestCase {
         }.value
         XCTAssertEqual(repeated.0, 4)
         XCTAssertEqual(repeated.1, 55)
+        let detailMigration = await Task.detached {
+            var info = pixaura_storage_info()
+            return path.withUnsafeBufferPointer { pixaura_storage_migrate(1, $0.baseAddress, UInt64($0.count), 2, 3, &info) }
+        }.value
+        XCTAssertEqual(detailMigration, 0)
+        let detailReopened = await Self.probe(path)
+        XCTAssertEqual(detailReopened.storageVersion, 3)
+        let detailRepeated = await Task.detached {
+            var info = pixaura_storage_info(api_version: 87, struct_size: 99, storage_version: 55, sqlite_version: 44)
+            let status = path.withUnsafeBufferPointer { pixaura_storage_migrate(1, $0.baseAddress, UInt64($0.count), 2, 3, &info) }
+            return (status, info.storage_version)
+        }.value
+        XCTAssertEqual(detailRepeated.0, 4)
+        XCTAssertEqual(detailRepeated.1, 55)
         await expectFailure(Array("../escape".utf8), status: 1)
     }
 

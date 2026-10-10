@@ -1,5 +1,6 @@
 #include "manual_tools.hpp"
 #include "tone.hpp"
+#include "detail.hpp"
 #include <algorithm>
 #include <cstring>
 #include <new>
@@ -14,13 +15,16 @@ constexpr Parameter crop[] = {{"height_ppm", "millionths_current_extent", 1, 100
     {"y_ppm", "millionths_current_extent", 0, 999999, 0, 1}};
 constexpr Parameter exposure[] = {{"milli_ev", "thousandths_exposure_stop", -5000, 5000, 0, 1}};
 constexpr Parameter rotate[] = {{"quarter_turns", "clockwise_quarter_turns", 0, 3, 0, 1}};
+constexpr Parameter blur[]={{"milli_strength","thousandths_fixed_kernel_blend",0,1000,0,1}};
+constexpr Parameter sharpen[]={{"milli_amount","thousandths_fixed_kernel_unsharp",0,1000,0,1}};
 constexpr Parameter brightness[]={{"milli_linear","thousandths_linear_white",-1000,1000,0,1}};
 constexpr Parameter contrast[]={{"milli_stops","thousandths_log2_contrast_slope",-2000,2000,0,1}};
 constexpr Parameter highlights[]={{"milli_ev","thousandths_highlight_exposure_stop",-2000,2000,0,1}};
 constexpr Parameter saturation[]={{"milli_ratio","thousandths_chroma_multiplier",0,2000,1000,1}};
 constexpr Parameter shadows[]={{"milli_ev","thousandths_shadow_exposure_stop",-2000,2000,0,1}};
 constexpr Parameter temperature[]={{"kelvin","daylight_white_kelvin",4000,25000,6504,1}};
-constexpr std::array<Descriptor, 9> descriptors{{
+constexpr std::array<Descriptor, 11> descriptors{{
+    {"pixaura.blur","pixaura.blur","detail","Blur",1,1,blur,1},
     {"pixaura.brightness","pixaura.brightness","tone_color","Brightness",1,1,brightness,1},
     {"pixaura.contrast","pixaura.contrast","tone_color","Contrast",1,1,contrast,1},
     {"pixaura.crop", "pixaura.crop", "geometry", "Crop", 1, 1, crop, 4},
@@ -29,6 +33,7 @@ constexpr std::array<Descriptor, 9> descriptors{{
     {"pixaura.rotate", "pixaura.rotate", "geometry", "Rotate", 1, 1, rotate, 1},
     {"pixaura.saturation","pixaura.saturation","tone_color","Saturation",1,1,saturation,1},
     {"pixaura.shadows","pixaura.shadows","tone_color","Shadows",1,1,shadows,1},
+    {"pixaura.sharpen","pixaura.sharpen","detail","Sharpen",1,1,sharpen,1},
     {"pixaura.temperature","pixaura.temperature","tone_color","Temperature",1,1,temperature,1}}};
 template<class T, class F> Result<T> attempt(F&& f) {
     try { return {0, f()}; }
@@ -61,6 +66,7 @@ String parameters(const EditOperation& op) {
     } else if(const auto* value=std::get_if<Tone>(&op.parameters)) {
         const auto* spec=tone::find(op.type);require(spec!=nullptr,PIXAURA_DOCUMENT_UNSUPPORTED_OPERATION);
         output+="{\"";output+=spec->parameter;output+="\":";number(output,value->value);
+    } else if(const auto* detail_value=std::get_if<Detail>(&op.parameters)){const auto* spec=detail::find(op.type);require(spec!=nullptr,PIXAURA_DOCUMENT_UNSUPPORTED_OPERATION);output+="{\"";output+=spec->parameter;output+="\":";number(output,detail_value->value);
     } else {
         output += "{\"quarter_turns\":"; number(output, std::get<Rotate>(op.parameters).quarter_turns);
     }
@@ -70,6 +76,7 @@ bool neutral(const EditOperation& op) {
     if (const auto* e = std::get_if<Exposure>(&op.parameters)) return e->milli_ev == 0;
     if (const auto* c = std::get_if<Crop>(&op.parameters)) return c->x_ppm == 0 && c->y_ppm == 0 && c->width_ppm == 1000000 && c->height_ppm == 1000000;
     if(const auto* value=std::get_if<Tone>(&op.parameters)){const auto* spec=tone::find(op.type);return spec&&value->value==spec->neutral;}
+    if(const auto* value=std::get_if<Detail>(&op.parameters))return value->value==0;
     return std::get<Rotate>(op.parameters).quarter_turns == 0;
 }
 String registry_json() {
@@ -102,7 +109,7 @@ String registry_json() {
     return output;
 }
 }
-const std::array<Descriptor, 9>& registry() { return descriptors; }
+const std::array<Descriptor, 11>& registry() { return descriptors; }
 int32_t validate_descriptors(const Descriptor* table, std::size_t count) {
     if (!table || count == 0 || count > PIXAURA_MANUAL_MAX_DESCRIPTORS) return PIXAURA_DOCUMENT_RESOURCE_LIMIT;
     for (std::size_t i = 0; i < count; ++i) {

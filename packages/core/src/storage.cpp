@@ -2,6 +2,8 @@
 #include "storage_files.hpp"
 #include "storage_schema.hpp"
 #include "storage_schema_v2.hpp"
+#include "storage_schema_v3.hpp"
+#include "detail.hpp"
 #include "tone.hpp"
 #include "sha256.hpp"
 #include "../vendor/sqlite/sqlite3.h"
@@ -44,7 +46,7 @@ String schema_digest(sqlite3* db) {
 }
 String expected_schema(uint32_t version) {
     sqlite3* raw=nullptr;const auto rc=sqlite3_open_v2(":memory:",&raw,SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_PRIVATECACHE,nullptr);
-    struct Close{sqlite3* db;~Close(){if(db)sqlite3_close(db);}}close{raw};checked(rc);exec(raw,version==1?schema_sql:schema_v2_sql);return schema_digest(raw);
+    struct Close{sqlite3* db;~Close(){if(db)sqlite3_close(db);}}close{raw};checked(rc);exec(raw,version==1?schema_sql:version==2?schema_v2_sql:schema_v3_sql);return schema_digest(raw);
 }
 template<class T>T unwrap(document::Result<T> r){if(r.code)throw document::Failure{r.code,r.index};return std::move(r.value);}
 // SQLite JSON encodes normalized rows; the existing bounded C++ parser remains
@@ -60,8 +62,8 @@ FROM documents d JOIN assets a ON a.hash=d.source WHERE d.singleton=1
 )sql";
 }
 struct Repository::Impl {
-    AssetStore assets;sqlite3* db=nullptr;String schema_hash_v1, schema_hash_v2;int progress_count=0;
-    explicit Impl(std::string_view root):assets(root),schema_hash_v1(expected_schema(1)),schema_hash_v2(expected_schema(2)) {
+    AssetStore assets;sqlite3* db=nullptr;String schema_hash_v1, schema_hash_v2, schema_hash_v3;int progress_count=0;
+    explicit Impl(std::string_view root):assets(root),schema_hash_v1(expected_schema(1)),schema_hash_v2(expected_schema(2)),schema_hash_v3(expected_schema(3)) {
         require(sqlite3_libversion_number()==SQLITE_VERSION_NUMBER,4);
         const auto path=assets.files_->database_path();
         const auto rc=sqlite3_open_v2(path.c_str(),&db,SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_FULLMUTEX|SQLITE_OPEN_PRIVATECACHE|SQLITE_OPEN_NOFOLLOW,nullptr);
@@ -79,7 +81,7 @@ struct Repository::Impl {
                 require(scalar(db,"SELECT count(*) FROM sqlite_schema")==0&&scalar(db,"PRAGMA application_id")==0,4);
                 exec(db,"PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;");
                 Transaction tx(db,true);exec(db,schema_sql);tx.commit();
-            }else require(v==1||v==2,4);
+            }else require(v==1||v==2||v==3,4);
             require(scalar(db,"PRAGMA application_id")==1346979905,4);validate_schema();
             Statement journal(db,"PRAGMA journal_mode=WAL");require(journal.row()&&journal.text(0)=="wal");require(!journal.row());
             exec(db,"PRAGMA synchronous=FULL; PRAGMA wal_autocheckpoint=1000; PRAGMA journal_size_limit=16777216; PRAGMA max_page_count=65536;");
@@ -95,7 +97,7 @@ struct Repository::Impl {
         if(assets.files_->wal_bytes()>33554432)checked(sqlite3_wal_checkpoint_v2(db,nullptr,SQLITE_CHECKPOINT_TRUNCATE,nullptr,nullptr));
         require(assets.files_->wal_bytes()<=33554432,8);
     }
-    uint32_t validate_schema(uint32_t migration_target=0){const auto v=scalar(db,"PRAGMA user_version");require(v==1||v==2,4);require(migration_target==0||(v==1&&migration_target==2),4);const auto format=migration_target?migration_target:static_cast<uint32_t>(v);require(scalar(db,"PRAGMA application_id")==1346979905,4);require(schema_digest(db)==(format==1?schema_hash_v1:schema_hash_v2));return format;}
+    uint32_t validate_schema(uint32_t migration_target=0){const auto v=scalar(db,"PRAGMA user_version");require(v==1||v==2||v==3,4);require(migration_target==0||((v==1&&migration_target==2)||(v==2&&migration_target==3)),4);const auto format=migration_target?migration_target:static_cast<uint32_t>(v);require(scalar(db,"PRAGMA application_id")==1346979905,4);require(schema_digest(db)==(format==1?schema_hash_v1:format==2?schema_hash_v2:schema_hash_v3));return format;}
     void verify_database(uint32_t migration_target=0) {
         progress_count=0;validate_schema(migration_target);Statement quick(db,"PRAGMA quick_check(1)");require(quick.row()&&quick.text(0)=="ok"&&!quick.row());
         Statement fk(db,"PRAGMA foreign_key_check");require(!fk.row());
@@ -108,7 +110,8 @@ struct Repository::Impl {
     }
     Loaded load(uint32_t migration_target=0) {
         verify_database(migration_target);String query(load_sql);
-        if(validate_schema(migration_target)==2){const auto at=query.find("ELSE json_object('x_ppm'");require(at!=String::npos);query.insert(at,"WHEN 'pixaura.brightness' THEN json_object('milli_linear',brightness) WHEN 'pixaura.contrast' THEN json_object('milli_stops',contrast) WHEN 'pixaura.highlights' THEN json_object('milli_ev',highlights) WHEN 'pixaura.shadows' THEN json_object('milli_ev',shadows) WHEN 'pixaura.saturation' THEN json_object('milli_ratio',saturation) WHEN 'pixaura.temperature' THEN json_object('kelvin',temperature) ");}
+        if(validate_schema(migration_target)>=2){const auto at=query.find("ELSE json_object('x_ppm'");require(at!=String::npos);query.insert(at,"WHEN 'pixaura.brightness' THEN json_object('milli_linear',brightness) WHEN 'pixaura.contrast' THEN json_object('milli_stops',contrast) WHEN 'pixaura.highlights' THEN json_object('milli_ev',highlights) WHEN 'pixaura.shadows' THEN json_object('milli_ev',shadows) WHEN 'pixaura.saturation' THEN json_object('milli_ratio',saturation) WHEN 'pixaura.temperature' THEN json_object('kelvin',temperature) ");}
+        if(validate_schema(migration_target)==3){const auto at=query.find("ELSE json_object('x_ppm'");require(at!=String::npos);query.insert(at,"WHEN 'pixaura.blur' THEN json_object('milli_strength',blur) WHEN 'pixaura.sharpen' THEN json_object('milli_amount',sharpen) ");}
         Statement q(db,query.c_str());require(q.row());const auto json=q.text(0),session=q.text(1);const auto generation=q.number(2),epoch=q.number(3);require(epoch>0&&epoch<=document::max_generation&&generation<=document::max_generation);
         auto snapshot=unwrap(document::restore_generation(unwrap(document::deserialize(json,session)),generation));require(!q.row());
         assets.verify({snapshot->source().sha256.text(),snapshot->source().byte_length});
@@ -120,12 +123,14 @@ struct Repository::Impl {
         const auto& id=doc.identity().document.text();
         const auto version=validate_schema();
         for(std::size_t i=old_operations;i<doc.operations().size();++i) {
-            const auto& op=doc.operations()[i];require(version==2||!tone::find(op.type),4);
-            Statement q(db,version==1?"INSERT INTO operations(document,id,seq,type,ov,pv,ev,turns,x,y,w,h) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)":"INSERT INTO operations VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");q.text(1,id);q.text(2,op.id.text());q.number(3,i);q.text(4,op.type);q.number(5,op.operation_version);q.number(6,op.parameter_version);for(int col=7;col<=(version==1?12:18);++col)q.null(col);
+            const auto& op=doc.operations()[i];require(version>=2||!tone::find(op.type),4);require(version==3||!detail::find(op.type),4);
+            Statement q(db,version==1?"INSERT INTO operations(document,id,seq,type,ov,pv,ev,turns,x,y,w,h) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)":version==2?"INSERT INTO operations VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)":"INSERT INTO operations VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");q.text(1,id);q.text(2,op.id.text());q.number(3,i);q.text(4,op.type);q.number(5,op.operation_version);q.number(6,op.parameter_version);for(int col=7;col<=(version==1?12:version==2?18:20);++col)q.null(col);
             if(const auto* p=std::get_if<document::Exposure>(&op.parameters))q.signed_number(7,p->milli_ev);
             if(const auto* p=std::get_if<document::Rotate>(&op.parameters))q.number(8,p->quarter_turns);
             if(const auto* p=std::get_if<document::Crop>(&op.parameters)){q.number(9,p->x_ppm);q.number(10,p->y_ppm);q.number(11,p->width_ppm);q.number(12,p->height_ppm);}
-            if(const auto* p=std::get_if<document::Tone>(&op.parameters)){const auto column=op.type=="pixaura.brightness"?13:op.type=="pixaura.contrast"?14:op.type=="pixaura.highlights"?15:op.type=="pixaura.shadows"?16:op.type=="pixaura.saturation"?17:18;q.signed_number(column,p->value);}q.done();
+            if(const auto* p=std::get_if<document::Tone>(&op.parameters)){const auto column=op.type=="pixaura.brightness"?13:op.type=="pixaura.contrast"?14:op.type=="pixaura.highlights"?15:op.type=="pixaura.shadows"?16:op.type=="pixaura.saturation"?17:18;q.signed_number(column,p->value);}
+            if(const auto* p=std::get_if<document::Detail>(&op.parameters))q.signed_number(op.type=="pixaura.blur"?19:20,p->value);
+            q.done();
         }
         for(std::size_t i=old_revisions;i<doc.revisions().size();++i) {
             const auto& r=doc.revisions()[i];Statement q(db,"INSERT INTO revisions VALUES(?,?,?,?,?,?)");q.text(1,id);q.text(2,r.id.text());q.number(3,i);if(r.parent)q.text(4,r.parent->text());else q.null(4);q.text(5,r.actor);if(r.plan)q.text(6,r.plan->text());else q.null(6);q.done();
@@ -175,7 +180,7 @@ Saved Repository::apply(std::string_view command,uint64_t expected_epoch) {
 bool Repository::checkpoint(){std::lock_guard<std::mutex> lock(mutex_);return impl_->checkpoint_locked();}
 void Repository::migrate(uint32_t expected,uint32_t target) {
     std::lock_guard<std::mutex> lock(mutex_);
-    require((expected==1&&(target==1||target==2))||(expected==2&&target==2),4);
+    require((expected==1&&(target==1||target==2))||(expected==2&&(target==2||target==3))||(expected==3&&target==3),4);
     impl_->admit_write();Transaction tx(impl_->db,true);require(impl_->validate_schema()==expected,4);
     {Statement quick(impl_->db,"PRAGMA quick_check(1)");require(quick.row()&&quick.text(0)=="ok"&&!quick.row());Statement fk(impl_->db,"PRAGMA foreign_key_check");require(!fk.row());}
     const auto populated=scalar(impl_->db,"SELECT count(*) FROM documents")!=0;
@@ -189,14 +194,15 @@ void Repository::migrate(uint32_t expected,uint32_t target) {
         // The Architect explicitly authorizes transactionally replacing only
         // the operation table. Deferred FKs are verified before COMMIT; no IDs,
         // navigation rows, envelope values or assets are regenerated.
-        const std::string_view sql(schema_v2_sql);
+        const std::string_view sql(target==2?schema_v2_sql:schema_v3_sql);
         const auto start=sql.find("CREATE TABLE operations("),end=sql.find("CREATE TABLE revisions(");
         require(start!=std::string_view::npos&&end>start,12);
         const String table(sql.substr(start,end-start));
         exec(impl_->db,"PRAGMA defer_foreign_keys=ON; CREATE TEMP TABLE migration_operations AS SELECT * FROM operations;");
         fault(Point::migration_copy);
         exec(impl_->db,"DROP TABLE operations;");exec(impl_->db,table.c_str());
-        exec(impl_->db,"INSERT INTO operations(document,id,seq,type,ov,pv,ev,turns,x,y,w,h) SELECT document,id,seq,type,ov,pv,ev,turns,x,y,w,h FROM temp.migration_operations ORDER BY document,seq; DROP TABLE temp.migration_operations;");
+        if(expected==1)exec(impl_->db,"INSERT INTO operations(document,id,seq,type,ov,pv,ev,turns,x,y,w,h) SELECT document,id,seq,type,ov,pv,ev,turns,x,y,w,h FROM temp.migration_operations ORDER BY document,seq; DROP TABLE temp.migration_operations;");
+        else exec(impl_->db,"INSERT INTO operations(document,id,seq,type,ov,pv,ev,turns,x,y,w,h,brightness,contrast,highlights,shadows,saturation,temperature) SELECT document,id,seq,type,ov,pv,ev,turns,x,y,w,h,brightness,contrast,highlights,shadows,saturation,temperature FROM temp.migration_operations ORDER BY document,seq; DROP TABLE temp.migration_operations;");
         exec(impl_->db,"CREATE TRIGGER immutable_operation_update BEFORE UPDATE ON operations BEGIN SELECT RAISE(ABORT,'immutable operation'); END; CREATE TRIGGER immutable_operation_delete BEFORE DELETE ON operations BEGIN SELECT RAISE(ABORT,'immutable operation'); END;");
         fault(Point::migration_schema);
 #ifdef PIXAURA_STORAGE_TESTING
@@ -204,13 +210,13 @@ void Repository::migrate(uint32_t expected,uint32_t target) {
         // error mapping plus the same RAII rollback as real SQLite failures.
         const auto injected=migration_sqlite_error;migration_sqlite_error=SQLITE_OK;checked(injected);
 #endif
-        require(schema_digest(impl_->db)==impl_->schema_hash_v2);
+        require(schema_digest(impl_->db)==(target==2?impl_->schema_hash_v2:impl_->schema_hash_v3));
         Statement fk(impl_->db,"PRAGMA foreign_key_check");require(!fk.row());
-        if(populated){const auto after=impl_->load(2);require(unwrap(document::serialize(*after.snapshot))==before&&after.epoch==prior->epoch&&after.snapshot->session().id==prior->snapshot->session().id&&after.snapshot->session().generation==prior->snapshot->session().generation);}
-        else {require(impl_->validate_schema(2)==2);Statement quick(impl_->db,"PRAGMA quick_check(1)");require(quick.row()&&quick.text(0)=="ok"&&!quick.row());}
+        if(populated){const auto after=impl_->load(target);require(unwrap(document::serialize(*after.snapshot))==before&&after.epoch==prior->epoch&&after.snapshot->session().id==prior->snapshot->session().id&&after.snapshot->session().generation==prior->snapshot->session().generation);}
+        else {require(impl_->validate_schema(target)==target);Statement quick(impl_->db,"PRAGMA quick_check(1)");require(quick.row()&&quick.text(0)=="ok"&&!quick.row());}
         fault(Point::migration_validate);
-        // Version is changed only after all v2 invariants/replay equivalence.
-        exec(impl_->db,"PRAGMA user_version=2;");
+        // Version is changed only after target invariants/replay equivalence.
+        exec(impl_->db,target==2?"PRAGMA user_version=2;":"PRAGMA user_version=3;");
     }
     fault(Point::in_transaction);fault(Point::migration_commit);tx.commit();
 #ifdef PIXAURA_STORAGE_TESTING

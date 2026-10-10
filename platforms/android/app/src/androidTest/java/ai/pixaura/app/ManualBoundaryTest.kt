@@ -29,10 +29,10 @@ class ManualBoundaryTest {
         val registry = JSONObject(bytes.toString(Charsets.UTF_8))
         assertEquals(1, registry.getInt("descriptor_version"))
         val tools = registry.getJSONArray("tools")
-        val ids = listOf("brightness", "contrast", "crop", "exposure", "highlights", "rotate", "saturation", "shadows", "temperature")
+        val ids = listOf("blur", "brightness", "contrast", "crop", "exposure", "highlights", "rotate", "saturation", "shadows", "sharpen", "temperature")
         assertEquals(ids.size, tools.length())
         ids.forEachIndexed { index, id -> assertEquals("pixaura.$id", tools.getJSONObject(index).getString("tool_id")) }
-        val exposure = tools.getJSONObject(3).getJSONArray("parameters").getJSONObject(0)
+        val exposure = tools.getJSONObject(4).getJSONArray("parameters").getJSONObject(0)
         assertEquals(-5000, exposure.getInt("minimum"))
         assertEquals(5000, exposure.getInt("maximum"))
         assertEquals(0, exposure.getInt("default"))

@@ -25,7 +25,11 @@ class StorageBoundaryTest {
             assertEquals(4, bridge.nativeStorageMigrate(path, 1, 2))
             assertEquals(2, bridge.nativeStorageVersion(path))
             assertEquals(0, bridge.nativeStorageMigrate(path, 2, 2))
+            assertEquals(0, bridge.nativeStorageMigrate(path, 2, 3))
+            assertEquals(3, bridge.nativeStorageVersion(path))
             assertEquals(4, bridge.nativeStorageMigrate(path, 2, 3))
+            assertEquals(0, bridge.nativeStorageMigrate(path, 3, 3))
+            assertEquals(4, bridge.nativeStorageMigrate(path, 3, 4))
         } finally {
             root.deleteRecursively()
         }

@@ -1,6 +1,10 @@
 # Manual tool contract v1
 
-Current Phase 3 Step 3 extension: the compiled registry contains nine tools,
+Current Phase 3 Step 4 extension: the registry contains eleven tools, adding only
+Sharpen/Blur under the [detail numerical contract](manual-detail-v1.md) and
+explicit schema-3 persistence. All bounds and shared gesture APIs remain unchanged.
+
+At Phase 3 Step 3 the compiled registry contained nine tools,
 including the six newly frozen tone/color tuples. See the authoritative
 [tone/color numerical contract](manual-tone-color-v1.md) for parameters,
 formulas and schema-2 persistence. Generic `pixaura_manual_*` calls reuse the

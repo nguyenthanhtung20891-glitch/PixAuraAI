@@ -2,6 +2,8 @@
 #include "exposure_gain.hpp"
 #include "geometry.hpp"
 #include "tone_math.hpp"
+#include "detail.hpp"
+#include "detail_math.hpp"
 #include <cmath>
 #include <limits>
 #include <cfenv>
@@ -36,6 +38,7 @@ void validate(const Stack& stack) {
         } else if(op.type=="pixaura.rotate") {
             const auto* p=std::get_if<document::Rotate>(&op.parameters);need(p&&p->quarter_turns<=3,7);
         } else if(const auto* spec=tone::find(op.type)){const auto* p=std::get_if<document::Tone>(&op.parameters);need(p&&p->value>=spec->low&&p->value<=spec->high,7);}
+        else if(const auto* detail_spec=detail::find(op.type)){const auto* p=std::get_if<document::Detail>(&op.parameters);need(p&&p->value>=detail_spec->low&&p->value<=detail_spec->high,7);}
         else need(false,5);
         for (std::size_t j = 0; j < i; ++j) need(op.id != stack[j].id, 6);
     }
@@ -131,6 +134,8 @@ working::Image evaluate(const working::Image& source, const Stack& stack, const 
                     }
                 });
             }
+        } else if(detail::find(op.type)) {
+            detail::apply(pixels,stage.input.width,stage.input.height,op.type=="pixaura.sharpen",std::get<document::Detail>(op.parameters).value,visited,[&](){check(Checkpoint::tile);});
         } else if(const auto* spec=tone::find(op.type)) {
             const tone::Kernel kernel(*spec,std::get<document::Tone>(op.parameters).value);
             if(kernel.neutral())continue;

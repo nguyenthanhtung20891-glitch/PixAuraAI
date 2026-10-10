@@ -1,5 +1,7 @@
 # Architectural decision index
 
+Phase 3 Step 4 authorization freezes only scalar Sharpen/Blur under the [detail v1 contract](docs/contracts/manual-detail-v1.md). Schema 1/2 remain immutable; independent schema 3 and explicit transactional 2->3 are authorized Category A. Bounded three-row scratch preserves existing ceilings and two-raster ownership. [ADR 0020](docs/adr/0020-bounded-detail-reference.md) records this narrow extension; no automatic migration, direct 1->3, GPU expansion or Step 5 work.
+
 Phase 3 Step 3 Architect decision, 2026-10-10: schema 1 remains immutable;
 introduce independent storage schema 2 and explicit transactional 1->2 migration,
 without automatic migration. Preserve every accepted source/history/envelope
