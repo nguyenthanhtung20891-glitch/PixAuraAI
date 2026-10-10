@@ -1,5 +1,21 @@
 # Quality gates and promotion policy
 
+## Phase 3 Step 3 acceptance
+
+Authorized scope: exposure (unchanged), brightness, contrast, highlights, shadows,
+saturation and temperature. Require the [numerical contract](docs/contracts/manual-tone-color-v1.md),
+independent reference fixtures, integer/boundary/version/alpha/no-op/order tests,
+shared manual gesture/PRV1 composition, canonical storage/restart replay and
+unchanged source hash. [ADR 0019](docs/adr/0019-explicit-storage-schema-evolution.md)
+requires immutable schema-1 SQL/fingerprint, independent strict schema 2,
+explicit transactional 1->2 migration, complete state preservation and rollback/
+SQLite/allocation/crash tests. Ordinary open must not migrate.
+Windows/Linux/native/sanitizers, Android build/JVM/instrumentation and Apple
+compile/Swift/simulator plus exact-SHA hosted workflows must actually pass.
+No new GPU kernels, final editor UI or additional tools. Steps 4-8 remain NOT
+STARTED. DH-APPLE-METAL-01 is unchanged and unexecuted.
+See the [Step 3 report](docs/reports/phase-3-step-3.md); unexecuted gates are pending.
+
 ## Phase 3 Step 2 acceptance
 
 Explicitly authorized: crop and clockwise orthogonal rotation only. Acceptance
@@ -11,7 +27,7 @@ Verify canonical SQLite commit/reopen and immutable source hash, boundary/invali
 cases, exhaustive allocation failures, Windows/Linux native and ASan/UBSan,
 Android JVM/instrumentation, Apple compile/Swift/simulator and exact-SHA hosted
 regression closure. No unexecuted check is PASS. Resize remains PROPOSED.
-Steps 3–8 are not started. DH-APPLE-METAL-01 is unchanged and not executed.
+Step 3 is separately authorized; Steps 4–8 are not started. DH-APPLE-METAL-01 is unchanged and not executed.
 See the [Step 2 report](docs/reports/phase-3-step-2.md).
 
 ## Phase 3 Step 1 acceptance
@@ -27,7 +43,7 @@ Android JVM/native boundaries and Apple compile/Swift contract gates. Existing
 gates and ceilings remain mandatory. See [report](docs/reports/phase-3-step-1.md)
 and [contract](docs/contracts/manual-tools-v1.md). The official [eight-step Phase 3
 roadmap](ROADMAP.md#frozen-phase-3-numbered-roadmap--manual-tools) is frozen;
-Step 2 is now separately authorized; Steps 3–8 remain NOT STARTED.
+Steps 1/2 are complete; Step 3 is separately authorized; Steps 4–8 remain NOT STARTED.
 
 ## Phase 3 scope discipline
 

@@ -3,6 +3,58 @@ import Foundation
 import CPixAuraCore
 
 final class ManualBoundaryTests: XCTestCase {
+    func testToneToolsConsumeSharedDescriptorsAndGestureHistory() throws {
+        let url = try XCTUnwrap(Bundle.module.url(forResource: "image-document-v1", withExtension: "json", subdirectory: "Fixtures"))
+        let fixture = Array(try Data(contentsOf: url))
+        func identity() -> [UInt8] { Array(UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased().utf8) }
+        var required: UInt64 = 0
+        XCTAssertEqual(pixaura_manual_registry_json(1, nil, 0, &required), 11)
+        var registry = [UInt8](repeating: 0, count: Int(required))
+        XCTAssertEqual(registry.withUnsafeMutableBufferPointer { pixaura_manual_registry_json(1, $0.baseAddress, UInt64($0.count), &required) }, 0)
+        let object = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(registry)) as? [String: Any])
+        let tools = try XCTUnwrap(object["tools"] as? [[String: Any]])
+        var context = pixaura_document_context()
+        var base = pixaura_document_handle()
+        let contextID = identity(), session = identity()
+        XCTAssertEqual(contextID.withUnsafeBufferPointer { pixaura_document_context_init(1, &context, 64, $0.baseAddress, 32, nil) }, 0)
+        defer { XCTAssertEqual(pixaura_document_context_destroy(&context), 0) }
+        XCTAssertEqual(fixture.withUnsafeBufferPointer { m in session.withUnsafeBufferPointer { s in
+            pixaura_document_open(1, &context, m.baseAddress, UInt64(m.count), s.baseAddress, 32, &base, nil)
+        } }, 0)
+        for descriptor in tools where descriptor["category"] as? String == "tone_color" {
+            let tool = try XCTUnwrap(descriptor["tool_id"] as? String)
+            let parameters = try XCTUnwrap(descriptor["parameters"] as? [[String: Any]])
+            let name = try XCTUnwrap(parameters[0]["name"] as? String)
+            let maximum = try XCTUnwrap(parameters[0]["maximum"] as? Int)
+            let neutral = try XCTUnwrap(parameters[0]["default"] as? Int)
+            let operationID = String(decoding: identity(), as: UTF8.self)
+            func operation(_ value: Int) -> [UInt8] { Array("{\"operations\":[{\"id\":\"\(operationID)\",\"type\":\"\(tool)\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"\(name)\":\(value)}}]}".utf8) }
+            let toolBytes = Array(tool.utf8)
+            for value in [maximum, neutral] {
+                var gesture = pixaura_manual_gesture(), proposal = pixaura_document_handle()
+                let gestureID = identity(), revisionID = identity()
+                XCTAssertEqual(gestureID.withUnsafeBufferPointer { g in toolBytes.withUnsafeBufferPointer { t in
+                    pixaura_manual_begin(1, &context, &base, g.baseAddress, 32, t.baseAddress, UInt64(t.count), nil, 0, &gesture)
+                } }, 0)
+                var sequence: UInt64 = 999
+                let request = operation(value)
+                for update in 1...1001 {
+                    XCTAssertEqual(request.withUnsafeBufferPointer { pixaura_manual_update(&context, &gesture, &base, $0.baseAddress, UInt64($0.count), &sequence) }, 0)
+                    XCTAssertEqual(sequence, UInt64(update))
+                }
+                let invalid = operation(maximum + 1)
+                XCTAssertEqual(invalid.withUnsafeBufferPointer { pixaura_manual_update(&context, &gesture, &base, $0.baseAddress, UInt64($0.count), &sequence) }, 7)
+                XCTAssertEqual(sequence, 1001)
+                XCTAssertEqual(pixaura_manual_current(&context, &gesture, &base, 1000), 13)
+                var changed: UInt32 = 999
+                XCTAssertEqual(revisionID.withUnsafeBufferPointer { pixaura_manual_commit(&context, &gesture, &base, $0.baseAddress, 32, &proposal, &changed) }, 0)
+                XCTAssertEqual(changed, value == neutral ? 0 : 1)
+                if changed == 0 { XCTAssertEqual(proposal.serial, base.serial) }
+                else { XCTAssertEqual(pixaura_document_release(&context, &proposal), 0) }
+                XCTAssertEqual(pixaura_manual_release(&context, &gesture), 0)
+            }
+        }
+    }
     func testGeometryGestureCoalescingAndProposal() throws {
         let url = try XCTUnwrap(Bundle.module.url(forResource: "image-document-v1", withExtension: "json", subdirectory: "Fixtures"))
         let fixture = Array(try Data(contentsOf: url))
@@ -76,8 +128,8 @@ final class ManualBoundaryTests: XCTestCase {
         XCTAssertEqual(bytes.last, 10)
         let object = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(bytes)) as? [String: Any])
         let tools = try XCTUnwrap(object["tools"] as? [[String: Any]])
-        XCTAssertEqual(tools.compactMap { $0["tool_id"] as? String }, ["pixaura.crop", "pixaura.exposure", "pixaura.rotate"])
-        let parameters = try XCTUnwrap(tools[1]["parameters"] as? [[String: Any]])
+        XCTAssertEqual(tools.compactMap { $0["tool_id"] as? String }, ["pixaura.brightness", "pixaura.contrast", "pixaura.crop", "pixaura.exposure", "pixaura.highlights", "pixaura.rotate", "pixaura.saturation", "pixaura.shadows", "pixaura.temperature"])
+        let parameters = try XCTUnwrap(tools[3]["parameters"] as? [[String: Any]])
         XCTAssertEqual(parameters[0]["minimum"] as? Int, -5000)
         XCTAssertEqual(parameters[0]["maximum"] as? Int, 5000)
         XCTAssertEqual(parameters[0]["default"] as? Int, 0)

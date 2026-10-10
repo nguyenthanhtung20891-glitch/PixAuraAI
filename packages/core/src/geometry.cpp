@@ -1,4 +1,5 @@
 #include "geometry.hpp"
+#include "tone.hpp"
 #include <algorithm>
 namespace pixaura::geometry {
 namespace {
@@ -63,6 +64,7 @@ Plan plan(Extent e,const evaluation::Stack& stack,const pixaura_working_limits& 
         else if(op.type=="pixaura.rotate") {const auto* r=std::get_if<document::Rotate>(&op.parameters);need(r!=nullptr);stage.turns=r->quarter_turns;stage.output=rotated(e,r->quarter_turns);
             if(stage.turns)out.scratch_bytes=std::max(out.scratch_bytes,add(decode::multiply(e.width,e.height),7)/8);}
         else if(op.type=="pixaura.exposure") {const auto* p=std::get_if<document::Exposure>(&op.parameters);need(p&&p->milli_ev>=-5000&&p->milli_ev<=5000);}
+        else if(const auto* spec=tone::find(op.type)){const auto* p=std::get_if<document::Tone>(&op.parameters);need(p&&p->value>=spec->low&&p->value<=spec->high);}
         else need(false,5);
         out.max_raster_bytes=std::max(out.max_raster_bytes,admit(stage.output,l));
         tile_count(stage.output);

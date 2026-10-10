@@ -1,4 +1,5 @@
 #include "manual_geometry_boundary.h"
+#include "manual_tone_boundary.h"
 #include <stdio.h>
 #include <stdlib.h>
 int main(int argc, char** argv) {
@@ -12,5 +13,7 @@ int main(int argc, char** argv) {
     count = fread(bytes, 1, sizeof(bytes), file); fclose(file);
     status = manual_geometry_boundary_check(bytes, count, (const uint8_t*)"00000000000000000000000000000701");
     if (status != 0) fprintf(stderr, "geometry C boundary failure %d\n", status);
+    if(status==0)status=manual_tone_boundary_check(bytes,count,(const uint8_t*)"00000000000000000000000000000801");
+    if(status!=0)fprintf(stderr,"tone C boundary failure %d\n",status);
     return status;
 }

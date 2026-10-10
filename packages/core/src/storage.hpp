@@ -9,12 +9,13 @@ constexpr uint32_t storage_version = 1;
 constexpr uint64_t asset_limit = 8589934592ULL;
 constexpr std::size_t stream_buffer = 65536;
 constexpr int32_t busy = 15;
-enum class Point { before_temp, asset_write, before_publish, after_publish, in_transaction, after_commit, checkpoint_write, checkpoint_publish, checkpoint_renamed };
+enum class Point { before_temp, asset_write, before_publish, after_publish, in_transaction, after_commit, checkpoint_write, checkpoint_publish, checkpoint_renamed, migration_copy, migration_schema, migration_validate, migration_commit, migration_published };
 #ifdef PIXAURA_STORAGE_TESTING
 extern thread_local int fault_point;
 extern thread_local bool crash_fault;
 extern thread_local void (*point_hook)(Point);
 extern thread_local const char* temp_name_override;
+extern thread_local int migration_sqlite_error;
 #endif
 void fault(Point);
 struct Reader {
@@ -53,8 +54,8 @@ public:
     Saved create(const document::ImageDocument&);
     Saved apply(std::string_view command, uint64_t expected_epoch);
     bool checkpoint();
-    // No historical transforms exist. 1->1 is an explicit verified no-op;
-    // all other source/target versions reject, never implicitly upgrade.
+    // Explicit verified 1->1 / 2->2 no-op or transactional 1->2 migration.
+    // Ordinary open preserves the existing version and never migrates.
     void migrate(uint32_t expected, uint32_t target);
 };
 }

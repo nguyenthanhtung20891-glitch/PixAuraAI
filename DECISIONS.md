@@ -1,5 +1,14 @@
 # Architectural decision index
 
+Phase 3 Step 3 Architect decision, 2026-10-10: schema 1 remains immutable;
+introduce independent storage schema 2 and explicit transactional 1->2 migration,
+without automatic migration. Preserve every accepted source/history/envelope
+value and canonical replay. [ADR 0019](docs/adr/0019-explicit-storage-schema-evolution.md)
+records the narrowly approved SQLite transaction protocol and compatibility.
+This resolves the Step 3 storage blocker; migration is Category A, not a new step.
+The [tone/color contract](docs/contracts/manual-tone-color-v1.md) freezes the
+initial six numerical recipes under Step 3 authorization; exposure 1/1 is unchanged.
+
 ## Phase 3 numbered roadmap freeze (2026-10-08)
 
 Authority: explicit Product Owner / Architect decision. The official Phase 3

@@ -72,6 +72,21 @@ final class StorageBoundaryTests: XCTestCase {
             XCTAssertEqual(result.sqliteVersion, 3053004)
         }
         XCTAssertTrue(FileManager.default.fileExists(atPath: root.appendingPathComponent("catalog.sqlite").path))
+        let migrated = await Task.detached {
+            var info = pixaura_storage_info()
+            return path.withUnsafeBufferPointer { pixaura_storage_migrate(1, $0.baseAddress, UInt64($0.count), 1, 2, &info) }
+        }.value
+        XCTAssertEqual(migrated, 0)
+        let reopened = await Self.probe(path)
+        XCTAssertEqual(reopened.status, 0)
+        XCTAssertEqual(reopened.storageVersion, 2)
+        let repeated = await Task.detached {
+            var info = pixaura_storage_info(api_version: 87, struct_size: 99, storage_version: 55, sqlite_version: 44)
+            let status = path.withUnsafeBufferPointer { pixaura_storage_migrate(1, $0.baseAddress, UInt64($0.count), 1, 2, &info) }
+            return (status, info.storage_version)
+        }.value
+        XCTAssertEqual(repeated.0, 4)
+        XCTAssertEqual(repeated.1, 55)
         await expectFailure(Array("../escape".utf8), status: 1)
     }
 

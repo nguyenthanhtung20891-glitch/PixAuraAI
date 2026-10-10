@@ -40,7 +40,8 @@ struct SourceDescriptor { Digest sha256; uint64_t byte_length; SourceMetadata me
 struct Exposure { int32_t milli_ev; };
 struct Crop { uint32_t x_ppm, y_ppm, width_ppm, height_ppm; };
 struct Rotate { uint32_t quarter_turns; };
-using Parameters = std::variant<Exposure, Crop, Rotate>;
+struct Tone { int32_t value; };
+using Parameters = std::variant<Exposure, Crop, Rotate, Tone>;
 struct EditOperation { Id id; String type; uint32_t operation_version, parameter_version; Parameters parameters; };
 struct Revision { Id id; std::optional<Id> parent; Vector<Id> stack; String actor; std::optional<Id> plan; };
 struct SessionIdentity { Id id; uint64_t generation; };

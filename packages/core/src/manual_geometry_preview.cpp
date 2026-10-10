@@ -35,3 +35,11 @@ extern "C" int32_t pixaura_manual_geometry_render(pixaura_document_context* docu
     } catch (const std::bad_alloc&) { return PIXAURA_DOCUMENT_RESOURCE_LIMIT; }
       catch (...) { return PIXAURA_DOCUMENT_INTERNAL_ERROR; }
 }
+extern "C" int32_t pixaura_manual_render(pixaura_document_context* document,
+    const pixaura_manual_gesture* gesture,const pixaura_document_handle* live,
+    pixaura_decode_context* raster,const pixaura_decode_handle* source,
+    const pixaura_working_limits* limits,const pixaura_decode_handle* cancellation,
+    const pixaura_preview_ticket* ticket,const pixaura_preview_request* request,
+    pixaura_decode_handle* output,uint64_t* sequence){
+    return pixaura_manual_geometry_render(document,gesture,live,raster,source,limits,cancellation,ticket,request,output,sequence);
+}

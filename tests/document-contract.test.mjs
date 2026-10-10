@@ -83,7 +83,7 @@ test('operation tuple and exact parameter validation never clamps or skips futur
     assert.throws(() => validateOperation(exposure(value)), /INVALID_PARAMETERS/);
   }
   assert.throws(() => validateOperation({ ...exposure(0), parameters: { milli_ev: 0, extra: 1 } }), /INVALID_PARAMETERS/);
-  for (const changed of [{ type: 'pixaura.contrast' }, { operation_version: 2 }, { parameter_version: 2 }]) {
+  for (const changed of [{ type: 'pixaura.vibrance' }, { operation_version: 2 }, { parameter_version: 2 }]) {
     assert.throws(() => validateOperation({ ...exposure(0), ...changed }), /UNSUPPORTED_OPERATION/);
   }
   const crop = { ...exposure(0), type: 'pixaura.crop', parameters: { x_ppm: 0, y_ppm: 0, width_ppm: 1000000, height_ppm: 1000000 } };

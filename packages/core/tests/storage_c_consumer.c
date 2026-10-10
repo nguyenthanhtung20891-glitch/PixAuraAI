@@ -3,6 +3,14 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
+#ifdef _WIN32
+#include <direct.h>
+#include <process.h>
+#else
+#include <sys/stat.h>
+#include <unistd.h>
+#endif
 int main(int argc,char** argv) {
     assert(argc==2);
     pixaura_storage_info info={87,99,55,44}, before=info;
@@ -47,5 +55,20 @@ int main(int argc,char** argv) {
         assert(pixaura_storage_check(1,(const uint8_t*)path,strlen(path),&info)==1);
         assert(memcmp(&info,&before,sizeof(info))==0);
     }
-    puts("C storage schema/reopen boundary PASS");return 0;
+    {
+        char path[1100];int n;
+#ifdef _WIN32
+        n=snprintf(path,sizeof(path),"%s/storage-migration-%ld-%d",argv[1],(long)time(NULL),_getpid());
+        assert(n>0&&(size_t)n<sizeof(path));assert(_mkdir(path)==0);
+#else
+        n=snprintf(path,sizeof(path),"%s/storage-migration-%ld-%ld",argv[1],(long)time(NULL),(long)getpid());
+        assert(n>0&&(size_t)n<sizeof(path));assert(mkdir(path,0700)==0);
+#endif
+        assert(pixaura_storage_check(1,(const uint8_t*)path,strlen(path),&info)==0&&info.storage_version==1);
+        assert(pixaura_storage_migrate(1,(const uint8_t*)path,strlen(path),1,2,&info)==0&&info.storage_version==2);
+        assert(pixaura_storage_check(1,(const uint8_t*)path,strlen(path),&info)==0&&info.storage_version==2);
+        info=before;assert(pixaura_storage_migrate(1,(const uint8_t*)path,strlen(path),1,2,&info)==4&&memcmp(&info,&before,sizeof(info))==0);
+        assert(pixaura_storage_migrate(1,(const uint8_t*)path,strlen(path),2,2,&info)==0&&info.storage_version==2);
+    }
+    puts("C storage schema/reopen/explicit migration boundary PASS");return 0;
 }

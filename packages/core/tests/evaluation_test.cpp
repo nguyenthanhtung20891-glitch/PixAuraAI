@@ -65,7 +65,7 @@ int main(int argc,char** argv) {
     }
     for(const auto& text:{request(op(1)+","+op(1)),request("{}"),std::string("{}"),request(op(0))+"x"})
         CHECK(pixaura_evaluation_validate(1,reinterpret_cast<const uint8_t*>(text.data()),text.size())!=0);
-    auto unsupported=request(op(1));unsupported.replace(unsupported.find("exposure"),8,"contrast");
+    auto unsupported=request(op(1));unsupported.replace(unsupported.find("exposure"),8,"vibrance");
     CHECK(pixaura_evaluation_validate(1,reinterpret_cast<const uint8_t*>(unsupported.data()),unsupported.size())==5);
     auto version=request(op(1));version.replace(version.find("operation_version\":1")+19,1,"2");
     CHECK(pixaura_evaluation_validate(1,reinterpret_cast<const uint8_t*>(version.data()),version.size())==5);

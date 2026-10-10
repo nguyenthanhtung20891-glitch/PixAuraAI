@@ -1,5 +1,12 @@
 # Project storage contract, version 1
 
+Phase 3 Step 3 compatibility extension: this v1 SQL/fingerprint and all old
+payload meanings remain immutable. [Schema 2](project-storage-v2.md) and
+[ADR 0019](../adr/0019-explicit-storage-schema-evolution.md) add an explicitly
+approved transactional 1->2 migration and exact v1/v2 open support. Ordinary
+open never upgrades. The historical v1-only implementation description below
+is superseded only where those documents explicitly describe the new capability.
+
 Status: Phase 2 Step 3 implementation contract, 2026-10-04. [ADR 0010](../adr/0010-durable-native-project-storage.md) refines filesystem/journal choices without changing [document schema 1](image-document-v1.md), ADR 0008 or ADR 0009.
 
 ## Frozen versus selected

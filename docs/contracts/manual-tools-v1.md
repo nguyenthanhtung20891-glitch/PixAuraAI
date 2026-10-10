@@ -1,5 +1,13 @@
 # Manual tool contract v1
 
+Current Phase 3 Step 3 extension: the compiled registry contains nine tools,
+including the six newly frozen tone/color tuples. See the authoritative
+[tone/color numerical contract](manual-tone-color-v1.md) for parameters,
+formulas and schema-2 persistence. Generic `pixaura_manual_*` calls reuse the
+existing controller/token/PRV1 path; `geometry_begin` remains geometry only.
+The Step 1 inventory/status below is historical, not current tool status.
+Exposure/crop/rotation parameters and registry/gesture bounds remain unchanged.
+
 Status: Phase 3 Step 1 contract and executable reference. This refines the accepted
 Phase 2 model; it adds no editing kernel, shipping control, AI behavior or final UI.
 At Step 1 delivery, the Product Owner authorized Step 1 only and no subsequent

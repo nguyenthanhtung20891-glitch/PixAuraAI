@@ -1,6 +1,7 @@
 #include "evaluation.hpp"
 #include "exposure_gain.hpp"
 #include "geometry.hpp"
+#include "tone_math.hpp"
 #include <cmath>
 #include <limits>
 #include <cfenv>
@@ -34,7 +35,8 @@ void validate(const Stack& stack) {
             geometry::crop({1,1},*p);
         } else if(op.type=="pixaura.rotate") {
             const auto* p=std::get_if<document::Rotate>(&op.parameters);need(p&&p->quarter_turns<=3,7);
-        } else need(false,5);
+        } else if(const auto* spec=tone::find(op.type)){const auto* p=std::get_if<document::Tone>(&op.parameters);need(p&&p->value>=spec->low&&p->value<=spec->high,7);}
+        else need(false,5);
         for (std::size_t j = 0; j < i; ++j) need(op.id != stack[j].id, 6);
     }
 }
@@ -129,6 +131,10 @@ working::Image evaluate(const working::Image& source, const Stack& stack, const 
                     }
                 });
             }
+        } else if(const auto* spec=tone::find(op.type)) {
+            const tone::Kernel kernel(*spec,std::get<document::Tone>(op.parameters).value);
+            if(kernel.neutral())continue;
+            traverse(stage.input,[&](std::size_t i){kernel.apply(pixels.data()+i);});
         } else {
             const auto ev = std::get<document::Exposure>(op.parameters).milli_ev;
             if (ev == 0) continue; // Exact identity, including signed zero/subnormals.

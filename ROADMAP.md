@@ -6,14 +6,14 @@ Authority: explicit Product Owner / Architect decision. Step 1 is accepted
 **COMPLETE / FULL PASS** at `b29123037effd76d984780f59889f1fcbb3c8c76`;
 see the [contract](docs/contracts/manual-tools-v1.md) and [report](docs/reports/phase-3-step-1.md).
 Step 2 is **COMPLETE / FULL PASS** (technical gates); crop and orthogonal rotation only.
-Steps 3–8 remain **NOT STARTED** and require separate authorization.
+Step 3 is separately authorized and **IN PROGRESS**. Steps 4–8 remain **NOT STARTED** and require separate authorization.
 See the [Step 2 report](docs/reports/phase-3-step-2.md).
 
 | Step | Official name | Status | Frozen scope and acceptance boundary |
 | --- | --- | --- | --- |
 | 1 | Manual Tool Contract & Registry Foundation | COMPLETE / FULL PASS | Accepted shared descriptors, bounded deterministic registry, versioned parameter validation/serialization/replay and gesture reference semantics. |
 | 2 | Geometry Tools | COMPLETE / FULL PASS | Implement approved MVP crop and orthogonal rotation controls on shared non-destructive operations/history. Resize remains PROPOSED and requires separate approval. Do not add perspective, free-angle rotation or other geometry tools. |
-| 3 | Tone & Color Tools | NOT STARTED | Implement exposure, brightness, contrast, highlights, shadows, saturation and temperature. Each requires explicit units/ranges, versioned semantics, deterministic validation and replay. Whites, blacks, tint and vibrance remain backlog unless separately approved. |
+| 3 | Tone & Color Tools | IN PROGRESS | Implement exposure, brightness, contrast, highlights, shadows, saturation and temperature. Each requires explicit units/ranges, versioned semantics, deterministic validation and replay. Whites, blacks, tint and vibrance remain backlog unless separately approved. |
 | 4 | Detail Tools | NOT STARTED | Implement sharpen and blur. Denoise, clarity, texture and other detail controls require separate approval. |
 | 5 | Filters & Presets Foundation | NOT STARTED | Define and implement deterministic, inspectable, non-destructive filter/preset representation. Names and recipes must be separately frozen before shipping. No destructive hidden processing. |
 | 6 | Gesture Editing Lifecycle Integration | NOT STARTED | Integrate BEGIN -> UPDATE/PREVIEW -> COMMIT once, or CANCEL without history mutation, into real editing flows. Preserve stale rejection, coalescing, interruption, tool switching and failure semantics from Step 1. |

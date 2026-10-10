@@ -20,6 +20,12 @@ class StorageBoundaryTest {
             assertTrue(File(root, "catalog.sqlite").isFile)
             assertEquals(1, bridge.nativeStorageVersion(path))
             assertEquals(-1, bridge.nativeStorageVersion("../escape".toByteArray()))
+            assertEquals(0, bridge.nativeStorageMigrate(path, 1, 2))
+            assertEquals(2, bridge.nativeStorageVersion(path))
+            assertEquals(4, bridge.nativeStorageMigrate(path, 1, 2))
+            assertEquals(2, bridge.nativeStorageVersion(path))
+            assertEquals(0, bridge.nativeStorageMigrate(path, 2, 2))
+            assertEquals(4, bridge.nativeStorageMigrate(path, 2, 3))
         } finally {
             root.deleteRecursively()
         }

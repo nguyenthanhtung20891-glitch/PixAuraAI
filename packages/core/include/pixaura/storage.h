@@ -20,6 +20,13 @@ typedef struct pixaura_storage_info {
  */
 PIXAURA_API int32_t pixaura_storage_check(uint32_t api_version,
     const uint8_t* root, uint64_t root_bytes, pixaura_storage_info* output);
+/* Explicit background-only version transform; never called by check/open/save.
+ * Same private-root and lifetime requirements. 1->2 succeeds once; an expected
+ * source-version mismatch returns 4 without mutation. Output is written only
+ * after successful COMMIT. The checked info layout/API version remain 1. */
+PIXAURA_API int32_t pixaura_storage_migrate(uint32_t api_version,
+    const uint8_t* root,uint64_t root_bytes,uint32_t expected,uint32_t target,
+    pixaura_storage_info* output);
 #ifdef __cplusplus
 }
 #endif

@@ -1,5 +1,5 @@
 // Engineering-only executable specification. Never imported by shipping code.
-// Production C++ parsing, asset verification, ownership and rendering are pending.
+// Independent metadata oracle; production uses the shared native implementation.
 import { Buffer } from 'node:buffer';
 
 export const limits = Object.freeze({ bytes: 8 * 1024 * 1024, depth: 16, string: 256,
@@ -47,7 +47,20 @@ export function validateOperation(operation) {
       require(parameter.x_ppm + parameter.width_ppm <= 1000000 &&
         parameter.y_ppm + parameter.height_ppm <= 1000000, 'INVALID_PARAMETERS');
       break;
-    default: fail('UNSUPPORTED_OPERATION');
+    default: {
+      const contracts = {
+        'pixaura.brightness': ['milli_linear', -1000, 1000],
+        'pixaura.contrast': ['milli_stops', -2000, 2000],
+        'pixaura.highlights': ['milli_ev', -2000, 2000],
+        'pixaura.shadows': ['milli_ev', -2000, 2000],
+        'pixaura.saturation': ['milli_ratio', 0, 2000],
+        'pixaura.temperature': ['kelvin', 4000, 25000],
+      };
+      const contract = contracts[operation.type];
+      require(contract !== undefined, 'UNSUPPORTED_OPERATION');
+      keys(parameter, [contract[0]], 'INVALID_PARAMETERS');
+      check(parameter[contract[0]], contract[1], contract[2]);
+    }
   }
 }
 

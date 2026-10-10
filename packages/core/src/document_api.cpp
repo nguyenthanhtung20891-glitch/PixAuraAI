@@ -196,16 +196,16 @@ template<class T> T manual_result(Result<T> result) {
     return std::move(result.value);
 }
 }
-int32_t pixaura_manual_geometry_begin(uint32_t version, pixaura_document_context* context,
+static int32_t manual_begin(uint32_t version, pixaura_document_context* context,
     const pixaura_document_handle* base, const uint8_t* gesture_id, uint64_t gesture_bytes,
     const uint8_t* tool_id, uint64_t tool_bytes, const uint8_t* replace_id, uint64_t replace_bytes,
-    pixaura_manual_gesture* output) {
+    pixaura_manual_gesture* output, bool geometry_only) {
     return boundary(nullptr, [&] {
         require(version == 1, PIXAURA_UNSUPPORTED_ABI); require(output != nullptr);
         identity(gesture_id, gesture_bytes);
         const auto tool = input_view(tool_id, tool_bytes, 64);
         const auto* descriptor = pixaura::manual::find(tool);
-        require(descriptor && descriptor->category == "geometry", PIXAURA_DOCUMENT_UNSUPPORTED_OPERATION);
+        require(descriptor && (!geometry_only || descriptor->category == "geometry"), PIXAURA_DOCUMENT_UNSUPPORTED_OPERATION);
         std::optional<std::string_view> replace;
         if (replace_bytes != 0) { identity(replace_id, replace_bytes); replace = input_view(replace_id, replace_bytes, 32); }
         else require(replace_id == nullptr);
@@ -224,6 +224,8 @@ int32_t pixaura_manual_geometry_begin(uint32_t version, pixaura_document_context
         std::memcpy(result.context_id, h.identity, 32); *output = result; return PIXAURA_OK;
     });
 }
+int32_t pixaura_manual_geometry_begin(uint32_t version,pixaura_document_context* context,const pixaura_document_handle* base,const uint8_t* gesture_id,uint64_t gesture_bytes,const uint8_t* tool_id,uint64_t tool_bytes,const uint8_t* replace_id,uint64_t replace_bytes,pixaura_manual_gesture* output){return manual_begin(version,context,base,gesture_id,gesture_bytes,tool_id,tool_bytes,replace_id,replace_bytes,output,true);}
+int32_t pixaura_manual_begin(uint32_t version,pixaura_document_context* context,const pixaura_document_handle* base,const uint8_t* gesture_id,uint64_t gesture_bytes,const uint8_t* tool_id,uint64_t tool_bytes,const uint8_t* replace_id,uint64_t replace_bytes,pixaura_manual_gesture* output){return manual_begin(version,context,base,gesture_id,gesture_bytes,tool_id,tool_bytes,replace_id,replace_bytes,output,false);}
 int32_t pixaura_manual_geometry_update(pixaura_document_context* context, const pixaura_manual_gesture* token,
     const pixaura_document_handle* base, const uint8_t* request, uint64_t bytes, uint64_t* sequence) {
     return boundary(nullptr, [&] {
@@ -280,3 +282,9 @@ int32_t pixaura_manual_geometry_release(pixaura_document_context* context, const
         (void)gesture_locked(h, token); h.registry->gestures.erase(token->serial); return PIXAURA_OK;
     });
 }
+int32_t pixaura_manual_update(pixaura_document_context* c,const pixaura_manual_gesture* g,const pixaura_document_handle* h,const uint8_t* p,uint64_t n,uint64_t* s){return pixaura_manual_geometry_update(c,g,h,p,n,s);}
+int32_t pixaura_manual_projection(pixaura_document_context* c,const pixaura_manual_gesture* g,const pixaura_document_handle* h,uint8_t* p,uint64_t n,uint64_t* r,uint64_t* s){return pixaura_manual_geometry_projection(c,g,h,p,n,r,s);}
+int32_t pixaura_manual_current(pixaura_document_context* c,const pixaura_manual_gesture* g,const pixaura_document_handle* h,uint64_t s){return pixaura_manual_geometry_current(c,g,h,s);}
+int32_t pixaura_manual_commit(pixaura_document_context* c,const pixaura_manual_gesture* g,const pixaura_document_handle* h,const uint8_t* r,uint64_t n,pixaura_document_handle* p,uint32_t* changed){return pixaura_manual_geometry_commit(c,g,h,r,n,p,changed);}
+int32_t pixaura_manual_cancel(pixaura_document_context* c,const pixaura_manual_gesture* g){return pixaura_manual_geometry_cancel(c,g);}
+int32_t pixaura_manual_release(pixaura_document_context* c,const pixaura_manual_gesture* g){return pixaura_manual_geometry_release(c,g);}

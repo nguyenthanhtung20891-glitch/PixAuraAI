@@ -1,11 +1,14 @@
 #include "../src/storage.hpp"
 #include "../src/sha256.hpp"
+#include "../src/storage_schema.hpp"
+#include "../src/storage_schema_v2.hpp"
 #include "../vendor/sqlite/sqlite3.h"
 #include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <future>
@@ -196,7 +199,7 @@ void database_tests(const String& golden) {
     note("db.rollback_and_explicit_migration");fault_point=static_cast<int>(Point::in_transaction);error(12,[&]{again.apply(command(now,"undo"),now.epoch);});
     const auto failed_append=commit_tail("00000000000000000000000000000105","00000000000000000000000000000015",500);
     error(12,[&]{again.apply(command(now,"commit",failed_append),now.epoch);});
-    error(12,[&]{again.migrate(1,1);});fault_point=-1;CHECK(canonical(again.read())==canonical(now)&&again.read().epoch==now.epoch);again.migrate(1,1);error(4,[&]{again.migrate(1,2);});error(4,[&]{again.migrate(0,1);});
+    error(12,[&]{again.migrate(1,1);});fault_point=-1;CHECK(canonical(again.read())==canonical(now)&&again.read().epoch==now.epoch);again.migrate(1,1);error(4,[&]{again.migrate(1,3);});error(4,[&]{again.migrate(0,1);});
     note("db.busy_is_bounded_and_readers_work");CHECK(raw.sql("BEGIN IMMEDIATE")==SQLITE_OK);const auto start=std::chrono::steady_clock::now();error(busy,[&]{again.apply(command(now,"undo"),now.epoch);});CHECK(std::chrono::steady_clock::now()-start<std::chrono::seconds(3));CHECK(canonical(r.read())==canonical(now));CHECK(raw.sql("ROLLBACK")==SQLITE_OK);
     note("db.WAL_budget_preserves_reader_and_committed_state");
     CHECK(raw.sql("BEGIN; SELECT count(*) FROM revisions")==SQLITE_OK);
@@ -217,7 +220,7 @@ void database_tests(const String& golden) {
     Directory corrupt("corrupt");prepare(corrupt,golden);{Raw c(corrupt.root);CHECK(c.sql("PRAGMA foreign_keys=OFF; UPDATE documents SET current='ffffffffffffffffffffffffffffffff'")==SQLITE_OK);}Repository c(corrupt.path());error(6,[&]{c.read();});
     Directory malformed("malformed");prepare(malformed,golden);{Raw bad(malformed.root);CHECK(bad.sql("PRAGMA ignore_check_constraints=ON; UPDATE documents SET generation=-1")==SQLITE_OK);}Repository bad(malformed.path());error(6,[&]{bad.read();});
     Directory invalid_redo("redo");prepare(invalid_redo,golden);{Raw red(invalid_redo.root);CHECK(red.sql("INSERT INTO redo VALUES('00000000000000000000000000000002',0,'00000000000000000000000000000100')")==SQLITE_OK);}Repository red(invalid_redo.path());error(6,[&]{red.read();});
-    Directory future("future");prepare(future,golden);{Raw f(future.root);CHECK(f.sql("PRAGMA user_version=2")==SQLITE_OK);}error(4,[&]{Repository f(future.path());});
+    Directory future("future");prepare(future,golden);{Raw f(future.root);CHECK(f.sql("PRAGMA user_version=3")==SQLITE_OK);}error(4,[&]{Repository f(future.path());});
     Directory schema("schema");prepare(schema,golden);{Raw f(schema.root);CHECK(f.sql("DROP TRIGGER immutable_revision_delete")==SQLITE_OK);}error(6,[&]{Repository f(schema.path());});
     Directory tamper("referenced");auto a=prepare(tamper,golden);auto source=tamper.root/"assets/sha256"/std::string(a.digest);fs::permissions(source,fs::perms::owner_write,fs::perm_options::add);{std::ofstream f(source,std::ios::binary|std::ios::trunc);f<<'x';}Repository t(tamper.path());error(6,[&]{t.read();});
 }
@@ -255,12 +258,53 @@ void crash_tests(const char* self,const char* file,const String& golden) {
     }
     (void)golden;
 }
+std::string schema_rows(sqlite3* db) {
+    sqlite3_stmt* q=nullptr;CHECK(sqlite3_prepare_v2(db,"SELECT type,name,tbl_name,coalesce(sql,'') FROM sqlite_schema ORDER BY name",-1,&q,nullptr)==SQLITE_OK);
+    std::string out;int rc=SQLITE_OK;
+    while((rc=sqlite3_step(q))==SQLITE_ROW)for(int i=0;i<4;++i){const auto n=sqlite3_column_bytes(q,i);out+=std::to_string(n);out+=':';out.append(reinterpret_cast<const char*>(sqlite3_column_text(q,i)),static_cast<std::size_t>(n));}
+    CHECK(rc==SQLITE_DONE);CHECK(sqlite3_finalize(q)==SQLITE_OK);return out;
+}
+std::string schema_fixture(const char* sql) {
+    sqlite3* db=nullptr;CHECK(sqlite3_open(":memory:",&db)==SQLITE_OK);CHECK(sqlite3_exec(db,sql,nullptr,nullptr,nullptr)==SQLITE_OK);auto out=schema_rows(db);CHECK(sqlite3_close(db)==SQLITE_OK);return out;
+}
+void migration_allocation(Point point){if(point==Point::migration_schema)throw std::bad_alloc();}
+void migration_tests(const char* self,const char* file,const String& golden) {
+    const auto v1=schema_fixture(schema_sql),v2=schema_fixture(schema_v2_sql);CHECK(v1!=v2);
+    note("migration.empty_exact_fingerprints_and_no_auto_upgrade");
+    {Directory d("migration-empty");{Repository r(d.path());CHECK(r.version()==1);Raw raw(d.root);CHECK(schema_rows(raw.db)==v1);r.migrate(1,2);CHECK(r.version()==2);CHECK(schema_rows(raw.db)==v2);error(4,[&]{r.migrate(1,2);});r.migrate(2,2);}Repository r(d.path());CHECK(r.version()==2);}
+    for(unsigned scenario=0;scenario<3;++scenario){
+        note("migration.populated_order_history_branch_redo");Directory d("migration-history");String fixture_golden(golden);
+        if(scenario==1){const std::string_view old="\"quarter_turns\":1";const auto at=fixture_golden.find(old);CHECK(at!=String::npos);fixture_golden.replace(at,old.size(),"\"height_ppm\":500000,\"width_ppm\":500000,\"x_ppm\":0,\"y_ppm\":0");const auto type=fixture_golden.find("pixaura.rotate");fixture_golden.replace(type,14,"pixaura.crop");}
+        prepare(d,fixture_golden);Repository r(d.path());auto state=r.read();
+        if(scenario==2){r.apply(command(state,"undo"),state.epoch);state=r.read();r.apply(command(state,"commit",commit_tail("00000000000000000000000000000103","00000000000000000000000000000013",-500)),state.epoch);state=r.read();r.apply(command(state,"undo"),state.epoch);state=r.read();CHECK(!state.snapshot->redo().empty()&&state.snapshot->revisions().size()==4);}
+        const auto before=canonical(state);Raw raw(d.root);CHECK(schema_rows(raw.db)==v1);
+        String new_tone=commit_tail("00000000000000000000000000000109","00000000000000000000000000000019",250);const auto type_at=new_tone.find("pixaura.exposure");new_tone.replace(type_at,16,"pixaura.brightness");const auto parameter_at=new_tone.find("milli_ev");new_tone.replace(parameter_at,8,"milli_linear");
+        error(4,[&]{r.apply(command(state,"commit",new_tone),state.epoch);});CHECK(r.version()==1&&canonical(r.read())==before&&r.read().epoch==state.epoch);
+        for(const auto point:{Point::migration_copy,Point::migration_schema,Point::migration_validate,Point::migration_commit}){fault_point=static_cast<int>(point);error(12,[&]{r.migrate(1,2);});fault_point=-1;CHECK(r.version()==1&&schema_rows(raw.db)==v1&&canonical(r.read())==before&&r.read().epoch==state.epoch);}
+        point_hook=migration_allocation;bool allocation=false;try{r.migrate(1,2);}catch(const std::bad_alloc&){allocation=true;}point_hook=nullptr;CHECK(allocation&&r.version()==1&&schema_rows(raw.db)==v1&&canonical(r.read())==before);
+        for(const auto rc:{SQLITE_NOMEM,SQLITE_IOERR,SQLITE_FULL,SQLITE_INTERRUPT}){migration_sqlite_error=rc;error(rc==SQLITE_IOERR?12:8,[&]{r.migrate(1,2);});CHECK(r.version()==1&&schema_rows(raw.db)==v1&&canonical(r.read())==before&&r.read().epoch==state.epoch);}
+        r.migrate(1,2);CHECK(r.version()==2&&schema_rows(raw.db)==v2);auto after=r.read();CHECK(canonical(after)==before&&after.epoch==state.epoch&&after.snapshot->session().id==state.snapshot->session().id&&after.snapshot->session().generation==state.snapshot->session().generation&&after.snapshot->source().sha256==state.snapshot->source().sha256);
+        Repository reopened(d.path());CHECK(reopened.version()==2&&canonical(reopened.read())==before);error(4,[&]{reopened.migrate(1,2);});CHECK(canonical(reopened.read())==before);
+        CHECK(raw.sql("UPDATE operations SET ev=0")==SQLITE_CONSTRAINT);
+        for(const auto* columns:{"brightness","contrast","brightness,ev"}){
+            const std::string values=std::strcmp(columns,"brightness,ev")==0?"250,0":std::strcmp(columns,"contrast")==0?"250":"NULL";
+            const std::string sql=std::string("INSERT INTO operations(document,id,seq,type,ov,pv,")+columns+") VALUES('00000000000000000000000000000002','00000000000000000000000000000099',99,'pixaura.brightness',1,1,"+values+")";CHECK(raw.sql(sql.c_str())==SQLITE_CONSTRAINT);
+        }
+        for(const auto* value:{"1001","-1001","1.5"}){const std::string sql=std::string("INSERT INTO operations(document,id,seq,type,ov,pv,brightness) VALUES('00000000000000000000000000000002','00000000000000000000000000000099',99,'pixaura.brightness',1,1,")+value+")";CHECK(raw.sql(sql.c_str())==SQLITE_CONSTRAINT);}
+        CHECK(raw.sql("INSERT INTO operations(document,id,seq,type,ov,pv,brightness) VALUES('00000000000000000000000000000002','00000000000000000000000000000099',99,'pixaura.vibrance',1,1,250)")==SQLITE_CONSTRAINT);
+        CHECK(raw.sql("INSERT INTO operations(document,id,seq,type,ov,pv,brightness) VALUES('00000000000000000000000000000002','00000000000000000000000000000099',99,'pixaura.brightness',2,1,250)")==SQLITE_CONSTRAINT);
+    }
+    note("migration.tamper_reject_before_mutation");
+    for(unsigned scenario=0;scenario<3;++scenario){Directory d("migration-invalid");prepare(d,golden);Repository r(d.path());Raw raw(d.root);CHECK(raw.sql(scenario==0?"DROP TRIGGER immutable_operation_delete":scenario==1?"PRAGMA application_id=77":"PRAGMA user_version=3")==SQLITE_OK);const auto before=schema_rows(raw.db);error(scenario==0?6:4,[&]{r.migrate(1,2);});CHECK(schema_rows(raw.db)==before);}
+    for(int point=static_cast<int>(Point::migration_copy);point<=static_cast<int>(Point::migration_published);++point){note("migration.crash_atomic_publication");Directory d("migration-crash");prepare(d,golden);String before;{Repository r(d.path());before=canonical(r.read());}CHECK(launch(self,point,d.path(),file)==73);Repository reopened(d.path());const auto expected=point==static_cast<int>(Point::migration_published)?2u:1u;CHECK(reopened.version()==expected&&canonical(reopened.read())==before);if(expected==1)reopened.migrate(1,2);else error(4,[&]{reopened.migrate(1,2);});CHECK(reopened.version()==2&&canonical(reopened.read())==before);}
+}
 }
 int main(int argc,char** argv) {
     try {
         if(argc==5&&std::string_view(argv[1])=="--crash") {
+            if(std::atoi(argv[2])>=static_cast<int>(Point::migration_copy)){Repository r(argv[3]);fault_point=std::atoi(argv[2]);crash_fault=true;r.migrate(1,2);return 75;}
             fault_point=std::atoi(argv[2]);crash_fault=true;const auto golden=fixture(argv[4]);AssetStore store(argv[3]);Input input(stream_buffer+128);const auto asset=store.ingest(input,stream_buffer+128);Repository r(argv[3]);auto snapshot=good(document::deserialize(manifest(golden,asset),"00000000000000000000000000000500"));r.create(*snapshot);return 75;
         }
-        CHECK(argc==2);const auto golden=fixture(argv[1]);digest_tests();path_shape_tests();database_tests(golden);concurrency_tests(golden);crash_tests(argv[0],argv[1],golden);std::puts("SQLite persistence, streamed immutable assets, crash/failure and concurrency PASS");return 0;
+        CHECK(argc==2);const auto golden=fixture(argv[1]);digest_tests();path_shape_tests();database_tests(golden);concurrency_tests(golden);crash_tests(argv[0],argv[1],golden);migration_tests(argv[0],argv[1],golden);std::puts("SQLite persistence, streamed immutable assets, crash/failure, migration and concurrency PASS");return 0;
     }catch(const document::Failure& e){std::fprintf(stderr,"storage FAIL status=%d\n",e.code);return 1;}catch(const std::exception& e){std::fprintf(stderr,"storage FAIL %s\n",e.what());return 1;}
 }

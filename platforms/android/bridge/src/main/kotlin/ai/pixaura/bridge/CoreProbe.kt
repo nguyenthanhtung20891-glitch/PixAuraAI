@@ -16,6 +16,8 @@ class CoreProbe {
     // Small offline metadata boundary probe; native owns the tool contract.
     external fun nativeManualRegistry(): ByteArray?
     external fun nativeGeometryBoundary(manifest: ByteArray, contextId: ByteArray): Int
+    external fun nativeToneBoundary(manifest: ByteArray, contextId: ByteArray): Int
+    external fun nativeStorageMigrate(root: ByteArray, expected: Int, target: Int): Int
 
     private external fun nativePreviewPixels(
         privateRoot: ByteArray, digest: ByteArray, assetBytes: Long,

@@ -1,4 +1,5 @@
 #include "document.hpp"
+#include "tone.hpp"
 #include "pixaura/document.h"
 
 #include <algorithm>
@@ -37,7 +38,7 @@ const std::set<String>& allowed(Shape shape) {
     static const std::set<String> source{"sha256", "byte_length", "metadata"};
     static const std::set<String> metadata{"width", "height", "orientation", "codec", "has_alpha", "icc_sha256"};
     static const std::set<String> operation{"id", "type", "operation_version", "parameter_version", "parameters"};
-    static const std::set<String> parameters{"milli_ev", "quarter_turns", "x_ppm", "y_ppm", "width_ppm", "height_ppm"};
+    static const std::set<String> parameters{"milli_ev", "milli_linear", "milli_stops", "milli_ratio", "kelvin", "quarter_turns", "x_ppm", "y_ppm", "width_ppm", "height_ppm"};
     static const std::set<String> revision{"id", "parent_id", "stack", "actor", "plan_id"};
     static const std::set<String> command{"command_version", "kind", "expected_revision_id", "expected_session_id", "expected_generation", "revision_id", "operations", "stack", "actor", "plan_id"};
     static const std::set<String> evaluation{"operations"};
@@ -250,6 +251,9 @@ EditOperation operation(const Json& value) {
         Crop c{static_cast<uint32_t>(number("x_ppm", 0, 999999)), static_cast<uint32_t>(number("y_ppm", 0, 999999)),
             static_cast<uint32_t>(number("width_ppm", 1, 1000000)), static_cast<uint32_t>(number("height_ppm", 1, 1000000))};
         require(c.x_ppm + c.width_ppm <= 1000000 && c.y_ppm + c.height_ppm <= 1000000, PIXAURA_DOCUMENT_INVALID_PARAMETERS); params = c;
+    } else if(const auto* spec=tone::find(type)) {
+        keys(p, {spec->parameter.data()}, PIXAURA_DOCUMENT_INVALID_PARAMETERS);
+        params=Tone{static_cast<int32_t>(number(spec->parameter.data(),spec->low,spec->high))};
     } else fail(PIXAURA_DOCUMENT_UNSUPPORTED_OPERATION);
     return {id(field(value, "id")), type, static_cast<uint32_t>(ov), static_cast<uint32_t>(pv), params};
 }
@@ -273,7 +277,8 @@ Json operation_json(const EditOperation& op) {
     else if (const auto* c = std::get_if<Crop>(&op.parameters)) {
         parameters = {{"x_ppm", Json(static_cast<int64_t>(c->x_ppm))}, {"y_ppm", Json(static_cast<int64_t>(c->y_ppm))},
             {"width_ppm", Json(static_cast<int64_t>(c->width_ppm))}, {"height_ppm", Json(static_cast<int64_t>(c->height_ppm))}};
-    } else parameters.emplace("quarter_turns", Json(static_cast<int64_t>(std::get<Rotate>(op.parameters).quarter_turns)));
+    } else if(const auto* r=std::get_if<Rotate>(&op.parameters)) parameters.emplace("quarter_turns", Json(static_cast<int64_t>(r->quarter_turns)));
+    else {const auto* spec=tone::find(op.type);require(spec!=nullptr,PIXAURA_DOCUMENT_UNSUPPORTED_OPERATION);parameters.emplace(String(spec->parameter),Json(static_cast<int64_t>(std::get<Tone>(op.parameters).value)));}
     return Json(Json::Object{{"id", Json(op.id.text())}, {"type", Json(op.type)}, {"operation_version", Json(static_cast<int64_t>(op.operation_version))},
         {"parameter_version", Json(static_cast<int64_t>(op.parameter_version))}, {"parameters", Json(std::move(parameters))}});
 }

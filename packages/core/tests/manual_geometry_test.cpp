@@ -1,5 +1,6 @@
 #include "../src/document.hpp"
 #include "../src/storage.hpp"
+#include "../src/tone.hpp"
 #include "pixaura/manual.h"
 #include "pixaura/geometry.h"
 #include "../../../tests/fixtures/decode/fixtures.h"
@@ -224,6 +225,60 @@ int main(int argc,char** argv) {
     CHECK(pixaura_manual_geometry_release(&context,&g)==0);
     g=begin(false,base); CHECK(pixaura_manual_geometry_current(&context,&g,&sentinel,1)==9);
     CHECK(pixaura_manual_geometry_release(&context,&g)==0 && pixaura_document_release(&context,&sentinel)==0);
+    // Step 3 shared boundary: the same controller and PRV1 compose tone with
+    // the durable geometry stack. No platform slider/domain implementation.
+    CHECK(repository->version()==1);repository->migrate(1,2);CHECK(repository->version()==2);
+    for(const auto& spec:tone::specs){
+        const std::string tool(spec.type),parameter(spec.parameter);
+        const auto value=spec.neutral==spec.high?spec.low:spec.high;
+        const auto edit_id=id(++fresh);
+        const auto edit=[&](int v){return "{\"operations\":[{\"id\":\""+edit_id+"\",\"type\":\""+tool+"\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\""+parameter+"\":"+std::to_string(v)+"}}]}";};
+        const auto changed_request=edit(value),neutral_request=edit(spec.neutral),invalid_request=edit(spec.high+1);
+        auto start=[&](){pixaura_manual_gesture token{};const auto gid=id(++fresh);CHECK(pixaura_manual_begin(1,&context,&base,ptr(gid),32,ptr(tool),tool.size(),nullptr,0,&token)==0);return token;};
+        const auto before=serialized(context,base);g=start();
+        for(unsigned i=0;i<1001;++i)CHECK(pixaura_manual_update(&context,&g,&base,ptr(changed_request),changed_request.size(),&seq)==0&&seq==i+1);
+        CHECK(pixaura_manual_update(&context,&g,&base,ptr(neutral_request),neutral_request.size(),&seq)==0&&seq==1002);
+        pixaura_document_handle same{};uint32_t changed=99;auto revision=id(++fresh);
+        CHECK(pixaura_manual_commit(&context,&g,&base,ptr(revision),32,&same,&changed)==0&&changed==0&&same.serial==base.serial&&serialized(context,base)==before);
+        CHECK(pixaura_manual_release(&context,&g)==0);
+        g=start();for(unsigned i=0;i<1001;++i)CHECK(pixaura_manual_update(&context,&g,&base,ptr(changed_request),changed_request.size(),&seq)==0&&seq==i+1);
+        CHECK(pixaura_manual_update(&context,&g,&base,ptr(invalid_request),invalid_request.size(),&seq)==7&&seq==1001);
+        CHECK(pixaura_manual_current(&context,&g,&base,1000)==13&&pixaura_manual_current(&context,&g,&base,1001)==0);
+        CHECK(serialized(context,base)==before);
+        const auto projected=projection(context,g,base,seq);
+        CHECK(pixaura_preview_begin(&raster,1,&ticket)==0);
+        CHECK(pixaura_manual_render(&context,&g,&base,&raster,&original,&wl,nullptr,&ticket,&pr,&preview,&rendered)==0&&rendered==1001);
+        CHECK(pixaura_preview_query(&raster,&preview,&pm)==0);
+        const auto displayed=preview;failed=preview;restricted=wl;restricted.image_bytes=16;
+        CHECK(pixaura_preview_begin(&raster,1,&ticket)==0);
+        CHECK(pixaura_manual_render(&context,&g,&base,&raster,&original,&restricted,nullptr,&ticket,&pr,&failed,&rendered)==8&&failed.serial==displayed.serial&&rendered==1001);
+        CHECK(pixaura_preview_query(&raster,&displayed,&pm)==0&&pixaura_preview_release(&raster,&preview)==0);
+        pixaura_document_handle proposal{};revision=id(++fresh);
+        CHECK(pixaura_manual_commit(&context,&g,&base,ptr(revision),32,&proposal,&changed)==0&&changed==1);
+        CHECK(pixaura_manual_commit(&context,&g,&base,ptr(revision),32,&proposal,&changed)==13);
+        auto prior=snapshot(before,session),next=snapshot(serialized(context,proposal),session);
+        CHECK(next->revisions().size()==prior->revisions().size()+1&&next->operations().size()==prior->operations().size()+1);
+        persist(proposal,changed_request);
+        // Restart replay retains full ordering and yields the same logical
+        // evaluation envelope, not merely a cached preview or checkpoint.
+        auto replayed=document::replay(*repository->read().snapshot,repository->read().snapshot->current());CHECK(replayed.code==0);
+        auto reload=document::deserialize(serialized(context,proposal),session);CHECK(reload.code==0);
+        auto reference=document::replay(*reload.value,reload.value->current());CHECK(reference.code==0&&reference.value.size()==replayed.value.size());
+        for(std::size_t i=0;i<reference.value.size();++i)CHECK(reference.value[i].id==replayed.value[i].id&&reference.value[i].type==replayed.value[i].type);
+        const auto restarted_text=std::string(document::serialize(*repository->read().snapshot).value);const auto restarted_session=id(++fresh),restarted_gesture=id(++fresh);pixaura_document_handle restarted_handle{};pixaura_manual_gesture reloaded_gesture{};
+        CHECK(pixaura_document_open(1,&context,ptr(restarted_text),restarted_text.size(),ptr(restarted_session),32,&restarted_handle,nullptr)==0);
+        CHECK(pixaura_manual_begin(1,&context,&restarted_handle,ptr(restarted_gesture),32,ptr(tool),tool.size(),nullptr,0,&reloaded_gesture)==0);
+        const auto reloaded_projection=projection(context,reloaded_gesture,restarted_handle,seq);CHECK(reloaded_projection==projected);
+        pixaura_decode_handle evaluated{},reconstructed{};CHECK(pixaura_working_evaluate(&raster,&original,1,ptr(projected),projected.size(),&wl,&evaluated)==0);
+        CHECK(pixaura_working_evaluate(&raster,&original,1,ptr(reloaded_projection),reloaded_projection.size(),&wl,&reconstructed)==0);
+        pixaura_working_metadata metadata{};CHECK(pixaura_working_query(&raster,&evaluated,&metadata)==0);std::vector<float> before_pixels(static_cast<std::size_t>(metadata.image_bytes/4)),after_pixels(before_pixels.size());
+        CHECK(pixaura_working_copy(&raster,&evaluated,0,before_pixels.data(),before_pixels.size())==0&&pixaura_working_copy(&raster,&reconstructed,0,after_pixels.data(),after_pixels.size())==0&&std::memcmp(before_pixels.data(),after_pixels.data(),static_cast<std::size_t>(metadata.image_bytes))==0);
+        CHECK(pixaura_decode_release(&raster,&evaluated)==0&&pixaura_decode_release(&raster,&reconstructed)==0&&pixaura_manual_cancel(&context,&reloaded_gesture)==0&&pixaura_manual_release(&context,&reloaded_gesture)==0&&pixaura_document_release(&context,&restarted_handle)==0);
+        CHECK(pixaura_manual_release(&context,&g)==0&&pixaura_document_release(&context,&base)==0);base=proposal;
+        g=start();CHECK(pixaura_manual_cancel(&context,&g)==0&&pixaura_manual_commit(&context,&g,&base,ptr(revision),32,&proposal,&changed)==13&&pixaura_manual_release(&context,&g)==0);
+        g=start();const auto live_text=serialized(context,base),other_session=id(++fresh);pixaura_document_handle stale_live{};CHECK(pixaura_document_open(1,&context,ptr(live_text),live_text.size(),ptr(other_session),32,&stale_live,nullptr)==0);
+        seq=999;CHECK(pixaura_manual_update(&context,&g,&stale_live,ptr(neutral_request),neutral_request.size(),&seq)==9&&seq==999&&pixaura_manual_release(&context,&g)==0&&pixaura_document_release(&context,&stale_live)==0);
+    }
     float unchanged[24]; CHECK(pixaura_working_copy(&raster,&original,0,unchanged,24)==0 && std::memcmp(unchanged,original_pixels,sizeof(unchanged))==0);
     CHECK(pixaura_decode_context_destroy(&raster)==0 && pixaura_document_context_destroy(&context)==0);
     std::printf("manual geometry: %u checks; ordered replay, 1001-update commits, PRV1, durable restart and admission retry PASS\n",checks);
