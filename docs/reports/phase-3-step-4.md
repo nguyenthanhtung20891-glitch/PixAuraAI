@@ -43,7 +43,7 @@ Observed local results on the Step 4 implementation:
 - Storage: old 1->2 coverage retained; empty/populated/mixed tone/branch/redo 2->3, exact schema fingerprints, complete canonical envelope equality, reopen, IDs/order/source/current/session/generation/epoch preservation, malformed/application/version rejection and repeated migration rejection PASS. Four controlled precommit faults, allocation and SQLite NOMEM/IOERR/FULL/INTERRUPT rollback PASS. Five new 2->3 process-crash boundaries PASS (19 crash children total including existing durability cases).
 - Shell syntax, actionlint, frozen schema-1/2 source fingerprint assertions, deferred Apple gate equality and git diff --check: PASS.
 
-Full Linux source checks: 103/103 PASS, zero skipped. Android debug/release assembly, debug/release lint, JVM tests (2 debug + 2 release) and instrumentation APK build: BUILD SUCCESSFUL. Local emulator execution is not claimed. On cf35ac863f95276e1183bad4dc992d2df565ab5b, Linux/source/sanitizer/workflow-lint and both Android ABI jobs passed; Android app build/JVM and 9 emulator instrumentation tests passed. Apple native passed 23/23. MSVC rejected an integer initializer in the new float fixture; Swift exposed an old positional exposure lookup after registry expansion. Both test-only defects are corrected (typed 0.0f; stable tool-ID lookup), preserving warnings and assertions. Hosted closure remains pending. No pending or skipped gate is PASS. Initial hosted Windows found a source-checkout CRLF hashing defect in the new historical-file assertion; it is corrected by LF normalization, without changing either historical SQL or the native exact SQL fingerprint policy. Corrected focused source tests: 4/4 PASS.
+Full Linux source checks: 103/103 PASS, zero skipped. Android debug/release assembly, debug/release lint, JVM tests (2 debug + 2 release) and instrumentation APK build: BUILD SUCCESSFUL. Local emulator execution is not claimed. On cf35ac863f95276e1183bad4dc992d2df565ab5b, Linux/source/sanitizer/workflow-lint and both Android ABI jobs passed; Android app build/JVM and 9 emulator instrumentation tests passed. Apple native passed 23/23. MSVC rejected an integer initializer in the new float fixture; Swift exposed an old positional exposure lookup after registry expansion. Both test-only defects are corrected (typed 0.0f; stable tool-ID lookup), preserving warnings and assertions. On b7b690708f476aa506ae7f3103c48f10d6da202b, all seven Foundation jobs passed, including MSVC and Apple native/Swift/iOS contracts. Android app build passed but emulator unlock timed out before instrumentation: an infrastructure readiness failure, not a detail pixel failure. Unlock now uses the existing bounded readiness retry with unchanged per-command timeout and required successful unlock; transient/persistent negative regression coverage was added. Local complete source regression after unlock correction: 104/104 PASS, zero skipped. iOS app on b7b6907 passed debug/release builds, Swift contracts and six app/UI tests. Hosted closure remains pending. No pending or skipped gate is PASS. Initial hosted Windows found a source-checkout CRLF hashing defect in the new historical-file assertion; it is corrected by LF normalization, without changing either historical SQL or the native exact SQL fingerprint policy. Corrected focused source tests: 4/4 PASS.
 
 ## Scope and conflicts
 
@@ -86,6 +86,7 @@ Phase 3 Step 5 has NOT started.
 - `packages/core/tests/storage_test.cpp`
 - `platforms/android/app/src/androidTest/java/ai/pixaura/app/ManualBoundaryTest.kt`
 - `platforms/android/app/src/androidTest/java/ai/pixaura/app/StorageBoundaryTest.kt`
+- `scripts/check-android-emulator.sh`
 - `scripts/check-apple.sh`
 - `tests/geometry-execution.test.mjs`
 - `tests/manual-geometry.test.mjs`
@@ -102,4 +103,5 @@ Phase 3 Step 5 has NOT started.
 - `packages/core/tests/detail_fixtures.hpp`
 - `packages/core/tests/detail_test.cpp`
 - `scripts/detail-reference.py`
+- `tests/android-emulator.test.mjs`
 - `tests/detail-tools.test.mjs`

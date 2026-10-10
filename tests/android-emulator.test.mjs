@@ -126,7 +126,10 @@ case "$*" in
     if [[ "$MOCK_SCENARIO" == package-timeout || "$(next package)" == 1 ]]; then
       echo 'Error: package manager not ready'
     else echo 'package:/system/framework/framework-res.apk'; fi ;;
-  'shell input keyevent 82') echo unlocked ;;
+  'shell input keyevent 82')
+    if [[ "$MOCK_SCENARIO" == unlock-timeout ]]; then exit 124; fi
+    if [[ "$MOCK_SCENARIO" == unlock-retry && "$(next unlock)" == 1 ]]; then exit 124; fi
+    echo unlocked ;;
   'shell umask 077; mkdir '*)
     if [[ "$MOCK_SCENARIO" == transport-setup-failure ]]; then exit 1; fi
     if [[ "$*" =~ pixaura-gpu-([0-9a-f]{32}) ]]; then
@@ -402,6 +405,17 @@ for (const scenario of ['low-disk', 'local-low-disk', 'symlink-cleanup', 'invali
     if (scenario === 'symlink-cleanup') assert.match(result.diskLog, /Refusing cleanup/);
   });
 }
+
+test('unlock retries transient timeout and rejects persistent failure before instrumentation', () => {
+  const retry = runScenario('unlock-retry');
+  assert.equal(retry.status, 0);
+  assert.match(retry.stdout, /unlock ready after 2 probe/);
+  const failed = runScenario('unlock-timeout');
+  assert.equal(failed.status, 124);
+  assert.equal(failed.phase, 'unlock');
+  assert.equal(failed.gradleArgs, '');
+  assert.match(failed.stderr, /Timed out waiting for unlock/);
+});
 
 for (const scenario of ['transient', 'persistent']) {
   test('SDK provisioning bounds retries and preserves failure: ' + scenario, () => {

@@ -300,8 +300,9 @@ timeout --kill-after=5s 10s "$ANDROID_HOME/emulator/qemu-img" info -U --output=j
     > "$evidence/userdata-running.json"
 wait_for boot-completion "$boot_timeout" boot_complete
 wait_for package-manager "$package_timeout" package_ready
-phase=unlock
-adb_command -s "$ANDROID_SERIAL" shell input keyevent 82
+# Input service may lag package-manager readiness. Keep each ADB call bounded
+# and require a successful unlock within the existing readiness budget.
+wait_for unlock "$package_timeout" adb_command -s "$ANDROID_SERIAL" shell input keyevent 82
 phase=instrumentation
 echo "Executing JNI/Compose tests (independent budget ${test_timeout}s)"
 transport_run="$("$node_command" -e 'process.stdout.write(require("node:crypto").randomBytes(16).toString("hex"))')"
