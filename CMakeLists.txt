@@ -73,6 +73,7 @@ target_sources(pixaura_core PRIVATE packages/core/src/gpu.cpp packages/core/src/
 include(CTest)
 if(BUILD_TESTING)
     add_executable(preset_c_consumer packages/core/tests/preset_c_consumer.c)
+    set_target_properties(preset_c_consumer PROPERTIES LINKER_LANGUAGE CXX)
     target_link_libraries(preset_c_consumer PRIVATE pixaura_core)
     pixaura_strict(preset_c_consumer)
     add_test(NAME preset_c_consumer COMMAND preset_c_consumer "${CMAKE_SOURCE_DIR}/tests/fixtures/image-document-v1.json")

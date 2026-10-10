@@ -13,7 +13,10 @@ public:
         std::set<String> ids;std::size_t bytes=0;
         for(const auto& recipe:recipes){auto canonical=serialize_preset(recipe);if(canonical.code)throw Failure{canonical.code};
             for(const auto& op:recipe.operations)if(!manual::preset_operation(op))throw Failure{5};
-            if(!ids.insert(recipe.preset_id).second)throw Failure{6};bytes+=canonical.value.size();if(bytes>262144)throw Failure{8};}
+            if(!ids.insert(recipe.preset_id).second)throw Failure{6};
+            bytes+=canonical.value.size();
+            if(bytes>262144)throw Failure{8};
+        }
         recipes_=recipes;
         std::sort(recipes_.begin(),recipes_.end(),[](const PresetRecipe& a,const PresetRecipe& b){return a.preset_id<b.preset_id;});
     }

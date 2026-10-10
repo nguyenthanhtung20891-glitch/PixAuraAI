@@ -56,3 +56,7 @@ Preset proposal serialization equals the same ordinary manual ordered batch; CPU
 - `packages/core/tests/preset_test.cpp`
 - `tests/fixtures/preset-reference-v1.json`
 - `tests/presets.test.mjs`
+
+## Hosted portability remediation
+
+Implementation `c321e92f6b0fd02352c2bae26510a0a2b7a7ca19` exposed GCC misleading-indentation in catalog bounds and a Clang sanitizer C-consumer link missing the C++ vptr runtime. The statements are separated and the C-source consumer uses the C++ linker, consistent with existing sanitizer C ABI consumers. MSVC also requires fopen_s in the bounded C fixture reader; use it only under _MSC_VER and reject truncated/read-error input. No warnings or sanitizer checks disabled; no semantic or scope change. Replacement exact-SHA workflows are required before closure.
