@@ -1,6 +1,6 @@
 # Phase 3 Step 5: Filters and Presets Foundation
 
-Status: IN PROGRESS, not FULL PASS. Authorized baseline `2f82083f8a350e6a1c588d3dbd8e5d48e503a9b1`. Step 6 not started.
+Status: COMPLETE / FULL PASS (technical gates). Authorized baseline `2f82083f8a350e6a1c588d3dbd8e5d48e503a9b1`. Step 6 not started.
 
 ## Audit and frozen contract
 
@@ -10,7 +10,7 @@ Existing detached batch revision/history and Schema 3 preserve all required sema
 
 ## Validation
 
-Observed source suite: 107/107 PASS, zero skipped. Final focused contract/documentation checks: 13/13 PASS. Strict Clang shadow diagnostics, actionlint and git diff --check PASS. Android debug/release assembly, lint, JVM tests and instrumentation APK build PASS. Final Windows native 25/25 PASS (3,938 preset checks; 1,443 injected allocation failures recovered). Final Linux native 25/25 PASS (4,888 preset checks; 1,918 injected allocation failures recovered). Android JVM: 2 debug and 2 release tests, zero failures/skips. Final ASan/UBSan suite: 27/27 PASS, including active instrumentation probes and the complete allocation/storage/migration/crash regression corpus. Hosted Android instrumentation/Apple/Swift/iOS/exact-SHA gates remain pending, not PASS.
+Observed source suite: 107/107 PASS, zero skipped. Final focused contract/documentation checks: 13/13 PASS. Strict Clang shadow diagnostics, actionlint and git diff --check PASS. Android debug/release assembly, lint, JVM tests and instrumentation APK build PASS. Final Windows native 25/25 PASS (3,938 preset checks; 1,443 injected allocation failures recovered). Final Linux native 25/25 PASS (4,888 preset checks; 1,918 injected allocation failures recovered). Android JVM: 2 debug and 2 release tests, zero failures/skips. Final ASan/UBSan suite: 27/27 PASS, including active instrumentation probes and the complete allocation/storage/migration/crash regression corpus. Hosted gates observed PASS on implementation SHA `82a0c287da4727631f4bbba5e2c3897eac779d51`: Android arm64-v8a/armeabi-v7a native boundaries, debug/release builds/lint/JVM and 10 emulator instrumentation tests; Apple native 25/25, Swift macOS 11/11 and iOS simulator 11/11; iOS debug/release build, app 6/6 and UI tests PASS. Simulator Metal remains UNSUPPORTED and is not physical certification. DH-APPLE-METAL-01 is unchanged.
 
 ## Scope
 
@@ -59,4 +59,4 @@ Preset proposal serialization equals the same ordinary manual ordered batch; CPU
 
 ## Hosted portability remediation
 
-Implementation `c321e92f6b0fd02352c2bae26510a0a2b7a7ca19` exposed GCC misleading-indentation in catalog bounds and a Clang sanitizer C-consumer link missing the C++ vptr runtime. The statements are separated and the C-source consumer uses the C++ linker, consistent with existing sanitizer C ABI consumers. MSVC also requires fopen_s in the bounded C fixture reader; use it only under _MSC_VER and reject truncated/read-error input. No warnings or sanitizer checks disabled; no semantic or scope change. Replacement exact-SHA workflows are required before closure.
+Implementation `c321e92f6b0fd02352c2bae26510a0a2b7a7ca19` exposed GCC misleading-indentation in catalog bounds and a Clang sanitizer C-consumer link missing the C++ vptr runtime. The statements are separated and the C-source consumer uses the C++ linker, consistent with existing sanitizer C ABI consumers. MSVC also requires fopen_s in the bounded C fixture reader; use it only under _MSC_VER and reject truncated/read-error input. No warnings or sanitizer checks disabled; no semantic or scope change. Replacement workflows are observed SUCCESS: [Foundation boundaries 38074930433](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38074930433) (7/7 jobs) and [Native application shells 38074930443](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38074930443) (3/3 jobs), both exact implementation SHA `82a0c287da4727631f4bbba5e2c3897eac779d51`. Final documentation closure SHA and its exact-SHA reruns are reported in delivery; the closure changes status/evidence only, with no additional implementation.
