@@ -1,5 +1,7 @@
 # Architectural decision index
 
+Phase 3 Step 5: accepted operation batches already support one preset application as one detached manual revision proposal. [Preset v1](docs/contracts/presets-v1.md) freezes bounded canonical tone/detail recipes, excludes geometry, and ships an empty preset catalog. Normal operations/revisions retain inspectability and fit Schema 3; no Schema 4 or migration change is required. No parallel engine or AI behavior. Step 6 is not started.
+
 Phase 3 Step 4 authorization freezes only scalar Sharpen/Blur under the [detail v1 contract](docs/contracts/manual-detail-v1.md). Schema 1/2 remain immutable; independent schema 3 and explicit transactional 2->3 are authorized Category A. Bounded three-row scratch preserves existing ceilings and two-raster ownership. [ADR 0020](docs/adr/0020-bounded-detail-reference.md) records this narrow extension; no automatic migration, direct 1->3, GPU expansion or Step 5 work.
 
 Phase 3 Step 3 Architect decision, 2026-10-10: schema 1 remains immutable;

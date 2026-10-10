@@ -37,4 +37,10 @@ class ManualBoundaryTest {
         assertEquals(5000, exposure.getInt("maximum"))
         assertEquals(0, exposure.getInt("default"))
     }
+    @Test fun presetsUseSharedCanonicalAndBatchProposalBoundary() {
+        val fixture = InstrumentationRegistry.getInstrumentation().context.assets.open("image-document-v1.json").use { it.readBytes() }
+        val identity = java.util.UUID.randomUUID().toString().replace("-", "").toByteArray(Charsets.US_ASCII)
+        assertEquals(0, CoreProbe().nativePresetBoundary(fixture, identity))
+    }
+
 }

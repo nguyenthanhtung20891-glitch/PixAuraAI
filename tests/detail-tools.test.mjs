@@ -42,6 +42,6 @@ test('schemas 1/2 stay immutable; independent strict schema 3 and bounded scope'
   const sql=read('packages/core/src/storage_schema_v3.hpp');assert.match(sql,/PRAGMA user_version=3/);for(const tool of ['blur','sharpen'])assert.ok(sql.includes(`${tool} IS NOT NULL AND ${tool} BETWEEN 0 AND 1000`));assert.doesNotMatch(sql,/\bBLOB\b|\bJSON\b/);
   for(const gate of ['.github/workflows/foundation.yml','.github/workflows/native-shells.yml','scripts/check-apple.sh'])assert.ok(read(gate).includes('tests/detail-tools.test.mjs'));
   assert.match(read('CMakeLists.txt'),/add_test\(NAME detail_test COMMAND detail_test\)/);
-  for(let n=5;n<=8;n++)assert.match(read('ROADMAP.md'),new RegExp(`\\| ${n} \\|[^\\n]+\\| NOT STARTED \\|`));
+  for(let n=6;n<=8;n++)assert.match(read('ROADMAP.md'),new RegExp(`\\| ${n} \\|[^\\n]+\\| NOT STARTED \\|`));
   for(const tool of ['denoise','clarity','texture','dehaze'])assert.ok(!read('packages/core/src/detail.hpp').includes('pixaura.'+tool));
 });

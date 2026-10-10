@@ -135,4 +135,44 @@ final class ManualBoundaryTests: XCTestCase {
         XCTAssertEqual(parameters[0]["maximum"] as? Int, 5000)
         XCTAssertEqual(parameters[0]["default"] as? Int, 0)
     }
+    func testPresetCanonicalAndDetachedBatchUseSharedBoundary() throws {
+        let url = try XCTUnwrap(Bundle.module.url(forResource: "image-document-v1", withExtension: "json", subdirectory: "Fixtures"))
+        let fixture = Array(try Data(contentsOf: url))
+        let recipeURL = try XCTUnwrap(Bundle.module.url(forResource: "preset-reference-v1", withExtension: "json", subdirectory: "Fixtures"))
+        let recipe = Array(try Data(contentsOf: recipeURL))
+        var needed: UInt64 = 999
+        XCTAssertEqual(recipe.withUnsafeBufferPointer { pixaura_preset_canonical(2, $0.baseAddress, UInt64($0.count), nil, 0, &needed) }, 2)
+        XCTAssertEqual(needed, 999)
+        XCTAssertEqual(recipe.withUnsafeBufferPointer { pixaura_preset_canonical(1, $0.baseAddress, UInt64($0.count), nil, 0, &needed) }, 11)
+        var canonical = [UInt8](repeating: 0, count: Int(needed))
+        XCTAssertEqual(recipe.withUnsafeBufferPointer { input in canonical.withUnsafeMutableBufferPointer { output in
+            pixaura_preset_canonical(1, input.baseAddress, UInt64(input.count), output.baseAddress, UInt64(output.count), &needed)
+        } }, 0)
+        XCTAssertEqual(canonical, recipe)
+        let identity = Array(UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased().utf8)
+        var context = pixaura_document_context(), base = pixaura_document_handle(), proposal = pixaura_document_handle()
+        XCTAssertEqual(identity.withUnsafeBufferPointer { pixaura_document_context_init(1, &context, 64, $0.baseAddress, 32, nil) }, 0)
+        defer { XCTAssertEqual(pixaura_document_context_destroy(&context), 0) }
+        XCTAssertEqual(fixture.withUnsafeBufferPointer { m in identity.withUnsafeBufferPointer { i in pixaura_document_open(1, &context, m.baseAddress, UInt64(m.count), i.baseAddress, 32, &base, nil) } }, 0)
+        let bindings = Array("{\"operation_ids\":[\"00000000000000000000000000000701\",\"00000000000000000000000000000702\"]}".utf8)
+        let revision = Array("00000000000000000000000000000801".utf8)
+        var changed: UInt32 = 99
+        func apply(_ live: inout pixaura_document_handle, _ output: inout pixaura_document_handle) -> Int32 {
+            recipe.withUnsafeBufferPointer { r in bindings.withUnsafeBufferPointer { b in revision.withUnsafeBufferPointer { v in
+                pixaura_preset_propose(1, &context, &base, &live, r.baseAddress, UInt64(r.count), b.baseAddress, UInt64(b.count), v.baseAddress, 32, &output, &changed)
+            } } }
+        }
+        var live = base
+        XCTAssertEqual(apply(&live, &proposal), 0)
+        XCTAssertEqual(changed, 1)
+        XCTAssertNotEqual(proposal.serial, base.serial)
+        live = proposal
+        var sentinel = base
+        changed = 99
+        XCTAssertEqual(apply(&live, &sentinel), 9)
+        XCTAssertEqual(sentinel.serial, base.serial)
+        XCTAssertEqual(changed, 99)
+        XCTAssertEqual(pixaura_document_release(&context, &proposal), 0)
+    }
+
 }

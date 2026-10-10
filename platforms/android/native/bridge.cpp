@@ -9,6 +9,7 @@
 #include "../../../packages/core/tests/geometry_boundary.h"
 #include "../../../packages/core/tests/manual_geometry_boundary.h"
 #include "../../../packages/core/tests/manual_tone_boundary.h"
+#include "../../../packages/core/tests/preset_boundary.h"
 #include "../../../packages/core/tests/preview_boundary.h"
 #include <vector>
 #include <cstring>
@@ -78,6 +79,19 @@ extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_CoreProbe_nativeToneBou
         uint8_t context_id[32]; env->GetByteArrayRegion(identity, 0, 32, reinterpret_cast<jbyte*>(context_id));
         if (env->ExceptionCheck()) return PIXAURA_INVALID_ARGUMENT;
         return manual_tone_boundary_check(bytes.data(), bytes.size(), context_id);
+    } catch (...) { return PIXAURA_DOCUMENT_RESOURCE_LIMIT; }
+}
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_CoreProbe_nativePresetBoundary(JNIEnv* env, jobject, jbyteArray manifest, jbyteArray identity) {
+    if (!manifest || !identity || env->GetArrayLength(identity) != 32) return PIXAURA_INVALID_ARGUMENT;
+    const auto count = env->GetArrayLength(manifest);
+    if (count <= 0 || count > 8192) return PIXAURA_DOCUMENT_RESOURCE_LIMIT;
+    try {
+        std::vector<uint8_t> bytes(static_cast<std::size_t>(count));
+        env->GetByteArrayRegion(manifest, 0, count, reinterpret_cast<jbyte*>(bytes.data()));
+        if (env->ExceptionCheck()) return PIXAURA_INVALID_ARGUMENT;
+        uint8_t context_id[32]; env->GetByteArrayRegion(identity, 0, 32, reinterpret_cast<jbyte*>(context_id));
+        if (env->ExceptionCheck()) return PIXAURA_INVALID_ARGUMENT;
+        return preset_boundary_check(bytes.data(), bytes.size(), context_id);
     } catch (...) { return PIXAURA_DOCUMENT_RESOURCE_LIMIT; }
 }
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_InteractivePreview_nativeStorageSize(JNIEnv*,jobject){return sizeof(InteractiveStorage);}

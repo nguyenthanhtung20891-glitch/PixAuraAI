@@ -32,7 +32,7 @@ struct Json {
     explicit Json(Object value) : data(std::move(value)) {}
     explicit Json(Array value) : data(std::move(value)) {}
 };
-enum class Shape { Manifest, Source, Metadata, Operation, Parameters, Revision, Command, Evaluation, Scalar };
+enum class Shape { Manifest, Source, Metadata, Operation, Parameters, Revision, Command, Evaluation, Preset, Bindings, Scalar };
 const std::set<String>& allowed(Shape shape) {
     // Immutable registry data only; no global mutable state.
     static const std::set<String> manifest{"schema_version", "project_id", "document_id", "source", "operations", "revisions", "current_revision_id", "redo"};
@@ -43,6 +43,8 @@ const std::set<String>& allowed(Shape shape) {
     static const std::set<String> revision{"id", "parent_id", "stack", "actor", "plan_id"};
     static const std::set<String> command{"command_version", "kind", "expected_revision_id", "expected_session_id", "expected_generation", "revision_id", "operations", "stack", "actor", "plan_id"};
     static const std::set<String> evaluation{"operations"};
+    static const std::set<String> preset{"schema_version","recipe_version","preset_id","name","operations"};
+    static const std::set<String> bindings{"operation_ids"};
     switch (shape) {
         case Shape::Manifest: return manifest;
         case Shape::Source: return source;
@@ -52,6 +54,8 @@ const std::set<String>& allowed(Shape shape) {
         case Shape::Revision: return revision;
         case Shape::Command: return command;
         case Shape::Evaluation: return evaluation;
+        case Shape::Preset: return preset;
+        case Shape::Bindings: return bindings;
         default: fail();
     }
 }
@@ -59,6 +63,7 @@ const std::set<String>& allowed(Shape shape) {
 class Parser {
     std::string_view input_;
     bool evaluation_ = false;
+    bool preset_ = false;
     std::size_t position_ = 0;
     void whitespace() {
         while (position_ < input_.size() && (input_[position_] == ' ' || input_[position_] == '\n' || input_[position_] == '\r' || input_[position_] == '\t')) ++position_;
@@ -144,7 +149,7 @@ class Parser {
     }
     Json value(uint32_t depth, Shape shape = Shape::Scalar, std::size_t array_limit = 0, Shape element = Shape::Scalar) {
         whitespace();
-        if (peek() == '{' || peek() == '[') require(depth <= 16, PIXAURA_DOCUMENT_RESOURCE_LIMIT);
+        if (peek() == '{' || peek() == '[') require(depth <= (preset_ ? 4u : 16u), PIXAURA_DOCUMENT_RESOURCE_LIMIT);
         if (peek() == '{') {
             require(shape != Shape::Scalar);
             ++position_; whitespace(); Json::Object result;
@@ -158,10 +163,11 @@ class Parser {
                 if (key == "source") child = Shape::Source;
                 else if (key == "metadata") child = Shape::Metadata;
                 else if (key == "parameters") child = Shape::Parameters;
-                else if (key == "operations") { bound = evaluation_ ? 256 : 4096; item = Shape::Operation; }
+                else if (key == "operations") { bound = preset_ ? 16 : evaluation_ ? 256 : 4096; item = Shape::Operation; }
                 else if (key == "revisions") { bound = 4096; item = Shape::Revision; }
                 else if (key == "stack") bound = 256;
                 else if (key == "redo") bound = 4095;
+                else if (key == "operation_ids") bound = 16;
                 result.emplace(std::move(key), value(depth + 1, child, bound, item));
                 whitespace();
                 if (peek() == '}') { ++position_; break; }
@@ -205,7 +211,7 @@ class Parser {
         return Json(negative ? -static_cast<int64_t>(number) : static_cast<int64_t>(number));
     }
 public:
-    Parser(std::string_view input, std::size_t bound, bool evaluation = false) : input_(input), evaluation_(evaluation) {
+    Parser(std::string_view input, std::size_t bound, bool evaluation = false, bool preset = false) : input_(input), evaluation_(evaluation), preset_(preset) {
         require(input.size() <= bound, PIXAURA_DOCUMENT_RESOURCE_LIMIT);
     }
     Json parse(Shape shape) { auto result = value(1, shape); whitespace(); require(position_ == input_.size()); return result; }
@@ -504,4 +510,44 @@ Result<Vector<EditOperation>> parse_evaluation(std::string_view request) {
         return ordered;
     });
 }
+namespace {
+void preset_identity(const String& identity) {
+    require(!identity.empty() && identity.size()<=64);
+    require(identity.rfind("pixaura.",0)==0 || identity.rfind("local.",0)==0 || identity.rfind("reference.",0)==0);
+    bool segment=false;
+    for(char c:identity){if(c=='.'){require(segment);segment=false;}else{require((c>='a'&&c<='z')||(c>='0'&&c<='9')||c=='_');segment=true;}}
+    require(segment);
+}
+void preset_values(const PresetRecipe& recipe) {
+    preset_identity(recipe.preset_id);
+    require(!recipe.name.empty() && recipe.name.size()<=64);
+    for(unsigned char c:recipe.name)require(c>=32&&c<=126);
+    require(!recipe.operations.empty());
+    require(recipe.operations.size()<=16,PIXAURA_DOCUMENT_RESOURCE_LIMIT);
+    std::set<String> seen;
+    for(const auto& op:recipe.operations){operation(operation_json(op));require(seen.insert(op.id.text()).second);
+        require(op.type=="pixaura.exposure" || tone::find(op.type) || detail::find(op.type),PIXAURA_DOCUMENT_UNSUPPORTED_OPERATION);}
+}
+}
+Result<PresetRecipe> parse_preset(std::string_view input) {
+    return attempt<PresetRecipe>([&]{
+        const auto json=Parser(input,16384,true,true).parse(Shape::Preset);
+        keys(json,{"schema_version","recipe_version","preset_id","name","operations"});
+        integer(field(json,"schema_version"),1,1,PIXAURA_DOCUMENT_UNSUPPORTED_SCHEMA);
+        integer(field(json,"recipe_version"),1,1,PIXAURA_DOCUMENT_UNSUPPORTED_SCHEMA);
+        PresetRecipe recipe{text(field(json,"preset_id")),text(field(json,"name")),{}};
+        for(const auto& entry:array(field(json,"operations")))recipe.operations.push_back(operation(entry));
+        preset_values(recipe);return recipe;
+    });
+}
+Result<String> serialize_preset(const PresetRecipe& recipe) {
+    return attempt<String>([&]{preset_values(recipe);Json::Array operations;
+        for(const auto& op:recipe.operations)operations.push_back(operation_json(op));
+        auto output=Writer().write(Json(Json::Object{{"schema_version",Json(int64_t(1))},{"recipe_version",Json(int64_t(1))},{"preset_id",Json(recipe.preset_id)},{"name",Json(recipe.name)},{"operations",Json(std::move(operations))}}));
+        require(output.size()<=16384,PIXAURA_DOCUMENT_RESOURCE_LIMIT);return output;});
+}
+Result<Vector<Id>> parse_preset_bindings(std::string_view input) {
+    return attempt<Vector<Id>>([&]{const auto json=Parser(input,1024,false,true).parse(Shape::Bindings);keys(json,{"operation_ids"});return stack(field(json,"operation_ids"));});
+}
+
 }

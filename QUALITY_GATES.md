@@ -1,8 +1,12 @@
 # Quality gates and promotion policy
 
+## Phase 3 Step 5 acceptance
+
+Foundation only: [preset contract](docs/contracts/presets-v1.md), bounded canonical recipes of accepted tone/detail operations, geometry rejection, empty shipping catalog, all-or-nothing validation and one inspectable detached batch revision. Require canonical/reference/manual equivalence, ordering/reapplication/neutral/undo/redo/stale/cancel/failure/resource tests, existing SQLite commit/reopen replay, allocation faults, C/JNI/Swift consumers and full Windows/Linux/sanitizer/mobile/exact-SHA hosted gates. Schema 3 and all historical fingerprints remain unchanged; no migration change, AI, marketplace/import/cloud/plugin/UI or Step 6 work. Step 5 is IN PROGRESS; [report](docs/reports/phase-3-step-5.md). No pending gate counts as PASS.
+
 ## Phase 3 Step 4 acceptance
 
-Only Sharpen/Blur are authorized. Require the frozen [detail contract](docs/contracts/manual-detail-v1.md), independent reference fixtures, exact neutral/alpha/border behavior, integer validation, ordered mixed stacks, shared gesture/preview fences and persistent restart/replay. Preserve schema 1/2 exact fingerprints; require independent strict schema 3 and explicit transactional 2->3 migration with complete state preservation and allocation/SQLite/crash rollback tests. Never auto-migrate or accept direct 1->3. Preserve all resource ceilings and two-raster ownership; bound and admit reusable three-row scratch and cancellation checkpoints. Windows/Linux/native/sanitizers, Android build/JVM/instrumentation, Apple/Swift/iOS simulator/app and exact-SHA hosted workflows must execute successfully. No detail GPU, final UI or additional tools. Steps 5-8 remain NOT STARTED; DH-APPLE-METAL-01 is unchanged/unexecuted. Step 4 is COMPLETE / FULL PASS; see the [report](docs/reports/phase-3-step-4.md). No pending gate is PASS.
+Only Sharpen/Blur are authorized. Require the frozen [detail contract](docs/contracts/manual-detail-v1.md), independent reference fixtures, exact neutral/alpha/border behavior, integer validation, ordered mixed stacks, shared gesture/preview fences and persistent restart/replay. Preserve schema 1/2 exact fingerprints; require independent strict schema 3 and explicit transactional 2->3 migration with complete state preservation and allocation/SQLite/crash rollback tests. Never auto-migrate or accept direct 1->3. Preserve all resource ceilings and two-raster ownership; bound and admit reusable three-row scratch and cancellation checkpoints. Windows/Linux/native/sanitizers, Android build/JVM/instrumentation, Apple/Swift/iOS simulator/app and exact-SHA hosted workflows must execute successfully. No detail GPU, final UI or additional tools. Step 5 is separately authorized; Steps 6-8 remain NOT STARTED; DH-APPLE-METAL-01 is unchanged/unexecuted. Step 4 is COMPLETE / FULL PASS; see the [report](docs/reports/phase-3-step-4.md). No pending gate is PASS.
 
 ## Phase 3 Step 3 acceptance
 
@@ -16,7 +20,7 @@ explicit transactional 1->2 migration, complete state preservation and rollback/
 SQLite/allocation/crash tests. Ordinary open must not migrate.
 Windows/Linux/native/sanitizers, Android build/JVM/instrumentation and Apple
 compile/Swift/simulator plus exact-SHA hosted workflows must actually pass.
-No new GPU kernels, final editor UI or additional tools. Step 4 is COMPLETE / FULL PASS; Steps 5-8 remain NOT
+No new GPU kernels, final editor UI or additional tools. Step 4 is COMPLETE / FULL PASS; Step 5 is separately authorized; Steps 6-8 remain NOT
 STARTED. DH-APPLE-METAL-01 is unchanged and unexecuted.
 Step 3 is COMPLETE / FULL PASS (technical gates); observed evidence is in the [Step 3 report](docs/reports/phase-3-step-3.md). Unexecuted gates never count as PASS.
 
@@ -31,7 +35,7 @@ Verify canonical SQLite commit/reopen and immutable source hash, boundary/invali
 cases, exhaustive allocation failures, Windows/Linux native and ASan/UBSan,
 Android JVM/instrumentation, Apple compile/Swift/simulator and exact-SHA hosted
 regression closure. No unexecuted check is PASS. Resize remains PROPOSED.
-Step 3 is COMPLETE / FULL PASS; Step 4 is COMPLETE / FULL PASS; Steps 5–8 are not started. DH-APPLE-METAL-01 is unchanged and not executed.
+Step 3 is COMPLETE / FULL PASS; Step 4 is COMPLETE / FULL PASS; Step 5 is separately authorized; Steps 6–8 are not started. DH-APPLE-METAL-01 is unchanged and not executed.
 See the [Step 2 report](docs/reports/phase-3-step-2.md).
 
 ## Phase 3 Step 1 acceptance
@@ -47,7 +51,7 @@ Android JVM/native boundaries and Apple compile/Swift contract gates. Existing
 gates and ceilings remain mandatory. See [report](docs/reports/phase-3-step-1.md)
 and [contract](docs/contracts/manual-tools-v1.md). The official [eight-step Phase 3
 roadmap](ROADMAP.md#frozen-phase-3-numbered-roadmap--manual-tools) is frozen;
-Steps 1/2 are complete; Step 3 is COMPLETE / FULL PASS; Step 4 is COMPLETE / FULL PASS; Steps 5–8 remain NOT STARTED.
+Steps 1/2 are complete; Step 3 is COMPLETE / FULL PASS; Step 4 is COMPLETE / FULL PASS; Step 5 is separately authorized; Steps 6–8 remain NOT STARTED.
 
 ## Phase 3 scope discipline
 

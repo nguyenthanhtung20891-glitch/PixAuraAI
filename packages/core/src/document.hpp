@@ -90,5 +90,9 @@ Result<Snapshot> transition(const ImageDocument& document, const DetachedCandida
 Result<Vector<EditOperation>> replay(const ImageDocument& document, const Id& revision);
 // Bounded evaluation envelope: {"operations":[schema-1 operation records]}.
 Result<Vector<EditOperation>> parse_evaluation(std::string_view request);
+struct PresetRecipe { String preset_id, name; Vector<EditOperation> operations; };
+Result<PresetRecipe> parse_preset(std::string_view recipe);
+Result<String> serialize_preset(const PresetRecipe& recipe);
+Result<Vector<Id>> parse_preset_bindings(std::string_view bindings);
 }
 #endif

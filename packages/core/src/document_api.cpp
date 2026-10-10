@@ -1,6 +1,8 @@
 #include "pixaura/document.h"
 #include "document.hpp"
 #include "manual_tools.hpp"
+#include "preset.hpp"
+#include "pixaura/preset.h"
 
 #include <cstring>
 #include <limits>
@@ -288,3 +290,14 @@ int32_t pixaura_manual_current(pixaura_document_context* c,const pixaura_manual_
 int32_t pixaura_manual_commit(pixaura_document_context* c,const pixaura_manual_gesture* g,const pixaura_document_handle* h,const uint8_t* r,uint64_t n,pixaura_document_handle* p,uint32_t* changed){return pixaura_manual_geometry_commit(c,g,h,r,n,p,changed);}
 int32_t pixaura_manual_cancel(pixaura_document_context* c,const pixaura_manual_gesture* g){return pixaura_manual_geometry_cancel(c,g);}
 int32_t pixaura_manual_release(pixaura_document_context* c,const pixaura_manual_gesture* g){return pixaura_manual_geometry_release(c,g);}
+
+extern "C" int32_t pixaura_preset_propose(uint32_t version,pixaura_document_context* context,
+ const pixaura_document_handle* base,const pixaura_document_handle* current,
+ const uint8_t* recipe,uint64_t recipe_bytes,const uint8_t* bindings,uint64_t bindings_bytes,
+ const uint8_t* revision_id,uint64_t revision_bytes,pixaura_document_handle* output,uint32_t* changed) {
+    return boundary(nullptr,[&]{require(version==1,PIXAURA_UNSUPPORTED_ABI);require(output&&changed);const auto h=live(context);
+        const auto recipe_view=input_view(recipe,recipe_bytes,16384),bindings_view=input_view(bindings,bindings_bytes,1024),revision_view=input_view(revision_id,revision_bytes,32);
+        std::lock_guard<std::mutex> guard(h.registry->mutex);const auto prior=snapshot_locked(h,base),now=snapshot_locked(h,current);
+        auto result=pixaura::preset::propose(prior,now,recipe_view,bindings_view,revision_view);auto proposal=unwrap(std::move(result));const bool mutation=proposal!=now;
+        const auto handle=mutation?insert_locked(h,std::move(proposal)):*current;*output=handle;*changed=mutation?1u:0u;return PIXAURA_OK;});
+}

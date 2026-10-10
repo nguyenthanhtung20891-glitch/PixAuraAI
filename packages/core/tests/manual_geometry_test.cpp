@@ -3,6 +3,8 @@
 #include "../src/tone.hpp"
 #include "../src/detail.hpp"
 #include "pixaura/manual.h"
+#include "pixaura/preset.h"
+#include "preset_boundary.h"
 #include "pixaura/geometry.h"
 #include "../../../tests/fixtures/decode/fixtures.h"
 #include <chrono>
@@ -65,6 +67,7 @@ int main(int argc,char** argv) {
     CHECK(pixaura_decode_image(&raster,&source,&decoded)==0 && pixaura_working_normalize(&raster,&decoded,&wl,&original)==0);
     CHECK(pixaura_decode_release(&raster,&decoded)==0 && pixaura_decode_release(&raster,&source)==0);
     float original_pixels[24]; CHECK(pixaura_working_copy(&raster,&original,0,original_pixels,24)==0);
+    CHECK(preset_boundary_check(ptr(initial),initial.size(),ptr(id(990)))==0);
     unsigned fresh=1000;
     auto begin=[&](bool is_crop, const pixaura_document_handle& live) {
         pixaura_manual_gesture g{}; const auto gid=id(++fresh); const std::string tool=is_crop?"pixaura.crop":"pixaura.rotate";
@@ -282,6 +285,39 @@ int main(int argc,char** argv) {
         g=start();CHECK(pixaura_manual_cancel(&context,&g)==0&&pixaura_manual_commit(&context,&g,&base,ptr(revision),32,&proposal,&tone_changed)==13&&pixaura_manual_release(&context,&g)==0);
         g=start();const auto live_text=serialized(context,base),other_session=id(++fresh);pixaura_document_handle stale_live{};CHECK(pixaura_document_open(1,&context,ptr(live_text),live_text.size(),ptr(other_session),32,&stale_live,nullptr)==0);
         seq=999;CHECK(pixaura_manual_update(&context,&g,&stale_live,ptr(neutral_request),neutral_request.size(),&seq)==9&&seq==999&&pixaura_manual_release(&context,&g)==0&&pixaura_document_release(&context,&stale_live)==0);
+    }
+    // Two identical preset batches append distinct ordinary operations, persist,
+    // reopen and reconstruct the exact existing evaluator's pixels.
+    for(unsigned iteration=0;iteration<2;++iteration){
+        const auto old=serialized(context,base);auto before=snapshot(old,session);
+        const auto operation1=id(++fresh),operation2=id(++fresh),revision=id(++fresh);
+        const std::string binding="{\"operation_ids\":[\""+operation1+"\",\""+operation2+"\"]}";
+        pixaura_document_handle proposal=base;uint32_t preset_changed=99;
+        CHECK(pixaura_preset_propose(1,&context,&base,&base,ptr(preset_reference_input),strlen(preset_reference_input),ptr(binding),binding.size(),ptr(revision),32,&proposal,&preset_changed)==0&&preset_changed==1);
+        auto after=snapshot(serialized(context,proposal),session);CHECK(after->revisions().size()==before->revisions().size()+1&&after->operations().size()==before->operations().size()+2);
+        auto parsed=document::parse_preset(preset_reference_input);CHECK(parsed.code==0);parsed.value.operations[0].id=document::Id::parse(operation1);parsed.value.operations[1].id=document::Id::parse(operation2);
+        const std::string canonical=document::serialize_preset(parsed.value).value;const auto left=canonical.find('['),right=canonical.rfind(']');const std::string request="{\"operations\":"+canonical.substr(left,right-left+1)+"}";
+        persist(proposal,request);
+        auto replayed=document::replay(*after,after->current());CHECK(replayed.code==0);std::string evaluated_request="{\"operations\":[";
+        // Derive ordinary operation records from the canonical full document.
+        const std::string stored=document::serialize(*after).value;const auto operations_key=stored.find("\"operations\":["),operations_end=stored.find("],\"project_id\"",operations_key);
+        evaluated_request=stored.substr(operations_key+14,operations_end-operations_key-14);evaluated_request="{\"operations\":["+evaluated_request+"]}";
+        pixaura_decode_handle evaluated{},reloaded{};CHECK(pixaura_working_evaluate(&raster,&original,1,ptr(evaluated_request),evaluated_request.size(),&wl,&evaluated)==0);
+        const auto restarted=repository->read();CHECK(document::serialize(*restarted.snapshot).value==stored&&restarted.snapshot->source().sha256==after->source().sha256);
+        CHECK(pixaura_working_evaluate(&raster,&original,1,ptr(evaluated_request),evaluated_request.size(),&wl,&reloaded)==0);pixaura_working_metadata metadata{};CHECK(pixaura_working_query(&raster,&evaluated,&metadata)==0);
+        std::vector<float> pixels(static_cast<std::size_t>(metadata.image_bytes/4)),restart_pixels(pixels.size());CHECK(pixaura_working_copy(&raster,&evaluated,0,pixels.data(),pixels.size())==0&&pixaura_working_copy(&raster,&reloaded,0,restart_pixels.data(),restart_pixels.size())==0&&pixels==restart_pixels);
+        pixaura_preview_ticket preset_ticket{};pixaura_preview_request preview_request{1,sizeof(preview_request),PIXAURA_PREVIEW_EXACT,0,0,0};pixaura_decode_handle discarded=evaluated;
+        CHECK(pixaura_preview_begin(&raster,1,&preset_ticket)==0&&pixaura_preview_cancel(&raster,&preset_ticket)==0);
+        CHECK(pixaura_preview_render_interactive(&raster,&evaluated,&preset_ticket,&preview_request,&discarded)==13&&discarded.serial==evaluated.serial);
+        CHECK(pixaura_decode_release(&raster,&evaluated)==0&&pixaura_decode_release(&raster,&reloaded)==0&&pixaura_document_release(&context,&base)==0);base=proposal;
+    }
+    // Durable undo/redo restores the entire final preset batch across reopen.
+    const auto approved=document::serialize(*repository->read().snapshot).value;
+    for(const std::string kind:{"undo","redo"}){
+        const auto loaded=repository->read();const std::string navigation="{\"command_version\":1,\"kind\":\""+kind+"\",\"expected_revision_id\":\""+loaded.snapshot->current().text()+"\",\"expected_session_id\":\""+loaded.snapshot->session().id.text()+"\",\"expected_generation\":"+std::to_string(loaded.snapshot->session().generation)+"}";
+        CHECK(repository->apply(navigation,loaded.epoch).epoch==loaded.epoch+1);repository.reset();repository=std::make_unique<storage::Repository>(path);
+        const auto preset_reopened=repository->read();if(kind=="undo")CHECK(preset_reopened.snapshot->redo().size()==1);else CHECK(document::serialize(*preset_reopened.snapshot).value==approved);
+        CHECK(preset_reopened.snapshot->source().sha256.text()==asset.digest);
     }
     float unchanged[24]; CHECK(pixaura_working_copy(&raster,&original,0,unchanged,24)==0 && std::memcmp(unchanged,original_pixels,sizeof(unchanged))==0);
     CHECK(pixaura_decode_context_destroy(&raster)==0 && pixaura_document_context_destroy(&context)==0);

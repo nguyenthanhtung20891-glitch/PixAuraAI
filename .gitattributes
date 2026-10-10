@@ -14,3 +14,6 @@ packages/core/swift/Tests/Fixtures/image-document-v1.json text eol=lf
 packages/core/vendor/sqlite/sqlite3.c -text
 packages/core/vendor/sqlite/sqlite3.h -text
 packages/core/vendor/codecs/** -text whitespace=-blank-at-eof
+
+tests/fixtures/preset-reference-v1.json text eol=lf
+packages/core/swift/Tests/Fixtures/preset-reference-v1.json text eol=lf

@@ -1,6 +1,7 @@
 #include "manual_tools.hpp"
 #include "tone.hpp"
 #include "detail.hpp"
+#include "pixaura/preset.h"
 #include <algorithm>
 #include <cstring>
 #include <new>
@@ -109,6 +110,8 @@ String registry_json() {
     return output;
 }
 }
+bool is_neutral(const EditOperation& op) { return neutral(op); }
+bool preset_operation(const EditOperation& op) { const auto* descriptor=find(op.type,op.operation_version,op.parameter_version); return descriptor&&(descriptor->category=="tone_color"||descriptor->category=="detail"); }
 const std::array<Descriptor, 11>& registry() { return descriptors; }
 int32_t validate_descriptors(const Descriptor* table, std::size_t count) {
     if (!table || count == 0 || count > PIXAURA_MANUAL_MAX_DESCRIPTORS) return PIXAURA_DOCUMENT_RESOURCE_LIMIT;
@@ -277,4 +280,14 @@ extern "C" int32_t pixaura_manual_canonical_operation(uint32_t version, const ui
         output += pixaura::manual::canonical_operation(op); output += "]}\n";
         return output;
     });
+}
+
+extern "C" int32_t pixaura_preset_canonical(uint32_t version,const uint8_t* recipe,uint64_t bytes,uint8_t* output,uint64_t capacity,uint64_t* required) {
+    return boundary(version,output,capacity,required,[&]{if(!recipe||!bytes)throw pixaura::document::Failure{1};if(bytes>PIXAURA_PRESET_MAX_BYTES)throw pixaura::document::Failure{8};
+        auto parsed=pixaura::document::parse_preset({reinterpret_cast<const char*>(recipe),static_cast<std::size_t>(bytes)});if(parsed.code)throw pixaura::document::Failure{parsed.code};
+        for(const auto& op:parsed.value.operations)if(!pixaura::manual::preset_operation(op))throw pixaura::document::Failure{5};
+        auto canonical=pixaura::document::serialize_preset(parsed.value);if(canonical.code)throw pixaura::document::Failure{canonical.code};return canonical.value;});
+}
+extern "C" int32_t pixaura_preset_catalog(uint32_t version,uint8_t* output,uint64_t capacity,uint64_t* required) {
+    return boundary(version,output,capacity,required,[]{return pixaura::document::String("{\"presets\":[]}\n");});
 }

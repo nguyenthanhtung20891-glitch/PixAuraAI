@@ -54,7 +54,7 @@ public:
     Saved create(const document::ImageDocument&);
     Saved apply(std::string_view command, uint64_t expected_epoch);
     bool checkpoint();
-    // Explicit verified 1->1 / 2->2 no-op or transactional 1->2 migration.
+    // Explicit verified same-version no-op or transactional 1->2 / 2->3 migration.
     // Ordinary open preserves the existing version and never migrates.
     void migrate(uint32_t expected, uint32_t target);
 };
