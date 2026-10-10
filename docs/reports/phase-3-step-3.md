@@ -1,6 +1,6 @@
 # Phase 3 Step 3: Tone & Color Tools
 
-Status: IN PROGRESS; not yet FULL PASS. Authorized baseline
+Status: COMPLETE / FULL PASS (technical gates). Authorized baseline
 `6235737ceb567277584ae287d44ff07a5bf67149`.
 
 ## Contracts and architecture
@@ -29,8 +29,9 @@ rejection passed. Windows fallback and Linux native suites passed 22/22 each.
 Windows/Linux portable source checks passed 59/59; the full Linux source suite
 passed 99/99. Independent fixture/matrix reproduction and workflow lint passed.
 ASan/UBSan passed 24/24, including active instrumentation probes; final
-documentation checks passed 8/8. Platform runtime and exact-SHA hosted closure
-remain pending; no pending check is PASS.
+documentation checks passed 8/8; final focused checks passed 14/14.
+All required platform runtime and exact-SHA implementation gates passed; no skip
+or unobserved check is counted as PASS.
 
 ## Integration and migration evidence
 
@@ -64,19 +65,36 @@ recovery before commit and complete-v2 recovery after commit, alongside nine
 existing asset/catalog/checkpoint crash children. Logical rollback is guaranteed;
 physical database/WAL byte identity is not claimed.
 
-Windows manual allocation sweeps recovered 1,463 failures; Linux/sanitizer sweeps
+Windows fallback manual allocation sweeps recovered 1,463 failures; hosted
+MSVC Debug recovered 4,615. Linux/sanitizer sweeps
 recovered 1,768, covering exposure and new brightness update/commit/serialization
 and larger registry output. Hosted MSVC remediation retained warnings-as-errors, removed two shadowed test
 locals and extended only the new three-operation fault-search phases from 512
 to 4,096 attempts; every failure position and retry assertion remains exercised.
+MSVC reached success at allocation position 623 in each new phase, proving the
+old test search bound was insufficient. All 19 renderer fault phases passed.
 Production ceilings are unchanged. Renderer fault sweeps additionally exercise ordered
 brightness/contrast/temperature evaluation with and without cancellation.
 
 Android local debug/release assembly, lint and JVM tests passed (2/2 debug,
 2/2 release); instrumentation APK compilation passed. No local ADB device was
-connected, so runtime instrumentation awaits hosted execution. Apple compilation,
-Swift/macOS/iOS simulator execution and both exact-SHA workflows remain pending.
+connected; hosted Android runtime instrumentation passed 9/9 tests.
+Apple macOS native passed 22/22; Swift C ABI tests passed 10/10 on macOS and
+10/10 on iOS simulator. Unsigned debug/release iOS app builds and shell simulator
+tests passed 6/6. These are observed hosted results, not physical GPU evidence.
 No physical GPU certification is performed or claimed.
+
+## Exact-SHA hosted closure
+
+Implementation and CI remediation SHA:
+`7b88411c25740b3de4e32d5f2acdb6683a400945`.
+
+- [Foundation boundaries, run 38045307635](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38045307635): SUCCESS, seven jobs; MSVC Windows 22/22, Linux 22/22, ASan/UBSan 24/24, Apple boundaries, both Android NDK ABIs and workflow lint.
+- [Native application shells, run 38045307587](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38045307587): SUCCESS, three jobs; full source 99/99, Android build/JVM/lint plus 9/9 instrumentation tests and iOS app/simulator closure.
+
+Both run head SHAs were independently verified. This closure documentation is a
+subsequent commit; its exact-SHA workflow results are verified and supplied in
+the final delivery response. No further implementation is authorized by closure.
 
 ## Scope
 
