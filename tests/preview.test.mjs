@@ -18,7 +18,7 @@ test('preview is wired into C, JNI, Swift, host and sanitizer gates', () => {
   assert.ok(read('packages/core/swift/Tests/DecodeBoundaryTests.swift').includes('pixaura_preview_copy'));
   for (const file of ['.github/workflows/foundation.yml', '.github/workflows/native-shells.yml', 'scripts/check-apple.sh']) assert.ok(read(file).includes('tests/preview.test.mjs'));
   assert.match(read('CMakeLists.txt'), /preview_test PROPERTIES TIMEOUT 90/);
-  assert.ok(read('packages/core/tests/decode_allocation_test.cpp').includes('phases=17'));
+  assert.ok(read('packages/core/tests/decode_allocation_test.cpp').includes('phases=19'));
 });
 
 test('bounded preview and platform copies share native authority', () => {

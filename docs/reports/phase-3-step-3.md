@@ -66,7 +66,10 @@ physical database/WAL byte identity is not claimed.
 
 Windows manual allocation sweeps recovered 1,463 failures; Linux/sanitizer sweeps
 recovered 1,768, covering exposure and new brightness update/commit/serialization
-and larger registry output. Renderer fault sweeps additionally exercise ordered
+and larger registry output. Hosted MSVC remediation retained warnings-as-errors, removed two shadowed test
+locals and extended only the new three-operation fault-search phases from 512
+to 4,096 attempts; every failure position and retry assertion remains exercised.
+Production ceilings are unchanged. Renderer fault sweeps additionally exercise ordered
 brightness/contrast/temperature evaluation with and without cancellation.
 
 Android local debug/release assembly, lint and JVM tests passed (2/2 debug,
@@ -137,5 +140,7 @@ unexecuted. Phase 3 Step 4 has NOT started.
 - `scripts/tone-reference.py`
 - `tests/document-contract.test.mjs`
 - `tests/manual-geometry.test.mjs`
+- `tests/geometry-execution.test.mjs`
+- `tests/preview.test.mjs`
 - `tests/support/document-contract.mjs`
 - `tests/tone-color.test.mjs`
