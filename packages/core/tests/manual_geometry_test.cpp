@@ -238,8 +238,8 @@ int main(int argc,char** argv) {
         const auto before=serialized(context,base);g=start();
         for(unsigned i=0;i<1001;++i)CHECK(pixaura_manual_update(&context,&g,&base,ptr(changed_request),changed_request.size(),&seq)==0&&seq==i+1);
         CHECK(pixaura_manual_update(&context,&g,&base,ptr(neutral_request),neutral_request.size(),&seq)==0&&seq==1002);
-        pixaura_document_handle same{};uint32_t changed=99;auto revision=id(++fresh);
-        CHECK(pixaura_manual_commit(&context,&g,&base,ptr(revision),32,&same,&changed)==0&&changed==0&&same.serial==base.serial&&serialized(context,base)==before);
+        pixaura_document_handle same{};uint32_t tone_changed=99;auto revision=id(++fresh);
+        CHECK(pixaura_manual_commit(&context,&g,&base,ptr(revision),32,&same,&tone_changed)==0&&tone_changed==0&&same.serial==base.serial&&serialized(context,base)==before);
         CHECK(pixaura_manual_release(&context,&g)==0);
         g=start();for(unsigned i=0;i<1001;++i)CHECK(pixaura_manual_update(&context,&g,&base,ptr(changed_request),changed_request.size(),&seq)==0&&seq==i+1);
         CHECK(pixaura_manual_update(&context,&g,&base,ptr(invalid_request),invalid_request.size(),&seq)==7&&seq==1001);
@@ -254,8 +254,8 @@ int main(int argc,char** argv) {
         CHECK(pixaura_manual_render(&context,&g,&base,&raster,&original,&restricted,nullptr,&ticket,&pr,&failed,&rendered)==8&&failed.serial==displayed.serial&&rendered==1001);
         CHECK(pixaura_preview_query(&raster,&displayed,&pm)==0&&pixaura_preview_release(&raster,&preview)==0);
         pixaura_document_handle proposal{};revision=id(++fresh);
-        CHECK(pixaura_manual_commit(&context,&g,&base,ptr(revision),32,&proposal,&changed)==0&&changed==1);
-        CHECK(pixaura_manual_commit(&context,&g,&base,ptr(revision),32,&proposal,&changed)==13);
+        CHECK(pixaura_manual_commit(&context,&g,&base,ptr(revision),32,&proposal,&tone_changed)==0&&tone_changed==1);
+        CHECK(pixaura_manual_commit(&context,&g,&base,ptr(revision),32,&proposal,&tone_changed)==13);
         auto prior=snapshot(before,session),next=snapshot(serialized(context,proposal),session);
         CHECK(next->revisions().size()==prior->revisions().size()+1&&next->operations().size()==prior->operations().size()+1);
         persist(proposal,changed_request);
@@ -275,7 +275,7 @@ int main(int argc,char** argv) {
         CHECK(pixaura_working_copy(&raster,&evaluated,0,before_pixels.data(),before_pixels.size())==0&&pixaura_working_copy(&raster,&reconstructed,0,after_pixels.data(),after_pixels.size())==0&&std::memcmp(before_pixels.data(),after_pixels.data(),static_cast<std::size_t>(metadata.image_bytes))==0);
         CHECK(pixaura_decode_release(&raster,&evaluated)==0&&pixaura_decode_release(&raster,&reconstructed)==0&&pixaura_manual_cancel(&context,&reloaded_gesture)==0&&pixaura_manual_release(&context,&reloaded_gesture)==0&&pixaura_document_release(&context,&restarted_handle)==0);
         CHECK(pixaura_manual_release(&context,&g)==0&&pixaura_document_release(&context,&base)==0);base=proposal;
-        g=start();CHECK(pixaura_manual_cancel(&context,&g)==0&&pixaura_manual_commit(&context,&g,&base,ptr(revision),32,&proposal,&changed)==13&&pixaura_manual_release(&context,&g)==0);
+        g=start();CHECK(pixaura_manual_cancel(&context,&g)==0&&pixaura_manual_commit(&context,&g,&base,ptr(revision),32,&proposal,&tone_changed)==13&&pixaura_manual_release(&context,&g)==0);
         g=start();const auto live_text=serialized(context,base),other_session=id(++fresh);pixaura_document_handle stale_live{};CHECK(pixaura_document_open(1,&context,ptr(live_text),live_text.size(),ptr(other_session),32,&stale_live,nullptr)==0);
         seq=999;CHECK(pixaura_manual_update(&context,&g,&stale_live,ptr(neutral_request),neutral_request.size(),&seq)==9&&seq==999&&pixaura_manual_release(&context,&g)==0&&pixaura_document_release(&context,&stale_live)==0);
     }
