@@ -1,5 +1,24 @@
 # Quality gates and promotion policy
 
+## Phase 4 Step 1 foundation gates
+
+Only the capability contract/probe foundation is authorized and IN PROGRESS.
+Require version/size/enum/consistency rejection; explicit unknown state;
+availability distinct from certification; test-only synthetic LOW/MID/HIGH
+inputs; independent canonical byte golden; caller-output preservation; allocation-
+free normalized snapshots; concurrent independent calls; unchanged native hard
+limits; bounded/private/no-network diagnostic transport; conservative Android/
+Swift seams with actual boundary execution. Preserve every Phase 0–3 gate:
+Windows/Linux/native, ASan/UBSan instrumentation, both Android ABIs, Android
+Debug/Release/JVM/lint/instrumentation, Apple native/Swift/simulator/app/UI,
+source/docs/workflows and git diff --check. Both full hosted workflows must pass
+all ten jobs on the delivered SHA. No skipped or unobserved gate counts as PASS.
+Later admission, downgrade, physical probes and cross-tier replay remain
+NOT STARTED; the [finite proposal](docs/plans/phase-4-roadmap.md) must be frozen
+and Step 1 reviewed/accepted before Steps 2+. No Phase 5 work.
+[Step 1 report](docs/reports/phase-4-step-1.md). Historical closed-phase evidence
+below remains unchanged; DH-APPLE-METAL-01 remains unchanged/deferred/mandatory.
+
 ## Phase 3 Step 8 certification and closure
 
 **Phase 3 — CLOSED / COMPLETE / FULL PASS.** Steps 1–8 and all frozen exit criteria are certified at implementation SHA `e73605501019afb1aca2a12c521539b68176618e`: Foundation 38144341158 (7/7) and Native application shells 38144341145 (3/3), all SUCCESS. Android teardown and iOS UI input-targeting remediation are validated. This closure supersedes historical not-started wording below. The documentation-only closure commit must also pass both complete exact-SHA workflows before delivery. No Step 9 is created and Phase 4 has NOT started. DH-APPLE-METAL-01 remains DEFERRED and mandatory at its existing later hardening/Beta/release boundaries. No new tool, numerical, AI, GPU, network, telemetry or storage-schema scope was added.

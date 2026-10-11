@@ -1,5 +1,19 @@
 # Architectural decision index
 
+## Phase 4 Step 1 authorization and review boundary
+
+The Product Owner authorizes audit, a finite proposed roadmap and minimum
+capability data/probe foundation at `56cd60560b6271b7d27bf5e03fd1d720a3aad2fa`.
+[Capability v1](docs/contracts/capability-profile-v1.md) follows the accepted
+shared-core/adapter separation with no superseding architectural decision:
+normalized metadata, explicit unknown facts and availability/validation distinction,
+test-only synthetic scenarios, local bounded diagnostics and conservative stubs.
+The [seven-step proposal](docs/plans/phase-4-roadmap.md) is NOT FROZEN. Step 1
+review/acceptance and explicit roadmap freeze are required before Steps 2+.
+Existing tier budget targets do not override frozen resource ceilings. No physical
+Phase 4 tier is inferred from device names or historical GPU evidence. Phase 0–3
+closure remains accepted; DH-APPLE-METAL-01 is unchanged. No Phase 5 authorization.
+
 ## Phase 3 Step 8 certification and closure
 
 **Phase 3 — CLOSED / COMPLETE / FULL PASS.** Steps 1–8 and all frozen exit criteria are certified at implementation SHA `e73605501019afb1aca2a12c521539b68176618e`: Foundation 38144341158 (7/7) and Native application shells 38144341145 (3/3), all SUCCESS. Android teardown and iOS UI input-targeting remediation are validated. This closure supersedes historical not-started wording below. The documentation-only closure commit must also pass both complete exact-SHA workflows before delivery. No Step 9 is created and Phase 4 has NOT started. DH-APPLE-METAL-01 remains DEFERRED and mandatory at its existing later hardening/Beta/release boundaries. No new tool, numerical, AI, GPU, network, telemetry or storage-schema scope was added.

@@ -68,10 +68,20 @@ set_source_files_properties(packages/core/src/decode_codec.c PROPERTIES COMPILE_
     "$<$<C_COMPILER_ID:MSVC>:/W4;/WX>;$<$<NOT:$<C_COMPILER_ID:MSVC>>:-Wall;-Wextra;-Wpedantic;-Werror>")
 target_sources(pixaura_core PRIVATE packages/core/src/decode.cpp packages/core/src/decode_api.cpp packages/core/src/working.cpp packages/core/src/evaluation.cpp packages/core/src/geometry.cpp packages/core/src/preview.cpp)
 target_link_libraries(pixaura_core PRIVATE pixaura_codecs)
-target_sources(pixaura_core PRIVATE packages/core/src/gpu.cpp packages/core/src/manual_tools.cpp)
+target_sources(pixaura_core PRIVATE packages/core/src/gpu.cpp packages/core/src/manual_tools.cpp packages/core/src/capability.cpp)
 
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(capability_c_consumer packages/core/tests/capability_c_consumer.c)
+    target_link_libraries(capability_c_consumer PRIVATE pixaura_core)
+    target_compile_features(capability_c_consumer PRIVATE c_std_11)
+    pixaura_strict(capability_c_consumer)
+    add_test(NAME capability_c_consumer COMMAND capability_c_consumer)
+    add_executable(capability_test packages/core/tests/capability_test.cpp)
+    target_link_libraries(capability_test PRIVATE pixaura_core)
+    target_compile_features(capability_test PRIVATE cxx_std_17)
+    pixaura_strict(capability_test)
+    add_test(NAME capability_test COMMAND capability_test)
     add_executable(editor_test packages/core/tests/editor_test.cpp packages/core/src/editor_api.cpp
         packages/core/src/document.cpp packages/core/src/document_api.cpp packages/core/src/manual_tools.cpp
         packages/core/src/manual_geometry_preview.cpp packages/core/src/evaluation.cpp packages/core/src/geometry.cpp

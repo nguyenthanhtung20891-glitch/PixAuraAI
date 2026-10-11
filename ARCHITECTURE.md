@@ -1,5 +1,18 @@
 # System architecture
 
+## Phase 4 Step 1 capability foundation
+
+Authorized baseline: `56cd60560b6271b7d27bf5e03fd1d720a3aad2fa`.
+The additive [capability v1 contract](docs/contracts/capability-profile-v1.md)
+is pure caller-owned normalized metadata: static facts separate from dynamic
+observations; GPU availability separate from validation; bounded local diagnostic
+bytes; conservative JNI/Swift probe stubs. No admission, device-tier selection,
+dynamic downgrade, scheduler, editor ownership or persistence integration lands
+in Step 1. Existing hard ceilings and PRV1/document/storage authorities remain.
+The [seven-step plan](docs/plans/phase-4-roadmap.md) is PROPOSED, not frozen;
+Steps 2+ await Product Owner freeze and Step 1 acceptance. Phase 0–3 stay closed.
+DH-APPLE-METAL-01 is unchanged; Phase 5 has NOT started.
+
 ## Phase 3 Step 8 certification and closure
 
 **Phase 3 — CLOSED / COMPLETE / FULL PASS.** Steps 1–8 and all frozen exit criteria are certified at implementation SHA `e73605501019afb1aca2a12c521539b68176618e`: Foundation 38144341158 (7/7) and Native application shells 38144341145 (3/3), all SUCCESS. Android teardown and iOS UI input-targeting remediation are validated. This closure supersedes historical not-started wording below. The documentation-only closure commit must also pass both complete exact-SHA workflows before delivery. No Step 9 is created and Phase 4 has NOT started. DH-APPLE-METAL-01 remains DEFERRED and mandatory at its existing later hardening/Beta/release boundaries. No new tool, numerical, AI, GPU, network, telemetry or storage-schema scope was added.
