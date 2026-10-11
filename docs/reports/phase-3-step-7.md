@@ -100,15 +100,25 @@ B: Step 8 certification/closure. C: overlays/catalog/polish. No new dependency/t
 semantics, AI/GPU/network/storage-schema scope.
 Phase 3 Step 8 has NOT started.
 
-## Architecture decision pending
+## Architecture decision resolved; validation in progress
 
 Hosted Android instrumentation discovered a genuine persistence backend conflict:
 SELinux denies the frozen POSIX `linkat` asset publication, so real import returns
-IO_ERROR (12). [Proposed ADR 0021](../adr/0021-android-no-replace-asset-publication.md)
-contains the exact job evidence, narrowly scoped Android-only no-replace rename
-proposal, invariant-preserving validation and alternative. Storage implementation
-is stopped at this decision; no backend change or claimed Android PASS is made.
+IO_ERROR (12). The Architect approved [ADR 0021](../adr/0021-android-no-replace-asset-publication.md)
+on 2026-10-11. Only Android selects atomic renameat2(RENAME_NOREPLACE), preserving
+all immutable asset, no-overwrite, verified-dedup and durability invariants.
+Non-Android Linux retains linkat; Darwin/Windows and Schema 3 remain unchanged.
+The same branch has a separate Linux storage/crash regression target and actual
+Android syscall/fault/concurrency instrumentation. Execution is pending, not PASS.
 The iOS app compiler findings are separately remediated without changing semantics.
+
+ADR remediation local source checks: 79/79 PASS. Android debug/release builds,
+lint, JVM and instrumentation APK build PASS. WSL now runs, but its DrvFS-backed
+workspace does not enforce Unix chmod permissions: the existing nonwritable-root
+test and the Android corpus's read-only mode assertion reject locally. Those
+checks are retained unchanged; hosted Linux's native filesystem and actual
+Android sandbox supply the required authoritative execution. No such local
+filesystem failure is counted as PASS.
 
 ## Files changed
 
@@ -120,16 +130,21 @@ The iOS app compiler findings are separately remediated without changing semanti
 - `QUALITY_GATES.md`
 - `ROADMAP.md`
 - `docs/contracts/manual-editor-integration-v1.md`
-- `docs/adr/0021-android-no-replace-asset-publication.md` (PROPOSED only)
+- `docs/adr/0021-android-no-replace-asset-publication.md` (Accepted)
 - `docs/reports/phase-3-step-7.md`
 - `packages/core/Package.swift`
 - `packages/core/include/pixaura/editor.h`
 - `packages/core/src/document.cpp`
 - `packages/core/src/document.hpp`
+- `packages/core/src/android_asset_publication.hpp`
+- `packages/core/src/storage_files.cpp`
 - `packages/core/src/editor_api.cpp`
 - `packages/core/swift/Sources/ManualEditor.swift`
 - `packages/core/swift/Tests/ManualEditorTests.swift`
 - `packages/core/tests/editor_test.cpp`
+- `packages/core/tests/storage_test.cpp`
+- `packages/core/tests/android_publication_boundary.hpp`
+- `platforms/android/app/src/androidTest/java/ai/pixaura/app/AssetPublicationTest.kt`
 - `platforms/android/app/src/androidTest/java/ai/pixaura/app/ManualEditorTest.kt`
 - `platforms/android/app/src/androidTest/java/ai/pixaura/app/ShellTest.kt`
 - `platforms/android/app/src/main/java/ai/pixaura/app/IntegerControls.kt`
@@ -141,6 +156,7 @@ The iOS app compiler findings are separately remediated without changing semanti
 - `platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt`
 - `platforms/android/native/CMakeLists.txt`
 - `platforms/android/native/editor_bridge.cpp`
+- `platforms/android/native/asset_publication_bridge.cpp`
 - `platforms/ios/PixAuraAI.xcodeproj/project.pbxproj`
 - `platforms/ios/PixAuraAI/ManualEditorModel.swift`
 - `platforms/ios/PixAuraAI/ManualEditorScreen.swift`

@@ -4,6 +4,9 @@
 #include "../src/storage_schema_v2.hpp"
 #include "../src/storage_schema_v3.hpp"
 #include "../src/tone.hpp"
+#ifdef PIXAURA_TEST_ANDROID_PUBLICATION
+#include "android_publication_boundary.hpp"
+#endif
 #include "../vendor/sqlite/sqlite3.h"
 #include <algorithm>
 #include <atomic>
@@ -333,6 +336,10 @@ int main(int argc,char** argv) {
             if(std::atoi(argv[2])>=static_cast<int>(Point::migration_copy)){Repository r(argv[3]);fault_point=std::atoi(argv[2]);crash_fault=true;const auto expected=r.version();r.migrate(expected,expected+1);return 75;}
             fault_point=std::atoi(argv[2]);crash_fault=true;const auto golden=fixture(argv[4]);AssetStore store(argv[3]);Input input(stream_buffer+128);const auto asset=store.ingest(input,stream_buffer+128);Repository r(argv[3]);auto snapshot=good(document::deserialize(manifest(golden,asset),"00000000000000000000000000000500"));r.create(*snapshot);return 75;
         }
-        CHECK(argc==2);const auto golden=fixture(argv[1]);digest_tests();path_shape_tests();database_tests(golden);concurrency_tests(golden);crash_tests(argv[0],argv[1],golden);migration_tests(argv[0],argv[1],golden);migration3_tests(argv[0],argv[1],golden);std::puts("SQLite persistence, streamed immutable assets, crash/failure, migration and concurrency PASS");return 0;
+        CHECK(argc==2);
+#ifdef PIXAURA_TEST_ANDROID_PUBLICATION
+        {Directory branch("android-publication");CHECK(pixaura::testing::android_publication_boundary(branch.path().c_str())>=50);}
+#endif
+        const auto golden=fixture(argv[1]);digest_tests();path_shape_tests();database_tests(golden);concurrency_tests(golden);crash_tests(argv[0],argv[1],golden);migration_tests(argv[0],argv[1],golden);migration3_tests(argv[0],argv[1],golden);std::puts("SQLite persistence, streamed immutable assets, crash/failure, migration and concurrency PASS");return 0;
     }catch(const document::Failure& e){std::fprintf(stderr,"storage FAIL status=%d\n",e.code);return 1;}catch(const std::exception& e){std::fprintf(stderr,"storage FAIL %s\n",e.what());return 1;}
 }

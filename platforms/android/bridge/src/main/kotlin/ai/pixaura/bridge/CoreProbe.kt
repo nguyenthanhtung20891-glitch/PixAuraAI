@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 // Harmless, versioned boundary probe. No photo processing in Kotlin.
 class CoreProbe {
     external fun nativeImportLimit(): Long
+    external fun nativeAndroidAssetPublication(root: ByteArray): Int
     companion object {
         init {
             System.loadLibrary("pixaura_core")

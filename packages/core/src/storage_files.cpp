@@ -6,6 +6,9 @@
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
+#if defined(__ANDROID__) || defined(PIXAURA_TEST_ANDROID_PUBLICATION)
+#include "android_asset_publication.hpp"
+#endif
 #ifdef _WIN32
 #define NOMINMAX
 #include <windows.h>
@@ -245,6 +248,9 @@ struct Files::Impl {
             require(fsync(assets_dir.handle)==0&&fsync(stage_dir.handle)==0);return true;
         }
         require(errno==EEXIST);return false;
+#elif defined(__ANDROID__) || defined(PIXAURA_TEST_ANDROID_PUBLICATION)
+        String a(name),b(digest);AndroidPublicationSyscalls os;
+        return android_asset_publish(stage_dir.handle,a.c_str(),assets_dir.handle,b.c_str(),os);
 #else
         String a(name),b(digest);if(linkat(stage_dir.handle,a.c_str(),assets_dir.handle,b.c_str(),0)==0) {
             require(unlinkat(stage_dir.handle,a.c_str(),0)==0);require(fsync(assets_dir.handle)==0&&fsync(stage_dir.handle)==0);return true;
