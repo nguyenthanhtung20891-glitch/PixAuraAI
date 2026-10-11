@@ -1,5 +1,6 @@
 #include "pixaura/manual.h"
 #include "pixaura/geometry.h"
+#include "manual_preview_binding.hpp"
 #include <vector>
 #include <new>
 
@@ -11,6 +12,8 @@ extern "C" int32_t pixaura_manual_geometry_render(pixaura_document_context* docu
     pixaura_decode_handle* output, uint64_t* sequence) {
     if (!output || !sequence) return PIXAURA_INVALID_ARGUMENT;
     try {
+        const auto binding_status = manual_render_binding(document,gesture,live,raster,source,ticket);
+        if (binding_status) return binding_status;
         uint64_t required = 0, captured = 0;
         int32_t status = pixaura_manual_geometry_projection(document, gesture, live, nullptr, 0, &required, &captured);
         if (status != PIXAURA_DOCUMENT_BUFFER_TOO_SMALL) return status;

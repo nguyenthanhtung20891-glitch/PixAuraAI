@@ -30,6 +30,10 @@ PIXAURA_API int32_t pixaura_working_identity(pixaura_decode_context* context,
     const pixaura_decode_handle* working, const pixaura_working_limits* limits, pixaura_decode_handle* output);
 PIXAURA_API int32_t pixaura_working_query(pixaura_decode_context* context,
     const pixaura_decode_handle* working, pixaura_working_metadata* output);
+/* Editing-session admission: only the normalized immutable original, with exact
+ * verified encoded SHA-256/length. Evaluated/identity candidates reject. */
+PIXAURA_API int32_t pixaura_working_validate_original(pixaura_decode_context*,
+    const pixaura_decode_handle*, const uint8_t* sha256, uint64_t bytes, uint64_t encoded_bytes);
 /* Caller-owned float buffer; offset/count in float components, never internal pointers.
  * Source metadata/profile query uses decode_query/copy_profile; release uses decode_release.
  */

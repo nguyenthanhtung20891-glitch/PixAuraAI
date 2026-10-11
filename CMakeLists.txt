@@ -72,6 +72,29 @@ target_sources(pixaura_core PRIVATE packages/core/src/gpu.cpp packages/core/src/
 
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(gesture_lifecycle_c_consumer packages/core/tests/gesture_lifecycle_c_consumer.c)
+    set_target_properties(gesture_lifecycle_c_consumer PROPERTIES LINKER_LANGUAGE CXX)
+    target_link_libraries(gesture_lifecycle_c_consumer PRIVATE pixaura_core)
+    pixaura_strict(gesture_lifecycle_c_consumer)
+    add_test(NAME gesture_lifecycle_c_consumer COMMAND gesture_lifecycle_c_consumer "${CMAKE_BINARY_DIR}")
+    add_executable(gesture_lifecycle_test packages/core/tests/gesture_lifecycle_test.cpp
+        packages/core/src/document.cpp packages/core/src/document_api.cpp packages/core/src/manual_tools.cpp
+        packages/core/src/manual_geometry_preview.cpp packages/core/src/evaluation.cpp packages/core/src/geometry.cpp
+        packages/core/src/working.cpp packages/core/src/decode.cpp packages/core/src/decode_api.cpp packages/core/src/preview.cpp
+        packages/core/src/storage.cpp packages/core/src/storage_files.cpp packages/core/src/sha256.cpp)
+    target_include_directories(gesture_lifecycle_test PRIVATE packages/core/include)
+    target_link_libraries(gesture_lifecycle_test PRIVATE pixaura_codecs pixaura_sqlite)
+    if(WIN32)
+        target_link_libraries(gesture_lifecycle_test PRIVATE bcrypt)
+    endif()
+    target_compile_features(gesture_lifecycle_test PRIVATE cxx_std_17)
+    target_compile_definitions(gesture_lifecycle_test PRIVATE PIXAURA_TEST_FALLIBLE_STL PIXAURA_PREVIEW_TESTING)
+    pixaura_strict(gesture_lifecycle_test)
+    add_test(NAME gesture_lifecycle_test COMMAND gesture_lifecycle_test "${CMAKE_BINARY_DIR}")
+    set_tests_properties(gesture_lifecycle_test PROPERTIES TIMEOUT 120)
+    if(PIXAURA_SANITIZERS)
+        set_tests_properties(gesture_lifecycle_test PROPERTIES ENVIRONMENT "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1;UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1")
+    endif()
     add_executable(preset_c_consumer packages/core/tests/preset_c_consumer.c)
     set_target_properties(preset_c_consumer PROPERTIES LINKER_LANGUAGE CXX)
     target_link_libraries(preset_c_consumer PRIVATE pixaura_core)
@@ -243,8 +266,9 @@ if(BUILD_TESTING)
     add_executable(document_allocation_test packages/core/tests/document_allocation_test.cpp
         packages/core/src/document.cpp packages/core/src/document_api.cpp packages/core/src/manual_tools.cpp)
     target_include_directories(document_allocation_test PRIVATE packages/core/include)
+    target_link_libraries(document_allocation_test PRIVATE pixaura_core)
     target_compile_features(document_allocation_test PRIVATE cxx_std_17)
-    target_compile_definitions(document_allocation_test PRIVATE PIXAURA_TEST_FALLIBLE_STL)
+    target_compile_definitions(document_allocation_test PRIVATE PIXAURA_TEST_FALLIBLE_STL PIXAURA_BUILDING)
     pixaura_strict(document_allocation_test)
     add_test(NAME document_allocation_test COMMAND document_allocation_test "${CMAKE_SOURCE_DIR}/tests/fixtures/image-document-v1.json")
     # Outer guard also covers runtime/CRT failure paths before the watchdog starts.

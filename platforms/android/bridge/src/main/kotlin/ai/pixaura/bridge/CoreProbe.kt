@@ -18,6 +18,7 @@ class CoreProbe {
     external fun nativeGeometryBoundary(manifest: ByteArray, contextId: ByteArray): Int
     external fun nativePresetBoundary(manifest: ByteArray, identity: ByteArray): Int
     external fun nativeToneBoundary(manifest: ByteArray, contextId: ByteArray): Int
+    external fun nativeGestureLifecycle(root: ByteArray, digest: ByteArray, encodedBytes: Long, identity: ByteArray): Int
     external fun nativeStorageMigrate(root: ByteArray, expected: Int, target: Int): Int
 
     private external fun nativePreviewPixels(

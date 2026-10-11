@@ -8,7 +8,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0, Node 24
-      - run: node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs tests/android-emulator.test.mjs tests/document-contract.test.mjs tests/native-document.test.mjs tests/persistence.test.mjs tests/decode.test.mjs tests/working.test.mjs tests/evaluation.test.mjs tests/geometry.test.mjs tests/geometry-execution.test.mjs tests/preview.test.mjs tests/gpu.test.mjs tests/manual-tools.test.mjs tests/manual-geometry.test.mjs tests/tone-color.test.mjs tests/detail-tools.test.mjs tests/presets.test.mjs
+      - run: node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/shells.test.mjs tests/android-emulator.test.mjs tests/document-contract.test.mjs tests/native-document.test.mjs tests/persistence.test.mjs tests/decode.test.mjs tests/working.test.mjs tests/evaluation.test.mjs tests/geometry.test.mjs tests/geometry-execution.test.mjs tests/preview.test.mjs tests/gpu.test.mjs tests/manual-tools.test.mjs tests/manual-geometry.test.mjs tests/tone-color.test.mjs tests/detail-tools.test.mjs tests/presets.test.mjs tests/gesture-lifecycle.test.mjs
       - run: bash -n scripts/check-metal-shaders.sh scripts/check-gpu-apple-hardware.sh scripts/check-apple.sh scripts/check-ios-shell.sh scripts/check-sanitizers.sh scripts/check-android-emulator.sh
   android-app:
     runs-on: ubuntu-24.04
@@ -23,7 +23,7 @@ jobs:
         run: bash scripts/install-android-sdk.sh
       - name: Build debug, unsigned release, JVM tests, lint and instrumentation APK
         working-directory: platforms/android
-        run: bash gradlew --no-daemon --dependency-verification strict assembleDebug assembleRelease testDebugUnitTest lintDebug lintRelease assembleDebugAndroidTest
+        run: bash gradlew --no-daemon --dependency-verification strict assembleDebug assembleRelease testDebugUnitTest testReleaseUnitTest lintDebug lintRelease assembleDebugAndroidTest
       - name: Execute JNI and Compose smoke tests on Android emulator
         # Script verifies factory-empty ext4 and emulator-resolved hardware before VM launch.
         timeout-minutes: 35

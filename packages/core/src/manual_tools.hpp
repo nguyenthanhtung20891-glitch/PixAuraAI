@@ -33,13 +33,15 @@ class Gesture {
     std::optional<std::size_t> replacement_;
     std::shared_ptr<const document::EditOperation> pending_;
     uint64_t sequence_ = 0;
-    bool closed_ = false;
+    uint32_t state_ = PIXAURA_MANUAL_ACTIVE;
     Gesture(document::Snapshot base, document::Vector<document::EditOperation> stack,
         document::Id gesture, const Descriptor* descriptor, std::optional<std::size_t> replacement);
     bool current(const document::Snapshot& live) const;
 public:
     Gesture(const Gesture&) = default;
-    bool active() const { return !closed_; }
+    bool active() const { return state_ == PIXAURA_MANUAL_ACTIVE; }
+    uint32_t state() const { return state_; }
+    void invalidate() { cancel(); state_ = PIXAURA_MANUAL_INVALIDATED; }
     bool bound_to(const document::Snapshot& live) const { return current(live); }
     bool same_owner(const document::Snapshot& live) const {
         return live && live->identity().project == base_->identity().project &&

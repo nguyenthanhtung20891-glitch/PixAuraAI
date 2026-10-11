@@ -10,6 +10,7 @@
 #include "../../../packages/core/tests/manual_geometry_boundary.h"
 #include "../../../packages/core/tests/manual_tone_boundary.h"
 #include "../../../packages/core/tests/preset_boundary.h"
+#include "../../../packages/core/tests/gesture_lifecycle_boundary.h"
 #include "../../../packages/core/tests/preview_boundary.h"
 #include <vector>
 #include <cstring>
@@ -67,6 +68,13 @@ extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_CoreProbe_nativeGeometr
         if (env->ExceptionCheck()) return PIXAURA_INVALID_ARGUMENT;
         return manual_geometry_boundary_check(bytes.data(), bytes.size(), context_id);
     } catch (...) { return PIXAURA_DOCUMENT_RESOURCE_LIMIT; }
+}
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_CoreProbe_nativeGestureLifecycle(JNIEnv* env,jobject,jbyteArray root,jbyteArray digest,jlong encoded_bytes,jbyteArray identity){
+    if(!root||!digest||!identity||encoded_bytes<=0||env->GetArrayLength(digest)!=64||env->GetArrayLength(identity)!=32)return 1;
+    const auto n=env->GetArrayLength(root);if(n<=0||n>1024)return 1;
+    uint8_t path[1024],hash[64],context_id[32];env->GetByteArrayRegion(root,0,n,reinterpret_cast<jbyte*>(path));env->GetByteArrayRegion(digest,0,64,reinterpret_cast<jbyte*>(hash));env->GetByteArrayRegion(identity,0,32,reinterpret_cast<jbyte*>(context_id));
+    if(env->ExceptionCheck())return 1;
+    try{return gesture_lifecycle_boundary_check(path,static_cast<uint64_t>(n),hash,static_cast<uint64_t>(encoded_bytes),context_id);}catch(...){return 14;}
 }
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_CoreProbe_nativeToneBoundary(JNIEnv* env, jobject, jbyteArray manifest, jbyteArray identity) {
     if (!manifest || !identity || env->GetArrayLength(identity) != 32) return PIXAURA_INVALID_ARGUMENT;

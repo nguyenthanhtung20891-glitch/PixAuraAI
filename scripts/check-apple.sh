@@ -7,7 +7,7 @@ xcodebuild -version
 xcrun swift --version
 cmake --version
 bash scripts/check-metal-shaders.sh
-node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/document-contract.test.mjs tests/native-document.test.mjs tests/persistence.test.mjs tests/decode.test.mjs tests/working.test.mjs tests/evaluation.test.mjs tests/geometry.test.mjs tests/geometry-execution.test.mjs tests/preview.test.mjs tests/gpu.test.mjs tests/manual-tools.test.mjs tests/manual-geometry.test.mjs tests/tone-color.test.mjs tests/detail-tools.test.mjs tests/presets.test.mjs
+node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/document-contract.test.mjs tests/native-document.test.mjs tests/persistence.test.mjs tests/decode.test.mjs tests/working.test.mjs tests/evaluation.test.mjs tests/geometry.test.mjs tests/geometry-execution.test.mjs tests/preview.test.mjs tests/gpu.test.mjs tests/manual-tools.test.mjs tests/manual-geometry.test.mjs tests/tone-color.test.mjs tests/detail-tools.test.mjs tests/presets.test.mjs tests/gesture-lifecycle.test.mjs
 cmake -S . -B build/apple-host -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_C_COMPILER="$(xcrun --find clang)" \
     -DCMAKE_CXX_COMPILER="$(xcrun --find clang++)"

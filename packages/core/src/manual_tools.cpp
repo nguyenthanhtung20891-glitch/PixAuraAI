@@ -181,7 +181,7 @@ bool Gesture::current(const Snapshot& live) const {
 }
 Result<uint64_t> Gesture::update(std::string_view request) {
     return attempt<uint64_t>([&] {
-        require(!closed_, PIXAURA_DOCUMENT_CANCELLED);
+        require(active(), PIXAURA_DOCUMENT_CANCELLED);
         require(sequence_ != UINT64_MAX, PIXAURA_DOCUMENT_RESOURCE_LIMIT);
         auto op = single_operation(request);
         require(op.type == descriptor_->type, PIXAURA_DOCUMENT_INVALID_PARAMETERS);
@@ -193,11 +193,11 @@ Result<uint64_t> Gesture::update(std::string_view request) {
     });
 }
 bool Gesture::eligible(std::string_view gesture, uint64_t sequence, const Snapshot& live) const {
-    return !closed_ && pending_ && current(live) && gesture == gesture_id_.text() && sequence != 0 && sequence == sequence_;
+    return active() && pending_ && current(live) && gesture == gesture_id_.text() && sequence != 0 && sequence == sequence_;
 }
 Result<String> Gesture::preview(const Snapshot& live) const {
     return attempt<String>([&] {
-        require(!closed_ && current(live), PIXAURA_DOCUMENT_CANCELLED);
+        require(active() && current(live), PIXAURA_DOCUMENT_CANCELLED);
         String output = "{\"operations\":[";
         bool first = true;
         for (std::size_t i = 0; i <= stack_.size(); ++i) {
@@ -218,13 +218,18 @@ Result<String> Gesture::preview(const Snapshot& live) const {
 }
 Result<Snapshot> Gesture::commit(const Snapshot& live, std::string_view revision) {
     return attempt<Snapshot>([&] {
-        require(!closed_, PIXAURA_DOCUMENT_CANCELLED);
-        if (!current(live)) { cancel(); throw Failure{PIXAURA_DOCUMENT_STALE_BASE}; }
+        require(active(), PIXAURA_DOCUMENT_CANCELLED);
+        if (!current(live)) { invalidate(); throw Failure{PIXAURA_DOCUMENT_STALE_BASE}; }
         const auto new_revision = Id::parse(revision);
         for (const auto& old : base_->revisions()) require(old.id != new_revision, PIXAURA_DOCUMENT_INVALID_PROJECT);
+        struct CommitState {
+            uint32_t& state;
+            explicit CommitState(uint32_t& value) : state(value) { state = PIXAURA_MANUAL_COMMITTING; }
+            ~CommitState() { if (state == PIXAURA_MANUAL_COMMITTING) state = PIXAURA_MANUAL_ACTIVE; }
+        } committing(state_);
         if (!pending_ || (!replacement_ && neutral(*pending_)) ||
             (replacement_ && parameters(*pending_) == parameters(stack_[*replacement_]))) {
-            closed_ = true;
+            state_ = PIXAURA_MANUAL_COMPLETED;
             pending_.reset();
             return live;
         }
@@ -243,12 +248,12 @@ Result<Snapshot> Gesture::commit(const Snapshot& live, std::string_view revision
             std::move(operations), new_revision, "manual", std::nullopt};
         auto next = transition(*live, candidate);
         require(next.code == 0, next.code);
-        closed_ = true;
+        state_ = PIXAURA_MANUAL_COMPLETED;
         pending_.reset();
         return next.value;
     });
 }
-void Gesture::cancel() { closed_ = true; pending_.reset(); }
+void Gesture::cancel() { if (active()) state_ = PIXAURA_MANUAL_CANCELLED; pending_.reset(); }
 }
 
 namespace {

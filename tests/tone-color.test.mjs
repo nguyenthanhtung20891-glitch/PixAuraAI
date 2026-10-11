@@ -48,7 +48,7 @@ test('shared tone contracts and independent corpus execute through existing gate
 });
 test('Step 3 authorization preserves later-step and tool scope', () => {
   const roadmap = read('ROADMAP.md');
-  for (let n=6;n<=8;n++) assert.match(roadmap, new RegExp(`\\| ${n} \\|[^\\n]+\\| NOT STARTED \\|`));
+  for (let n=7;n<=8;n++) assert.match(roadmap, new RegExp(`\\| ${n} \\|[^\\n]+\\| NOT STARTED \\|`));
   assert.match(read('docs/reports/phase-3-step-3.md'), /Phase 3 Step 4 has NOT started/);
   const tone = read('packages/core/src/tone.hpp');
   for (const excluded of ['whites', 'blacks', 'tint', 'vibrance', 'curves', 'hsl', 'lut', 'sharpen', 'blur']) assert.ok(!tone.includes(`pixaura.${excluded}`));

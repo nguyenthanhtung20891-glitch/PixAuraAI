@@ -3,6 +3,7 @@
 #include "manual_tools.hpp"
 #include "preset.hpp"
 #include "pixaura/preset.h"
+#include "manual_preview_binding.hpp"
 
 #include <cstring>
 #include <limits>
@@ -16,10 +17,20 @@ using namespace pixaura::document;
 constexpr uint64_t live_tag = 0x504958444f434331ULL;
 constexpr uint64_t dead_tag = 0x504958444f434430ULL;
 constexpr std::size_t max_handles = 64;
+struct GestureEntry {
+    std::unique_ptr<pixaura::manual::Gesture> controller;
+    uint64_t base_serial = 0;
+    pixaura_decode_context* raster = nullptr;
+    pixaura_decode_handle original{};
+    pixaura_preview_ticket ticket{};
+    void revoke() const {
+        if (raster && ticket.generation) (void)pixaura_preview_cancel(raster, &ticket);
+    }
+};
 struct Registry {
     std::mutex mutex;
     std::map<uint64_t, Snapshot> snapshots;
-    std::map<uint64_t, std::unique_ptr<pixaura::manual::Gesture>> gestures;
+    std::map<uint64_t, GestureEntry> gestures;
     uint64_t next = 1;
 };
 struct Header { uint64_t tag; Registry* registry; uint8_t identity[32]; };
@@ -128,7 +139,7 @@ int32_t pixaura_document_context_init(uint32_t version, pixaura_document_context
 }
 int32_t pixaura_document_context_destroy(pixaura_document_context* context) {
     return boundary(nullptr, [&] {
-        auto header = live(context); delete header.registry; header.registry = nullptr; header.tag = dead_tag; write(context, header); return PIXAURA_OK;
+        auto header = live(context); for (const auto& entry : header.registry->gestures) entry.second.revoke(); delete header.registry; header.registry = nullptr; header.tag = dead_tag; write(context, header); return PIXAURA_OK;
     });
 }
 int32_t pixaura_document_open(uint32_t version, pixaura_document_context* context,
@@ -146,9 +157,14 @@ int32_t pixaura_document_apply(uint32_t version, pixaura_document_context* conte
     pixaura_document_handle* output, pixaura_document_error* error) {
     return boundary(error, [&] {
         require(version == 1, PIXAURA_UNSUPPORTED_ABI); require(output != nullptr);
-        const auto header = live(context); const auto snapshot = acquire(header, handle);
+        const auto header = live(context); handle_valid(header,handle);
+        std::lock_guard<std::mutex> guard(header.registry->mutex);
+        for (const auto& entry : header.registry->gestures) require(!entry.second.controller->active(), PIXAURA_DOCUMENT_CANCELLED);
+        const auto found=header.registry->snapshots.find(handle->serial);
+        require(found!=header.registry->snapshots.end(),PIXAURA_DOCUMENT_INVALID_HANDLE);
+        const auto snapshot=found->second;
         auto next = unwrap(transition(*snapshot, input_view(command, bytes, command_limit)));
-        *output = insert(header, std::move(next)); return PIXAURA_OK;
+        *output = insert_locked(header, std::move(next)); return PIXAURA_OK;
     });
 }
 int32_t pixaura_document_serialize(pixaura_document_context* context, const pixaura_document_handle* handle,
@@ -167,6 +183,11 @@ int32_t pixaura_document_release(pixaura_document_context* context, const pixaur
     return boundary(nullptr, [&] {
         const auto header = live(context); handle_valid(header, handle);
         std::lock_guard<std::mutex> guard(header.registry->mutex);
+        const auto found=header.registry->snapshots.find(handle->serial);
+        require(found!=header.registry->snapshots.end(),PIXAURA_DOCUMENT_INVALID_HANDLE);
+        for(auto& entry:header.registry->gestures) if(entry.second.base_serial==handle->serial&&entry.second.controller->active()) {
+            entry.second.revoke();entry.second.controller->invalidate();
+        }
         require(header.registry->snapshots.erase(handle->serial) == 1, PIXAURA_DOCUMENT_INVALID_HANDLE); return PIXAURA_OK;
     });
 }
@@ -180,7 +201,7 @@ Snapshot snapshot_locked(const Header& h, const pixaura_document_handle* handle)
     require(found != h.registry->snapshots.end(), PIXAURA_DOCUMENT_INVALID_HANDLE);
     return found->second;
 }
-std::unique_ptr<pixaura::manual::Gesture>& gesture_locked(const Header& h, const pixaura_manual_gesture* token) {
+GestureEntry& entry_locked(const Header& h, const pixaura_manual_gesture* token) {
     require(token != nullptr);
     require(token->api_version == 1 && token->struct_size == sizeof(*token) &&
         token->kind == gesture_kind && token->reserved == 0 && token->serial != 0 &&
@@ -189,9 +210,13 @@ std::unique_ptr<pixaura::manual::Gesture>& gesture_locked(const Header& h, const
     require(found != h.registry->gestures.end(), PIXAURA_DOCUMENT_INVALID_HANDLE);
     return found->second;
 }
-void binding(pixaura::manual::Gesture& gesture, const Snapshot& snapshot) {
+std::unique_ptr<pixaura::manual::Gesture>& gesture_locked(const Header& h, const pixaura_manual_gesture* token) {
+    return entry_locked(h, token).controller;
+}
+void binding(GestureEntry& entry, const Snapshot& snapshot) {
+    auto& gesture = *entry.controller;
     require(gesture.active(), PIXAURA_DOCUMENT_CANCELLED);
-    if (!gesture.bound_to(snapshot)) { gesture.cancel(); throw Failure{PIXAURA_DOCUMENT_STALE_BASE}; }
+    if (!gesture.bound_to(snapshot)) { entry.revoke(); gesture.invalidate(); throw Failure{PIXAURA_DOCUMENT_STALE_BASE}; }
 }
 template<class T> T manual_result(Result<T> result) {
     if (result.code) throw Failure{result.code, result.index};
@@ -201,7 +226,7 @@ template<class T> T manual_result(Result<T> result) {
 static int32_t manual_begin(uint32_t version, pixaura_document_context* context,
     const pixaura_document_handle* base, const uint8_t* gesture_id, uint64_t gesture_bytes,
     const uint8_t* tool_id, uint64_t tool_bytes, const uint8_t* replace_id, uint64_t replace_bytes,
-    pixaura_manual_gesture* output, bool geometry_only) {
+    pixaura_manual_gesture* output, bool geometry_only, pixaura_decode_context* raster = nullptr, const pixaura_decode_handle* original = nullptr, bool switch_tool = false) {
     return boundary(nullptr, [&] {
         require(version == 1, PIXAURA_UNSUPPORTED_ABI); require(output != nullptr);
         identity(gesture_id, gesture_bytes);
@@ -213,14 +238,31 @@ static int32_t manual_begin(uint32_t version, pixaura_document_context* context,
         else require(replace_id == nullptr);
         const auto h = live(context); std::lock_guard<std::mutex> lock(h.registry->mutex);
         const auto snapshot = snapshot_locked(h, base);
+        if(switch_tool){
+            for(auto& entry:h.registry->gestures){entry.second.revoke();entry.second.controller->cancel();}
+            h.registry->gestures.clear();
+        }
         for (const auto& entry : h.registry->gestures)
-            require(!entry.second->active() || !entry.second->same_owner(snapshot), PIXAURA_INVALID_ARGUMENT);
+            require(!entry.second.controller->active(), PIXAURA_INVALID_ARGUMENT);
         require(h.registry->snapshots.size() + h.registry->gestures.size() < max_handles &&
             h.registry->next != UINT64_MAX, PIXAURA_DOCUMENT_RESOURCE_LIMIT);
         auto gesture = manual_result(pixaura::manual::Gesture::begin(snapshot,
             input_view(gesture_id, gesture_bytes, 32), tool, replace));
+        GestureEntry entry; entry.controller = std::move(gesture); entry.base_serial = base->serial;
+        if (raster) {
+            require(original != nullptr);
+            const auto& digest = snapshot->source().sha256.text();
+            const auto status = pixaura_working_validate_original(raster, original,
+                reinterpret_cast<const uint8_t*>(digest.data()), digest.size(), snapshot->source().byte_length);
+            require(status == 0, status);
+            entry.raster = raster; entry.original = *original;
+        }
         const auto serial = h.registry->next;
-        h.registry->gestures.emplace(serial, std::move(gesture)); ++h.registry->next;
+        const auto inserted = h.registry->gestures.emplace(serial, std::move(entry)); ++h.registry->next;
+        if (raster) {
+            const auto status = pixaura_preview_begin(raster, 1, &inserted.first->second.ticket);
+            if (status) { h.registry->gestures.erase(serial); throw Failure{status}; }
+        }
         pixaura_manual_gesture result{};
         result.api_version = 1; result.struct_size = sizeof(result); result.kind = gesture_kind; result.serial = serial;
         std::memcpy(result.context_id, h.identity, 32); *output = result; return PIXAURA_OK;
@@ -228,13 +270,56 @@ static int32_t manual_begin(uint32_t version, pixaura_document_context* context,
 }
 int32_t pixaura_manual_geometry_begin(uint32_t version,pixaura_document_context* context,const pixaura_document_handle* base,const uint8_t* gesture_id,uint64_t gesture_bytes,const uint8_t* tool_id,uint64_t tool_bytes,const uint8_t* replace_id,uint64_t replace_bytes,pixaura_manual_gesture* output){return manual_begin(version,context,base,gesture_id,gesture_bytes,tool_id,tool_bytes,replace_id,replace_bytes,output,true);}
 int32_t pixaura_manual_begin(uint32_t version,pixaura_document_context* context,const pixaura_document_handle* base,const uint8_t* gesture_id,uint64_t gesture_bytes,const uint8_t* tool_id,uint64_t tool_bytes,const uint8_t* replace_id,uint64_t replace_bytes,pixaura_manual_gesture* output){return manual_begin(version,context,base,gesture_id,gesture_bytes,tool_id,tool_bytes,replace_id,replace_bytes,output,false);}
+int32_t pixaura_manual_edit_begin(uint32_t version,pixaura_document_context* context,const pixaura_document_handle* base,const uint8_t* gesture_id,uint64_t gesture_bytes,const uint8_t* tool_id,uint64_t tool_bytes,const uint8_t* replace_id,uint64_t replace_bytes,pixaura_decode_context* raster,const pixaura_decode_handle* original,pixaura_manual_gesture* output){
+    if (!raster || !original) return PIXAURA_INVALID_ARGUMENT;
+    return manual_begin(version,context,base,gesture_id,gesture_bytes,tool_id,tool_bytes,replace_id,replace_bytes,output,false,raster,original);
+}
+int32_t pixaura_manual_edit_switch(uint32_t version,pixaura_document_context* context,const pixaura_document_handle* base,const uint8_t* gesture_id,uint64_t gesture_bytes,const uint8_t* tool_id,uint64_t tool_bytes,const uint8_t* replace_id,uint64_t replace_bytes,pixaura_decode_context* raster,const pixaura_decode_handle* original,pixaura_manual_gesture* output){
+    if (!raster || !original) return PIXAURA_INVALID_ARGUMENT;
+    return manual_begin(version,context,base,gesture_id,gesture_bytes,tool_id,tool_bytes,replace_id,replace_bytes,output,false,raster,original,true);
+}
+int32_t pixaura_manual_state(pixaura_document_context* context,const pixaura_manual_gesture* token,uint32_t* state,uint64_t* sequence){
+    return boundary(nullptr,[&]{require(state&&sequence);const auto h=live(context);std::lock_guard<std::mutex> lock(h.registry->mutex);
+        const auto& gesture=*gesture_locked(h,token);*state=gesture.state();*sequence=gesture.sequence();return PIXAURA_OK;});
+}
+int32_t pixaura_manual_preview_ticket(pixaura_document_context* context,const pixaura_manual_gesture* token,const pixaura_document_handle* base,pixaura_preview_ticket* output,uint64_t* sequence){
+    return boundary(nullptr,[&]{require(output&&sequence);const auto h=live(context);std::lock_guard<std::mutex> lock(h.registry->mutex);
+        auto& entry=entry_locked(h,token);binding(entry,snapshot_locked(h,base));require(entry.raster!=nullptr);
+        *output=entry.ticket;*sequence=entry.controller->sequence();return PIXAURA_OK;});
+}
+int32_t pixaura_manual_preview_current(pixaura_document_context* context,const pixaura_manual_gesture* token,const pixaura_document_handle* base,uint64_t sequence,const pixaura_preview_ticket* ticket,const pixaura_decode_handle* preview){
+    return boundary(nullptr,[&]{require(ticket!=nullptr);const auto h=live(context);std::lock_guard<std::mutex> lock(h.registry->mutex);
+        auto& entry=entry_locked(h,token);binding(entry,snapshot_locked(h,base));require(entry.raster!=nullptr);
+        require(sequence==entry.controller->sequence()&&std::memcmp(ticket,&entry.ticket,sizeof(*ticket))==0,PIXAURA_DOCUMENT_CANCELLED);
+        const auto status=pixaura_preview_current(entry.raster,ticket,preview);require(status==0,status);return PIXAURA_OK;});
+}
+int32_t pixaura_manual_interrupt(pixaura_document_context* context){
+    return boundary(nullptr,[&]{const auto h=live(context);std::lock_guard<std::mutex> lock(h.registry->mutex);
+        for(auto& entry:h.registry->gestures){entry.second.revoke();entry.second.controller->cancel();}
+        h.registry->gestures.clear();return PIXAURA_OK;});
+}
+int32_t manual_render_binding(pixaura_document_context* context,const pixaura_manual_gesture* token,const pixaura_document_handle* base,pixaura_decode_context* raster,const pixaura_decode_handle* source,const pixaura_preview_ticket* ticket){
+    return boundary(nullptr,[&]{require(source&&ticket);const auto h=live(context);std::lock_guard<std::mutex> lock(h.registry->mutex);
+        auto& entry=entry_locked(h,token);binding(entry,snapshot_locked(h,base));
+        if(entry.raster){require(entry.raster==raster&&std::memcmp(source,&entry.original,sizeof(*source))==0,PIXAURA_DOCUMENT_INVALID_HANDLE);
+            require(std::memcmp(ticket,&entry.ticket,sizeof(*ticket))==0,PIXAURA_DOCUMENT_CANCELLED);}
+        return PIXAURA_OK;});
+}
 int32_t pixaura_manual_geometry_update(pixaura_document_context* context, const pixaura_manual_gesture* token,
     const pixaura_document_handle* base, const uint8_t* request, uint64_t bytes, uint64_t* sequence) {
     return boundary(nullptr, [&] {
         require(sequence != nullptr); const auto request_view = input_view(request, bytes, command_limit);
         const auto h = live(context); std::lock_guard<std::mutex> lock(h.registry->mutex);
-        auto& gesture = *gesture_locked(h, token); binding(gesture, snapshot_locked(h, base));
-        const auto next = manual_result(gesture.update(request_view)); *sequence = next; return PIXAURA_OK;
+        auto& gesture = *gesture_locked(h, token); binding(entry_locked(h, token), snapshot_locked(h, base));
+        auto& entry = entry_locked(h, token);
+        if (!entry.raster) { const auto next = manual_result(gesture.update(request_view)); *sequence = next; return PIXAURA_OK; }
+        // Trial only bounded metadata; all allocating validation precedes PRV1 advance.
+        auto trial = std::make_unique<pixaura::manual::Gesture>(gesture);
+        const auto next = manual_result(trial->update(request_view));
+        pixaura_preview_ticket ticket{};
+        const auto status = pixaura_preview_begin(entry.raster, 1, &ticket);
+        require(status == 0, status);
+        entry.controller.swap(trial); entry.ticket = ticket; *sequence = next; return PIXAURA_OK;
     });
 }
 int32_t pixaura_manual_geometry_projection(pixaura_document_context* context, const pixaura_manual_gesture* token,
@@ -242,7 +327,7 @@ int32_t pixaura_manual_geometry_projection(pixaura_document_context* context, co
     return boundary(nullptr, [&] {
         require(required && sequence && (output || capacity == 0) && capacity <= SIZE_MAX);
         const auto h = live(context); std::lock_guard<std::mutex> lock(h.registry->mutex);
-        auto& gesture = *gesture_locked(h, token); const auto snapshot = snapshot_locked(h, base); binding(gesture, snapshot);
+        auto& gesture = *gesture_locked(h, token); const auto snapshot = snapshot_locked(h, base); binding(entry_locked(h, token), snapshot);
         const auto json = manual_result(gesture.preview(snapshot));
         if (!output || capacity < json.size()) { *required = json.size(); return PIXAURA_DOCUMENT_BUFFER_TOO_SMALL; }
         std::memcpy(output, json.data(), json.size()); *required = json.size(); *sequence = gesture.sequence(); return PIXAURA_OK;
@@ -252,8 +337,8 @@ int32_t pixaura_manual_geometry_current(pixaura_document_context* context, const
     const pixaura_document_handle* base, uint64_t sequence) {
     return boundary(nullptr, [&] {
         const auto h = live(context); std::lock_guard<std::mutex> lock(h.registry->mutex);
-        auto& gesture = *gesture_locked(h, token); binding(gesture, snapshot_locked(h, base));
-        require(sequence != 0 && sequence == gesture.sequence(), PIXAURA_DOCUMENT_CANCELLED); return PIXAURA_OK;
+        auto& gesture = *gesture_locked(h, token); binding(entry_locked(h, token), snapshot_locked(h, base));
+        require((sequence != 0 || entry_locked(h,token).raster) && sequence == gesture.sequence(), PIXAURA_DOCUMENT_CANCELLED); return PIXAURA_OK;
     });
 }
 int32_t pixaura_manual_geometry_commit(pixaura_document_context* context, const pixaura_manual_gesture* token,
@@ -262,26 +347,26 @@ int32_t pixaura_manual_geometry_commit(pixaura_document_context* context, const 
     return boundary(nullptr, [&] {
         require(output && changed); identity(revision_id, revision_bytes);
         const auto h = live(context); std::lock_guard<std::mutex> lock(h.registry->mutex);
-        auto& gesture = gesture_locked(h, token); const auto snapshot = snapshot_locked(h, base); binding(*gesture, snapshot);
+        auto& gesture = gesture_locked(h, token); const auto snapshot = snapshot_locked(h, base); binding(entry_locked(h, token), snapshot);
         // Transactional adapter: clone bounded metadata, then reserve ownership
         // before closing the original. Admission/allocation failures remain retryable.
         auto trial = std::make_unique<pixaura::manual::Gesture>(*gesture);
         auto proposal = manual_result(trial->commit(snapshot, input_view(revision_id, revision_bytes, 32)));
         const bool mutation = proposal != snapshot;
         const auto handle = mutation ? insert_locked(h, std::move(proposal)) : *base;
-        gesture.swap(trial); *output = handle; *changed = mutation ? 1u : 0u; return PIXAURA_OK;
+        entry_locked(h, token).revoke(); gesture.swap(trial); *output = handle; *changed = mutation ? 1u : 0u; return PIXAURA_OK;
     });
 }
 int32_t pixaura_manual_geometry_cancel(pixaura_document_context* context, const pixaura_manual_gesture* token) {
     return boundary(nullptr, [&] {
         const auto h = live(context); std::lock_guard<std::mutex> lock(h.registry->mutex);
-        gesture_locked(h, token)->cancel(); return PIXAURA_OK;
+        entry_locked(h, token).revoke(); gesture_locked(h, token)->cancel(); return PIXAURA_OK;
     });
 }
 int32_t pixaura_manual_geometry_release(pixaura_document_context* context, const pixaura_manual_gesture* token) {
     return boundary(nullptr, [&] {
         const auto h = live(context); std::lock_guard<std::mutex> lock(h.registry->mutex);
-        (void)gesture_locked(h, token); h.registry->gestures.erase(token->serial); return PIXAURA_OK;
+        entry_locked(h, token).revoke(); h.registry->gestures.erase(token->serial); return PIXAURA_OK;
     });
 }
 int32_t pixaura_manual_update(pixaura_document_context* c,const pixaura_manual_gesture* g,const pixaura_document_handle* h,const uint8_t* p,uint64_t n,uint64_t* s){return pixaura_manual_geometry_update(c,g,h,p,n,s);}
@@ -298,6 +383,7 @@ extern "C" int32_t pixaura_preset_propose(uint32_t version,pixaura_document_cont
     return boundary(nullptr,[&]{require(version==1,PIXAURA_UNSUPPORTED_ABI);require(output&&changed);const auto h=live(context);
         const auto recipe_view=input_view(recipe,recipe_bytes,16384),bindings_view=input_view(bindings,bindings_bytes,1024),revision_view=input_view(revision_id,revision_bytes,32);
         std::lock_guard<std::mutex> guard(h.registry->mutex);const auto prior=snapshot_locked(h,base),now=snapshot_locked(h,current);
+        for(const auto& entry:h.registry->gestures)require(!entry.second.controller->active(),PIXAURA_DOCUMENT_CANCELLED);
         auto result=pixaura::preset::propose(prior,now,recipe_view,bindings_view,revision_view);auto proposal=unwrap(std::move(result));const bool mutation=proposal!=now;
         const auto handle=mutation?insert_locked(h,std::move(proposal)):*current;*output=handle;*changed=mutation?1u:0u;return PIXAURA_OK;});
 }

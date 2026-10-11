@@ -1,5 +1,12 @@
 # System architecture
 
+Phase 3 Step 6 is authorized: [gesture lifecycle integration](docs/contracts/gesture-lifecycle-integration-v1.md)
+binds the existing manual controller to verified originals and PRV1. Context
+serialization owns transient pending state; application services retain approval,
+SQLite authority and the existing platform check+display lock. No new engine,
+scheduler, durable gesture schema or final editor UI. Steps 7/8 remain NOT STARTED;
+historical phase statuses below do not supersede this authorization.
+
 Phase 2 is CLOSED by the explicit [Product Owner/Architect decision](DECISIONS.md#phase-2-closure-decision-2026-10-08). Accepted Steps 1-11 remain FULL PASS; original first GPU pipeline implementation and hosted compile/regression are complete, and physical Android Vulkan certification is accepted PASS 14/14. Apple physical Metal certification is deferred because no real hardware is available, not waived or removed, and remains mandatory under [DH-APPLE-METAL-01](QUALITY_GATES.md#dh-apple-metal-01-deferred-physical-apple-metal-certification) before hardening acceptance, Beta readiness completion, production release or any physical Apple GPU certification claim. This supersedes only the Phase 2 closure timing in historical ADR 0018, not its technical criteria. See the [exit-closure report](docs/reports/phase-2-exit-closure.md). Existing ceilings and CPU authority remain unchanged. Phase 3 has not started; no additional Phase 2 step or work is authorized.
 
 Phase 2 Step 11 is authorized: [interactive preview request generation and publication ownership](docs/contracts/interactive-preview-lifecycle-v1.md) under [ADR 0017](docs/adr/0017-interactive-preview-generation-fence.md). Latest-wins native/platform fences, cooperative supersession and failed-request display preservation keep synchronous execution, existing ceilings and quiescent destruction. All existing local/hosted gates plus churn/races/overflow/platform ownership remain mandatory. [Step 11 report](docs/reports/phase-2-step-11.md); Step 12 is not started.

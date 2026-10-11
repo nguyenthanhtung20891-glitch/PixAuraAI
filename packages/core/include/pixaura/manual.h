@@ -9,6 +9,19 @@ extern "C" {
 #define PIXAURA_MANUAL_MAX_DESCRIPTORS 16u
 #define PIXAURA_MANUAL_MAX_PARAMETERS 8u
 #define PIXAURA_MANUAL_MAX_REGISTRY_BYTES 32768u
+#define PIXAURA_MANUAL_ACTIVE 1u
+#define PIXAURA_MANUAL_COMMITTING 2u
+#define PIXAURA_MANUAL_COMPLETED 3u
+#define PIXAURA_MANUAL_CANCELLED 4u
+#define PIXAURA_MANUAL_INVALIDATED 5u
+/* Integrated editing begin binds the existing gesture controller to one PRV1
+ * raster owner and its verified normalized original. Both contexts/source must
+ * outlive the gesture and all workers. Route lifecycle calls and check+display
+ * replacement through the existing platform publication lock. No new scheduler.
+ * Every accepted update requests a new PRV1 generation; invalid/failed updates
+ * preserve pending state and ticket. Commit/cancel/release/stale/destroy revoke.
+ * One active gesture per context; terminal tokens still require release.
+ */
 /* Read-only compiled registry. No registration/discovery/network or handles.
  * Two-call UTF-8 JSON: required includes LF, excludes NUL. A short buffer writes
  * only required; all other failures preserve outputs. Caller owns truthful,
@@ -24,7 +37,7 @@ PIXAURA_API int32_t pixaura_manual_canonical_operation(uint32_t version,
 /* Geometry gestures share the document context's unchanged 64-owned-handle
  * budget. Tokens never alias document handles. Calls are serialized by that
  * context; init/destroy retain their exclusive lifetime requirements.
- * Only crop/rotate are admitted. One active gesture per document;
+ * Only crop/rotate are admitted. One active gesture per editing context;
  * tool switching/background interruption must cancel then release.
  * Commit returns a detached proposal, never approval or durable publication.
  * Neutral commit returns the borrowed live handle (changed=0); changed commit
@@ -38,6 +51,36 @@ typedef struct pixaura_manual_gesture {
     uint8_t context_id[32];
     uint64_t serial;
 } pixaura_manual_gesture;
+PIXAURA_API int32_t pixaura_manual_edit_begin(uint32_t version,
+    pixaura_document_context*, const pixaura_document_handle* live,
+    const uint8_t* gesture_id, uint64_t gesture_bytes,
+    const uint8_t* tool_id, uint64_t tool_bytes,
+    const uint8_t* replace_id, uint64_t replace_bytes,
+    pixaura_decode_context*, const pixaura_decode_handle* original,
+    pixaura_manual_gesture* output);
+/* Tool switch validates arguments/live, then cancels/revokes/releases the old
+ * context gesture before admitting B under the same context mutex. Admission
+ * failure leaves A terminal. Never auto-commit. Owner publication lock applies. */
+PIXAURA_API int32_t pixaura_manual_edit_switch(uint32_t version,
+    pixaura_document_context*, const pixaura_document_handle* live,
+    const uint8_t* gesture_id, uint64_t gesture_bytes,
+    const uint8_t* tool_id, uint64_t tool_bytes,
+    const uint8_t* replace_id, uint64_t replace_bytes,
+    pixaura_decode_context*, const pixaura_decode_handle* original,
+    pixaura_manual_gesture* output);
+PIXAURA_API int32_t pixaura_manual_state(pixaura_document_context*,
+    const pixaura_manual_gesture*, uint32_t* state, uint64_t* sequence);
+PIXAURA_API int32_t pixaura_manual_preview_ticket(pixaura_document_context*,
+    const pixaura_manual_gesture*, const pixaura_document_handle* live,
+    pixaura_preview_ticket* output, uint64_t* sequence);
+/* Checks sequence AND owned PRV1 ticket/result. Call under platform owner lock
+ * covering display replacement, shared with begin/update/commit/cancel. */
+PIXAURA_API int32_t pixaura_manual_preview_current(pixaura_document_context*,
+    const pixaura_manual_gesture*, const pixaura_document_handle* live,
+    uint64_t sequence, const pixaura_preview_ticket*, const pixaura_decode_handle* preview);
+/* Background/navigation/disposal: cancel all, revoke, release bounded tokens.
+ * Does not stop raster context; owner stops/joins before destroying contexts. */
+PIXAURA_API int32_t pixaura_manual_interrupt(pixaura_document_context*);
 PIXAURA_API int32_t pixaura_manual_geometry_begin(uint32_t version,
     pixaura_document_context* context, const pixaura_document_handle* live,
     const uint8_t* gesture_id, uint64_t gesture_bytes,

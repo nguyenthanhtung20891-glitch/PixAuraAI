@@ -9,6 +9,23 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ManualBoundaryTest {
+    @Test fun integratedGestureOwnsPreviewAndTerminalLifecycle() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val root = java.io.File(instrumentation.targetContext.noBackupFilesDir, "gesture-${UUID.randomUUID()}")
+        assertTrue(root.mkdir())
+        val executor = java.util.concurrent.Executors.newSingleThreadExecutor()
+        try {
+            val fixture = JSONObject(instrumentation.context.assets.open("decode.json").bufferedReader().use { it.readText() }).getJSONObject("png")
+            val array = fixture.getJSONArray("bytes")
+            val bytes = ByteArray(array.length()) { array.getInt(it).toByte() }
+            val directory = java.io.File(root, "assets/sha256")
+            assertTrue(directory.mkdirs())
+            val digest = fixture.getString("sha256")
+            java.io.File(directory, digest).writeBytes(bytes)
+            val identity = UUID.randomUUID().toString().replace("-", "").toByteArray()
+            assertEquals(0, executor.submit<Int> { CoreProbe().nativeGestureLifecycle(root.canonicalPath.toByteArray(), digest.toByteArray(), bytes.size.toLong(), identity) }.get())
+        } finally { executor.shutdown(); assertTrue(root.deleteRecursively()) }
+    }
     @Test fun toneGestureBoundary() {
         val fixture = InstrumentationRegistry.getInstrumentation().context.assets
             .open("image-document-v1.json").use { it.readBytes() }

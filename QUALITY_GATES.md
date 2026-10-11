@@ -1,5 +1,20 @@
 # Quality gates and promotion policy
 
+## Phase 3 Step 6 acceptance
+
+AUTHORIZED / IN PROGRESS: [gesture lifecycle integration](docs/contracts/gesture-lifecycle-integration-v1.md).
+Reuse the Step 1 controller, existing PRV1 owner/fence and detached revision/persistence
+authority. Require one active context gesture, verified original binding, 1000/10000
+coalesced updates with bounded retained allocation, explicit state/retry/terminal
+rules, deterministic checkpoint and concurrent races, cancellation/interruption,
+tool switching, history/preset rejection while active, exact one/zero revision
+guarantees, replay/reopen and allocation/admission failures. C/JNI/Swift consumers,
+Windows/Linux native, ASan/UBSan instrumentation, Android builds/lint/JVM/emulator,
+Apple macOS/iOS simulator/app and exact-SHA hosted workflows must actually pass.
+Unobserved gates are pending, never PASS. Schema 3 and DH-APPLE-METAL-01 unchanged.
+No final editor UI, new tools, AI/GPU/storage schema scope. Steps 7/8 NOT STARTED.
+Evidence: [Step 6 report](docs/reports/phase-3-step-6.md).
+
 ## Phase 3 Step 5 acceptance
 
 Foundation only: [preset contract](docs/contracts/presets-v1.md), bounded canonical recipes of accepted tone/detail operations, geometry rejection, empty shipping catalog, all-or-nothing validation and one inspectable detached batch revision. Require canonical/reference/manual equivalence, ordering/reapplication/neutral/undo/redo/stale/cancel/failure/resource tests, existing SQLite commit/reopen replay, allocation faults, C/JNI/Swift consumers and full Windows/Linux/sanitizer/mobile/exact-SHA hosted gates. Schema 3 and all historical fingerprints remain unchanged; no migration change, AI, marketplace/import/cloud/plugin/UI or Step 6 work. Step 5 is COMPLETE / FULL PASS; [report](docs/reports/phase-3-step-5.md). No pending gate counts as PASS.
