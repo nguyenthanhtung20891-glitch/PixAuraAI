@@ -35,12 +35,34 @@ test('all build and runtime boundaries execute capability foundation tests', () 
   for (const file of ['.github/workflows/foundation.yml', '.github/workflows/native-shells.yml', 'scripts/check-apple.sh']) assert.ok(read(file).includes('tests/capability.test.mjs'), file);
 });
 
-test('finite Phase 4 roadmap stays proposed with only Step 1 authorized', () => {
+test('finite Phase 4 roadmap is frozen with only Step 2 currently authorized', () => {
   const roadmap = read('docs/plans/phase-4-roadmap.md');
-  assert.match(roadmap, /PROPOSED — NOT FROZEN/);
+  assert.match(roadmap, /FROZEN by Product Owner/);
   const rows = [...roadmap.matchAll(/^\| (\d+) \|/gm)];
   assert.deepEqual(rows.map(m => Number(m[1])), [1, 2, 3, 4, 5, 6, 7]);
-  assert.match(roadmap, /Steps 2\+ are NOT STARTED/);
+  assert.match(roadmap, /Steps 3–7 remain NOT STARTED/);
   assert.match(read('QUALITY_GATES.md'), /Phase 4 Step 1/);
   assert.match(read('docs/contracts/capability-profile-v1.md'), /DH-APPLE-METAL-01/);
+});
+
+test('budget authority is pure shared preflight and cannot bypass existing owners', () => {
+  const core = read('packages/core/src/budget.cpp');
+  const header = read('packages/core/include/pixaura/budget.h');
+  assert.match(header, /PIXAURA_BUDGET_VERSION 1u/);
+  assert.ok(!/\b(new|malloc|calloc|realloc|thread|mutex|sqlite3_|fopen|socket)\b/.test(core));
+  for (const authority of ['pixaura_decode_default_limits', 'pixaura_working_default_limits', 'PIXAURA_GPU_MAX_PIXELS']) assert.ok(core.includes(authority));
+  assert.ok(!/budget|Budget/.test(read('packages/core/src/editor_api.cpp')));
+  assert.ok(!/Budget|budget_admit/.test(read('platforms/ios/PixAuraAI/ManualEditorScreen.swift')));
+  assert.ok(!fs.existsSync('packages/core/src/storage_schema_v4.hpp'));
+  assert.match(read('docs/contracts/budget-admission-v1.md'), /not a\s+reservation/);
+});
+
+test('shared budget corpus runs at native JNI and Swift boundaries', () => {
+  for (const file of ['packages/core/tests/capability_c_consumer.c', 'packages/core/tests/capability_test.cpp', 'platforms/android/native/capability_bridge.cpp']) assert.ok(read(file).includes('budget_boundary_check'), file);
+  assert.ok(read('platforms/android/app/src/androidTest/java/ai/pixaura/app/CapabilityFoundationTest.kt').includes('nativeBudgetBoundary'));
+  assert.ok(read('packages/core/swift/Tests/BudgetAdmissionTests.swift').includes('pixaura_budget_admit'));
+  const tests = read('packages/core/tests/budget_boundary.h');
+  for (const evidence of ['delta = -1', 'UINT64_MAX', 'PIXAURA_BUDGET_OVERFLOW', 'PIXAURA_BUDGET_OCCUPANCY', 'PIXAURA_BUDGET_PREVIEW_MEMORY', 'PIXAURA_GPU_PHYSICAL_CERTIFIED']) assert.ok(tests.includes(evidence));
+  assert.match(read('packages/core/tests/capability_test.cpp'), /160000 parallel admission/);
+  assert.ok(read('packages/core/Package.swift').includes('src/budget.cpp'));
 });

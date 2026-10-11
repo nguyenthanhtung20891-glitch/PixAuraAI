@@ -68,7 +68,7 @@ set_source_files_properties(packages/core/src/decode_codec.c PROPERTIES COMPILE_
     "$<$<C_COMPILER_ID:MSVC>:/W4;/WX>;$<$<NOT:$<C_COMPILER_ID:MSVC>>:-Wall;-Wextra;-Wpedantic;-Werror>")
 target_sources(pixaura_core PRIVATE packages/core/src/decode.cpp packages/core/src/decode_api.cpp packages/core/src/working.cpp packages/core/src/evaluation.cpp packages/core/src/geometry.cpp packages/core/src/preview.cpp)
 target_link_libraries(pixaura_core PRIVATE pixaura_codecs)
-target_sources(pixaura_core PRIVATE packages/core/src/gpu.cpp packages/core/src/manual_tools.cpp packages/core/src/capability.cpp)
+target_sources(pixaura_core PRIVATE packages/core/src/gpu.cpp packages/core/src/manual_tools.cpp packages/core/src/capability.cpp packages/core/src/budget.cpp)
 
 include(CTest)
 if(BUILD_TESTING)

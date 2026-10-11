@@ -11,6 +11,9 @@ import java.nio.ByteBuffer
 
 @RunWith(AndroidJUnit4::class)
 class CapabilityFoundationTest {
+    @Test fun sharedBudgetThresholdOverflowAndDowngradeCorpus() {
+        assertEquals(0, CoreProbe().nativeBudgetBoundary())
+    }
     @Test fun sharedSyntheticAndMalformedCorpus() {
         assertEquals(0, CoreProbe().nativeCapabilityFoundationBoundary())
     }

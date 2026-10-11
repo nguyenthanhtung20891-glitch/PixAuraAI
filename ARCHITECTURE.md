@@ -1,5 +1,18 @@
 # System architecture
 
+## Phase 4 Step 2 shared admission authority
+
+Product Owner freezes the seven-step roadmap and accepts Step 1 at
+`82fca1f6fe3a565a6704afe18cb5bc80cb9a9823`. Only Step 2 is authorized.
+[Budget v1](docs/contracts/budget-admission-v1.md) adds pure shared preflight over
+immutable capability + truthful owner occupancy snapshots. No resource reservation,
+second scheduler, platform business rules, context owner, profile persistence or
+render/publication integration. Existing native checks stay authoritative and
+runtime caps only tighten them. Static preview/CPU choices do not orchestrate
+transitions. Steps 3–7 remain NOT STARTED; no Phase 5. DH-APPLE-METAL-01 unchanged.
+This supersedes historical roadmap-not-frozen/Step-1-review-pending wording below.
+
+
 ## Phase 4 Step 1 capability foundation
 
 Authorized baseline: `56cd60560b6271b7d27bf5e03fd1d720a3aad2fa`.

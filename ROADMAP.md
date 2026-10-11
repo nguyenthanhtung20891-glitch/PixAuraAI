@@ -1,5 +1,16 @@
 # Delivery roadmap
 
+## Phase 4 current authorization — frozen roadmap / Step 2 only
+
+Product Owner freezes the seven-step [Phase 4 roadmap](docs/plans/phase-4-roadmap.md)
+at `82fca1f6fe3a565a6704afe18cb5bc80cb9a9823`. Step 1 is COMPLETE / FULL PASS;
+Step 2 is AUTHORIZED / IMPLEMENTED / VALIDATION IN PROGRESS. Steps 3–7 remain
+NOT STARTED; no Step 8+. This supersedes historical proposed/not-frozen wording.
+[Budget v1](docs/contracts/budget-admission-v1.md) and [Step 2 report](docs/reports/phase-4-step-2.md)
+freeze only static shared admission/tiers. All ten exact-SHA jobs are required.
+Phase 0–3 remain closed; no Phase 5 or automatic Step 3. DH-APPLE-METAL-01 unchanged.
+
+
 ## Phase 4 current authorization — Step 1 only
 
 Phase 4 is AUTHORIZED at `56cd60560b6271b7d27bf5e03fd1d720a3aad2fa`.

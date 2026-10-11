@@ -1,5 +1,22 @@
 # Quality gates and promotion policy
 
+## Phase 4 Step 2 budget admission gates
+
+Step 1 accepted FULL PASS; roadmap FROZEN by Product Owner. Step 2 alone is
+AUTHORIZED / IMPLEMENTED / VALIDATION IN PROGRESS. Require shared fixture outcomes,
+each CPU/RAM/process threshold ±1, unknown/contradictory/malformed profiles and
+requests, checked overflow, retained/in-flight bytes and handles, occupied work,
+static preview fit with full-source cost, GPU availability distinct from validation,
+unchanged hard maxima, parallel identical queries and C/JNI/Swift determinism.
+[Budget contract](docs/contracts/budget-admission-v1.md) freezes policy; [report](docs/reports/phase-4-step-2.md)
+records evidence. Preserve every Phase 0–3 gate, both Android ABIs, debug/release/
+JVM/lint/instrumentation, Apple native/Swift/simulator/app/UI, Windows/Linux,
+ASan/UBSan active controls, source/docs/workflows and diff checks. Both full
+workflows must pass all ten jobs on delivered exact SHA. No skipped gate is PASS.
+Steps 3–7 NOT STARTED; no schema/inference/GPU expansion. DH-APPLE-METAL-01 unchanged.
+This current authorization supersedes historical Step 1 review-pending wording.
+
+
 ## Phase 4 Step 1 foundation gates
 
 Only the capability contract/probe foundation is authorized. Step 1 is

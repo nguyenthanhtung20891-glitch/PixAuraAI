@@ -1,5 +1,18 @@
 # Architectural decision index
 
+## Phase 4 roadmap freeze and Step 2 authorization
+
+Product Owner accepts Step 1 COMPLETE / FULL PASS at
+`82fca1f6fe3a565a6704afe18cb5bc80cb9a9823` and freezes exactly seven roadmap steps.
+Only Step 2 is authorized: [shared budget v1](docs/contracts/budget-admission-v1.md)
+freezes T0/T1/T2 multi-input integer thresholds, lower runtime caps, checked peak
+accounting and static optional preview/CPU fallback decisions. No architectural
+supersession or new ownership is needed. All existing ceilings and certification
+scope remain intact. Steps 3–7 NOT STARTED; no Step 8+ or Phase 5 authorization.
+This supersedes historical proposed-roadmap/Step-1-review-pending wording below.
+DH-APPLE-METAL-01 and ADR 0021 remain unchanged.
+
+
 ## Phase 4 Step 1 authorization and review boundary
 
 The Product Owner authorizes audit, a finite proposed roadmap and minimum

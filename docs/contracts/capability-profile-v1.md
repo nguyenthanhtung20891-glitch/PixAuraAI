@@ -2,7 +2,10 @@
 
 Authority: authorized Phase 4 Step 1, baseline
 `56cd60560b6271b7d27bf5e03fd1d720a3aad2fa`.
-The [seven-step roadmap](../plans/phase-4-roadmap.md) is PROPOSED, not frozen.
+The [seven-step roadmap](../plans/phase-4-roadmap.md) is now FROZEN by Product Owner
+at Step 2 authorization; Step 1 is accepted at `82fca1f6fe3a565a6704afe18cb5bc80cb9a9823`.
+The additive [budget v1 contract](budget-admission-v1.md) consumes these unchanged
+records. Only Step 2 is authorized; Steps 3–7 remain NOT STARTED.
 This additive C ABI family establishes data/probe seams only. ABI 1 feature bits,
 document/storage schemas, accepted manual tools and resource ceilings are unchanged.
 No BudgetAdmission, device classifier, dynamic strategy or editor integration is
@@ -41,8 +44,8 @@ never bypasses existing GPU checks, parity or physical certification gates.
 No external profile loader or production synthetic-profile injection is exposed.
 
 Static facts, dynamic facts and derived execution policy remain separate.
-Step 2 will freeze LOW/MID/HIGH multi-input thresholds, T0 and centralized
-ADMIT/ADMIT_WITH_DOWNGRADE/REJECT_RESOURCE_LIMIT behavior. Step 3 will freeze
+Step 2 freezes T0/T1/T2 multi-input thresholds and centralized
+ADMIT/ADMIT_WITH_DOWNGRADE/REJECT_RESOURCE_LIMIT behavior in budget v1. Step 3 will freeze
 policy epochs/recovery hysteresis and connect changes to existing PRV1 generation
 ownership. Step 1 intentionally selects no tier or runtime budget.
 

@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 
 // Harmless, versioned boundary probe. No photo processing in Kotlin.
 class CoreProbe {
+    external fun nativeBudgetBoundary(): Int
     external fun nativeCapabilityBaseline(): ByteArray?
     external fun nativeCapabilityFoundationBoundary(): Int
     external fun nativeImportLimit(): Long
