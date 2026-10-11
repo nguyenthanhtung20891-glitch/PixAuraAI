@@ -30,7 +30,20 @@ final class ShellUITests: XCTestCase {
             // a synthesized tap alone does not prove a gesture began.
             button.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25)).tap()
             let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "selected == true"), object: button)
-            XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 20), .completed,
+            var result = XCTWaiter.wait(for: [selected], timeout: 20)
+            if result != .completed && !app.staticTexts["editor-error"].exists {
+                // Category changes remove controls and move this row. On loaded
+                // simulator hosts a coordinate event can miss that moving target.
+                // Retry only an unselected, enabled tool, using a fresh snapshot
+                // and a point above the scrollbar. Never retry a core error or
+                // proceed without observing the same selection postcondition.
+                if button.exists && button.isEnabled && !button.isSelected {
+                    button.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1)).tap()
+                    let retried = XCTNSPredicateExpectation(predicate: NSPredicate(format: "selected == true"), object: button)
+                    result = XCTWaiter.wait(for: [retried], timeout: 20)
+                }
+            }
+            XCTAssertEqual(result, .completed,
                            "Tool did not become selected: \(id)\n\(app.debugDescription)")
         }
         tap("Open Manual editor"); revisions(1)

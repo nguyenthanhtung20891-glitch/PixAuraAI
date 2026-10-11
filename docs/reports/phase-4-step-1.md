@@ -117,6 +117,17 @@ workflows to pass all ten jobs on that final commit's exact SHA; the final
 delivery supplies its SHA, workflow IDs and conclusions. No prior-SHA green
 substitutes. Product Owner review/acceptance and roadmap freeze remain pending.
 
+The documentation SHA `d93948f0e59bc5a0f2121c91a4861653739c12f2`
+passed Foundation 38158116892 (7/7) and source/Android shell jobs, but iOS
+job 114525187026 in shells 38158116898 failed its existing rotation-selection
+UI postcondition. Native/Swift, debug/release builds and six app tests passed.
+The captured hierarchy showed an enabled, unselected rotation tool with no
+editor error after a synthesized coordinate tap. A bounded UI-harness correction
+re-resolves and retries that unselected tool once above the scrollbar; core
+errors do not retry and the original selection/flow assertions remain mandatory.
+No production editor code changes. Final delivery requires all ten exact-SHA
+jobs on the correction commit; the failed UI run is not counted PASS.
+
 ## Files and review
 
 Core: capability.h/capability.cpp; C/C++ foundation and fixture/boundary tests;
