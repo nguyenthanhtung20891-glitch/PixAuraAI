@@ -34,6 +34,10 @@ PIXAURA_API int32_t pixaura_working_query(pixaura_decode_context* context,
  * verified encoded SHA-256/length. Evaluated/identity candidates reject. */
 PIXAURA_API int32_t pixaura_working_validate_original(pixaura_decode_context*,
     const pixaura_decode_handle*, const uint8_t* sha256, uint64_t bytes, uint64_t encoded_bytes);
+/* Bounded liveness check for an already verified original binding. Uses only
+ * the existing registry publication mutex, so supersession need not wait for
+ * synchronous pixel work. Released/derived/foreign handles reject 3. */
+PIXAURA_API int32_t pixaura_working_original_current(pixaura_decode_context*, const pixaura_decode_handle*);
 /* Caller-owned float buffer; offset/count in float components, never internal pointers.
  * Source metadata/profile query uses decode_query/copy_profile; release uses decode_release.
  */

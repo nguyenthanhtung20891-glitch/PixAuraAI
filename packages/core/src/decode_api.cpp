@@ -74,7 +74,7 @@ int32_t pixaura_decode_image(pixaura_decode_context* c,const pixaura_decode_hand
 });}
 int32_t pixaura_decode_copy_pixels(pixaura_decode_context* c,const pixaura_decode_handle* h,uint64_t offset,uint8_t* output,uint64_t bytes){return copy(c,h,offset,output,bytes,true);}
 int32_t pixaura_decode_copy_profile(pixaura_decode_context* c,const pixaura_decode_handle* h,uint64_t offset,uint8_t* output,uint64_t bytes){return copy(c,h,offset,output,bytes,false);}
-int32_t pixaura_decode_release(pixaura_decode_context* c,const pixaura_decode_handle* handle){return boundary([&]{const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);entry(h,handle);h.registry->entries.erase(handle->serial);});}
+int32_t pixaura_decode_release(pixaura_decode_context* c,const pixaura_decode_handle* handle){return boundary([&]{const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);std::lock_guard<std::mutex> publication(h.registry->cancellation_mutex);entry(h,handle);h.registry->entries.erase(handle->serial);});}
 int32_t pixaura_working_default_limits(uint32_t version,pixaura_working_limits* out){return boundary([&]{need(version==1,2);need(out!=nullptr);*out=working::defaults();});}
 int32_t pixaura_working_normalize(pixaura_decode_context* c,const pixaura_decode_handle* handle,const pixaura_working_limits* l,pixaura_decode_handle* out){return boundary([&]{
     need(l&&out);const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);const auto& e=entry(h,handle);need(e.image&&e.pixels,3);
@@ -91,6 +91,10 @@ int32_t pixaura_working_validate_original(pixaura_decode_context* c,const pixaur
     const auto hash=text(digest,bytes,64);need(hash.size()==64);const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);
     const auto& e=entry(h,token);need(e.original&&e.working.pixels&&e.source,3);
     need(e.source->encoded().size()==encoded_bytes,9);storage::Sha256 sha;sha.update(e.source->encoded().data(),e.source->encoded().size());need(sha.finish()==hash,9);
+});}
+int32_t pixaura_working_original_current(pixaura_decode_context* c,const pixaura_decode_handle* token){return boundary([&]{
+    const auto h=live(c);std::lock_guard<std::mutex> publication(h.registry->cancellation_mutex);
+    const auto& e=entry(h,token);need(e.original&&e.working.pixels&&e.source,3);
 });}
 int32_t pixaura_working_copy(pixaura_decode_context* c,const pixaura_decode_handle* handle,uint64_t offset,float* out,uint64_t count){return boundary([&]{const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);const auto& e=entry(h,handle);need(e.working.pixels!=nullptr,3);const auto& v=*e.working.pixels;need(offset<=v.size()&&count<=v.size()-offset&&(out||count==0));if(count)std::memcpy(out,v.data()+static_cast<std::size_t>(offset),static_cast<std::size_t>(count)*sizeof(float));});}
 int32_t pixaura_evaluation_validate(uint32_t version,const uint8_t* request,uint64_t bytes){return boundary([&]{
@@ -230,7 +234,7 @@ int32_t pixaura_preview_copy(pixaura_decode_context* c,const pixaura_decode_hand
     if(bytes)std::memcpy(out,v.data()+static_cast<std::size_t>(offset),static_cast<std::size_t>(bytes));
 });}
 int32_t pixaura_preview_release(pixaura_decode_context* c,const pixaura_decode_handle* handle){return boundary([&]{
-    const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);const auto& e=entry(h,handle);need(e.preview.pixels!=nullptr,3);h.registry->entries.erase(handle->serial);
+    const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);std::lock_guard<std::mutex> publication(h.registry->cancellation_mutex);const auto& e=entry(h,handle);need(e.preview.pixels!=nullptr,3);h.registry->entries.erase(handle->serial);
 });}
 
 #ifdef PIXAURA_PREVIEW_TESTING

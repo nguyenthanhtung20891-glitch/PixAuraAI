@@ -19,8 +19,9 @@ Interruption cancels/revokes/releases with no history. No second engine/schedule
 
 Local validation: Windows native 27/27 PASS, zero failed/skipped (Zig 0.14.1 /
 Clang 19.1.7 fallback, unchanged ceilings). Final focused lifecycle/C gate 2/2
-PASS: 196,650 native assertions, 10,000 updates per representative geometry,
-tone and detail tool per run; two complete runs retain identical live allocation
+PASS: 196,726 native assertions, 10,000 varying updates per representative geometry,
+tone and detail tool per run, with the exact final accepted value in the proposal;
+two complete runs retain identical live allocation
 payload after warmup. 467 injected allocation failures recovered per run (934
 total), plus commit-handle admission recovery, PRV1 stop/overflow and allocation-free
 cancel. Checkpoint-paused previews exercise update, cancel, background/disposal
@@ -44,6 +45,20 @@ debug/release assembly, strict lint, debug JVM 2/2 and release JVM 2/2 tests, ze
 failures/skips, and instrumentation APK assembly PASS. All caches/temp/builds
 are repository-local. Apple, Android instrumentation and exact-SHA hosted runs
 remain pending. No unobserved gate is PASS.
+
+## Hosted remediation
+
+Exact SHA `f3fe43c752034c77e7d1a6bdc29a8e8f7e2c1b92` passed hosted Linux,
+MSVC, ASan/UBSan and both Android ABI jobs. Apple failed in the new Swift fixture's
+decode-open call with status 6: Foundation's temporary-directory alias was rejected
+by the unchanged O_NOFOLLOW_ANY admission. The fixture now uses Darwin realpath,
+matching the accepted decode fixture, and stable heap-owned raster context storage.
+No security check, warning or test is disabled. Corrected exact-SHA reruns are pending.
+
+Review also preserved Step 1's nonzero-update preview eligibility and PRV1 malformed
+ticket statuses (2/3); added original-handle release invalidation using the existing
+publication mutex without waiting for pixel work. Final local native 27/27 and
+focused 2/2 gates plus Android regression and portable source checks are retained.
 
 Commands: CMake/Ninja Debug configure/build and ctest --output-on-failure --verbose;
 node --test on all portable affected suites; Gradle --no-daemon

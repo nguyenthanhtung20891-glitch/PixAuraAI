@@ -1,5 +1,6 @@
 import XCTest
 import Foundation
+import Darwin
 import CPixAuraCore
 import PixAuraCore
 
@@ -37,7 +38,14 @@ final class GestureLifecycleTests: XCTestCase {
                 raster.deallocate()
             }
             XCTAssertEqual(manifest.withUnsafeBufferPointer { m in session.withUnsafeBufferPointer { s in pixaura_document_create(1, &document, m.baseAddress, UInt64(m.count), s.baseAddress, 32, &base, nil) } }, 0)
-            let path = Array(root.resolvingSymlinksInPath().path.utf8), digest = Array(hash.utf8)
+            // Use the OS-resolved path, preserving native no-symlink admission.
+            let raw: UnsafeMutablePointer<CChar>? = root.withUnsafeFileSystemRepresentation {
+                guard let pointer = $0 else { return nil }
+                return realpath(pointer, nil)
+            }
+            let resolved = try XCTUnwrap(raw)
+            defer { free(resolved) }
+            let path = Array(String(cString: resolved).utf8), digest = Array(hash.utf8)
             XCTAssertEqual(path.withUnsafeBufferPointer { p in digest.withUnsafeBufferPointer { d in pixaura_decode_open(raster, p.baseAddress, UInt64(p.count), d.baseAddress, 64, UInt64(values.count), &encoded) } }, 0)
             XCTAssertEqual(pixaura_decode_image(raster, &encoded, &decoded), 0)
             XCTAssertEqual(pixaura_working_normalize(raster, &decoded, &wl, &original), 0)

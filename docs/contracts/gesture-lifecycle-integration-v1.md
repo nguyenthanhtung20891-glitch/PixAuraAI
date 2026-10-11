@@ -39,7 +39,9 @@ bounded trial metadata is validated before PRV1 begin, then swapped without
 allocation. Every accepted update requests a new PRV1 generation. Failure keeps
 the last valid operation/sequence/ticket, including PRV1 exhaustion/stop. There is
 no update queue, per-update document handle, revision, persistence or cache.
-Initial neutral state has sequence zero; integrated preview can display the base.
+Initial neutral state has sequence zero; the frozen Step 1 eligibility rule
+requires a nonzero accepted update before a gesture preview may publish. The
+previous approved base display remains valid independently.
 
 `manual_preview_ticket` copies the current ticket/sequence. Existing worker
 `manual_render` verifies bound original/context/ticket, projects the ordered full
@@ -84,7 +86,10 @@ and alive until all gestures and workers are quiescent. Resumption begins fresh.
 ## Failure and bounds
 
 Stale project/document/source/session/generation/revision input invalidates and
-revokes safely. Invalid UPDATE preserves ACTIVE/pending/ticket. Allocation,
+revokes safely, including release of the bound original handle. Original liveness
+uses the existing raster registry publication mutex; it cannot block UPDATE on
+pixel work. All entry insertions/releases use that mutex, with unchanged ordinary
+source pinning and final PRV1 fence. Invalid UPDATE preserves ACTIVE/pending/ticket. Allocation,
 admission and final validation failures preserve approved history and permit
 commit retry. Preview failure preserves the prior platform copy. Cancellation
 needs no allocation; repeated cancel succeeds; invalid/released handles reject.

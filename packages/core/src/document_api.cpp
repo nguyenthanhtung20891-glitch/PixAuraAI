@@ -217,6 +217,9 @@ void binding(GestureEntry& entry, const Snapshot& snapshot) {
     auto& gesture = *entry.controller;
     require(gesture.active(), PIXAURA_DOCUMENT_CANCELLED);
     if (!gesture.bound_to(snapshot)) { entry.revoke(); gesture.invalidate(); throw Failure{PIXAURA_DOCUMENT_STALE_BASE}; }
+    if(entry.raster&&pixaura_working_original_current(entry.raster,&entry.original)!=0){
+        entry.revoke();gesture.invalidate();throw Failure{PIXAURA_DOCUMENT_STALE_BASE};
+    }
 }
 template<class T> T manual_result(Result<T> result) {
     if (result.code) throw Failure{result.code, result.index};
@@ -290,8 +293,10 @@ int32_t pixaura_manual_preview_ticket(pixaura_document_context* context,const pi
 int32_t pixaura_manual_preview_current(pixaura_document_context* context,const pixaura_manual_gesture* token,const pixaura_document_handle* base,uint64_t sequence,const pixaura_preview_ticket* ticket,const pixaura_decode_handle* preview){
     return boundary(nullptr,[&]{require(ticket!=nullptr);const auto h=live(context);std::lock_guard<std::mutex> lock(h.registry->mutex);
         auto& entry=entry_locked(h,token);binding(entry,snapshot_locked(h,base));require(entry.raster!=nullptr);
-        require(sequence==entry.controller->sequence()&&std::memcmp(ticket,&entry.ticket,sizeof(*ticket))==0,PIXAURA_DOCUMENT_CANCELLED);
-        const auto status=pixaura_preview_current(entry.raster,ticket,preview);require(status==0,status);return PIXAURA_OK;});
+        const auto status=pixaura_preview_current(entry.raster,ticket,nullptr);require(status==0,status);
+        require(sequence!=0&&sequence==entry.controller->sequence()&&std::memcmp(ticket,&entry.ticket,sizeof(*ticket))==0,PIXAURA_DOCUMENT_CANCELLED);
+        if(preview){const auto result_status=pixaura_preview_current(entry.raster,ticket,preview);require(result_status==0,result_status);}
+        return PIXAURA_OK;});
 }
 int32_t pixaura_manual_interrupt(pixaura_document_context* context){
     return boundary(nullptr,[&]{const auto h=live(context);std::lock_guard<std::mutex> lock(h.registry->mutex);
@@ -302,7 +307,9 @@ int32_t manual_render_binding(pixaura_document_context* context,const pixaura_ma
     return boundary(nullptr,[&]{require(source&&ticket);const auto h=live(context);std::lock_guard<std::mutex> lock(h.registry->mutex);
         auto& entry=entry_locked(h,token);binding(entry,snapshot_locked(h,base));
         if(entry.raster){require(entry.raster==raster&&std::memcmp(source,&entry.original,sizeof(*source))==0,PIXAURA_DOCUMENT_INVALID_HANDLE);
+            const auto status=pixaura_preview_current(raster,ticket,nullptr);require(status==0,status);
             require(std::memcmp(ticket,&entry.ticket,sizeof(*ticket))==0,PIXAURA_DOCUMENT_CANCELLED);}
+        require(entry.controller->sequence()!=0,PIXAURA_DOCUMENT_CANCELLED);
         return PIXAURA_OK;});
 }
 int32_t pixaura_manual_geometry_update(pixaura_document_context* context, const pixaura_manual_gesture* token,
@@ -338,7 +345,7 @@ int32_t pixaura_manual_geometry_current(pixaura_document_context* context, const
     return boundary(nullptr, [&] {
         const auto h = live(context); std::lock_guard<std::mutex> lock(h.registry->mutex);
         auto& gesture = *gesture_locked(h, token); binding(entry_locked(h, token), snapshot_locked(h, base));
-        require((sequence != 0 || entry_locked(h,token).raster) && sequence == gesture.sequence(), PIXAURA_DOCUMENT_CANCELLED); return PIXAURA_OK;
+        require(sequence != 0 && sequence == gesture.sequence(), PIXAURA_DOCUMENT_CANCELLED); return PIXAURA_OK;
     });
 }
 int32_t pixaura_manual_geometry_commit(pixaura_document_context* context, const pixaura_manual_gesture* token,

@@ -83,12 +83,22 @@ static void baseline(Fixture& f){
         auto g=f.begin(tool);CHECK(f.state(g,0)==PIXAURA_MANUAL_ACTIVE);
         pixaura_manual_gesture conflict{};const auto gid=id(++f.fresh);CHECK(pixaura_manual_begin(1,&f.document,&f.base,bytes(gid),32,reinterpret_cast<const uint8_t*>(tool),std::strlen(tool),nullptr,0,&conflict)==1);
         uint64_t seq=0;const auto initial=f.ticket(g,seq);pixaura_decode_handle display{};
-        CHECK(f.render(g,initial,display,seq)==0&&seq==0);uint8_t copy[24];CHECK(pixaura_preview_copy(&f.raster,&display,0,copy,24)==0);
+        CHECK(f.render(g,initial,display,seq)==13&&display.serial==0&&seq==0);
+        CHECK(pixaura_manual_preview_current(&f.document,&g,&f.base,0,&initial,nullptr)==13);
+        // The previously approved base display stays valid, independent of gesture requests.
+        CHECK(pixaura_preview_create(&f.raster,&f.original,1,nullptr,&display)==0);uint8_t copy[24];CHECK(pixaura_preview_copy(&f.raster,&display,0,copy,24)==0);
         const char* parameter=std::strcmp(tool,"pixaura.rotate")==0?"quarter_turns":std::strcmp(tool,"pixaura.exposure")==0?"milli_ev":"milli_amount";
         const char* name=tool+8;const auto operation=op(name,parameter,1);const auto retained=live_bytes.load();
-        for(unsigned i=1;i<=10000;++i){CHECK(f.update(g,operation)==i);CHECK(live_bytes.load()<=retained+2048);}
+        const int final_value=std::strcmp(name,"rotate")==0?3:std::strcmp(name,"exposure")==0?1000:500;
+        for(unsigned i=1;i<=10000;++i){
+            const int value=i==10000?final_value:std::strcmp(name,"rotate")==0?int(i%4):std::strcmp(name,"exposure")==0?int(i%10001)-5000:int(i%1001);
+            const auto pending=op(name,parameter,value);CHECK(f.update(g,pending)==i);CHECK(live_bytes.load()<=retained+2048);
+        }
         CHECK(f.serialize(f.base)==f.manifest);
         const auto newest=f.ticket(g,seq);CHECK(seq==10000&&newest.generation==initial.generation+10000);
+        auto malformed=newest;malformed.version=2;CHECK(pixaura_manual_preview_current(&f.document,&g,&f.base,seq,&malformed,nullptr)==2);
+        malformed=newest;malformed.reserved=1;CHECK(pixaura_manual_preview_current(&f.document,&g,&f.base,seq,&malformed,nullptr)==3);
+        malformed=newest;malformed.context_id[0]=malformed.context_id[0]=='0'?'1':'0';CHECK(pixaura_manual_preview_current(&f.document,&g,&f.base,seq,&malformed,nullptr)==3);
         CHECK(pixaura_manual_preview_current(&f.document,&g,&f.base,0,&initial,&display)==13);
         const auto invalid=op(name,parameter,100000);uint64_t untouched=99;CHECK(pixaura_manual_update(&f.document,&g,&f.base,bytes(invalid),invalid.size(),&untouched)==7&&untouched==99);
         uint64_t after=0;CHECK(f.ticket(g,after).generation==newest.generation&&after==10000);
@@ -103,7 +113,9 @@ static void baseline(Fixture& f){
         CHECK(f.state(g,10000)==PIXAURA_MANUAL_COMPLETED);CHECK(pixaura_preview_current(&f.raster,&newest,nullptr)==13);
         CHECK(pixaura_manual_commit(&f.document,&g,&f.base,bytes(revision),32,&proposal,&changed)==13);
         const auto doc=document::deserialize(f.serialize(proposal),f.session);CHECK(doc.code==0&&doc.value->revisions().size()==2&&doc.value->operations().size()==1);
-        CHECK(std::visit([](const auto&){return true;},doc.value->operations()[0].parameters));
+        if(std::strcmp(name,"rotate")==0)CHECK(std::get<document::Rotate>(doc.value->operations()[0].parameters).quarter_turns==uint32_t(final_value));
+        else if(std::strcmp(name,"exposure")==0)CHECK(std::get<document::Exposure>(doc.value->operations()[0].parameters).milli_ev==final_value);
+        else CHECK(std::get<document::Detail>(doc.value->operations()[0].parameters).value==final_value);
         const auto undo_command=f.command(proposal,"undo",1);pixaura_document_handle undone{};CHECK(pixaura_document_apply(1,&f.document,&proposal,bytes(undo_command),undo_command.size(),&undone,nullptr)==0);
         const auto redo=f.command(undone,"redo",2);
         pixaura_document_handle redone{};CHECK(pixaura_document_apply(1,&f.document,&undone,bytes(redo),redo.size(),&redone,nullptr)==0);CHECK(f.serialize(redone)==f.serialize(proposal));
@@ -243,6 +255,11 @@ int main(int argc,char** argv){CHECK(argc==2);const auto root=fs::absolute(argv[
             CHECK(pixaura_manual_edit_begin(1,&stopped.document,&stopped.base,bytes(id(++stopped.fresh)),32,reinterpret_cast<const uint8_t*>("pixaura.exposure"),16,nullptr,0,&stopped.raster,&stopped.original,&token)==13&&token.serial==0);
             // Failed begin left no active controller: reference begin remains admissible.
             CHECK(pixaura_manual_begin(1,&stopped.document,&stopped.base,bytes(id(++stopped.fresh)),32,reinterpret_cast<const uint8_t*>("pixaura.exposure"),16,nullptr,0,&token)==0);CHECK(pixaura_manual_interrupt(&stopped.document)==0);}
+        {Fixture released(fs::path(f.path)/"released");auto token=released.begin();released.update(token,op("exposure","milli_ev",1));uint64_t seq=0;const auto owned=released.ticket(token,seq);
+            CHECK(pixaura_decode_release(&released.raster,&released.original)==0);const auto request=op("exposure","milli_ev",2);seq=99;
+            CHECK(pixaura_manual_update(&released.document,&token,&released.base,bytes(request),request.size(),&seq)==9&&seq==99);
+            CHECK(released.state(token,1)==PIXAURA_MANUAL_INVALIDATED&&pixaura_preview_current(&released.raster,&owned,nullptr)==13);
+            CHECK(released.serialize(released.base)==released.manifest);CHECK(pixaura_manual_release(&released.document,&token)==0);}
         auto g=f.begin();f.update(g,op("exposure","milli_ev",1));uint64_t seq=0;const auto ticket=f.ticket(g,seq);CHECK(pixaura_document_context_destroy(&f.document)==0);CHECK(pixaura_preview_current(&f.raster,&ticket,nullptr)==13);const auto did=id(++f.fresh);CHECK(pixaura_document_context_init(1,&f.document,sizeof(f.document),bytes(did),32,nullptr)==0);
     }
     };
