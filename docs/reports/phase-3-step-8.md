@@ -38,6 +38,34 @@ Accepted ADR 0021 remains narrow and unchanged; Schema 3 is unchanged.
 
 Unexecuted or pending checks are not PASS. Hosted evidence will be recorded after execution.
 
+## Certification remediation
+
+At certification SHA `6466d67f4267c47764b5654b84fe896c9cbf5bd7`,
+[Foundation 38139283398](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38139283398)
+passed all 7 jobs. Source passed 116/116. Android builds/lint/JVM passed and
+runtime explicitly observed SELinux Enforcing, direct ADR 0021 publication and
+the new every-tool certification test. However,
+[Android job 114469601362](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38139283404/job/114469601362)
+crashed during the existing Compose activity recreation test: SlotWriter.moveSlotGapTo
+negative index while disposing Scaffold's content subcomposition. Its aborted
+12/15 run is FAILURE, never certification PASS. Local API 36.1 reproduction
+passed 3/3 owner/UI tests, showing this teardown failure is not universal.
+
+Required Category A remediation replaces the unused Scaffold slot container
+with a regular themed Surface and safe drawing insets, removing the implicated
+subcomposition teardown path without adding controls or changing editing semantics.
+The same UI test now performs three recreations and waits for a newly rendered
+display object plus completed preview, so retained pre-reopen state cannot satisfy
+the test. Dependency pins, tests, storage, lifecycle authority and security remain
+unchanged. A fresh exact-SHA full hosted matrix is required.
+
+Affected local rerun: Android Debug/Release/JVM/lint/instrumentation build PASS;
+source 80/80 PASS; actual API 36.1 owner/UI instrumentation **3/3 PASS** in
+25.397 seconds, including three recreations with fresh rendered reopen copies.
+The first certification iOS job independently passed Debug/Release builds,
+6 app tests and 2 UI tests (edit/history/cancel/background/reopen/landscape).
+The simulator's Metal test asserts UNSUPPORTED; it is not physical certification.
+
 ## Follow-ups and scope
 
 A: certification coverage and exact-SHA closure; currently in progress.

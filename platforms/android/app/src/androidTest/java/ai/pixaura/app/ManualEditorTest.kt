@@ -146,9 +146,16 @@ class ManualEditorTest {
         assertEquals(2, model.state.value.core?.revisionCount)
         compose.onNodeWithText("Filters/Presets").performScrollTo().performClick()
         compose.onNodeWithText("No presets available. The shipping catalog is empty.").performScrollTo().assertIsDisplayed()
-        compose.activityRule.scenario.recreate()
-        waitFor { compose.activity.manualModel.state.value.core?.revisionCount == 2 && compose.activity.manualModel.state.value.image != null }
-        assertTrue(requireNotNull(compose.activity.manualModel.state.value.image).sameAs(committed))
+        repeat(3) {
+            val previousDisplay = compose.activity.manualModel.state.value.image
+            compose.activityRule.scenario.recreate()
+            waitFor {
+                val restored = compose.activity.manualModel.state.value
+                restored.core?.revisionCount == 2 && restored.image != null && restored.image !== previousDisplay &&
+                    !restored.busy && !restored.previewLoading
+            }
+            assertTrue(requireNotNull(compose.activity.manualModel.state.value.image).sameAs(committed))
+        }
         file.delete()
     }
 }
