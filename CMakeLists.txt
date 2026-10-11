@@ -331,7 +331,7 @@ if(BUILD_TESTING)
         # required by the instrumented C++ shared library (including vptr).
         set_target_properties(c_consumer document_c_consumer manual_c_consumer storage_c_consumer PROPERTIES LINKER_LANGUAGE CXX)
         set_target_properties(manual_geometry_c_consumer PROPERTIES LINKER_LANGUAGE CXX)
-        set_tests_properties(core_test c_consumer document_test document_c_consumer document_allocation_test storage_test storage_c_consumer manual_test manual_c_consumer manual_geometry_test manual_geometry_c_consumer PROPERTIES ENVIRONMENT
+        set_tests_properties(capability_c_consumer capability_test core_test c_consumer document_test document_c_consumer document_allocation_test storage_test storage_c_consumer manual_test manual_c_consumer manual_geometry_test manual_geometry_c_consumer PROPERTIES ENVIRONMENT
             "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1;UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1")
         if(TARGET storage_android_test)
             set_tests_properties(storage_android_test PROPERTIES ENVIRONMENT

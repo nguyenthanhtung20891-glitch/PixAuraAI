@@ -67,6 +67,10 @@ setting supplies the C++ sanitizer runtime; no instrumentation, warning, test,
 security control or resource bound is reduced. Local WSL affected ASan/UBSan
 foundation tests now pass **2/2**, including 80000 concurrent snapshot calls.
 Fresh complete exact-SHA closure remains required.
+The new foundation targets also use the existing fail-fast ASAN_OPTIONS/
+UBSAN_OPTIONS test environment, preserving leak checking and halt-on-error.
+Local affected foundation tests PASS 2/2 and active negative controls PASS 2/2
+(ASan exit 86 / UBSan exit 87), with the fail-fast environment observed.
 No runtime pressure/thermal downgrade, policy-refresh/editor races, physical
 profiling or cross-tier execution certification is claimed in Step 1; these are
 the explicit later bounded roadmap items.
