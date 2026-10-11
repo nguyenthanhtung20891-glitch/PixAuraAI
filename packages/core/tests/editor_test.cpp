@@ -10,6 +10,9 @@
 #include <string>
 #include <vector>
 #include <new>
+#include <atomic>
+#include <array>
+#include <thread>
 static thread_local int64_t fail_after=-1;
 static thread_local bool injected=false;
 void* operator new(std::size_t n){if(fail_after==0){fail_after=-1;injected=true;throw std::bad_alloc();}if(fail_after>0)--fail_after;
@@ -20,7 +23,7 @@ void operator delete[](void* p)noexcept{std::free(p);}
 void operator delete(void* p,std::size_t)noexcept{std::free(p);}
 void operator delete[](void* p,std::size_t)noexcept{std::free(p);}
 namespace fs=std::filesystem;
-static unsigned checks=0;
+static std::atomic<unsigned> checks{0};
 #define CHECK(x) do{++checks;if(!(x)){std::fprintf(stderr,"editor %d %s\n",__LINE__,#x);std::exit(1);}}while(false)
 static const uint8_t* bytes(const std::string& s){return reinterpret_cast<const uint8_t*>(s.data());}
 struct Input{std::size_t at=0;};
@@ -32,7 +35,7 @@ static std::vector<uint8_t> preview(pixaura_editor_context& c,pixaura_editor_req
     CHECK(pixaura_editor_request_preview(&c,&r)==0);std::vector<uint8_t> data(64);uint32_t w=0,h=0;
     CHECK(pixaura_editor_render(&c,&r,4,4,data.data(),data.size(),&w,&h)==0);CHECK(pixaura_editor_current(&c,&r)==0);
     data.resize(w*h*4);if(captured)*captured=r;return data;}
-static void faults(const fs::path& parent){unsigned recovered=0;
+static void faults(const fs::path& parent){std::atomic<unsigned> recovered{0};
     const auto suite=parent/("editor-fault-suite-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));CHECK(fs::create_directory(suite));
     const auto baseline=suite/"baseline";CHECK(fs::create_directory(baseline));const auto baseline_path=baseline.generic_string();
     pixaura_editor_context baseline_context{};Input baseline_input;const std::string baseline_id="0000000000000000000000000000face";
@@ -41,11 +44,16 @@ static void faults(const fs::path& parent){unsigned recovered=0;
     // Independent verified portability copies avoid repeating unrelated schema
     // provisioning/asset-sync work at every allocation site. All approval,
     // SQLite and post-durable checkpoint allocations are still fault injected.
-    for(unsigned boundary=0;boundary<3;++boundary){bool completed=false;
-        for(unsigned index=0;index<16384&&!completed;++index){
+    // Four fixed isolated projects partition every allocation index. Faults are
+    // thread-local; no sites are skipped. Parallel disk sync avoids serial CRT/
+    // filesystem overhead dominating the MSVC exhaustive sweep deadline.
+    for(unsigned boundary=0;boundary<3;++boundary){std::array<std::thread,4> workers;
+        for(unsigned worker=0;worker<workers.size();++worker){workers[worker]=std::thread([&,boundary,worker]{bool completed=false;
+        for(unsigned index=worker;index<16384&&!completed;index+=4){
+            if(index%512<4){std::fprintf(stderr,"editor fault boundary=%u worker=%u index=%u\n",boundary,worker,index);}
             const auto root=suite/("fault-"+std::to_string(boundary)+"-"+std::to_string(index));CHECK(fs::create_directory(root));
             fs::copy(baseline,root,fs::copy_options::recursive);
-            const auto path=root.generic_string();char raw[33];std::snprintf(raw,sizeof(raw),"%032x",100000+boundary*4096+index);
+            const auto path=root.generic_string();char raw[33];std::snprintf(raw,sizeof(raw),"%032x",100000+boundary*16384+index);
             const std::string identity(raw);pixaura_editor_context c{};
             CHECK(pixaura_editor_open(1,&c,bytes(path),path.size(),bytes(identity),32,nullptr,nullptr,0)==0);
             int32_t value=1000;
@@ -66,11 +74,12 @@ static void faults(const fs::path& parent){unsigned recovered=0;
             for(const auto& item:fs::recursive_directory_iterator(root))if(item.is_regular_file())fs::permissions(item.path(),fs::perms::owner_write,fs::perm_options::add);
             fs::remove_all(root);
         }
-        CHECK(completed);
+        CHECK(completed);});}
+        for(auto& worker:workers){worker.join();}
     }
     for(const auto& item:fs::recursive_directory_iterator(suite))if(item.is_regular_file())fs::permissions(item.path(),fs::perms::owner_write,fs::perm_options::add);
     fs::remove_all(suite);
-    std::printf("editor begin/update/approval allocation failures recovered=%u\n",recovered);
+    std::printf("editor begin/update/approval allocation failures recovered=%u\n",recovered.load());
 }
 int main(int argc,char** argv){CHECK(argc==2);const auto root=fs::canonical(argv[1])/("editor-project-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
     CHECK(fs::create_directory(root));const auto path=root.generic_string();pixaura_editor_context c{};Input input;
@@ -124,5 +133,5 @@ int main(int argc,char** argv){CHECK(argc==2);const auto root=fs::canonical(argv
     }
     CHECK(pixaura_editor_stop(&c)==0);CHECK(pixaura_editor_destroy(&c)==0);
     for(const auto& item:fs::recursive_directory_iterator(root))if(item.is_regular_file())fs::permissions(item.path(),fs::perms::owner_write,fs::perm_options::add);
-    fs::remove_all(root);faults(fs::canonical(argv[1]));std::printf("editor application service %u checks PASS\n",checks);
+    fs::remove_all(root);faults(fs::canonical(argv[1]));std::printf("editor application service %u checks PASS\n",checks.load());
 }

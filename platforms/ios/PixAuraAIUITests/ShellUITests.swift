@@ -8,9 +8,11 @@ final class ShellUITests: XCTestCase {
         func tap(_ label: String) {
             let button = app.buttons[label].firstMatch
             XCTAssertTrue(button.waitForExistence(timeout: 20), label)
-            for _ in 0..<3 { if button.isHittable { break }; app.swipeUp() }
-            for _ in 0..<5 { if button.isHittable { break }; app.swipeDown() }
-            XCTAssertTrue(button.isHittable, label); button.tap()
+            XCTAssertTrue(button.isEnabled, label)
+            // XCTest tap scrolls the specific element into view, including
+            // landscape's nested scroll views. Whole-app swipes can target a
+            // different scroll view and falsely reject an actionable button.
+            button.tap()
         }
         func revisions(_ n: Int) {
             XCTAssertTrue(app.staticTexts["Committed revisions: \(n)"].waitForExistence(timeout: 20))

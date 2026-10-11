@@ -108,7 +108,10 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         if (!updating.compareAndSet(false, true)) return
         commands.execute {
             val values = pendingValues.getAndSet(null)
-            try { if (values != null) { owner?.update(values.second, values.first); refresh(); preview() } }
+            // Publish updated controls only after preview admission/loading has
+            // been established. Otherwise observers can see new values with an
+            // old image and a false "preview complete" flag.
+            try { if (values != null) { owner?.update(values.second, values.first); preview(); refresh() } }
             catch (e: Throwable) { refresh(message(e)) }
             finally { updating.set(false); if (pendingValues.get() != null) drainValues() }
         }
