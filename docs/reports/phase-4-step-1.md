@@ -1,6 +1,8 @@
 # Phase 4 Step 1 — Capability Contract & Probe Foundation
 
-Status: **IN PROGRESS**. Baseline: `56cd60560b6271b7d27bf5e03fd1d720a3aad2fa`.
+Status: **IMPLEMENTED / TECHNICAL GATES PASS / READY FOR REVIEW**.
+Baseline: `56cd60560b6271b7d27bf5e03fd1d720a3aad2fa`.
+Implementation SHA: `9fb321fc0d3b125d50cd31dc260ac6bb015dfff5`.
 Phase 0–3 remain CLOSED/COMPLETE; Phase 3 final Foundation 38145575170 (7/7)
 and Native application shells 38145575199 (3/3) passed on that baseline.
 Only the minimum Step 1 foundation is authorized. Steps 2+ are NOT STARTED.
@@ -55,7 +57,7 @@ strict dependency verification, JVM variants, lint variants and instrumentation
 APK build PASS (151 Gradle tasks). Actionlint and git diff --check PASS.
 Full Windows fallback native regression: **30/30 PASS**, 232.11 seconds;
 the final malformed-enum sweep also passes in an affected 2/2 foundation rerun.
-Exact-SHA hosted gates are pending observation.
+All implementation-SHA hosted gates PASS; exact evidence follows.
 ADB audit found no attached Android device; no physical profile is claimed.
 
 Initial implementation SHA `20d930e26dac0d7b6f9521a7eb37860b7026ebb1` is not
@@ -66,7 +68,7 @@ C-consumer convention selects LINKER_LANGUAGE CXX. Applying that same one-line
 setting supplies the C++ sanitizer runtime; no instrumentation, warning, test,
 security control or resource bound is reduced. Local WSL affected ASan/UBSan
 foundation tests now pass **2/2**, including 80000 concurrent snapshot calls.
-Fresh complete exact-SHA closure remains required.
+The fresh complete exact-SHA validation below passed after this remediation.
 The new foundation targets also use the existing fail-fast ASAN_OPTIONS/
 UBSAN_OPTIONS test environment, preserving leak checking and halt-on-error.
 Local affected foundation tests PASS 2/2 and active negative controls PASS 2/2
@@ -74,6 +76,46 @@ Local affected foundation tests PASS 2/2 and active negative controls PASS 2/2
 No runtime pressure/thermal downgrade, policy-refresh/editor races, physical
 profiling or cross-tier execution certification is claimed in Step 1; these are
 the explicit later bounded roadmap items.
+
+## Exact-SHA hosted implementation evidence
+
+All jobs below executed on `9fb321fc0d3b125d50cd31dc260ac6bb015dfff5` and concluded
+SUCCESS. The earlier failed SHA is retained as failure evidence, not acceptance.
+
+| Workflow / job | Run ID | Job ID | Observed result |
+| --- | --- | --- | --- |
+| Foundation / workflow lint | 38156780631 | 114521277872 | PASS |
+| Foundation / Windows | 38156780631 | 114521277939 | 30/30 native PASS |
+| Foundation / Linux | 38156780631 | 114521277936 | 31/31 native PASS |
+| Foundation / ASan+UBSan | 38156780631 | 114521277931 | 33/33 PASS; fail-fast new tests; active negative probes exit 86/87 |
+| Foundation / Apple | 38156780631 | 114521277732 | 30/30 native; macOS Swift 16/16; simulator Swift 16/16 |
+| Foundation / Android arm64-v8a | 38156780631 | 114521277880 | native boundary build PASS |
+| Foundation / Android armeabi-v7a | 38156780631 | 114521277899 | native boundary build PASS |
+| Shells / source | 38156780599 | 114521277841 | 120/120; zero failures/skips |
+| Shells / Android | 38156780599 | 114521277729 | Debug/Release/lint PASS; JVM 4/4 each; runtime 17/17, zero failures/errors/skips |
+| Shells / iOS | 38156780599 | 114521278263 | native/Swift/simulator PASS; Debug/Release builds PASS; app 6/6; UI 2/2 |
+
+[Foundation 38156780631](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38156780631)
+and [Native application shells 38156780599](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38156780599)
+pass **10/10 jobs** on the same implementation SHA. Native tests explicitly run
+the common synthetic/malformed/golden/unchanged-limit corpus and 80000 parallel
+snapshot calls. Android XML names both `CapabilityFoundationTest` cases and
+records actual runtime execution; JVM reports record the detached-seam test.
+Apple logs name both `CapabilityFoundationTests` on macOS and simulator.
+All existing import/editor/history/reopen/preview/storage/security/resource
+regressions remain green. No skipped required gate is counted PASS.
+
+Observed seam facts are intentionally conservative: Android platform=ANDROID,
+Apple platform=APPLE; unprobed CPU/RAM/process budget=0 (UNKNOWN), constrained=1,
+GPU validation=NOT_VALIDATED. These tests certify transport/normalization/ownership,
+not physical-device capability measurements or selected LOW/MID/HIGH tiers.
+Shipping UI and manual semantics are unchanged. No attached Android device or
+physical Apple probe is claimed. GPU physical certification remains separate.
+
+This finalization changes documentation only. Delivery requires both full
+workflows to pass all ten jobs on that final commit's exact SHA; the final
+delivery supplies its SHA, workflow IDs and conclusions. No prior-SHA green
+substitutes. Product Owner review/acceptance and roadmap freeze remain pending.
 
 ## Files and review
 
@@ -85,7 +127,8 @@ Documentation: capability contract, finite roadmap proposal, this report and
 current authorization entries in ROADMAP/QUALITY_GATES/ARCHITECTURE/DECISIONS.
 Historical Phase 3 closure and DH-APPLE-METAL-01 are not rewritten.
 
-A: complete Step 1 validation and any narrowly required remediation.
+A: foundation, sanitizer linker/fail-fast remediation and all technical gates PASS;
+no unresolved technical defect. Observe final documentation-SHA gates before delivery.
 B: proposed Steps 2–7 after roadmap freeze/acceptance/new authorization; mandatory
 physical Apple Metal certification at its existing later hardening/Beta/release gates.
 C: optional dashboards/device scores/broad diagnostics/polish.

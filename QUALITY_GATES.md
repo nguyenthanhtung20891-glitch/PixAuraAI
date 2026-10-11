@@ -2,7 +2,12 @@
 
 ## Phase 4 Step 1 foundation gates
 
-Only the capability contract/probe foundation is authorized and IN PROGRESS.
+Only the capability contract/probe foundation is authorized. Step 1 is
+IMPLEMENTED / TECHNICAL GATES PASS / READY FOR REVIEW at implementation SHA
+`9fb321fc0d3b125d50cd31dc260ac6bb015dfff5`: Foundation 38156780631 (7/7) and
+Native application shells 38156780599 (3/3), all SUCCESS. The documentation-only
+delivery commit must also pass all ten jobs on its exact SHA before delivery.
+Roadmap freeze and Product Owner Step 1 acceptance remain pending.
 Require version/size/enum/consistency rejection; explicit unknown state;
 availability distinct from certification; test-only synthetic LOW/MID/HIGH
 inputs; independent canonical byte golden; caller-output preservation; allocation-

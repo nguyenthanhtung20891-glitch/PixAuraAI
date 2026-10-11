@@ -4,7 +4,8 @@
 
 Phase 4 is AUTHORIZED at `56cd60560b6271b7d27bf5e03fd1d720a3aad2fa`.
 Phase 0–3 remain CLOSED/COMPLETE; Phase 3 remains FULL PASS. Step 1 foundation
-is IN PROGRESS. The finite [seven-step roadmap](docs/plans/phase-4-roadmap.md)
+is IMPLEMENTED / TECHNICAL GATES PASS / READY FOR REVIEW. The finite
+[seven-step roadmap](docs/plans/phase-4-roadmap.md)
 is **PROPOSED — NOT FROZEN**. Product Owner roadmap freeze and Step 1 review/
 acceptance are required before proceeding. Steps 2+ are NOT STARTED. Phase 5
 and Editing Agent work are not authorized. No Step 8+ without explicit approval.

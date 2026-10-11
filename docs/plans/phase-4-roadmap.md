@@ -8,7 +8,7 @@ Only the minimum Step 1 foundation is authorized now. Steps 2+ are NOT STARTED.
 
 | Step | Proposed name | Status | Bounded deliverable and exit |
 | --- | --- | --- | --- |
-| 1 | Capability Contract & Probe Foundation | AUTHORIZED / IN PROGRESS | Audit; versioned static/dynamic normalized data; bounded diagnostic representation; synthetic LOW/MID/HIGH inputs; conservative C/JNI/Swift probe seams; malformed/unknown/availability-vs-validation tests; preserved full regression CI. Stop for roadmap freeze and Step 1 acceptance. |
+| 1 | Capability Contract & Probe Foundation | IMPLEMENTED / TECHNICAL PASS / REVIEW PENDING | Audit; versioned static/dynamic normalized data; bounded diagnostic representation; synthetic LOW/MID/HIGH inputs; conservative C/JNI/Swift probe seams; malformed/unknown/availability-vs-validation tests; preserved full regression CI. Stop for roadmap freeze and Step 1 acceptance. |
 | 2 | Budget Admission & Execution Tiers | PROPOSED / NOT STARTED | Shared deterministic BudgetAdmission over facts, request buffers/dimensions and context occupancy; freeze multi-input LOW/MID/HIGH thresholds and T0 rules; runtime caps never exceed existing hard maxima; threshold/overflow/unknown/insufficient-budget tests. No inference. |
 | 3 | Dynamic Memory/Thermal Downgrade | PROPOSED / NOT STARTED | Shared derived execution strategy; immediate downgrade, bounded recovery hysteresis, policy epochs and existing PRV1 ownership; pressure/GPU-loss/constrained transitions; deterministic races and active-gesture preservation. No semantic or source-fidelity downgrade. |
 | 4 | Android Capability Integration | PROPOSED / NOT STARTED | Internal safe Android probes and lifecycle/pressure/thermal adapters; central policy consumption; actual hosted runtime and available physical probe evidence; availability separate from scope-matched accepted Vulkan certification; no chipset-name tiers. |
@@ -41,7 +41,8 @@ DH-APPLE-METAL-01 remains deferred and mandatory at its existing later gates.
 
 ## Review boundary and follow-ups
 
-A: deliver/validate Step 1; resolve any actual conflict before changing architecture.
+A: Step 1 foundation and technical gates PASS; final documentation-only delivery
+SHA must pass both full workflows before delivery. No unresolved technical defect.
 The roadmap must be explicitly frozen and Step 1 reviewed/accepted before Steps 2+.
 B: Steps 2–7 after separate authorization; physical Apple Metal certification at
 Phase 11 hardening acceptance / Phase 12 Beta readiness / production / physical
