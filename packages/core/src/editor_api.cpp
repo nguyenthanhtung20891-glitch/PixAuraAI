@@ -15,6 +15,13 @@ using namespace pixaura;
 using document::String;
 using document::Failure;
 constexpr uint64_t tag=0x5049584544495431ULL;
+// MSVC iterator-debug string moves allocate inside noexcept. Chained base
+// string operator+ can select those moves even when operands are our throwing
+// String wrapper. Append and return String so every allocation can propagate
+// to the checked C boundary without terminating the process.
+String assemble(std::initializer_list<std::string_view> parts){
+    String result;for(const auto part:parts)result.append(part.data(),part.size());return result;
+}
 const uint8_t* byte_pointer(std::string_view s){return reinterpret_cast<const uint8_t*>(s.data());}
 void check(int32_t code){if(code)throw Failure{code};}
 void require(bool ok,int32_t code=1){if(!ok)throw Failure{code};}
@@ -46,7 +53,7 @@ struct Service {
     std::array<int32_t,8> values{};
     bool stopped=false;
     Service(std::string_view r,std::string_view id):seed(id),root(r){}
-    String fresh(){require(serial!=UINT64_MAX,8);auto s=seed+":"+std::to_string(++serial);
+    String fresh(){require(serial!=UINT64_MAX,8);auto s=assemble({seed,":",std::to_string(++serial)});
         storage::Sha256 hash;hash.update(byte_pointer(s),s.size());return hash.finish().substr(0,32);}
     ~Service(){if(document.api_version)(void)pixaura_document_context_destroy(&document);
         if(raster.api_version){(void)pixaura_preview_stop(&raster);(void)pixaura_decode_context_destroy(&raster);}}
@@ -55,9 +62,9 @@ struct Service {
         if(proposal.serial){check(pixaura_document_release(&document,&proposal));proposal={};}
         pending_snapshot.reset();pending_command.clear();}
     void approved_preview(){check(pixaura_preview_begin(&raster,1,&approved_ticket));}
-    String command(const char* kind){return "{\"command_version\":1,\"kind\":\""+String(kind)+
-        "\",\"expected_session_id\":\""+loaded.snapshot->session().id.text()+"\",\"expected_generation\":"+
-        std::to_string(loaded.snapshot->session().generation)+",\"expected_revision_id\":\""+loaded.snapshot->current().text()+"\"}";}
+    String command(const char* kind){return assemble({"{\"command_version\":1,\"kind\":\"",kind,
+        "\",\"expected_session_id\":\"",loaded.snapshot->session().id.text(),"\",\"expected_generation\":",
+        std::to_string(loaded.snapshot->session().generation),",\"expected_revision_id\":\"",loaded.snapshot->current().text(),"\"}"});}
     document::Snapshot snapshot(const pixaura_document_handle& h){uint64_t n=0;
         check(pixaura_document_serialize(&document,&h,nullptr,0,&n,nullptr));String s(static_cast<std::size_t>(n),' ');
         check(pixaura_document_serialize(&document,&h,reinterpret_cast<uint8_t*>(s.data()),n,&n,nullptr));
@@ -107,13 +114,13 @@ extern "C" int32_t pixaura_editor_open(uint32_t version,pixaura_editor_context* 
     check(pixaura_working_normalize(&s->raster,&decoded,&s->limits,&s->original));
     check(pixaura_decode_release(&s->raster,&decoded));check(pixaura_decode_release(&s->raster,&source));
     if(import_bytes){const auto project=s->fresh(),document=s->fresh(),revision=s->fresh();
-        const String manifest="{\"schema_version\":1,\"project_id\":\""+project+"\",\"document_id\":\""+document+
-            "\",\"current_revision_id\":\""+revision+"\",\"redo\":[],\"operations\":[],\"revisions\":[{\"id\":\""+revision+
-            "\",\"parent_id\":null,\"actor\":\"import\",\"plan_id\":null,\"stack\":[]}],\"source\":{\"sha256\":\""+asset.digest+
-            "\",\"byte_length\":"+std::to_string(asset.bytes)+",\"metadata\":{\"width\":"+std::to_string(metadata.width)+
-            ",\"height\":"+std::to_string(metadata.height)+",\"orientation\":"+std::to_string(metadata.orientation)+
-            ",\"codec\":\""+(metadata.format==PIXAURA_DECODE_PNG?"png":"jpeg")+"\",\"has_alpha\":"+
-            (metadata.has_alpha?"true":"false")+",\"icc_sha256\":null}}}";
+        const String manifest=assemble({"{\"schema_version\":1,\"project_id\":\"",project,"\",\"document_id\":\"",document,
+            "\",\"current_revision_id\":\"",revision,"\",\"redo\":[],\"operations\":[],\"revisions\":[{\"id\":\"",revision,
+            "\",\"parent_id\":null,\"actor\":\"import\",\"plan_id\":null,\"stack\":[]}],\"source\":{\"sha256\":\"",asset.digest,
+            "\",\"byte_length\":",std::to_string(asset.bytes),",\"metadata\":{\"width\":",std::to_string(metadata.width),
+            ",\"height\":",std::to_string(metadata.height),",\"orientation\":",std::to_string(metadata.orientation),
+            ",\"codec\":\"",(metadata.format==PIXAURA_DECODE_PNG?"png":"jpeg"),"\",\"has_alpha\":",
+            (metadata.has_alpha?"true":"false"),",\"icc_sha256\":null}}}"});
         auto initial=good(document::create_document(manifest,session));
         s->repository=std::make_unique<storage::Repository>(path);
         s->repository->migrate(1,2);s->repository->migrate(2,3);
@@ -139,8 +146,8 @@ extern "C" int32_t pixaura_editor_update(pixaura_editor_context* c,const int32_t
     // One operation identity per gesture, never per update.
     storage::Sha256 hash;hash.update(s.gesture.context_id,32);hash.update(reinterpret_cast<const uint8_t*>(&s.gesture.serial),sizeof(s.gesture.serial));
     const auto id=hash.finish().substr(0,32);
-    const String op="{\"operations\":[{\"id\":\""+id+"\",\"type\":\""+String(d.type)+"\",\"operation_version\":"+
-        std::to_string(d.operation_version)+",\"parameter_version\":"+std::to_string(d.parameter_version)+",\"parameters\":"+parameters+"}]}";
+    const String op=assemble({"{\"operations\":[{\"id\":\"",id,"\",\"type\":\"",d.type,"\",\"operation_version\":",
+        std::to_string(d.operation_version),",\"parameter_version\":",std::to_string(d.parameter_version),",\"parameters\":",parameters,"}]}"});
     uint64_t sequence=0;check(pixaura_manual_update(&s.document,&s.gesture,&s.live,byte_pointer(op),op.size(),&sequence));
     std::copy_n(values,count,s.values.begin());
 });}
@@ -167,11 +174,11 @@ extern "C" int32_t pixaura_editor_state(pixaura_editor_context* c,uint8_t* outpu
     auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);require(required&&(!capacity||output));
     const auto& doc=*s.loaded.snapshot;bool undo=false;for(const auto& r:doc.revisions())if(r.id==doc.current())undo=r.parent.has_value();
     uint32_t gesture_state=0;uint64_t sequence=0;if(s.gesture.serial)check(pixaura_manual_state(&s.document,&s.gesture,&gesture_state,&sequence));
-    String json="{\"active\":"+String(s.selected?"true":"false")+",\"approval_pending\":"+(s.proposal.serial?"true":"false")+
-        ",\"can_undo\":"+(!s.selected&&undo?"true":"false")+",\"can_redo\":"+(!s.selected&&!doc.redo().empty()?"true":"false")+
-        ",\"revision_count\":"+std::to_string(doc.revisions().size())+",\"revision_id\":\""+doc.current().text()+"\",\"selected\":";
+    String json=assemble({"{\"active\":",(s.selected?"true":"false"),",\"approval_pending\":",(s.proposal.serial?"true":"false"),
+        ",\"can_undo\":",(!s.selected&&undo?"true":"false"),",\"can_redo\":",(!s.selected&&!doc.redo().empty()?"true":"false"),
+        ",\"revision_count\":",std::to_string(doc.revisions().size()),",\"revision_id\":\"",doc.current().text(),"\",\"selected\":"});
     if(s.selected)json+=std::to_string(s.selected-manual::registry().data());else json+="-1";
-    json+=",\"gesture_state\":"+std::to_string(gesture_state)+",\"edit_id\":\""+std::to_string(s.gesture.serial)+"\",\"values\":[";if(s.selected)for(std::size_t i=0;i<s.selected->parameter_count;++i){if(i)json+=',';json+=std::to_string(s.values[i]);}json+="]}";
+    json+=assemble({",\"gesture_state\":",std::to_string(gesture_state),",\"edit_id\":\"",std::to_string(s.gesture.serial),"\",\"values\":["});if(s.selected)for(std::size_t i=0;i<s.selected->parameter_count;++i){if(i)json+=',';json+=std::to_string(s.values[i]);}json+="]}";
     *required=json.size();if(!output)return;require(capacity>=json.size(),11);std::memcpy(output,json.data(),json.size());
 });}
 extern "C" int32_t pixaura_editor_request_preview(pixaura_editor_context* c,pixaura_editor_request* out){return attempt([&]{

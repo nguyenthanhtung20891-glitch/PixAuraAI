@@ -20,7 +20,11 @@
 static thread_local int64_t fail_after=-1;
 static thread_local bool injected=false;
 static thread_local unsigned fault_boundary=0, fault_index=0;
-void* operator new(std::size_t n){if(fail_after==0){fail_after=-1;injected=true;throw std::bad_alloc();}if(fail_after>0)--fail_after;
+void* operator new(std::size_t n){if(fail_after==0){fail_after=-1;injected=true;
+#ifdef _MSC_VER
+    if(fault_index<128){std::fprintf(stderr,"editor inject boundary=%u index=%u bytes=%zu\n",fault_boundary,fault_index,n);std::fflush(stderr);}
+#endif
+    throw std::bad_alloc();}if(fail_after>0)--fail_after;
     auto* p=std::malloc(n?n:1);if(!p)throw std::bad_alloc();return p;}
 void* operator new[](std::size_t n){return ::operator new(n);}
 void operator delete(void* p)noexcept{std::free(p);}
