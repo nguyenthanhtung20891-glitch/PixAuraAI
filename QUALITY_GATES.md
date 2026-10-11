@@ -2,7 +2,7 @@
 
 ## Phase 3 Step 6 acceptance
 
-AUTHORIZED / IN PROGRESS: [gesture lifecycle integration](docs/contracts/gesture-lifecycle-integration-v1.md).
+COMPLETE / FULL PASS: [gesture lifecycle integration](docs/contracts/gesture-lifecycle-integration-v1.md).
 Reuse the Step 1 controller, existing PRV1 owner/fence and detached revision/persistence
 authority. Require one active context gesture, verified original binding, 1000/10000
 coalesced updates with bounded retained allocation, explicit state/retry/terminal

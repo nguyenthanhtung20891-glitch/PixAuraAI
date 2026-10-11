@@ -1,6 +1,6 @@
 # Phase 3 Step 6: Gesture Editing Lifecycle Integration
 
-Status: AUTHORIZED / IN PROGRESS. Baseline `311392faf9d5600598a5e541ba531dd5f722e996`.
+Status: COMPLETE / FULL PASS (technical gates), ready for Product Owner acceptance. Baseline `311392faf9d5600598a5e541ba531dd5f722e996`.
 Steps 1–5 accepted COMPLETE / FULL PASS. Steps 7/8 NOT STARTED.
 
 ## Implementation and acceptance
@@ -37,14 +37,14 @@ remain in the full 27-test suite.
 
 Portable source/documentation suite 75/75 PASS, zero skips. Full Windows Node
 suite attempted 110 tests: 75 PASS / 35 FAIL because Bash/WSL orchestration was
-unavailable; those 35 Linux-only emulator/provisioning checks remain required on
-hosted Linux, not waived. Local WSL invocation failed with service
+unavailable; all 35 Linux-only emulator/provisioning checks subsequently passed on
+hosted Linux, without waiver. Local WSL invocation failed with service
 `Wsl/Service/RPC_S_CALL_FAILED` after sandbox escalation; no Linux/sanitizer PASS
 is claimed locally. Strict actionlint and git diff --check PASS. Android final
 debug/release assembly, strict lint, debug JVM 2/2 and release JVM 2/2 tests, zero
-failures/skips, and instrumentation APK assembly PASS. All caches/temp/builds
-are repository-local. Apple, Android instrumentation and exact-SHA hosted runs
-remain pending. No unobserved gate is PASS.
+failures/skips, and instrumentation APK assembly PASS. Successful reruns explicitly
+routed caches/temp/builds into the repository; the initial full Windows Node attempt
+used framework OS-temp fixtures. Hosted evidence below closes the remaining gates.
 
 ## Hosted remediation
 
@@ -53,7 +53,7 @@ MSVC, ASan/UBSan and both Android ABI jobs. Apple failed in the new Swift fixtur
 decode-open call with status 6: Foundation's temporary-directory alias was rejected
 by the unchanged O_NOFOLLOW_ANY admission. The fixture now uses Darwin realpath,
 matching the accepted decode fixture, and stable heap-owned raster context storage.
-No security check, warning or test is disabled. Corrected exact-SHA reruns are pending.
+No security check, warning or test is disabled. Corrected exact-SHA reruns passed.
 
 Review also preserved Step 1's nonzero-update preview eligibility and PRV1 malformed
 ticket statuses (2/3); added original-handle release invalidation using the existing
@@ -67,6 +67,34 @@ testReleaseUnitTest lintDebug lintRelease assembleDebugAndroidTest; actionlint
 1.7.12; git diff --check. Ignored local evidence: build/step6-windows-tests.log,
 build/step6-gesture-final.log, build/step6-source-portable.log and
 build/step6-android-final.log.
+
+## Exact-SHA hosted acceptance
+
+Implementation SHA `cba85dc7da1273ba6c236e985a637c2a47deb22b`:
+[Foundation boundaries](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38102767486)
+PASS 7/7 jobs;
+[native application shells](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38102767566)
+PASS 3/3 jobs. All required Step 6 gates were observed, with zero test failures.
+
+| Gate | Executed result |
+| --- | --- |
+| Source/documentation/workflow | 110/110 Node tests; strict actionlint PASS |
+| Linux / Windows MSVC / Apple native | 27/27 tests on each platform |
+| ASan / UBSan | 29/29, including active negative instrumentation probes |
+| Android ABI | arm64-v8a and armeabi-v7a PASS |
+| Android application | debug/release builds and lint; JVM 2/2 debug and 2/2 release; emulator instrumentation 11/11 |
+| Swift boundaries | macOS 12/12; iOS simulator 12/12 |
+| iOS application | debug/release builds; app 6/6 and UI 1/1 |
+
+Linux lifecycle validation: 200,506 assertions and 602 injected failures per run
+(1,204 recovered total). MSVC: 229,502 assertions and 1,644 injected failures per
+run (3,288 recovered total). The same deterministic checkpoint/race/history and
+bounded-allocation corpus runs in the sanitizer and Apple native gates.
+No Step 6 CI-only gate remains. Local WSL remains unavailable; hosted Linux and
+sanitizers supply the required evidence. Simulator Metal is UNSUPPORTED, not
+physical certification; DH-APPLE-METAL-01 is unchanged and unexecuted.
+The documentation closure commit's exact SHA and hosted reruns are recorded in
+final delivery, because a commit cannot embed its own SHA.
 
 ## Scope
 
