@@ -69,7 +69,8 @@ struct Service {
         const auto prior=live;live=proposal;proposal={};loaded.snapshot=std::move(pending_snapshot);loaded.epoch=saved.epoch;
         (void)pixaura_document_release(&document,&prior);
         pending_command.clear();selected=nullptr;
-        if(gesture.serial)(void)pixaura_manual_release(&document,&gesture);gesture={};
+        if(gesture.serial){(void)pixaura_manual_release(&document,&gesture);}
+        gesture={};
         // Durability already succeeded. Preview failure must not masquerade as
         // failed approval; request_preview issues the next generation separately.
         (void)pixaura_preview_begin(&raster,1,&approved_ticket);
