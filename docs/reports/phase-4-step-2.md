@@ -89,6 +89,14 @@ the Tone/Color tap, so exposure was absent. Category and tool navigation now use
 the same upper-target helper and mandatory selected postcondition. Category
 selection is explicitly observed before native tool selection; no direct test
 controller action, skipped flow, increased timeout or production UI change.
+SHA `b39f26ab2b1b4f169aae4cb271609c4435c6a963` passed Foundation 38165759181
+(7/7) and source/Android, but shells 38165759209 failed readiness after Cancel.
+The unchanged revision-count label was insufficient cancellation completion
+evidence. The UI harness now waits for terminal gesture controls and absence of
+busy state after cancel/apply, and resolves current controls on every predicate
+poll instead of retaining an element across rebuilt views. All 20-second
+deadlines, real taps, selected postconditions and complete flows remain; no
+domain/UI production change. Full exact-SHA closure is still required.
 Final delivery requires all seven Foundation and three Native application shell
 jobs SUCCESS on the same final SHA, including Android runtime and iOS app/UI.
 The delivery report supplies final SHA, workflow/job IDs and observed totals.

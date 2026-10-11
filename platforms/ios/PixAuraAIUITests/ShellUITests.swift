@@ -17,13 +17,26 @@ final class ShellUITests: XCTestCase {
         func revisions(_ n: Int) {
             XCTAssertTrue(app.staticTexts["Committed revisions: \(n)"].waitForExistence(timeout: 20))
         }
+        func terminalGesture() {
+            // The revision label already has the expected value on cancel and
+            // neutral apply. Observe completion rather than racing the worker's
+            // refresh with the next navigation query.
+            let terminal = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+                let cancel = app.buttons["Cancel"].firstMatch
+                return !app.staticTexts["Editor busy"].exists && cancel.exists && !cancel.isEnabled
+            }, object: nil)
+            XCTAssertEqual(XCTWaiter.wait(for: [terminal], timeout: 20), .completed)
+        }
         func selectControl(_ id: String) {
-            let button = app.buttons[id].firstMatch
             let ready = XCTNSPredicateExpectation(
-                predicate: NSPredicate(format: "exists == true AND enabled == true"), object: button)
+                predicate: NSPredicate { _, _ in
+                    let current = app.buttons[id].firstMatch
+                    return current.exists && current.isEnabled
+                }, object: nil)
             guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else {
                 XCTFail("Tool is not actionable: \(id)\n\(app.debugDescription)"); return
             }
+            let button = app.buttons[id].firstMatch
             // The captured iOS 26 hierarchy places the horizontal scrollbar's
             // accessibility region over the lower half of this button row. Target
             // the visible upper-left quarter, then observe selection (core-backed
@@ -39,7 +52,11 @@ final class ShellUITests: XCTestCase {
                 XCTFail("Tool target is off screen: \(id)\n\(app.debugDescription)"); return
             }
             button.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.25)).tap()
-            let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "selected == true"), object: button)
+            let selectionPredicate = NSPredicate { _, _ in
+                let current = app.buttons[id].firstMatch
+                return current.exists && current.isSelected
+            }
+            let selected = XCTNSPredicateExpectation(predicate: selectionPredicate, object: nil)
             var result = XCTWaiter.wait(for: [selected], timeout: 20)
             if result != .completed && !app.staticTexts["editor-error"].exists {
                 // Category changes remove controls and move this row. On loaded
@@ -49,7 +66,7 @@ final class ShellUITests: XCTestCase {
                 // proceed without observing the same selection postcondition.
                 if button.exists && button.isEnabled && !button.isSelected {
                     button.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.1)).tap()
-                    let retried = XCTNSPredicateExpectation(predicate: NSPredicate(format: "selected == true"), object: button)
+                    let retried = XCTNSPredicateExpectation(predicate: selectionPredicate, object: nil)
                     result = XCTWaiter.wait(for: [retried], timeout: 20)
                 }
             }
@@ -61,11 +78,11 @@ final class ShellUITests: XCTestCase {
         let slider = app.sliders["manual-slider"]
         XCTAssertTrue(slider.waitForExistence(timeout: 10))
         slider.adjust(toNormalizedSliderPosition: 0.6)
-        tap("Apply"); revisions(2)
+        tap("Apply"); terminalGesture(); revisions(2)
         tap("Undo"); XCTAssertTrue(app.buttons["Redo"].isEnabled)
         tap("Redo"); revisions(2)
         selectControl("pixaura.exposure"); slider.adjust(toNormalizedSliderPosition: 0.4)
-        tap("Cancel"); revisions(2)
+        tap("Cancel"); terminalGesture(); revisions(2)
         selectControl("Geometry"); selectControl("pixaura.rotate"); tap("90°")
         XCUIDevice.shared.press(.home); app.activate(); revisions(2)
         XCTAssertFalse(app.buttons["Apply"].isEnabled)
@@ -78,8 +95,8 @@ final class ShellUITests: XCTestCase {
         field("width_ppm", "500000"); field("x_ppm", "600000")
         tap("Preview crop")
         XCTAssertTrue(app.staticTexts["editor-error"].waitForExistence(timeout: 10))
-        tap("Cancel"); revisions(2)
-        selectControl("Detail"); selectControl("pixaura.blur"); tap("Reset to default"); tap("Apply"); revisions(2)
+        tap("Cancel"); terminalGesture(); revisions(2)
+        selectControl("Detail"); selectControl("pixaura.blur"); tap("Reset to default"); tap("Apply"); terminalGesture(); revisions(2)
         selectControl("Filters/Presets")
         XCTAssertTrue(app.staticTexts["No presets available. The shipping catalog is empty."].exists)
         XCUIDevice.shared.orientation = .landscapeLeft
