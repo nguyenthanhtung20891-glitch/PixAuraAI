@@ -17,7 +17,7 @@ final class ShellUITests: XCTestCase {
         func revisions(_ n: Int) {
             XCTAssertTrue(app.staticTexts["Committed revisions: \(n)"].waitForExistence(timeout: 20))
         }
-        func selectTool(_ id: String) {
+        func selectControl(_ id: String) {
             let button = app.buttons[id].firstMatch
             let ready = XCTNSPredicateExpectation(
                 predicate: NSPredicate(format: "exists == true AND enabled == true"), object: button)
@@ -26,18 +26,19 @@ final class ShellUITests: XCTestCase {
             }
             // The captured iOS 26 hierarchy places the horizontal scrollbar's
             // accessibility region over the lower half of this button row. Target
-            // the visible upper quarter, then observe core-backed selection;
+            // the visible upper-left quarter, then observe selection (core-backed
+            // for tools). The left quarter also avoids the vertical scrollbar;
             // a synthesized tap alone does not prove a gesture began.
             // isHittable uses XCTest's default hit point, which can be covered
             // by that scrollbar even while this upper target remains visible.
             // Check our actual coordinate is on screen, then require selection
             // after a real event; do not substitute a controller/test-only action.
             let frame = button.frame
-            let target = CGPoint(x: frame.midX, y: frame.minY + frame.height * 0.25)
+            let target = CGPoint(x: frame.minX + frame.width * 0.25, y: frame.minY + frame.height * 0.25)
             guard app.windows.firstMatch.frame.contains(target) else {
                 XCTFail("Tool target is off screen: \(id)\n\(app.debugDescription)"); return
             }
-            button.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25)).tap()
+            button.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.25)).tap()
             let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "selected == true"), object: button)
             var result = XCTWaiter.wait(for: [selected], timeout: 20)
             if result != .completed && !app.staticTexts["editor-error"].exists {
@@ -47,7 +48,7 @@ final class ShellUITests: XCTestCase {
                 // and a point above the scrollbar. Never retry a core error or
                 // proceed without observing the same selection postcondition.
                 if button.exists && button.isEnabled && !button.isSelected {
-                    button.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1)).tap()
+                    button.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.1)).tap()
                     let retried = XCTNSPredicateExpectation(predicate: NSPredicate(format: "selected == true"), object: button)
                     result = XCTWaiter.wait(for: [retried], timeout: 20)
                 }
@@ -56,19 +57,19 @@ final class ShellUITests: XCTestCase {
                            "Tool did not become selected: \(id)\n\(app.debugDescription)")
         }
         tap("Open Manual editor"); revisions(1)
-        tap("Tone/Color"); selectTool("pixaura.exposure")
+        selectControl("Tone/Color"); selectControl("pixaura.exposure")
         let slider = app.sliders["manual-slider"]
         XCTAssertTrue(slider.waitForExistence(timeout: 10))
         slider.adjust(toNormalizedSliderPosition: 0.6)
         tap("Apply"); revisions(2)
         tap("Undo"); XCTAssertTrue(app.buttons["Redo"].isEnabled)
         tap("Redo"); revisions(2)
-        selectTool("pixaura.exposure"); slider.adjust(toNormalizedSliderPosition: 0.4)
+        selectControl("pixaura.exposure"); slider.adjust(toNormalizedSliderPosition: 0.4)
         tap("Cancel"); revisions(2)
-        tap("Geometry"); selectTool("pixaura.rotate"); tap("90°")
+        selectControl("Geometry"); selectControl("pixaura.rotate"); tap("90°")
         XCUIDevice.shared.press(.home); app.activate(); revisions(2)
         XCTAssertFalse(app.buttons["Apply"].isEnabled)
-        selectTool("pixaura.crop")
+        selectControl("pixaura.crop")
         func field(_ id: String, _ value: String) {
             let field = app.textFields[id]; XCTAssertTrue(field.waitForExistence(timeout: 10)); field.tap()
             let old = field.value as? String ?? ""
@@ -78,8 +79,8 @@ final class ShellUITests: XCTestCase {
         tap("Preview crop")
         XCTAssertTrue(app.staticTexts["editor-error"].waitForExistence(timeout: 10))
         tap("Cancel"); revisions(2)
-        tap("Detail"); selectTool("pixaura.blur"); tap("Reset to default"); tap("Apply"); revisions(2)
-        tap("Filters/Presets")
+        selectControl("Detail"); selectControl("pixaura.blur"); tap("Reset to default"); tap("Apply"); revisions(2)
+        selectControl("Filters/Presets")
         XCTAssertTrue(app.staticTexts["No presets available. The shipping catalog is empty."].exists)
         XCUIDevice.shared.orientation = .landscapeLeft
         tap("Back to Home"); tap("Open Manual editor"); revisions(2)

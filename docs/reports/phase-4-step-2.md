@@ -82,6 +82,13 @@ tap helper now checks enabled/existing plus its actual upper target on screen,
 rather than gating that different coordinate on XCTest's default `isHittable`.
 Actual tap, mandatory core-backed selection and every full editor/history/reopen
 assertion remain. No production UI/domain code changes; no failed run is PASS.
+Remediation SHA `bf2b1dfafcb9a16da44f8ab2362849fef5ef55d5` again passed
+Foundation 38164350001 (7/7), source and Android. Shells 38164349992 exposed the
+same centre-tap issue in category navigation: Geometry remained selected after
+the Tone/Color tap, so exposure was absent. Category and tool navigation now use
+the same upper-target helper and mandatory selected postcondition. Category
+selection is explicitly observed before native tool selection; no direct test
+controller action, skipped flow, increased timeout or production UI change.
 Final delivery requires all seven Foundation and three Native application shell
 jobs SUCCESS on the same final SHA, including Android runtime and iOS app/UI.
 The delivery report supplies final SHA, workflow/job IDs and observed totals.
