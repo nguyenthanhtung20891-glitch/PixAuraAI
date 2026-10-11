@@ -7,7 +7,7 @@ endif()
 
 add_library(pixaura_core SHARED packages/core/src/core.cpp
     packages/core/src/document.cpp packages/core/src/document_api.cpp packages/core/src/storage_api.cpp
-    packages/core/src/manual_geometry_preview.cpp)
+    packages/core/src/manual_geometry_preview.cpp packages/core/src/editor_api.cpp)
 target_include_directories(pixaura_core PUBLIC packages/core/include)
 target_compile_features(pixaura_core PUBLIC cxx_std_17)
 target_compile_definitions(pixaura_core PUBLIC PIXAURA_SHARED PRIVATE PIXAURA_BUILDING)
@@ -72,6 +72,21 @@ target_sources(pixaura_core PRIVATE packages/core/src/gpu.cpp packages/core/src/
 
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(editor_test packages/core/tests/editor_test.cpp packages/core/src/editor_api.cpp
+        packages/core/src/document.cpp packages/core/src/document_api.cpp packages/core/src/manual_tools.cpp
+        packages/core/src/manual_geometry_preview.cpp packages/core/src/evaluation.cpp packages/core/src/geometry.cpp
+        packages/core/src/working.cpp packages/core/src/decode.cpp packages/core/src/decode_api.cpp packages/core/src/preview.cpp
+        packages/core/src/storage.cpp packages/core/src/storage_files.cpp packages/core/src/sha256.cpp)
+    target_include_directories(editor_test PRIVATE packages/core/include)
+    target_link_libraries(editor_test PRIVATE pixaura_codecs pixaura_sqlite)
+    if(WIN32)
+        target_link_libraries(editor_test PRIVATE bcrypt)
+    endif()
+    target_compile_definitions(editor_test PRIVATE PIXAURA_TEST_FALLIBLE_STL)
+    target_compile_features(editor_test PRIVATE cxx_std_17)
+    pixaura_strict(editor_test)
+    add_test(NAME editor_test COMMAND editor_test "${CMAKE_BINARY_DIR}")
+    set_tests_properties(editor_test PROPERTIES TIMEOUT 600)
     add_executable(gesture_lifecycle_c_consumer packages/core/tests/gesture_lifecycle_c_consumer.c)
     set_target_properties(gesture_lifecycle_c_consumer PROPERTIES LINKER_LANGUAGE CXX)
     target_link_libraries(gesture_lifecycle_c_consumer PRIVATE pixaura_core)

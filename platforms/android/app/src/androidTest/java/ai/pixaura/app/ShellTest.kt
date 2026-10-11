@@ -28,6 +28,6 @@ class ShellTest {
         compose.onNodeWithText("Editor").assertIsDisplayed()
         compose.activityRule.scenario.recreate()
         compose.onNodeWithText("Editor").assertIsDisplayed()
-        compose.onNodeWithText("Manual session · Editing tools arrive in a later phase.").assertIsDisplayed()
+        compose.onNodeWithText("Open JPEG or PNG").assertIsDisplayed()
     }
 }

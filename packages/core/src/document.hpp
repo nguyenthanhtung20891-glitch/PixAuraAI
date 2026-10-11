@@ -85,6 +85,8 @@ Result<Snapshot> deserialize(std::string_view manifest, std::string_view session
 Result<Snapshot> restore_generation(Snapshot snapshot, uint64_t generation);
 Result<Snapshot> create_document(std::string_view root_manifest, std::string_view session_id);
 Result<String> serialize(const ImageDocument& document);
+Result<String> serialize_evaluation(const Vector<EditOperation>& operations);
+Result<String> serialize_commit(const ImageDocument& base, const ImageDocument& proposal);
 Result<Snapshot> transition(const ImageDocument& document, std::string_view command);
 Result<Snapshot> transition(const ImageDocument& document, const DetachedCandidate& candidate);
 Result<Vector<EditOperation>> replay(const ImageDocument& document, const Id& revision);

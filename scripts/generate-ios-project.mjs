@@ -29,7 +29,7 @@ function sources(directory, files) {
   groups.push(group);
   return { group, phase };
 }
-const appSources = sources('PixAuraAI', ['PixAuraApp.swift', 'ShellView.swift', 'ShellModel.swift', 'ShellState.swift']);
+const appSources = sources('PixAuraAI', ['PixAuraApp.swift', 'ShellView.swift', 'ShellModel.swift', 'ShellState.swift', 'ManualEditorModel.swift', 'ManualEditorScreen.swift']);
 const tests = sources('PixAuraAITests', ['ShellTests.swift', 'GpuHardwareTests.swift']);
 const uiTests = sources('PixAuraAIUITests', ['ShellUITests.swift']);
 const privacyRef = id(), privacyBuild = id(), resources = id();

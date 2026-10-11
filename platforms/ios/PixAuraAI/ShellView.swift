@@ -32,7 +32,8 @@ struct ShellView: View {
                         Text(model.probe)
                         switch destination {
                         case .editor:
-                            Text("\(model.state.mode.rawValue) session · Editing tools arrive in a later phase.")
+                            if model.state.mode == .manual { ManualEditorScreen() }
+                            else { Text("\(model.state.mode.rawValue) session · Editing tools arrive in a later phase.") }
                         case .projects:
                             Text("Your projects will appear here.")
                         case .settings:

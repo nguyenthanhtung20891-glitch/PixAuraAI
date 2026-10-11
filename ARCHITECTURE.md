@@ -1,5 +1,11 @@
 # System architecture
 
+Phase 3 Step 7 is authorized at baseline `116c4efc65f55025f717241a01bc6056ed27d042`.
+[Manual editor integration](docs/contracts/manual-editor-integration-v1.md) composes existing gesture/PRV1/document/schema-3 authority; no new numerical semantics or storage schema.
+Require native, Android controller/Compose, Swift/macOS/iOS app/UI, persistence/reopen, parity and exact-SHA hosted gates. Step 8 has NOT started; DH-APPLE-METAL-01 unchanged.
+Evidence: [Step 7 report](docs/reports/phase-3-step-7.md). Historical statuses below do not override this authorization.
+
+
 Phase 3 Step 6 is authorized: [gesture lifecycle integration](docs/contracts/gesture-lifecycle-integration-v1.md)
 binds the existing manual controller to verified originals and PRV1. Context
 serialization owns transient pending state; application services retain approval,

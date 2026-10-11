@@ -480,6 +480,31 @@ Result<Snapshot> create_document(std::string_view manifest, std::string_view ses
 Result<String> serialize(const ImageDocument& doc) {
     return attempt<String>([&] { Engine::validate(doc); return Writer().write(Engine::encode(doc)); });
 }
+Result<String> serialize_evaluation(const Vector<EditOperation>& operations) {
+    return attempt<String>([&] { Json::Array values;
+        require(operations.size() <= 256, PIXAURA_DOCUMENT_RESOURCE_LIMIT);
+        for (const auto& op : operations) values.push_back(operation_json(op));
+        auto output=Writer().write(Json(Json::Object{{"operations",Json(std::move(values))}}));
+        require(parse_evaluation(output).code==0,PIXAURA_DOCUMENT_INVALID_PARAMETERS);return output;
+    });
+}
+Result<String> serialize_commit(const ImageDocument& base,const ImageDocument& proposal) {
+    return attempt<String>([&] { Engine::validate(base);Engine::validate(proposal);
+        const Revision* revision=nullptr;
+        for(const auto& r:proposal.revisions())if(r.id==proposal.current())revision=&r;
+        require(revision && revision->parent && *revision->parent==base.current(),9);
+        Json::Array operations;
+        for(const auto& op:proposal.operations()) {
+            bool prior=false;for(const auto& old:base.operations())if(old.id==op.id)prior=true;
+            if(!prior)operations.push_back(operation_json(op));
+        }
+        return Writer().write(Json(Json::Object{{"command_version",Json(int64_t(1))},{"kind",Json(String("commit"))},
+            {"expected_session_id",Json(base.session().id.text())},{"expected_generation",Json(static_cast<int64_t>(base.session().generation))},
+            {"expected_revision_id",Json(base.current().text())},{"revision_id",Json(revision->id.text())},
+            {"actor",Json(revision->actor)},{"plan_id",nullable(revision->plan)},
+            {"stack",ids_json(revision->stack)},{"operations",Json(std::move(operations))}}));
+    });
+}
 Result<Snapshot> transition(const ImageDocument& doc, std::string_view command) {
     return attempt<Snapshot>([&] { return Engine::apply(doc, Parser(command, command_limit).parse(Shape::Command)); });
 }
