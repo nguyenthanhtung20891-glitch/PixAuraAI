@@ -1,8 +1,9 @@
 # Phase 3 Step 8 — Certification & Closure
 
-Status: **COMPLETE / FULL PASS**. **Phase 3 — CLOSED / COMPLETE / FULL PASS.** Authorized baseline:
+Status: **IN PROGRESS**. **Phase 3 — OPEN / CERTIFICATION IN PROGRESS.** Authorized baseline:
 `c0a0020d41b22b55fad494fab50d72b5903f7c22`. Steps 1–7 remain accepted FULL PASS.
-Steps 1–8 and all frozen exit criteria are certified. Phase 4 has NOT started.
+Steps 1–7 remain accepted. Final exact-SHA iOS UI revalidation failed; closure
+is withheld until remediation and all exact-SHA gates pass. Phase 4 has NOT started.
 Implementation certification SHA: `f9faf60ea98ff38bc5a6fa6fd35540791918bf3b`.
 
 The [authoritative certification matrix](../contracts/phase-3-certification-v1.md)
@@ -11,7 +12,7 @@ Step 8 adds certification tests, an explicit SELinux Enforcing runtime precondit
 and closure documentation. It adds no feature or new architecture decision.
 Accepted ADR 0021 remains narrow and unchanged; Schema 3 is unchanged.
 
-## Certified exit criteria — PASS
+## Certification criteria and retained passing evidence
 
 - Independent geometry/tone/detail reference corpus, invalid/boundary/alpha/order coverage.
 - Gesture/history, generation fences, deterministic races, churn, allocation/failure/resource/security regressions.
@@ -68,6 +69,26 @@ The simulator's Metal test asserts UNSUPPORTED; it is not physical certification
 
 ## Exact-SHA hosted certification
 
+Current closure attempt `e0c5fc3d4176344a616ad88ed6394b1fe619cac4` is **NOT accepted**:
+Foundation 38142375346 passed 7/7; shells 38142375391 passed source/Android but
+iOS job 114478691819 failed its manual-editor UI test. Its native 28/28,
+Swift macOS/simulator 14/14 each, both app builds and 6/6 app tests passed;
+one of two UI methods failed (two assertions). No earlier green substitutes.
+
+The exact xcresult hierarchy after Exposure's synthesized tap shows Tone/Color
+Selected, Exposure not Selected, Apply/Cancel disabled, revision 1 and no core
+error. Exposure's rectangle is x227.3/y505.0/w95.0/h34.3; its center y522.2
+overlaps the horizontal scrollbar accessibility region y519.2..536.4.
+The test treated event synthesis as selection success. Category A remediation
+targets the visible upper quarter of the existing tool button, uses its already
+shared-core ID, and waits for its core-backed Selected trait before seeking
+controls. No tap retries, sleeps, timeout increase, assertion removal, production
+SwiftUI change or semantic change. Failed targeting now reports the hierarchy
+at the actual selection boundary. All original end-to-end assertions remain.
+
+The passing implementation certification below is retained historical evidence;
+fresh complete exact-SHA closure is still required.
+
 All jobs below ran on **the same** implementation SHA
 `f9faf60ea98ff38bc5a6fa6fd35540791918bf3b`, with SUCCESS conclusions:
 
@@ -88,7 +109,7 @@ All jobs below ran on **the same** implementation SHA
 and [Native application shells 3/3 SUCCESS](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38140611504):
 **10/10 jobs**. No prior-SHA green substitutes for these results.
 
-The commit containing this final closure record changes documentation only.
+The previous closure commit changed documentation only.
 Delivery is gated on observing BOTH complete workflows again on that closure
 commit's exact SHA; the final delivery supplies its SHA, run IDs and job conclusions.
 The implementation and test corpus remain identical to the certified SHA above.
@@ -198,14 +219,15 @@ and the narrow Android shell teardown correction. Exact affected files:
 - packages/core/tests/editor_test.cpp, packages/core/swift/Tests/ManualEditorTests.swift
 - platforms/android/app/src/androidTest/java/ai/pixaura/app/ManualEditorTest.kt
 - platforms/android/app/src/main/java/ai/pixaura/app/MainActivity.kt
+- platforms/ios/PixAuraAIUITests/ShellUITests.swift
 - scripts/check-android-emulator.sh, tests/android-emulator.test.mjs
 - tests/manual-editor.test.mjs, tests/manual-geometry.test.mjs, tests/tone-color.test.mjs
 - tests/detail-tools.test.mjs, tests/presets.test.mjs, tests/gesture-lifecycle.test.mjs
 
 ## Follow-ups and scope
 
-A: all required certification and Android teardown remediation resolved; final
-documentation-only exact-SHA revalidation remains a mandatory delivery gate.
+A: narrow iOS UI input-targeting remediation and complete exact-SHA closure remain
+required. Android teardown remediation and all retained certification evidence pass.
 B: DH-APPLE-METAL-01 remains **DEFERRED**, mandatory before **Phase 11 hardening
 acceptance, Phase 12 Beta readiness completion, production release, or any physical
 Apple GPU certification claim**. It is not waived; Phase 2 is not reopened.
