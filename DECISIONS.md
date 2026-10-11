@@ -1,8 +1,8 @@
 # Architectural decision index
 
-## Phase 3 Step 8 certification authorization
+## Phase 3 Step 8 certification and closure
 
-Step 8 is **IN PROGRESS** at baseline `c0a0020d41b22b55fad494fab50d72b5903f7c22`. Steps 1–7 remain accepted FULL PASS. This authorization supersedes historical not-started wording below. Phase 3 stays open until every exit criterion and final exact-SHA hosted gate is observed PASS. No feature development or Phase 4 work is authorized. DH-APPLE-METAL-01 remains unchanged.
+**Phase 3 — CLOSED / COMPLETE / FULL PASS.** Steps 1–8 and all frozen exit criteria are certified at implementation SHA `f9faf60ea98ff38bc5a6fa6fd35540791918bf3b`: Foundation 38140611496 (7/7) and Native application shells 38140611504 (3/3), all SUCCESS. This closure supersedes historical not-started wording below. The documentation-only closure commit must also pass both complete exact-SHA workflows before delivery. No Step 9 is created and Phase 4 has NOT started. DH-APPLE-METAL-01 remains DEFERRED and mandatory at its existing later hardening/Beta/release boundaries. No new tool, numerical, AI, GPU, network, telemetry or storage-schema scope was added.
 
 Evidence: [Step 8 report](docs/reports/phase-3-step-8.md) and [certification matrix](docs/contracts/phase-3-certification-v1.md).
 

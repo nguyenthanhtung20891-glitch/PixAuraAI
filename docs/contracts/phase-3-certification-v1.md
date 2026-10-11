@@ -3,7 +3,7 @@
 Authority: authorized Phase 3 Step 8, baseline
 `c0a0020d41b22b55fad494fab50d72b5903f7c22`. This consolidates accepted contracts;
 it introduces no tool, parameter, numerical, lifecycle or storage semantics.
-Execution status and exact-SHA evidence live in the [Step 8 report](../reports/phase-3-step-8.md).
+All rows are certified PASS at implementation SHA `f9faf60ea98ff38bc5a6fa6fd35540791918bf3b`. Execution status and exact-SHA evidence live in the [Step 8 report](../reports/phase-3-step-8.md).
 
 ## Authoritative tool and platform matrix
 
@@ -14,18 +14,18 @@ boundaries; neither screen contains a separate ID/range/default registry.
 
 | Tool / shared ID | Parameter | Unit | Inclusive range; neutral/default | Core / Compose / SwiftUI |
 | --- | --- | --- | --- | --- |
-| Crop / pixaura.crop | height_ppm, width_ppm | millionths_current_extent | 1..1000000; 1000000 | Same descriptor and lifecycle |
-| Crop / pixaura.crop | x_ppm, y_ppm | millionths_current_extent | 0..999999; 0 | Same descriptor and lifecycle |
-| Orthogonal rotation / pixaura.rotate | quarter_turns | clockwise_quarter_turns | 0..3; 0 | Same descriptor and lifecycle |
-| Exposure / pixaura.exposure | milli_ev | thousandths_exposure_stop | -5000..5000; 0 | Same descriptor and lifecycle |
-| Brightness / pixaura.brightness | milli_linear | thousandths_linear_white | -1000..1000; 0 | Same descriptor and lifecycle |
-| Contrast / pixaura.contrast | milli_stops | thousandths_log2_contrast_slope | -2000..2000; 0 | Same descriptor and lifecycle |
-| Highlights / pixaura.highlights | milli_ev | thousandths_highlight_exposure_stop | -2000..2000; 0 | Same descriptor and lifecycle |
-| Shadows / pixaura.shadows | milli_ev | thousandths_shadow_exposure_stop | -2000..2000; 0 | Same descriptor and lifecycle |
-| Saturation / pixaura.saturation | milli_ratio | thousandths_chroma_multiplier | 0..2000; 1000 | Same descriptor and lifecycle |
-| Temperature / pixaura.temperature | kelvin | daylight_white_kelvin | 4000..25000; 6504 | Same descriptor and lifecycle |
-| Sharpen / pixaura.sharpen | milli_amount | thousandths_fixed_kernel_unsharp | 0..1000; 0 | Same descriptor and lifecycle |
-| Blur / pixaura.blur | milli_strength | thousandths_fixed_kernel_blend | 0..1000; 0 | Same descriptor and lifecycle |
+| Crop / pixaura.crop | height_ppm, width_ppm | millionths_current_extent | 1..1000000; 1000000 | PASS / PASS / PASS |
+| Crop / pixaura.crop | x_ppm, y_ppm | millionths_current_extent | 0..999999; 0 | PASS / PASS / PASS |
+| Orthogonal rotation / pixaura.rotate | quarter_turns | clockwise_quarter_turns | 0..3; 0 | PASS / PASS / PASS |
+| Exposure / pixaura.exposure | milli_ev | thousandths_exposure_stop | -5000..5000; 0 | PASS / PASS / PASS |
+| Brightness / pixaura.brightness | milli_linear | thousandths_linear_white | -1000..1000; 0 | PASS / PASS / PASS |
+| Contrast / pixaura.contrast | milli_stops | thousandths_log2_contrast_slope | -2000..2000; 0 | PASS / PASS / PASS |
+| Highlights / pixaura.highlights | milli_ev | thousandths_highlight_exposure_stop | -2000..2000; 0 | PASS / PASS / PASS |
+| Shadows / pixaura.shadows | milli_ev | thousandths_shadow_exposure_stop | -2000..2000; 0 | PASS / PASS / PASS |
+| Saturation / pixaura.saturation | milli_ratio | thousandths_chroma_multiplier | 0..2000; 1000 | PASS / PASS / PASS |
+| Temperature / pixaura.temperature | kelvin | daylight_white_kelvin | 4000..25000; 6504 | PASS / PASS / PASS |
+| Sharpen / pixaura.sharpen | milli_amount | thousandths_fixed_kernel_unsharp | 0..1000; 0 | PASS / PASS / PASS |
+| Blur / pixaura.blur | milli_strength | thousandths_fixed_kernel_blend | 0..1000; 0 | PASS / PASS / PASS |
 
 Crop additionally requires x+width and y+height <=1000000. Invalid coupled values
 reject without clamping; outward floor/ceil rasterization remains shared-core
@@ -86,7 +86,12 @@ Undo/Redo and preset application reject while a manual gesture is active.
 Frozen ceilings remain unchanged: one active gesture/context, one <=1024-byte
 pending operation, one preview ownership ticket, <=256 captured/ordered operations,
 combined 64 document/gesture handles; existing raster/context and platform render
-admission limits. There is no durable gesture state or new schema. Historical
+admission limits. Raster <=128 MiB/8388608 pixels, context <=256 MiB,
+manifest <=8 MiB, command <=64 KiB, stored operations/revisions <=4096 each,
+detail three-row scratch <=786432 bytes and shared scratch <=1 MiB remain frozen.
+Registry <=16 descriptors/8 parameters each, <=64-byte text and <=32 KiB JSON;
+platform detached copy <=4 MiB and existing two-render admission remain unchanged.
+There is no durable gesture state or new schema. Historical
 Schema 1/2 remain immutable; Schema 3 is current, explicit 1->2 then 2->3 only.
 
 ADR 0021 remains Accepted and Android-only: renameat2(RENAME_NOREPLACE) between
