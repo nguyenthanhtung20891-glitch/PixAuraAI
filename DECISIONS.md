@@ -5,9 +5,9 @@ the Product Owner / Architect on 2026-10-11. It supersedes ONLY ADR 0010's Andro
 asset publication syscall with atomic renameat2(RENAME_NOREPLACE), retaining
 every immutable/no-overwrite/durability invariant. Other platforms are unchanged.
 
-Phase 3 Step 7 is authorized at baseline `116c4efc65f55025f717241a01bc6056ed27d042`.
+Phase 3 Step 7 is COMPLETE / FULL PASS (technical gates), authorized at baseline `116c4efc65f55025f717241a01bc6056ed27d042`.
 [Manual editor integration](docs/contracts/manual-editor-integration-v1.md) composes existing gesture/PRV1/document/schema-3 authority; no new numerical semantics or storage schema.
-Require native, Android controller/Compose, Swift/macOS/iOS app/UI, persistence/reopen, parity and exact-SHA hosted gates. Step 8 has NOT started; DH-APPLE-METAL-01 unchanged.
+Native, Android controller/Compose, Swift/macOS/iOS app/UI, persistence/reopen, parity and exact-SHA hosted gates are observed PASS. Step 8 has NOT started; DH-APPLE-METAL-01 unchanged.
 Evidence: [Step 7 report](docs/reports/phase-3-step-7.md). Historical statuses below do not override this authorization.
 
 

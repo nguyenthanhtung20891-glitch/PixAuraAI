@@ -2,9 +2,9 @@
 
 ## Phase 3 Step 7 acceptance
 
-AUTHORIZED / IN PROGRESS: shared descriptor-driven Compose/SwiftUI manual editors.
+COMPLETE / FULL PASS (technical gates): shared descriptor-driven Compose/SwiftUI manual editors.
 [Manual editor integration](docs/contracts/manual-editor-integration-v1.md) composes existing gesture/PRV1/document/schema-3 authority; no new numerical semantics or storage schema.
-Require native, Android controller/Compose, Swift/macOS/iOS app/UI, persistence/reopen, parity and exact-SHA hosted gates. Step 8 has NOT started; DH-APPLE-METAL-01 unchanged.
+Observed native, ASan/UBSan, Android controller/Compose/import, Swift/macOS/iOS app/UI, persistence/reopen, parity and both full exact-SHA hosted workflows PASS. Accepted ADR 0021 directly proves Android renameat2(RENAME_NOREPLACE), immutable/no-overwrite, dedup/concurrency/fault/crash behavior while retaining all storage regressions. Schema 3 is unchanged. Step 8 has NOT started; DH-APPLE-METAL-01 unchanged.
 Evidence: [Step 7 report](docs/reports/phase-3-step-7.md). Historical statuses below do not override this authorization.
 
 

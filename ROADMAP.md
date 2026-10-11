@@ -6,7 +6,7 @@ Authority: explicit Product Owner / Architect decision. Step 1 is accepted
 **COMPLETE / FULL PASS** at `b29123037effd76d984780f59889f1fcbb3c8c76`;
 see the [contract](docs/contracts/manual-tools-v1.md) and [report](docs/reports/phase-3-step-1.md).
 Step 2 is **COMPLETE / FULL PASS** (technical gates); crop and orthogonal rotation only.
-Step 3 is **COMPLETE / FULL PASS** (technical gates); see the [Step 3 report](docs/reports/phase-3-step-3.md). Step 4 is **COMPLETE / FULL PASS**; see the [Step 4 report](docs/reports/phase-3-step-4.md); Step 5 is **COMPLETE / FULL PASS**; see the [Step 5 report](docs/reports/phase-3-step-5.md); Step 6 is **COMPLETE / FULL PASS**; Step 7 is **AUTHORIZED / IN PROGRESS**; Step 8 remains **NOT STARTED** and requires separate authorization.
+Step 3 is **COMPLETE / FULL PASS** (technical gates); see the [Step 3 report](docs/reports/phase-3-step-3.md). Step 4 is **COMPLETE / FULL PASS**; see the [Step 4 report](docs/reports/phase-3-step-4.md); Step 5 is **COMPLETE / FULL PASS**; see the [Step 5 report](docs/reports/phase-3-step-5.md); Step 6 is **COMPLETE / FULL PASS**; Step 7 is **COMPLETE / FULL PASS** (technical gates); see the [Step 7 report](docs/reports/phase-3-step-7.md); Step 8 remains **NOT STARTED** and requires separate authorization.
 See the [Step 2 report](docs/reports/phase-3-step-2.md).
 
 | Step | Official name | Status | Frozen scope and acceptance boundary |
@@ -17,7 +17,7 @@ See the [Step 2 report](docs/reports/phase-3-step-2.md).
 | 4 | Detail Tools | COMPLETE / FULL PASS | Implement sharpen and blur. Denoise, clarity, texture and other detail controls require separate approval. |
 | 5 | Filters & Presets Foundation | COMPLETE / FULL PASS | Define and implement deterministic, inspectable, non-destructive filter/preset representation. Names and recipes must be separately frozen before shipping. No destructive hidden processing. |
 | 6 | Gesture Editing Lifecycle Integration | COMPLETE / FULL PASS | Integrate BEGIN -> UPDATE/PREVIEW -> COMMIT once, or CANCEL without history mutation, into real editing flows. Preserve stale rejection, coalescing, interruption, tool switching and failure semantics from Step 1. |
-| 7 | Cross-platform Manual Editor Integration | IN PROGRESS | Integrate Android Compose and iOS SwiftUI against the same shared-core tool IDs, ranges, validation, serialization, replay and history semantics. Do not duplicate core business rules per platform. |
+| 7 | Cross-platform Manual Editor Integration | COMPLETE / FULL PASS | Android Compose and iOS SwiftUI consume the same shared-core descriptors, gesture/PRV1, validation, serialization, replay, history and schema-3 reopen authority. Android-only no-replace publication is accepted in ADR 0021 and directly validated. |
 | 8 | Phase 3 Certification & Closure | NOT STARTED | Validate offline tool matrix, documented units/ranges, deterministic replay, gesture history, restart/reload consistency, invalid/boundary cases, Android/iOS parity and regression closure. CLOSE Phase 3 here only if all exit criteria pass; do not create Step 9 automatically. |
 
 Approved future tool scope does not freeze missing parameter tuples or numerical

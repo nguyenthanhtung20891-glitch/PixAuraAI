@@ -17,7 +17,7 @@ The denied call is the existing `Files::Impl::publish` POSIX `linkat` path.
 [Accepted ADR 0010](0010-durable-native-project-storage.md) explicitly specifies
 POSIX `linkat` without overwrite. Changing Android's syscall therefore requires
 an explicit decision. The Product Owner / Architect approved this narrow
-supersession on 2026-10-11; Step 7 remains IN PROGRESS until validation passes.
+supersession on 2026-10-11; Step 7 acceptance requires all validation gates to pass.
 The failure is not permission to disable SELinux, alias checks, immutable bytes,
 directory sync, destination verification, tests or no-overwrite protection.
 
@@ -28,6 +28,9 @@ Supersede only ADR 0010's Android `linkat` choice with Linux/Android
 directory capabilities. Keep file sync/close before publication, read-only bytes,
 no replacement, both directory syncs, exact digest/length verification and
 asset-before-SQLite-reference ordering. EEXIST still means verified deduplication.
+Staging stays under the same private managed root. Immutable content-addressed
+SHA-256 identity, pinned capability/path protections and NOFOLLOW checks remain
+unchanged, including exact existing-object digest/length verification on EEXIST.
 Unsupported syscall/filesystem or any other error still rejects with IO_ERROR;
 there is no insecure overwrite fallback. Linux, Darwin and Windows paths remain
 as accepted. No new durable schema, dependency, tool or numerical semantics.
@@ -39,6 +42,24 @@ in emulator instrumentation. Add/execute native ingestion, duplicate-digest,
 existing-corrupt-digest nonreplacement, concurrent publisher and crash/reopen
 regressions, alongside all existing storage and editor gates. Publication tests
 must prove the Android branch and durability rather than relying on UI success.
+
+Observed at implementation SHA `3f3e10e61814cb4b90617443c4b37c7e9d7688b2`:
+[Foundation 7/7](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38129297272)
+and [application shells 3/3](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38129297283)
+PASS. Actual Android instrumentation reports 14/14 tests, no failures/errors/skips,
+and logcat confirms `ADR0021 Android RENAME_NOREPLACE actual branch: 71 checks PASS`.
+The direct native corpus records four real successful no-replace publications;
+production ingestion verifies read-only, single-link, exact immutable bytes.
+Duplicate/existing-correct dedup retains the inode; existing corruption is rejected
+without replacement. Barrier-synchronized same/different digest publishers pass.
+Staged-reader failure, failure after file sync before publication, both directory
+sync failures and ENOSYS/EOPNOTSUPP reject deterministically with IO_ERROR; no
+fallback publication occurs. All nine publication/SQLite crash-reopen boundaries
+run on the independent Android branch, alongside every existing storage regression
+and ten existing migration crash cases. Linux 29/29 and ASan/UBSan 31/31 PASS.
+Android editor import/edit/preview/commit/reopen also passes under actual SELinux.
+See the [Step 7 report](../reports/phase-3-step-7.md) for the required-case matrix,
+cross-platform parity and final exact-SHA closure procedure.
 
 ## Alternatives
 

@@ -1,6 +1,6 @@
 # Phase 3 Step 7: Cross-platform Manual Editor Integration
 
-Status: AUTHORIZED / IN PROGRESS. Baseline
+Status: COMPLETE / FULL PASS (technical gates). Baseline
 `116c4efc65f55025f717241a01bc6056ed27d042`. Steps 1–6 accepted FULL PASS.
 Step 8 NOT STARTED; DH-APPLE-METAL-01 unchanged/unexecuted.
 
@@ -73,34 +73,57 @@ bounded preview and existing shell safe areas provide phone layout resilience;
 iOS UI automation exercises landscape and return/reopen. Broader accessibility,
 device-size certification and production polish remain Step 8/later scope.
 
-Local Windows Zig fallback: all 28 native tests PASS (304.57 seconds). The editor
-service passes 42,040 assertions and recovers 3,162 injected allocation failures;
-the retained Step 6 suite passes 196,726 assertions. Preview regression includes
-10,000 updates, 256 interactive races and 128 cancellation races. Editor coverage
-includes verified import, changed previews, all eleven tools, invalid-update
-retention, neutral/cancel/switch/interruption, one-revision approval, actual SQLite
-busy failure/retry, undo/redo and close/reopen pixel equivalence.
+Implementation acceptance SHA: `3f3e10e61814cb4b90617443c4b37c7e9d7688b2`.
+Observed [Foundation 7/7](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38129297272)
+and [application shells 3/3](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38129297283)
+on that exact SHA. The final delivery also observes both workflows on the
+documentation closure SHA; these links record implementation acceptance evidence.
 
-Portable source/documentation checks: 78/78 PASS, no skips. Workflow actionlint
-and git diff --check PASS. Android debug/release builds, both lints and
-instrumentation APK build PASS; debug JVM 3/3 and release JVM 3/3 PASS, no skips.
-No local Android device is connected. Apple execution, Android instrumentation,
-Linux/sanitizers and exact-SHA hosted gates remain pending; no unobserved gate
-counts as PASS. Final hosted evidence and changed-file list follow after execution.
+| Executed gate | Result |
+| --- | --- |
+| Windows MSVC native | 28/28 PASS; editor 153,231 assertions, 11,648 recovered allocation failures, 380.09 seconds |
+| Linux native | 29/29 PASS; editor 49,795 assertions, 3,740 recovered allocation failures; includes separate Android publication/storage target |
+| ASan/UBSan | 31/31 PASS, including negative probes proving active instrumentation |
+| Apple native | 28/28 PASS |
+| Swift boundary | 13/13 macOS and 13/13 iOS simulator PASS |
+| Android ABI boundaries | arm64-v8a and armeabi-v7a PASS |
+| Android app | Debug/release builds and lint PASS; JVM 3/3 debug and 3/3 release, zero ignored |
+| Android runtime | 14/14 emulator instrumentation PASS, zero failures/errors/skips; direct asset corpus and owner/Compose editor flows |
+| iOS app | Debug/release builds PASS; simulator app 6/6 and UI 2/2 PASS |
+| Hosted source/parity/documentation/workflow | 114/114 source tests, zero skips; workflow lint PASS |
+| Local Windows Zig fallback | Full 28/28 native PASS in 152.85 seconds; focused editor 42,119 assertions / 3,161 recovered faults PASS |
+| Local portable checks | 79/79 PASS, zero skips; actionlint and git diff --check PASS |
 
-The initial allocation test timed out while reprovisioning schema at every fault
-index. Verified closed-project portability copies now isolate fault injection
-without repeated schema provisioning; all allocation indices remain exercised.
-The frozen native limits, tests, sanitizers and security controls are unchanged.
+Editor coverage includes verified image import, changed pixels, every frozen
+descriptor's changed/neutral actions, invalid-update retention, 10,001 update
+churn, cancel/switch/interruption, exactly one revision per changed approval,
+actual SQLite busy failure and same-proposal retry, authoritative undo/redo and
+close/reopen pixel equivalence. Retained Step 6/PRV1 tests include 10,000 updates,
+deterministic race checkpoints, 256 interactive races and 128 cancellation races.
+Android and iOS execute import/edit/preview/commit/undo/redo/reopen and cancel
+paths; the iOS UI flow also exercises backgrounding, landscape, navigation away
+and process relaunch without restoring an uncommitted gesture.
+
+The exhaustive allocation test uses verified closed-project portability copies
+and four fixed isolated workers partitioning every fault index. MSVC diagnostics
+exposed a separate runtime failure in the editor's chained base-string
+concatenations: iterator-debug moves can allocate inside noexcept. The service
+now assembles envelopes through throwing String append/return paths. The complete
+MSVC sweep proves RESOURCE_LIMIT recovery and retry without unintended history.
+No fault index, assertion, iterator debugging, test deadline, sanitizer, storage
+security check or product ceiling was removed or increased. Android's loading
+notification now precedes its value refresh, eliminating an observable new-value/
+old-image window; iOS UI automation uses native target-specific scroll-to-visible.
 
 ## Scope
 
-A: required generic service/manual screens/ownership/parity/validation.
+A: required generic service/manual screens/ownership/parity/validation, including
+the explicitly approved Android publication remediation and its storage proof.
 B: Step 8 certification/closure. C: overlays/catalog/polish. No new dependency/tool
 semantics, AI/GPU/network/storage-schema scope.
 Phase 3 Step 8 has NOT started.
 
-## Architecture decision resolved; validation in progress
+## Accepted ADR 0021 and storage validation
 
 Hosted Android instrumentation discovered a genuine persistence backend conflict:
 SELinux denies the frozen POSIX `linkat` asset publication, so real import returns
@@ -108,12 +131,33 @@ IO_ERROR (12). The Architect approved [ADR 0021](../adr/0021-android-no-replace-
 on 2026-10-11. Only Android selects atomic renameat2(RENAME_NOREPLACE), preserving
 all immutable asset, no-overwrite, verified-dedup and durability invariants.
 Non-Android Linux retains linkat; Darwin/Windows and Schema 3 remain unchanged.
-The same branch has a separate Linux storage/crash regression target and actual
-Android syscall/fault/concurrency instrumentation. Execution is pending, not PASS.
-The iOS app compiler findings are separately remediated without changing semantics.
+The same branch passes a separate Linux storage/crash regression target, ASan/
+UBSan, and actual Android syscall/fault/concurrency instrumentation. Android's
+uploaded logcat explicitly reports `ADR0021 Android RENAME_NOREPLACE actual
+branch: 71 checks PASS`; its instrumentation XML reports 14 tests and zero
+failures/errors/skips. This is direct branch evidence under actual SELinux policy,
+not an inference from the UI. The native corpus reports four actual successful
+no-replace syscall publications, in addition to production AssetStore ingestion.
 
-ADR remediation local source checks: 79/79 PASS. Android debug/release builds,
-lint, JVM and instrumentation APK build PASS. WSL now runs, but its DrvFS-backed
+| Required publication case | Observed proof |
+| --- | --- |
+| New asset | Production ingest/verify, read-only mode, one link; real syscall succeeds |
+| Duplicate digest / existing correct object | Exact digest/length reverified; existing inode retained |
+| Existing corrupt digest | Hash/length rejection; corrupt object remains seven bytes, never replaced |
+| Concurrent same/different digests | Barrier-synchronized publishers; equal/distinct identities and verified bytes |
+| Staged-file failure | Reader failure returns IO_ERROR; no additional final object |
+| After file sync / before publication | Synced/read-only staged fixture, injected EIO; no final object |
+| Directory sync failure | Both destination and staging sync failure cases return IO_ERROR |
+| Crash/reopen | All nine asset/SQLite abrupt-exit boundaries on the forced Android branch; all ten existing schema migration crash cases retained |
+| Unsupported syscall/filesystem | ENOSYS/EOPNOTSUPP return IO_ERROR, staging retained and no final object |
+| No insecure fallback | Exact syscall/flag source check, one attempted publication on failure, no overwrite fallback |
+
+All original storage regressions run alongside the independent Android branch.
+Published assets remain content-addressed and immutable; pinned capabilities,
+NOFOLLOW, file-before-directory sync, verified deduplication and asset-before-
+SQLite-reference ordering remain authoritative. No architecture conflict remains.
+
+Local WSL runs, but its DrvFS-backed
 workspace does not enforce Unix chmod permissions: the existing nonwritable-root
 test and the Android corpus's read-only mode assertion reject locally. Those
 checks are retained unchanged; hosted Linux's native filesystem and actual
