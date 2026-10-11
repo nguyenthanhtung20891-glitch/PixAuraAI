@@ -66,6 +66,48 @@ class ManualEditorTest {
             }
         } finally { editor.close(); file.delete(); root.walkBottomUp().forEach { it.setWritable(true); it.delete() } }
     }
+    @Test fun certifyEveryDescriptorValidationCancelCommitUndoRedoAndReopen() {
+        val file = fixture()
+        try {
+            // Independent projects certify every tool against an unchanged source.
+            repeat(11) { index ->
+                val root = File(app.noBackupFilesDir, "certification-${UUID.randomUUID()}").apply { mkdir() }
+                val editor = file.inputStream().use { ManualEditor(root.canonicalPath, it, file.length()) }
+                try {
+                    val tool = editor.tools[index]
+                    val defaults = tool.parameters.map { it.default }
+                    fun image() = requireNotNull(editor.render(editor.request())).also { assertTrue(editor.install(it)) }.bitmap
+                    val base = image()
+                    editor.select(index); editor.update(defaults); image(); editor.action(1)
+                    assertEquals(1, editor.state().revisionCount)
+                    editor.select(index)
+                    for ((parameterIndex, parameter) in tool.parameters.withIndex()) {
+                        for (invalid in listOf(parameter.minimum - 1, parameter.maximum + 1)) {
+                            val values = defaults.toMutableList().apply { this[parameterIndex] = invalid }
+                            try { editor.update(values); fail("${tool.id}/${parameter.name} accepted $invalid") }
+                            catch (e: EditorFailure) { assertEquals(7, e.status) }
+                            assertEquals(defaults, editor.state().values); assertEquals(1, editor.state().revisionCount)
+                        }
+                    }
+                    val changed = tool.parameters.map { if (it.name == "width_ppm") 500000 else if (tool.parameters.size > 1) it.default else it.maximum }
+                    editor.update(changed); image(); editor.action(0)
+                    assertEquals(1, editor.state().revisionCount); assertTrue(image().sameAs(base))
+                    editor.select(index); editor.update(changed); image(); editor.action(1)
+                    assertEquals(2, editor.state().revisionCount)
+                    val revision = editor.state().revisionId; val committed = image()
+                    try { editor.action(1); fail("double approval accepted") } catch (e: EditorFailure) { assertEquals(13, e.status) }
+                    editor.action(2); assertTrue(image().sameAs(base))
+                    editor.action(3); assertTrue(image().sameAs(committed)); editor.close()
+                    ManualEditor(root.canonicalPath).use { reopened ->
+                        assertEquals(revision, reopened.state().revisionId); assertEquals(2, reopened.state().revisionCount)
+                        assertTrue(requireNotNull(reopened.render(reopened.request())).bitmap.sameAs(committed))
+                        reopened.action(2); assertTrue(requireNotNull(reopened.render(reopened.request())).bitmap.sameAs(base))
+                        reopened.action(3); assertTrue(requireNotNull(reopened.render(reopened.request())).bitmap.sameAs(committed))
+                    }
+                } finally { editor.close(); root.walkBottomUp().forEach { it.setWritable(true); it.delete() } }
+            }
+        } finally { file.delete() }
+    }
     @Test fun composeEditingCommitCancelSwitchHistoryLifecycleAndEmptyPresets() {
         val file = openFixture()
         val model = compose.activity.manualModel

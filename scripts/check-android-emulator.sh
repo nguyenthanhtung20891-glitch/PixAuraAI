@@ -303,6 +303,15 @@ wait_for package-manager "$package_timeout" package_ready
 # Input service may lag package-manager readiness. Keep each ADB call bounded
 # and require a successful unlock within the existing readiness budget.
 wait_for unlock "$package_timeout" adb_command -s "$ANDROID_SERIAL" shell input keyevent 82
+phase=selinux-enforcement
+policy="$(adb_command -s "$ANDROID_SERIAL" shell getenforce)"
+policy="${policy//$'\r'/}"
+printf '%s\n' "$policy" > "$evidence/selinux-policy.txt"
+if [[ "$policy" != Enforcing ]]; then
+  echo "Android certification requires SELinux Enforcing; observed: $policy" >&2
+  exit 1
+fi
+echo "SELinux certification: Enforcing"
 phase=instrumentation
 echo "Executing JNI/Compose tests (independent budget ${test_timeout}s)"
 transport_run="$("$node_command" -e 'process.stdout.write(require("node:crypto").randomBytes(16).toString("hex"))')"

@@ -19,7 +19,7 @@ test('Step 6 executes native/race/fault and shared platform consumers in require
 test('Step 6 status never authorizes frozen Steps 7 and 8', () => {
   const roadmap = read('ROADMAP.md');
   assert.match(roadmap, /\| 6 \| Gesture Editing Lifecycle Integration \| (IN PROGRESS|COMPLETE \/ FULL PASS) \|/);
-  for (const step of [8]) assert.match(roadmap, new RegExp(`\\| ${step} \\|[^\\n]+\\| NOT STARTED \\|`));
+  for (const step of [8]) assert.match(roadmap, new RegExp(`\\| ${step} \\|[^\\n]+\\| (IN PROGRESS|COMPLETE / FULL PASS) \\|`));
   assert.ok(read('QUALITY_GATES.md').includes('Phase 3 Step 6 acceptance'));
   assert.ok(fs.existsSync('docs/reports/phase-3-step-6.md'));
 });

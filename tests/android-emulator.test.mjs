@@ -122,6 +122,8 @@ case "$*" in
   'shell getprop sys.boot_completed')
     if [[ "$MOCK_SCENARIO" == boot-timeout || "$(next boot)" == 1 ]]; then echo 0; else printf '1\\r\\n'; fi ;;
   'shell getprop') echo '[sys.boot_completed]: [1]' ;;
+  'shell getenforce')
+    if [[ "$MOCK_SCENARIO" == selinux-permissive ]]; then echo Permissive; else echo Enforcing; fi ;;
   'shell pm path android')
     if [[ "$MOCK_SCENARIO" == package-timeout || "$(next package)" == 1 ]]; then
       echo 'Error: package manager not ready'
@@ -272,11 +274,21 @@ test('emulator orchestration waits for device, boot and package manager before i
   assert.match(result.gradleArgs, /-Pandroid.testInstrumentationRunnerArguments.pixauraTransportRun=[0-9a-f]{32} connectedDebugAndroidTest/);
   assert.match(result.calls, /uninstall-target-and-test[\s\S]*shell test -f/);
   assert.equal(result.testResultsWritten, true);
+  assert.match(result.stdout, /SELinux certification: Enforcing/);
   assert.match(result.calls, /emulator-cleanup/);
   assert.match(result.acceleration, /Emulator acceleration: off/);
   assert.match(result.stdoutLog, /-port 5554 -accel off/);
   assert.equal(result.versionArgs.trim(), '-no-window -version');
   assert.match(result.toolLog, /PATH=.*\nmke2fs=|PATH=[\s\S]*mke2fs=/);
+});
+
+test('certification rejects permissive SELinux before running instrumentation', () => {
+  const result = runScenario('selinux-permissive');
+  assert.notEqual(result.status, 0);
+  assert.equal(result.phase, 'selinux-enforcement');
+  assert.match(result.stderr, /requires SELinux Enforcing/);
+  assert.equal(result.testResultsWritten, false);
+  assert.equal(result.gradleArgs, '');
 });
 
 for (const scenario of ['transport-setup-failure', 'missing-transport', 'stale-transport']) {

@@ -150,7 +150,13 @@ int main(int argc,char** argv){
         else CHECK(pixaura_editor_update(&c,&changed_values[i],1)==0);
         (void)preview(c);CHECK(pixaura_editor_action(&c,1)==0);
         CHECK(state(c).find("\"revision_count\":"+std::to_string(i+3))!=std::string::npos);
+        const auto certified=preview(c);
         CHECK(pixaura_editor_action(&c,2)==0);CHECK(preview(c)==changed);
+        CHECK(pixaura_editor_action(&c,3)==0);CHECK(preview(c)==certified);
+        CHECK(pixaura_editor_stop(&c)==0);CHECK(pixaura_editor_destroy(&c)==0);c={};
+        char session[33];std::snprintf(session,sizeof(session),"%032x",200000+i);id=session;
+        CHECK(pixaura_editor_open(1,&c,bytes(path),path.size(),bytes(id),32,nullptr,nullptr,0)==0);
+        CHECK(preview(c)==certified);CHECK(pixaura_editor_action(&c,2)==0);CHECK(preview(c)==changed);
     }
     CHECK(pixaura_editor_stop(&c)==0);CHECK(pixaura_editor_destroy(&c)==0);
     for(const auto& item:fs::recursive_directory_iterator(root))if(item.is_regular_file())fs::permissions(item.path(),fs::perms::owner_write,fs::perm_options::add);

@@ -1,5 +1,11 @@
 # System architecture
 
+## Phase 3 Step 8 certification authorization
+
+Step 8 is **IN PROGRESS** at baseline `c0a0020d41b22b55fad494fab50d72b5903f7c22`. Steps 1–7 remain accepted FULL PASS. This authorization supersedes historical not-started wording below. Phase 3 stays open until every exit criterion and final exact-SHA hosted gate is observed PASS. No feature development or Phase 4 work is authorized. DH-APPLE-METAL-01 remains unchanged.
+
+Evidence: [Step 8 report](docs/reports/phase-3-step-8.md) and [certification matrix](docs/contracts/phase-3-certification-v1.md).
+
 Phase 3 Step 7 is COMPLETE / FULL PASS (technical gates), authorized at baseline `116c4efc65f55025f717241a01bc6056ed27d042`.
 [Manual editor integration](docs/contracts/manual-editor-integration-v1.md) composes existing gesture/PRV1/document/schema-3 authority; no new numerical semantics or storage schema.
 Native, Android controller/Compose, Swift/macOS/iOS app/UI, persistence/reopen, parity and exact-SHA hosted gates are observed PASS. Accepted ADR 0021 changes only Android's immutable asset publication syscall. Step 8 has NOT started; DH-APPLE-METAL-01 unchanged.

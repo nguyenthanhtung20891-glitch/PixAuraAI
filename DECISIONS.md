@@ -1,5 +1,11 @@
 # Architectural decision index
 
+## Phase 3 Step 8 certification authorization
+
+Step 8 is **IN PROGRESS** at baseline `c0a0020d41b22b55fad494fab50d72b5903f7c22`. Steps 1–7 remain accepted FULL PASS. This authorization supersedes historical not-started wording below. Phase 3 stays open until every exit criterion and final exact-SHA hosted gate is observed PASS. No feature development or Phase 4 work is authorized. DH-APPLE-METAL-01 remains unchanged.
+
+Evidence: [Step 8 report](docs/reports/phase-3-step-8.md) and [certification matrix](docs/contracts/phase-3-certification-v1.md).
+
 ADR [0021](docs/adr/0021-android-no-replace-asset-publication.md) is Accepted by
 the Product Owner / Architect on 2026-10-11. It supersedes ONLY ADR 0010's Android
 asset publication syscall with atomic renameat2(RENAME_NOREPLACE), retaining

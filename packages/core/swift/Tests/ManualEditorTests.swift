@@ -3,6 +3,50 @@ import Foundation
 import PixAuraCore
 
 final class ManualEditorTests: XCTestCase {
+    func testCertificationEveryDescriptorValidationCancelCommitUndoRedoAndReopen() async throws {
+        try await Task.detached {
+            let fixture = try XCTUnwrap(Bundle.module.url(forResource: "decode", withExtension: "json", subdirectory: "Fixtures"))
+            let json = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: fixture)) as? [String: [String: Any]])
+            let bytes = try XCTUnwrap(json["png"]?["bytes"] as? [UInt8])
+            for index in 0..<11 {
+                let root = FileManager.default.temporaryDirectory.appendingPathComponent("certification-\(UUID().uuidString)")
+                try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+                defer { try? FileManager.default.removeItem(at: root) }
+                let input = root.appendingPathComponent("picker.png"); try Data(bytes).write(to: input)
+                let editor = try ManualEditor(root: root, importing: input); defer { editor.close() }
+                let tool = editor.tools[index], defaults = editor.tools[index].parameters.map { Int32($0.defaultValue) }
+                func pixels(_ owner: ManualEditor) throws -> Data {
+                    let candidate = try XCTUnwrap(owner.render(owner.request())); XCTAssertTrue(owner.install(candidate))
+                    return try XCTUnwrap(candidate.image.dataProvider?.data as Data?)
+                }
+                let base = try pixels(editor)
+                try editor.select(index); try editor.update(defaults); _ = try pixels(editor); try editor.action(1)
+                XCTAssertEqual(try editor.state().revisionCount, 1)
+                try editor.select(index)
+                for (parameterIndex, parameter) in tool.parameters.enumerated() {
+                    for invalid in [parameter.minimum - 1, parameter.maximum + 1] {
+                        var values = defaults; values[parameterIndex] = Int32(invalid)
+                        XCTAssertThrowsError(try editor.update(values)) { XCTAssertEqual(($0 as? ManualEditorFailure)?.status, 7) }
+                        XCTAssertEqual(try editor.state().values, defaults); XCTAssertEqual(try editor.state().revisionCount, 1)
+                    }
+                }
+                let changed = tool.parameters.map { Int32($0.name == "width_ppm" ? 500000 : tool.parameters.count > 1 ? $0.defaultValue : $0.maximum) }
+                try editor.update(changed); _ = try pixels(editor); try editor.action(0)
+                XCTAssertEqual(try editor.state().revisionCount, 1); XCTAssertEqual(try pixels(editor), base)
+                try editor.select(index); try editor.update(changed); _ = try pixels(editor); try editor.action(1)
+                XCTAssertEqual(try editor.state().revisionCount, 2)
+                let revision = try editor.state().revisionID, committed = try pixels(editor)
+                XCTAssertThrowsError(try editor.action(1)) { XCTAssertEqual(($0 as? ManualEditorFailure)?.status, 13) }
+                try editor.action(2); XCTAssertEqual(try pixels(editor), base)
+                try editor.action(3); XCTAssertEqual(try pixels(editor), committed); editor.close()
+                let reopened = try ManualEditor(root: root); defer { reopened.close() }
+                XCTAssertEqual(try reopened.state().revisionID, revision); XCTAssertEqual(try reopened.state().revisionCount, 2)
+                XCTAssertEqual(try pixels(reopened), committed)
+                try reopened.action(2); XCTAssertEqual(try pixels(reopened), base)
+                try reopened.action(3); XCTAssertEqual(try pixels(reopened), committed)
+            }
+        }.value
+    }
     func testRealOwnerToolsIntegerChurnApprovalCancelHistoryAndReopen() async throws {
         try await Task.detached {
             let root = FileManager.default.temporaryDirectory.appendingPathComponent("editor-\(UUID().uuidString)")
