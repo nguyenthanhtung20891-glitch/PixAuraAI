@@ -20,7 +20,7 @@ final class ShellUITests: XCTestCase {
         func selectTool(_ id: String) {
             let button = app.buttons[id].firstMatch
             let ready = XCTNSPredicateExpectation(
-                predicate: NSPredicate(format: "exists == true AND hittable == true AND enabled == true"), object: button)
+                predicate: NSPredicate(format: "exists == true AND enabled == true"), object: button)
             guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else {
                 XCTFail("Tool is not actionable: \(id)\n\(app.debugDescription)"); return
             }
@@ -28,6 +28,15 @@ final class ShellUITests: XCTestCase {
             // accessibility region over the lower half of this button row. Target
             // the visible upper quarter, then observe core-backed selection;
             // a synthesized tap alone does not prove a gesture began.
+            // isHittable uses XCTest's default hit point, which can be covered
+            // by that scrollbar even while this upper target remains visible.
+            // Check our actual coordinate is on screen, then require selection
+            // after a real event; do not substitute a controller/test-only action.
+            let frame = button.frame
+            let target = CGPoint(x: frame.midX, y: frame.minY + frame.height * 0.25)
+            guard app.windows.firstMatch.frame.contains(target) else {
+                XCTFail("Tool target is off screen: \(id)\n\(app.debugDescription)"); return
+            }
             button.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25)).tap()
             let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "selected == true"), object: button)
             var result = XCTWaiter.wait(for: [selected], timeout: 20)

@@ -72,6 +72,16 @@ these failures are not counted PASS. Final rebuilt admission corpus passed 2/2
 under ASan/UBSan. Hosted Linux must pass both unchanged filesystem cases and
 all 33 sanitizer tests on its native filesystem before delivery.
 Remaining exact-SHA hosted gates are pending and not counted PASS.
+Implementation SHA `0606c4ee934ec89243dabfc1e96ed1fe6ed8073e` passed
+Foundation 38162938140 (7/7), source 122/122 and Android runtime 18/18. Shells
+38162938172 failed only its existing iOS UI rotation readiness predicate;
+debug/release builds, six app tests and Swift 18/18 per runtime passed. The
+captured hierarchy shows an enabled on-screen button with the horizontal
+scrollbar accessibility region overlapping its default hit point. The coordinate
+tap helper now checks enabled/existing plus its actual upper target on screen,
+rather than gating that different coordinate on XCTest's default `isHittable`.
+Actual tap, mandatory core-backed selection and every full editor/history/reopen
+assertion remain. No production UI/domain code changes; no failed run is PASS.
 Final delivery requires all seven Foundation and three Native application shell
 jobs SUCCESS on the same final SHA, including Android runtime and iOS app/UI.
 The delivery report supplies final SHA, workflow/job IDs and observed totals.
