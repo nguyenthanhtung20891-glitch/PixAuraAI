@@ -1,10 +1,11 @@
 # Phase 3 Step 8 — Certification & Closure
 
-Status: **IN PROGRESS**. **Phase 3 — OPEN / CERTIFICATION IN PROGRESS.** Authorized baseline:
+Status: **COMPLETE / FULL PASS**. **Phase 3 — CLOSED / COMPLETE / FULL PASS.** Authorized baseline:
 `c0a0020d41b22b55fad494fab50d72b5903f7c22`. Steps 1–7 remain accepted FULL PASS.
-Steps 1–7 remain accepted. Final exact-SHA iOS UI revalidation failed; closure
-is withheld until remediation and all exact-SHA gates pass. Phase 4 has NOT started.
-Implementation certification SHA: `f9faf60ea98ff38bc5a6fa6fd35540791918bf3b`.
+All frozen Phase 3 exit criteria are observed PASS after narrow certification
+remediation. Final delivery additionally requires both full workflows on the
+documentation-only closure SHA. Phase 4 has NOT started.
+Implementation certification SHA: `e73605501019afb1aca2a12c521539b68176618e`.
 
 The [authoritative certification matrix](../contracts/phase-3-certification-v1.md)
 consolidates all 11 accepted tools, metadata, platform parity and test traceability.
@@ -12,7 +13,7 @@ Step 8 adds certification tests, an explicit SELinux Enforcing runtime precondit
 and closure documentation. It adds no feature or new architecture decision.
 Accepted ADR 0021 remains narrow and unchanged; Schema 3 is unchanged.
 
-## Certification criteria and retained passing evidence
+## Certification criteria — all PASS
 
 - Independent geometry/tone/detail reference corpus, invalid/boundary/alpha/order coverage.
 - Gesture/history, generation fences, deterministic races, churn, allocation/failure/resource/security regressions.
@@ -69,7 +70,7 @@ The simulator's Metal test asserts UNSUPPORTED; it is not physical certification
 
 ## Exact-SHA hosted certification
 
-Current closure attempt `e0c5fc3d4176344a616ad88ed6394b1fe619cac4` is **NOT accepted**:
+Earlier closure attempt `e0c5fc3d4176344a616ad88ed6394b1fe619cac4` is **NOT accepted**:
 Foundation 38142375346 passed 7/7; shells 38142375391 passed source/Android but
 iOS job 114478691819 failed its manual-editor UI test. Its native 28/28,
 Swift macOS/simulator 14/14 each, both app builds and 6/6 app tests passed;
@@ -86,33 +87,37 @@ controls. No tap retries, sleeps, timeout increase, assertion removal, productio
 SwiftUI change or semantic change. Failed targeting now reports the hierarchy
 at the actual selection boundary. All original end-to-end assertions remain.
 
-The passing implementation certification below is retained historical evidence;
-fresh complete exact-SHA closure is still required.
+The corrected iOS job 114484445879 passed native 28/28, Swift 14/14 on macOS
+and simulator, Debug/Release builds, app 6/6 and UI 2/2 with zero failures.
+The complete manual-editor UI flow passed in 101.852 seconds, including the
+core-backed tool selection barriers, history, cancel/background, landscape
+and process reopen. The earlier failed attempt is retained as failure evidence.
+All ten fresh jobs below passed; no previous-SHA result substitutes.
 
 All jobs below ran on **the same** implementation SHA
-`f9faf60ea98ff38bc5a6fa6fd35540791918bf3b`, with SUCCESS conclusions:
+`e73605501019afb1aca2a12c521539b68176618e`, with SUCCESS conclusions:
 
 | Workflow / job | Run ID | Job ID | Observed result |
 | --- | --- | --- | --- |
-| Foundation / workflow-lint | 38140611496 | 114473541445 | PASS |
-| Foundation / Windows MSVC Debug | 38140611496 | 114473541446 | 28/28 native PASS |
-| Foundation / Linux | 38140611496 | 114473541511 | 29/29 native PASS, including independent Android publication target |
-| Foundation / ASan+UBSan | 38140611496 | 114473541456 | 31/31 PASS; active negative probes exit 86/87 |
-| Foundation / Apple boundary | 38140611496 | 114473541349 | 28/28 native, 14/14 macOS Swift, 14/14 simulator Swift PASS |
-| Foundation / Android armeabi-v7a | 38140611496 | 114473541570 | native boundary build PASS |
-| Foundation / Android arm64-v8a | 38140611496 | 114473541628 | native boundary build PASS |
-| Native shells / source | 38140611504 | 114473541360 | 116/116, zero failures/skips |
-| Native shells / Android app | 38140611504 | 114473541461 | Debug/Release/lint; JVM 3/3 each; instrumentation 15/15, zero failures/errors/skips |
-| Native shells / iOS app | 38140611504 | 114473541521 | native/Swift/simulator gates; Debug/Release builds; app 6/6 and UI 2/2 PASS |
+| Foundation / workflow-lint | 38144341158 | 114484445953 | PASS |
+| Foundation / Windows MSVC Debug | 38144341158 | 114484446120 | 28/28 native PASS |
+| Foundation / Linux | 38144341158 | 114484446167 | 29/29 native PASS, including independent Android publication target |
+| Foundation / ASan+UBSan | 38144341158 | 114484446138 | 31/31 PASS; active negative probes exit 86/87 |
+| Foundation / Apple boundary | 38144341158 | 114484446211 | 28/28 native, 14/14 macOS Swift, 14/14 simulator Swift PASS |
+| Foundation / Android armeabi-v7a | 38144341158 | 114484446258 | native boundary build PASS |
+| Foundation / Android arm64-v8a | 38144341158 | 114484446186 | native boundary build PASS |
+| Native shells / source | 38144341145 | 114484446042 | 116/116, zero failures/skips |
+| Native shells / Android app | 38144341145 | 114484446099 | Debug/Release/lint; JVM 3/3 each; instrumentation 15/15, zero failures/errors/skips |
+| Native shells / iOS app | 38144341145 | 114484445879 | native/Swift/simulator gates; Debug/Release builds; app 6/6 and UI 2/2 PASS |
 
-[Foundation 7/7 SUCCESS](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38140611496)
-and [Native application shells 3/3 SUCCESS](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38140611504):
+[Foundation 7/7 SUCCESS](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38144341158)
+and [Native application shells 3/3 SUCCESS](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38144341145):
 **10/10 jobs**. No prior-SHA green substitutes for these results.
 
-The previous closure commit changed documentation only.
-Delivery is gated on observing BOTH complete workflows again on that closure
-commit's exact SHA; the final delivery supplies its SHA, run IDs and job conclusions.
-The implementation and test corpus remain identical to the certified SHA above.
+This closure commit changes documentation only. Delivery is gated on observing
+BOTH complete workflows again on its exact SHA; the final delivery supplies
+that SHA, run IDs and job conclusions. Implementation and test corpus remain
+identical to the certified SHA above.
 
 ## Tool matrix, parity and numerical references
 
@@ -212,7 +217,8 @@ announcements and system-safe scroll layouts are retained. This is basic usabili
 coverage, not physical-device/full accessibility certification or production polish.
 
 Step 8 changed only tests, certification documentation, the enforcing runtime gate
-and the narrow Android shell teardown correction. Exact affected files:
+and the narrow Android shell teardown and iOS UI test targeting corrections.
+Exact affected files:
 
 - ARCHITECTURE.md, DECISIONS.md, QUALITY_GATES.md, ROADMAP.md
 - docs/contracts/phase-3-certification-v1.md, docs/reports/phase-3-step-8.md
@@ -226,8 +232,9 @@ and the narrow Android shell teardown correction. Exact affected files:
 
 ## Follow-ups and scope
 
-A: narrow iOS UI input-targeting remediation and complete exact-SHA closure remain
-required. Android teardown remediation and all retained certification evidence pass.
+A: all required certification work and narrow Android teardown/iOS UI input-targeting
+remediation are resolved. All exit criteria and ten implementation-SHA jobs PASS.
+Final delivery remains gated on the documentation-only closure SHA passing all ten jobs.
 B: DH-APPLE-METAL-01 remains **DEFERRED**, mandatory before **Phase 11 hardening
 acceptance, Phase 12 Beta readiness completion, production release, or any physical
 Apple GPU certification claim**. It is not waived; Phase 2 is not reopened.

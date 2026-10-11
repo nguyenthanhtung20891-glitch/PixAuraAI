@@ -3,7 +3,7 @@
 Authority: authorized Phase 3 Step 8, baseline
 `c0a0020d41b22b55fad494fab50d72b5903f7c22`. This consolidates accepted contracts;
 it introduces no tool, parameter, numerical, lifecycle or storage semantics.
-All rows are certified PASS at implementation SHA `f9faf60ea98ff38bc5a6fa6fd35540791918bf3b`. Execution status and exact-SHA evidence live in the [Step 8 report](../reports/phase-3-step-8.md).
+All rows are certified PASS at implementation SHA `e73605501019afb1aca2a12c521539b68176618e`. Execution status and exact-SHA evidence live in the [Step 8 report](../reports/phase-3-step-8.md).
 
 ## Authoritative tool and platform matrix
 

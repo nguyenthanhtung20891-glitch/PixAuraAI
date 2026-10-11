@@ -2,7 +2,7 @@
 
 ## Phase 3 Step 8 certification and closure
 
-**Phase 3 — OPEN / CERTIFICATION IN PROGRESS.** Step 8 remains IN PROGRESS; Steps 1–7 remain accepted FULL PASS. Implementation SHA `f9faf60ea98ff38bc5a6fa6fd35540791918bf3b` passed all ten jobs, but final closure SHA `e0c5fc3d4176344a616ad88ed6394b1fe619cac4` failed its iOS UI job (114478691819) despite all other gates passing. Closure is withheld pending the narrow UI input-targeting remediation and a full exact-SHA rerun. This status supersedes historical closure/not-started wording below. No Step 9 is created and Phase 4 has NOT started. DH-APPLE-METAL-01 remains DEFERRED and mandatory at its existing later hardening/Beta/release boundaries. No new tool, numerical, AI, GPU, network, telemetry or storage-schema scope was added.
+**Phase 3 — CLOSED / COMPLETE / FULL PASS.** Steps 1–8 and all frozen exit criteria are certified at implementation SHA `e73605501019afb1aca2a12c521539b68176618e`: Foundation 38144341158 (7/7) and Native application shells 38144341145 (3/3), all SUCCESS. Android teardown and iOS UI input-targeting remediation are validated. This closure supersedes historical not-started wording below. The documentation-only closure commit must also pass both complete exact-SHA workflows before delivery. No Step 9 is created and Phase 4 has NOT started. DH-APPLE-METAL-01 remains DEFERRED and mandatory at its existing later hardening/Beta/release boundaries. No new tool, numerical, AI, GPU, network, telemetry or storage-schema scope was added.
 
 Evidence: [Step 8 report](docs/reports/phase-3-step-8.md) and [certification matrix](docs/contracts/phase-3-certification-v1.md).
 
