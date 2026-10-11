@@ -16,6 +16,16 @@ struct ManualEditorScreen: View {
         guard let index = model.core?.selected, model.tools.indices.contains(index) else { return nil }
         return model.tools[index]
     }
+    private var categoryTools: [(offset: Int, element: ManualTool)] {
+        model.tools.enumerated().filter { $0.element.category == category }
+    }
+    private func toolButton(_ index: Int, _ tool: ManualTool) -> some View {
+        Button(tool.name) { formatError = nil; model.select(index) }
+            .disabled(model.busy || model.core == nil)
+            .accessibilityIdentifier(tool.toolID)
+            .tint(model.core?.selected == index ? Color.accentColor : Color.secondary)
+            .accessibilityAddTraits(model.core?.selected == index ? .isSelected : [])
+    }
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Button("Open JPEG or PNG") { picking = true }.disabled(model.busy)
@@ -40,11 +50,8 @@ struct ManualEditorScreen: View {
             else {
                 ScrollView(.horizontal) {
                     HStack {
-                        ForEach(Array(model.tools.enumerated()).filter { $0.element.category == category }, id: \.offset) { index, tool in
-                            Button(tool.name) { formatError = nil; model.select(index) }
-                                .disabled(model.busy || model.core == nil).accessibilityIdentifier(tool.toolID)
-                                .tint(model.core?.selected == index ? .accentColor : .secondary)
-                                .accessibilityAddTraits(model.core?.selected == index ? .isSelected : [])
+                        ForEach(categoryTools, id: \.offset) { entry in
+                            toolButton(entry.offset, entry.element)
                         }
                     }
                 }

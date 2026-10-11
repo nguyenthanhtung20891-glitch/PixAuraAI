@@ -111,7 +111,7 @@ private final class EditorWorker {
             }
         }
     }
-    private func installLatest() {
+    @MainActor private func installLatest() {
         lock.lock(); let work = latestCandidate; latestCandidate = nil; installing = false; lock.unlock()
         if let work { candidate?(work.0, work.1) }
     }

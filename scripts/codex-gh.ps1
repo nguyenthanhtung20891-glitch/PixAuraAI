@@ -5,6 +5,7 @@ param(
         "run-list",
         "run-view",
         "run-failed",
+        "run-download",
         "run-watch"
     )]
     [string]$Action,
@@ -140,6 +141,18 @@ switch ($Action) {
             break
         }
         Invoke-Gh $Arguments
+    }
+
+    "run-download" {
+        if ($Rest.Count -ne 2 -or $Rest[0] -notmatch '^\d+$' -or
+            $Rest[1] -notmatch '^[a-z][a-z0-9-]{0,79}$') {
+            throw "run-download requires a numeric run ID and a safe artifact name."
+        }
+        # Read-only CI evidence for this repository, always inside its build tree.
+        $Destination = Join-Path (Split-Path $PSScriptRoot -Parent) "build/gh-artifacts-$($Rest[0])/$($Rest[1])"
+        New-Item -ItemType Directory -Force -Path $Destination | Out-Null
+        Invoke-Gh @("run", "download", $Rest[0], "--repo", $Repo,
+            "--name", $Rest[1], "--dir", $Destination)
     }
 
     "run-watch" {
