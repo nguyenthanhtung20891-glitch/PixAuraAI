@@ -13,8 +13,13 @@
 #include <atomic>
 #include <array>
 #include <thread>
+#include <exception>
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#endif
 static thread_local int64_t fail_after=-1;
 static thread_local bool injected=false;
+static thread_local unsigned fault_boundary=0, fault_index=0;
 void* operator new(std::size_t n){if(fail_after==0){fail_after=-1;injected=true;throw std::bad_alloc();}if(fail_after>0)--fail_after;
     auto* p=std::malloc(n?n:1);if(!p)throw std::bad_alloc();return p;}
 void* operator new[](std::size_t n){return ::operator new(n);}
@@ -60,6 +65,7 @@ static void faults(const fs::path& parent){std::atomic<unsigned> recovered{0};
             if(boundary>0)CHECK(pixaura_editor_select(&c,4)==0);
             if(boundary>1)CHECK(pixaura_editor_update(&c,&value,1)==0);
             injected=false;fail_after=index;
+            fault_boundary=boundary;fault_index=index;
             const auto result=boundary==0?pixaura_editor_select(&c,4):boundary==1?pixaura_editor_update(&c,&value,1):pixaura_editor_action(&c,1);
             fail_after=-1;completed=!injected;if(injected)++recovered;
             CHECK(result==0||result==8);
@@ -81,7 +87,18 @@ static void faults(const fs::path& parent){std::atomic<unsigned> recovered{0};
     fs::remove_all(suite);
     std::printf("editor begin/update/approval allocation failures recovered=%u\n",recovered.load());
 }
-int main(int argc,char** argv){CHECK(argc==2);const auto root=fs::canonical(argv[1])/("editor-project-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+int main(int argc,char** argv){
+#ifdef _MSC_VER
+    _set_error_mode(_OUT_TO_STDERR);
+    _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
+#ifdef _DEBUG
+    for(const int kind:{_CRT_WARN,_CRT_ERROR,_CRT_ASSERT}){
+        _CrtSetReportMode(kind,_CRTDBG_MODE_FILE);_CrtSetReportFile(kind,_CRTDBG_FILE_STDERR);
+    }
+#endif
+#endif
+    std::set_terminate([]{std::fprintf(stderr,"editor terminate boundary=%u index=%u injected=%d\n",fault_boundary,fault_index,injected?1:0);std::fflush(stderr);std::_Exit(1);});
+    CHECK(argc==2);const auto root=fs::canonical(argv[1])/("editor-project-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
     CHECK(fs::create_directory(root));const auto path=root.generic_string();pixaura_editor_context c{};Input input;
     std::string id="987654321012345678901234567890ab";
     CHECK(pixaura_editor_open(1,&c,bytes(path),path.size(),bytes(id),32,read,&input,sizeof(decode_png))==0);
