@@ -73,6 +73,7 @@ target_sources(pixaura_core PRIVATE packages/core/src/gpu.cpp packages/core/src/
 include(CTest)
 if(BUILD_TESTING)
     add_executable(capability_c_consumer packages/core/tests/capability_c_consumer.c)
+    set_target_properties(capability_c_consumer PROPERTIES LINKER_LANGUAGE CXX)
     target_link_libraries(capability_c_consumer PRIVATE pixaura_core)
     target_compile_features(capability_c_consumer PRIVATE c_std_11)
     pixaura_strict(capability_c_consumer)

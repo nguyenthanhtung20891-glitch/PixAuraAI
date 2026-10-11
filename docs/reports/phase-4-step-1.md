@@ -57,6 +57,16 @@ Full Windows fallback native regression: **30/30 PASS**, 232.11 seconds;
 the final malformed-enum sweep also passes in an affected 2/2 foundation rerun.
 Exact-SHA hosted gates are pending observation.
 ADB audit found no attached Android device; no physical profile is claimed.
+
+Initial implementation SHA `20d930e26dac0d7b6f9521a7eb37860b7026ebb1` is not
+accepted: sanitizer job 114519743451 in Foundation 38156255220 failed linking
+the new C consumer through clang's C linker against the C++-instrumented core
+(`__ubsan_vptr_type_cache` / dynamic-type handler unresolved). The existing
+C-consumer convention selects LINKER_LANGUAGE CXX. Applying that same one-line
+setting supplies the C++ sanitizer runtime; no instrumentation, warning, test,
+security control or resource bound is reduced. Local WSL affected ASan/UBSan
+foundation tests now pass **2/2**, including 80000 concurrent snapshot calls.
+Fresh complete exact-SHA closure remains required.
 No runtime pressure/thermal downgrade, policy-refresh/editor races, physical
 profiling or cross-tier execution certification is claimed in Step 1; these are
 the explicit later bounded roadmap items.

@@ -14,7 +14,7 @@ implemented in Step 1. Those require roadmap freeze and later authorization.
 
 | Record | Fields | Meaning |
 | --- | --- | --- |
-| Static hardware/runtime facts | platform, architecture, logical_cpu_count, runtime_version, physical_memory_bytes, gpu_backend, gpu_availability, gpu_validation, provenance | Facts for one probe lifetime/runtime. Platform and ABI architecture are compile-target observations; CPU/memory/API/backend observations require later real probes. No brand/model marketing classification. |
+| Static hardware/runtime facts | platform, architecture, logical_cpu_count, runtime_version, physical_memory_bytes, gpu_backend, gpu_availability, gpu_validation, provenance | Facts for one probe lifetime/runtime. Platform and process ABI architecture are compile-target observations, not physical SoC identification; CPU/memory/API/backend observations require later real probes. No brand/model marketing classification. |
 | Dynamic state | thermal, memory_pressure, constrained, gpu_availability, process_budget_bytes, sequence | Snapshot of live conditions. Budget is a safe platform estimate when actually available, not a promise of allocation or an admitted core limit. Sequence is diagnostic observation identity, not PRV1 generation or an approval token. |
 
 CPU count 0, memory/budget 0 and runtime version 0 mean UNKNOWN, not absent
