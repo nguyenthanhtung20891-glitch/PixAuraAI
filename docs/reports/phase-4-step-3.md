@@ -67,7 +67,9 @@ Foundation 38265332585 exposed a GCC enum/unsigned conditional (A portability
 defect) and MSVC signed/unsigned test literals (B harness portability defect).
 Explicit unsigned types preserve all behavior, assertions and strict warnings.
 Local WSL lacks GCC; hosted GCC is the authoritative compiler-specific recheck.
-Rebuilt local capability/gesture tests passed 4/4. Final same-SHA workflows remain
+Rebuilt local capability/gesture tests passed 4/4; Windows passed 30/30.
+The next GCC run found misleading indentation at the stop/join test seam (B);
+putting unconditional join on its own line preserves stop-before-join semantics. Final same-SHA workflows remain
 pending after the narrow fixes; prior jobs do not substitute for final closure.
 
 ## Scope and classification

@@ -71,7 +71,8 @@ int main() {
     std::thread updater([&]{for(unsigned i=0;i<1000;++i){auto o=observation;o.sequence=sequence.fetch_add(1)+1;
         o.gpu_availability=1;
         pixaura_execution_strategy local{};const auto code=pixaura_policy_update(1,&context,&o,&local);if(code!=0&&code!=13)++failures;}});
-    if(pixaura_preview_stop(&context))return 1;updater.join();
+    if(pixaura_preview_stop(&context))return 1;
+    updater.join();
     if(pixaura_decode_context_destroy(&context)||pixaura_policy_query(1,&context,&strategy)!=3||failures)return 1;
     puts("Dynamic policy: 80000 same-context updates + 80000 admissions, stale observations, stop/join/destroy PASS");
     return 0;
