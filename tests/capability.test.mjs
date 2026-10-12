@@ -95,6 +95,8 @@ test('Android capability adapter delegates strategy and cannot escalate backend 
   assert.ok(!/Build\.(MODEL|FINGERPRINT|SERIAL)|getImei|AdvertisingId|\bT[012]\b|PHYSICAL_CERTIFIED/.test(owner + mapping));
   assert.match(jni, /gpu_validation=PIXAURA_GPU_NOT_VALIDATED/);
   assert.match(jni, /output\[i\]<0/);
+  assert.match(read('platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/CoreProbe.kt'), /@JvmName\("nativeVulkanAvailability"\)/);
+  assert.ok(read('platforms/android/native/capability_bridge.cpp').includes('Java_ai_pixaura_bridge_CoreProbe_nativeVulkanAvailability'));
   assert.ok(read('platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt').includes('nativePolicyUpdate'));
   assert.ok(read('platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt').includes('pendingCapability'));
   for (const file of ['AndroidCapabilityIntegrationTest.kt', 'AndroidCapabilityLifecycleTest.kt']) assert.ok(read(`platforms/android/app/src/androidTest/java/ai/pixaura/app/${file}`).includes('revisionCount'));

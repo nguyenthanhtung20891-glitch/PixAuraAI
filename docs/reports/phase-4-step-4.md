@@ -61,6 +61,18 @@ The historical Step 1 no-facade structural assertion was updated (B) to enforce
 pure capability foundation and delegating editor facade without policy decisions.
 No semantic assertion, sanitizer, hard ceiling or timeout was weakened.
 
+Bytecode review found an A JNI linkage defect: Kotlin internal visibility mangled
+`nativeVulkanAvailability` while C++ exported its stable name. Explicit @JvmName
+preserves internal source scope and fixes debug/release linkage. javap confirmed
+the exact stable symbol in both variants; Android build/JVM/lint and source guards
+are revalidated. No trust or shared policy change.
+
+First hosted implementation Foundation 38280922829 found MSVC C4456: the new
+strategy local shadowed an existing document variable (A compiler portability).
+Renamed the strategy local; no behavior or warning settings changed. First SHA
+b422d9a3708996170f6fc33d643201fdb859d7d7 is not accepted; final ten-job closure
+is required after these narrow fixes.
+
 ## Scope and failures
 
 No architecture conflict or new ADR identified. A: Android probes/integration and

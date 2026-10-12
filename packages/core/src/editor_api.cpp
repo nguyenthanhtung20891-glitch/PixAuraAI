@@ -113,8 +113,8 @@ static int32_t open_editor(uint32_t version,pixaura_editor_context* context,
     (void)document::Id::parse(seed);auto s=std::make_unique<Service>(path,seed);
     pixaura_decode_limits dl{};check(pixaura_decode_default_limits(1,&dl));check(pixaura_working_default_limits(1,&s->limits));
     auto id=s->fresh();check(pixaura_decode_context_init(1,&s->raster,sizeof(s->raster),byte_pointer(id),32,&dl));
-    pixaura_execution_strategy initial{};
-    if(profile){require(observation&&strategy);check(pixaura_policy_configure(1,&s->raster,profile,observation,&initial));}
+    pixaura_execution_strategy initial_strategy{};
+    if(profile){require(observation&&strategy);check(pixaura_policy_configure(1,&s->raster,profile,observation,&initial_strategy));}
     id=s->fresh();check(pixaura_document_context_init(1,&s->document,sizeof(s->document),byte_pointer(id),32,nullptr));
     const auto session=s->fresh();storage::Asset asset;storage::AssetStore assets(path);
     if(import_bytes){
@@ -147,7 +147,7 @@ static int32_t open_editor(uint32_t version,pixaura_editor_context* context,
     const auto manifest=good(document::serialize(*s->loaded.snapshot));
     check(pixaura_document_open(1,&s->document,byte_pointer(manifest),manifest.size(),byte_pointer(session),32,&s->live,nullptr));
     s->approved_preview();Header h{tag,s.release()};pixaura_editor_context out{};out.api_version=1;out.struct_size=sizeof(out);
-    std::memcpy(out.opaque,&h,sizeof(h));*context=out;if(strategy)*strategy=initial;
+    std::memcpy(out.opaque,&h,sizeof(h));*context=out;if(strategy)*strategy=initial_strategy;
 });}
 extern "C" int32_t pixaura_editor_open(uint32_t version,pixaura_editor_context* context,
     const uint8_t* root,uint64_t root_bytes,const uint8_t* identity,uint64_t identity_bytes,
