@@ -7,7 +7,9 @@ Steps 1–3 COMPLETE / FULL PASS; seven-step roadmap remains FROZEN.
 [Android contract](docs/contracts/android-capability-integration-v1.md) and
 [Step 4 report](docs/reports/phase-4-step-4.md) govern trusted local Android
 observations into shared capability/admission/dynamic policy and existing
-editor/PRV1 ownership. Step 4 IMPLEMENTATION / VALIDATION IN PROGRESS.
+editor/PRV1 ownership. Step 4 COMPLETE / FULL PASS at `16483ff498f8a2ac67152f6a5b8fdac0e6d822fe`:
+Foundation 38281943443 (7/7), Native application shells 38281943346 (3/3),
+all SUCCESS on the same implementation SHA.
 All retained source/native/sanitizer/Android/Apple gates and both complete
 same-final-SHA hosted workflows must pass; unobserved gates are not PASS.
 No Android tier table, schema change, UI, telemetry, new dependency or trust

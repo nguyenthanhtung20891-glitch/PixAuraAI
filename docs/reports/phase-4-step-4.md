@@ -1,6 +1,6 @@
 # Phase 4 Step 4 — Android Capability Integration
 
-Status: IMPLEMENTATION / VALIDATION IN PROGRESS. No unobserved gate is PASS.
+Status: COMPLETE / FULL PASS (certified implementation). No unobserved gate is PASS.
 Authorized baseline: `6389750c5ccab3b40d3ee76cb29bbb88b0fb5596`.
 Steps 1–3 COMPLETE / FULL PASS; frozen roadmap unchanged; Steps 5–7 NOT STARTED.
 
@@ -44,8 +44,7 @@ context/strategy outputs and creates no document database; retry safely succeeds
 Logs: `build/step4-open-*-tests.log`, `build/step4-sanitize-tests.log` and
 `build/step4-source-acceptance.log`. Strict Android debug/release, three ABI builds,
 JVM 7/7 per variant, lint and instrumentation APK compilation PASS (151 tasks).
-Final Android log: `build/step4-final-android.log`. Runtime instrumentation,
-Apple native/Swift/simulator/app/UI and both exact-SHA workflows remain pending.
+Final Android log: `build/step4-final-android.log`. Runtime and hosted gates are certified below.
 
 JVM tests include 10000 concurrent normalized callbacks, one shared registration,
 final unsubscribe/close, stale callbacks after resubscribe, unsupported mappings
@@ -55,7 +54,7 @@ retained/new cases, including real OS probe wiring (nonphysical classification),
 late candidate delivery fence, recovery, LOW/MID/HIGH/unknown profiles, malformed
 JNI, initial admission, 1000 pressure churn updates, 32 commit/cancel races, close
 races, process-style reopen, real activity recreation and blocked-lane coalescing.
-No runtime case is counted PASS until observed. Shared native late-kernel
+All 26 runtime cases were observed PASS, zero failures and zero skips. Shared native late-kernel
 checkpoint tests remain retained, distinct from Android delayed delivery tests.
 The historical Step 1 no-facade structural assertion was updated (B) to enforce
 pure capability foundation and delegating editor facade without policy decisions.
@@ -72,6 +71,71 @@ strategy local shadowed an existing document variable (A compiler portability).
 Renamed the strategy local; no behavior or warning settings changed. First SHA
 b422d9a3708996170f6fc33d643201fdb859d7d7 is not accepted; final ten-job closure
 is required after these narrow fixes.
+
+## Exact-SHA certification
+
+Certified implementation: `16483ff498f8a2ac67152f6a5b8fdac0e6d822fe`.
+Foundation boundaries [38281943443](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38281943443): 7/7 SUCCESS.
+Native application shells [38281943346](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38281943346): 3/3 SUCCESS.
+Both complete workflows passed on that SAME SHA, verified from exact run JSON.
+A later documentation-only closure SHA must also pass both complete workflows;
+its exact final SHA/run IDs are delivered separately to avoid a self-referencing commit.
+
+| Required job | Observed result |
+| --- | --- |
+| Foundation Windows native | SUCCESS, 30/30 |
+| Foundation Linux native | SUCCESS, 31/31 |
+| Foundation ASan/UBSan | SUCCESS, 33/33 including active negative controls |
+| Foundation Apple boundary | SUCCESS, native 30/30; Swift macOS 19/19; iOS simulator 19/19 |
+| Foundation Android arm64-v8a | SUCCESS, checked C/C++ ABI build |
+| Foundation Android armeabi-v7a | SUCCESS, checked C/C++ ABI build |
+| Foundation workflow lint | SUCCESS, pinned actionlint |
+| Shells source | SUCCESS, 124/124, zero skips; independent fixtures and shell syntax |
+| Shells Android app | SUCCESS, strict debug/release/three-ABI/JVM/lint builds; instrumentation 26/26, zero skips |
+| Shells iOS app | SUCCESS, package/C ABI gates, debug/release app builds, app tests 6/6, UI tests 2/2 |
+
+Retained Phase 0–3 and Step 1–3 native/capability/admission/dynamic regressions
+execute in these complete workflows. Android JVM tests pass 7/7 per variant.
+Android actual-probe wiring, initial admission, mappings, LOW/MID/HIGH/unknown,
+malformed signed/versioned JNI values, no trust escalation, 1000 pressure churn,
+32 commit/cancel races, close/stop lifetime, fixed active parameters, recovery,
+late candidate rejection, blocked-lane coalescing and three actual activity
+recreations all passed. Native checkpoint-controlled late kernel completion and
+80000 update/80000 admission concurrency regressions also passed unchanged.
+
+Pressure preserves 1234 milli-EV while active; latest eligible reduced preview
+publishes, delayed older completion cannot install. Critical FIT display is
+360x180 from a 1024x512 synthetic original; source/reopen remains full fidelity.
+Changed commit adds exactly one revision, cancel adds zero. Policy changes add
+none. Three known stable observations recover at most the original static cap;
+repeated identical strategy does not churn epoch or schedule redundant previews.
+Epoch/PRV1 fences, not cancellation timing, remain publication authority.
+
+Lifecycle uses application activity counts and one shared OS subscription;
+configuration replacement preserves ownership, close invalidates callback tokens,
+and native stop/join/quiesce precedes destroy. JVM churn verifies one registration
+and final unregister without stale callback effects. No Activity reference,
+new cache, unbounded policy snapshot list or callback queue is introduced.
+Process-style reopen gets a fresh epoch without changing durable history.
+
+EXACT remains exact-or-resource-failure in the retained shared preview corpus;
+the Android editor explicitly requests FIT, with no local resampling policy.
+Native raster/context/scratch/handle/storage ceilings and Step 2 maxima remain
+unchanged. Signed arithmetic and checked JNI conversion cannot raise them.
+Vulkan availability remains NOT_VALIDATED; no test seam supplies certification.
+The current physical-device gate is unavailable (no connected device), never PASS.
+All Android hosted evidence is emulator wiring/lifecycle/synthetic evidence,
+not physical thermal/memory/GPU certification. Historical Z Fold7 certification
+is preserved without current-runtime scope correlation or broadened trust.
+
+Failure classification: A initial-admission integration gap, JVM-name linkage
+and strict MSVC shadowing corrected minimally. First Android run 38280922840
+had exactly one failure: UnsatisfiedLinkError for the mangled probe method;
+corrected exact-SHA run passes all 26 tests. B old phase-boundary structural guard
+updated to enforce delegating authority; legacy callback compatibility annotated
+without disabling strict warnings. C no runner retry required for certification.
+No assertions, sanitizers, ceilings, semantic checks or timeouts weakened.
+No architecture conflict/new ADR. Raw logs/artifacts remain ignored under build.
 
 ## Scope and failures
 
