@@ -1,6 +1,6 @@
 # Phase 4 Step 3 — Dynamic Memory/Thermal Downgrade
 
-Status: IMPLEMENTED / VALIDATION IN PROGRESS. No unobserved gate counts as PASS.
+Status: COMPLETE / FULL PASS (certified implementation). No unobserved gate counts as PASS.
 Authorized baseline: `d118cd26f9384c2f1735a2fbc57682c24a5990e7`.
 Steps 1/2 COMPLETE / FULL PASS; seven-step Phase 4 roadmap FROZEN. Steps 4–7
 NOT STARTED. Phase 0–3 remain closed. Stop after Step 3.
@@ -69,8 +69,68 @@ Explicit unsigned types preserve all behavior, assertions and strict warnings.
 Local WSL lacks GCC; hosted GCC is the authoritative compiler-specific recheck.
 Rebuilt local capability/gesture tests passed 4/4; Windows passed 30/30.
 The next GCC run found misleading indentation at the stop/join test seam (B);
-putting unconditional join on its own line preserves stop-before-join semantics. Final same-SHA workflows remain
-pending after the narrow fixes; prior jobs do not substitute for final closure.
+putting unconditional join on its own line preserves stop-before-join semantics.
+
+## Exact-SHA certification
+
+Certified implementation: `f466a54ada85dcc9068b4daddfa690b2f00e06a7`.
+Foundation boundaries [38266530730](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38266530730): 7/7 SUCCESS.
+Native application shells [38266531215](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38266531215): 3/3 SUCCESS.
+Both workflows completed successfully on that SAME SHA, verified from run JSON.
+Any later documentation-only closure SHA must also pass both complete workflows;
+its final run IDs are delivered separately to avoid a self-referencing commit.
+
+| Required job | Observed result |
+| --- | --- |
+| Foundation portable Windows | SUCCESS; native 30/30, source 81/81, zero skips |
+| Foundation portable Linux | SUCCESS; native 31/31, source 81/81, zero skips |
+| Foundation sanitizer | SUCCESS; 33/33, including active ASan/UBSan negative controls |
+| Foundation Apple boundary | SUCCESS; native 30/30, Swift macOS 19/19, iOS simulator 19/19 |
+| Foundation Android arm64-v8a | SUCCESS; checked C/C++ ABI build |
+| Foundation Android armeabi-v7a | SUCCESS; checked C/C++ ABI build |
+| Foundation workflow lint | SUCCESS; pinned actionlint |
+| Shells source | SUCCESS; 123/123, zero skips, independent fixtures and shell syntax |
+| Shells Android app | SUCCESS; strict debug/release/JVM/lint builds; emulator instrumentation 19/19 |
+| Shells iOS app | SUCCESS; package/C ABI gates, debug/release app builds, app tests 6/6, UI tests 2/2 |
+
+All affected and retained Phase 0–3 / Step 1/2 gates executed. Hosted evidence logs
+are retained locally under `build/step3-hosted-*.log`; build artifacts are not committed.
+No physical Apple certification is claimed; AVAILABLE != VALIDATED/CERTIFIED.
+
+## Transition and correctness outcomes
+
+| Input | Result (also bounded by initial static policy and occupancy) |
+| --- | --- |
+| NORMAL stable | LOW T0/96 MiB/720; MID T1/192 MiB/1280; HIGH T2/256 MiB/2048 |
+| ELEVATED thermal or memory; constrained | Immediate T0, at most 128 MiB/720, CPU, concurrency 1 |
+| SEVERE thermal or memory | Immediate T0, at most 64 MiB/720, CPU, concurrency 1 |
+| CRITICAL thermal or memory | Immediate T0, at most 32 MiB/360, CPU, concurrency 1 |
+| Competing signals | Maximum severity, never averaged; critical > severe > constrained > elevated > baseline |
+| Backend loss | Immediate CPU fallback; revoke old policy/PRV1 eligibility; document unchanged |
+| Recovery | Three distinct increasing known-NORMAL observations with identical candidate; no static-cap/tier exceedance |
+| Unknown or duplicate | No upgrade; identical retry earns no recovery credit or epoch churn |
+
+Material strategy changes alone increment the nonwrapping epoch. Exhaustion fails
+closed. Reasons remain bounded enum values: baseline, thermal, memory, constrained,
+backend, budget, unknown facts. EXACT rejects with resource failure when its exact
+output cannot fit; FIT may shrink disposable display dimensions only. Full-size
+reference output stays exact where admitted. Active gesture retains accepted
+parameters; changed commit creates exactly one revision; neutral/cancel zero.
+Old high-tier preview finishing last is rejected by policy/PRV1 fences. Failed
+newest preview preserves prior display. Dynamic changes create no revision.
+
+Observed race/stress coverage includes 80000 updates plus 80000 admissions on one
+context, competing pressure signals, stop/join/quiesce/destruction, terminal races,
+30000 corpus churn updates and 10000 allocation-free gesture churn updates.
+Repeated full fixtures retain equal live payload after warmup; no unbounded policy
+snapshots or resource accumulation. Original Step 2 parallel determinism remains.
+Identical normalized C/C++/JNI corpus and independent Swift expected transitions
+pass across Windows/Linux/Apple/Android. Hard-limit, tiny-context, occupancy,
+malformed/version/sequence, epoch-boundary and overflow tests pass without raising
+any ceiling or weakening sanitizers/assertions. No architecture conflict/new ADR.
+Failure classification: A compiler portability corrected minimally; B test harness
+portability/wiring corrected without semantic changes; C no final runner retry
+required. Sandbox/process invocation failures were not counted as test passes.
 
 ## Scope and classification
 

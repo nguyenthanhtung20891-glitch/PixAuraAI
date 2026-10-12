@@ -3,7 +3,7 @@
 Authority: Product Owner authorizes Step 3 at
 `d118cd26f9384c2f1735a2fbc57682c24a5990e7`. Steps 1/2 are COMPLETE / FULL PASS.
 The seven-step roadmap remains FROZEN; Steps 4–7 NOT STARTED. No Step 8+.
-Status: IMPLEMENTED / VALIDATION IN PROGRESS; executed evidence belongs in the
+Status: COMPLETE / FULL PASS; exact-SHA executed evidence belongs in the
 [Step 3 report](../reports/phase-4-step-3.md). DH-APPLE-METAL-01 unchanged.
 
 ## Authority and bounded state
