@@ -2,6 +2,7 @@
 #include "../src/preview_thresholds.hpp"
 #include "../src/geometry.hpp"
 #include "../src/storage.hpp"
+#include "pixaura/dynamic_policy.h"
 #include "../../../tests/fixtures/decode/fixtures.h"
 #include <array>
 #include <atomic>
@@ -26,6 +27,59 @@ static void inject(evaluation::Checkpoint,void* p){auto& s=*static_cast<CancelAt
 struct Reader:storage::Reader{std::size_t at=0;std::size_t read(uint8_t* p,std::size_t n)override{const auto bytes=std::min(n,sizeof(decode_png)-at);std::memcpy(p,decode_png+at,bytes);at+=bytes;return bytes;}};
 
 static pixaura_preview_request fit(uint32_t w,uint32_t h){return {1,sizeof(pixaura_preview_request),1,w,h,0};}
+static void dynamic_display(){
+    pixaura_decode_context c{};pixaura_decode_limits limits{};std::array<uint8_t,32> identity{};identity.fill('d');
+    CHECK(pixaura_decode_default_limits(1,&limits)==0&&pixaura_decode_context_init(1,&c,sizeof(c),identity.data(),32,&limits)==0);
+    pixaura_capability_profile p{};CHECK(pixaura_capability_baseline(1,&p)==0);
+    p.hardware.logical_cpu_count=8;p.hardware.physical_memory_bytes=UINT64_C(8589934592);
+    p.hardware.provenance=PIXAURA_PROVENANCE_SYNTHETIC;
+    p.runtime.process_budget_bytes=UINT64_C(536870912);p.runtime.thermal=p.runtime.memory_pressure=1;p.runtime.constrained=0;
+    pixaura_policy_observation o{};o.version=1;o.struct_size=sizeof(o);o.sequence=1;o.thermal=o.memory_pressure=1;
+    o.gpu_availability=1;o.process_budget_bytes=p.runtime.process_budget_bytes;pixaura_execution_strategy strategy{};
+    CHECK(pixaura_policy_configure(1,&c,&p,&o,&strategy)==0);
+    const auto source=preview::test_working(&c,image(1024,512));auto request=fit(2048,2048);
+    pixaura_preview_ticket ticket{};pixaura_decode_handle display{};pixaura_preview_metadata metadata{};
+    CHECK(pixaura_preview_begin(&c,1,&ticket)==0&&pixaura_preview_render_interactive(&c,&source,&ticket,&request,&display)==0);
+    CHECK(pixaura_preview_query(&c,&display,&metadata)==0&&metadata.width==1024&&metadata.height==512);
+    ++o.sequence;o.memory_pressure=4;CHECK(pixaura_policy_update(1,&c,&o,&strategy)==0);
+    CHECK(pixaura_preview_current(&c,&ticket,&display)==13);
+    pixaura_decode_handle reduced{};const pixaura_preview_request exact{1,sizeof(pixaura_preview_request),PIXAURA_PREVIEW_EXACT,0,0,0};
+    CHECK(pixaura_preview_begin(&c,1,&ticket)==0&&pixaura_preview_render_interactive(&c,&source,&ticket,&exact,&reduced)==8&&reduced.serial==0);
+    CHECK(pixaura_preview_begin(&c,1,&ticket)==0);
+    CHECK(pixaura_preview_render_interactive(&c,&source,&ticket,&request,&reduced)==0);
+    CHECK(pixaura_preview_query(&c,&reduced,&metadata)==0&&metadata.width==360&&metadata.height==180);
+    CHECK(pixaura_preview_query(&c,&display,&metadata)==0&&metadata.width==1024&&metadata.height==512);
+    pixaura_working_metadata original{};CHECK(pixaura_working_query(&c,&source,&original)==0&&original.width==1024&&original.height==512);
+    pixaura_decode_handle reference{};CHECK(pixaura_preview_create(&c,&source,1,nullptr,&reference)==0);
+    CHECK(pixaura_preview_query(&c,&reference,&metadata)==0&&metadata.width==1024&&metadata.height==512);
+    CHECK(pixaura_preview_release(&c,&reference)==0);
+    pixaura_budget_request q{};q.version=1;q.struct_size=sizeof(q);q.work_class=PIXAURA_BUDGET_COMMIT;
+    q.width=q.height=64;q.bytes_per_pixel=16;q.raster_count=2;q.requested_handles=1;
+    q.context_limit_bytes=limits.context_bytes;q.temporary_bytes=24*UINT64_C(1048576);
+    pixaura_budget_result admission{};uint64_t epoch=0;
+    CHECK(pixaura_policy_admit(1,&c,&q,&admission,&epoch)==0&&admission.decision==PIXAURA_BUDGET_REJECT);
+    CHECK(admission.runtime_cap_bytes==32*UINT64_C(1048576)); // Native occupancy cannot be omitted by a caller.
+    ++o.sequence;o.process_budget_bytes=UINT64_C(34603008);CHECK(pixaura_policy_update(1,&c,&o,&strategy)==0);
+    pixaura_decode_handle rejected{};CHECK(pixaura_preview_begin(&c,1,&ticket)==0);
+    CHECK(pixaura_preview_render_interactive(&c,&source,&ticket,&request,&rejected)==8&&rejected.serial==0);
+    CHECK(pixaura_preview_query(&c,&display,&metadata)==0&&metadata.width==1024);
+    CHECK(pixaura_preview_release(&c,&display)==0&&pixaura_preview_release(&c,&reduced)==0&&pixaura_decode_release(&c,&source)==0);
+    CHECK(pixaura_preview_stop(&c)==0&&pixaura_decode_context_destroy(&c)==0);
+    c={};identity.fill('e');CHECK(pixaura_decode_context_init(1,&c,sizeof(c),identity.data(),32,&limits)==0);
+    o.sequence=1;o.memory_pressure=1;o.process_budget_bytes=p.runtime.process_budget_bytes;
+    CHECK(pixaura_policy_configure(1,&c,&p,&o,&strategy)==0);
+    const auto full=preview::test_working(&c,image(1024,1024));
+    const auto retained_work=preview::test_working(&c,image(1024,896));
+    ++o.sequence;o.process_budget_bytes=64*UINT64_C(1048576);
+    CHECK(pixaura_policy_update(1,&c,&o,&strategy)==0&&strategy.preview_edge==720);
+    CHECK(pixaura_preview_begin(&c,1,&ticket)==0&&pixaura_preview_render_interactive(&c,&full,&ticket,&request,&display)==0);
+    CHECK(pixaura_preview_query(&c,&display,&metadata)==0&&metadata.width==360&&metadata.height==360);
+    CHECK(pixaura_working_query(&c,&full,&original)==0&&original.width==1024&&original.height==1024);
+    CHECK(pixaura_preview_release(&c,&display)==0&&pixaura_decode_release(&c,&full)==0&&pixaura_decode_release(&c,&retained_work)==0);
+    CHECK(pixaura_preview_stop(&c)==0&&pixaura_decode_context_destroy(&c)==0);
+    std::puts("Dynamic display: 1024x512 -> 360x180; original and prior display retained; insufficient budget rejects PASS");
+    std::puts("Dynamic preview memory fit: retained working buffers stay full-size; 720 bound halves to 360 within remaining budget PASS");
+}
 // Independent four-weight oracle, no production layout/encode/resample calls.
 static std::vector<uint8_t> fit_reference(const working::Image& s,uint32_t w,uint32_t h){
     std::vector<uint8_t> out(static_cast<std::size_t>(w)*h*4);
@@ -139,6 +193,7 @@ static void fit_tests(){
 }
 
 int main(int argc,char** argv){
+    dynamic_display();
     fit_tests();
     CHECK(argc==2);
     const std::array<std::array<float,4>,13> inputs={{{0,0,0,1},{1,1,1,1},{.18f,.18f,.18f,1},{1,0,0,1},{0,1,0,1},{0,0,1,1},{0,0,0,0},{.25f,.25f,.25f,.5f},{-1,2,.5f,1},{-0.f,0,-0.f,-0.f},{1e-30f,0,0,1e-30f},{.0031308f,.0031307f,.0031309f,1},{.5f,.5f,.5f,1}}};

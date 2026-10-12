@@ -2,6 +2,8 @@
 #include "../src/evaluation.hpp"
 #include "pixaura/manual.h"
 #include "pixaura/preset.h"
+#include "dynamic_policy_boundary.h"
+#include "../src/dynamic_policy.hpp"
 #include "../../../tests/fixtures/decode/fixtures.h"
 #include <algorithm>
 #include <atomic>
@@ -128,6 +130,64 @@ static void baseline(Fixture& f){
 }
 struct Pause {std::mutex mutex;std::condition_variable condition;bool entered=false,proceed=false;};
 static void pause_preview(evaluation::Checkpoint,void* raw){auto& p=*static_cast<Pause*>(raw);std::unique_lock<std::mutex> lock(p.mutex);if(!p.entered){p.entered=true;p.condition.notify_all();CHECK(p.condition.wait_for(lock,std::chrono::seconds(10),[&]{return p.proceed;}));}}
+static void dynamic_gesture(Fixture& f){
+    auto profile=budget_profile(2);profile.hardware.gpu_backend=PIXAURA_CAPABILITY_GPU_VULKAN;
+    profile.hardware.gpu_availability=2;profile.hardware.gpu_validation=1;profile.runtime.gpu_availability=2;
+    auto observation=policy_observation(&profile);observation.gpu_availability=2;pixaura_execution_strategy strategy{};
+    fail_after=0;injected=false;
+    CHECK(pixaura_policy_configure(1,&f.raster,&profile,&observation,&strategy)==0&&!injected);
+    fail_after=-1;
+    auto g=f.begin();f.update(g,op("exposure","milli_ev",1234));uint64_t sequence=0;
+    const auto old=f.ticket(g,sequence);const auto old_epoch=strategy.epoch;
+    pixaura_decode_handle approved{};CHECK(pixaura_preview_create(&f.raster,&f.original,1,nullptr,&approved)==0);
+    uint8_t prior[24];CHECK(pixaura_preview_copy(&f.raster,&approved,0,prior,24)==0);
+    Pause pause;preview::test_observer(&f.raster,pause_preview,&pause);int status=-1;uint64_t old_sequence=99;pixaura_decode_handle stale{};
+    std::thread worker([&]{status=f.render(g,old,stale,old_sequence);});
+    {std::unique_lock<std::mutex> lock(pause.mutex);CHECK(pause.condition.wait_for(lock,std::chrono::seconds(10),[&]{return pause.entered;}));}
+    ++observation.sequence;observation.memory_pressure=PIXAURA_POLICY_SEVERE;
+    fail_after=0;injected=false;CHECK(pixaura_policy_update(1,&f.raster,&observation,&strategy)==0&&!injected);fail_after=-1;
+    CHECK(strategy.epoch==old_epoch+1&&strategy.runtime_cap_bytes==64*UINT64_C(1048576));
+    CHECK(f.state(g,1)==PIXAURA_MANUAL_ACTIVE&&f.serialize(f.base)==f.manifest);
+    CHECK(pixaura_policy_current(1,&f.raster,old_epoch,&old,nullptr)==13);
+    const auto newest=f.ticket(g,sequence);CHECK(sequence==1&&newest.generation>old.generation);
+    pixaura_decode_handle output{};uint64_t rendered=0;CHECK(f.render(g,newest,output,rendered)==0&&rendered==1);
+    CHECK(pixaura_policy_current(1,&f.raster,strategy.epoch,&newest,&output)==0);
+    {std::lock_guard<std::mutex> lock(pause.mutex);pause.proceed=true;pause.condition.notify_all();}worker.join();preview::test_observer(&f.raster,nullptr,nullptr);
+    CHECK(status==13&&stale.serial==0&&old_sequence==99);
+    CHECK(pixaura_manual_preview_current(&f.document,&g,&f.base,1,&old,&output)==13);
+    uint8_t retained[24];CHECK(pixaura_preview_copy(&f.raster,&approved,0,retained,24)==0&&std::memcmp(prior,retained,24)==0);
+    observation.memory_pressure=1;
+    for(unsigned i=0;i<3;++i){++observation.sequence;CHECK(pixaura_policy_update(1,&f.raster,&observation,&strategy)==0);}
+    CHECK(strategy.backend==PIXAURA_BUDGET_VULKAN);
+    const auto pre_loss=f.ticket(g,sequence);const auto pre_loss_epoch=strategy.epoch;
+    ++observation.sequence;observation.gpu_availability=1;
+    CHECK(pixaura_policy_update(1,&f.raster,&observation,&strategy)==0&&strategy.backend==0&&strategy.epoch==pre_loss_epoch+1);
+    CHECK(pixaura_policy_current(1,&f.raster,pre_loss_epoch,&pre_loss,nullptr)==13&&f.state(g,1)==PIXAURA_MANUAL_ACTIVE);
+    pixaura_document_handle proposal{};uint32_t changed=0;
+    CHECK(pixaura_manual_commit(&f.document,&g,&f.base,bytes(id(++f.fresh)),32,&proposal,&changed)==0&&changed==1);
+    const auto doc=document::deserialize(f.serialize(proposal),f.session);
+    CHECK(doc.code==0&&doc.value->revisions().size()==2&&std::get<document::Exposure>(doc.value->operations()[0].parameters).milli_ev==1234);
+    CHECK(pixaura_document_release(&f.document,&proposal)==0&&pixaura_manual_release(&f.document,&g)==0);
+    CHECK(pixaura_preview_release(&f.raster,&output)==0&&pixaura_preview_release(&f.raster,&approved)==0);
+    // Concurrent policy updates do not create revisions or alter commit/cancel rules.
+    for(unsigned round=0;round<64;++round){
+        g=f.begin();f.update(g,op("exposure","milli_ev",round%2?9:0));
+        ++observation.sequence;observation.memory_pressure=round%2?4:1;std::atomic<bool> start{false};int update=-1,terminal=-1;
+        std::thread updater([&]{while(!start.load())std::this_thread::yield();pixaura_execution_strategy local{};update=pixaura_policy_update(1,&f.raster,&observation,&local);});
+        std::thread closer([&]{while(!start.load())std::this_thread::yield();terminal=round%2?pixaura_manual_commit(&f.document,&g,&f.base,bytes(id(++f.fresh)),32,&proposal,&changed):pixaura_manual_cancel(&f.document,&g);});
+        start=true;updater.join();closer.join();CHECK(update==0&&terminal==0);
+        if(round%2){CHECK(changed==1);const auto d=document::deserialize(f.serialize(proposal),f.session);CHECK(d.value->revisions().size()==2);CHECK(pixaura_document_release(&f.document,&proposal)==0);}
+        CHECK(pixaura_manual_release(&f.document,&g)==0&&f.serialize(f.base)==f.manifest);
+    }
+    for(unsigned i=0;i<10000;++i){++observation.sequence;observation.memory_pressure=i%4?1:3;
+        fail_after=0;injected=false;CHECK(pixaura_policy_update(1,&f.raster,&observation,&strategy)==0&&!injected);fail_after=-1;}
+    // Epoch exhaustion fails closed, preserves caller output and blocks previews.
+    policy::test_epoch(&f.raster,UINT64_MAX);++observation.sequence;observation.memory_pressure=4;
+    const auto saved=strategy;CHECK(pixaura_policy_update(1,&f.raster,&observation,&strategy)==8&&std::memcmp(&saved,&strategy,sizeof(saved))==0);
+    pixaura_preview_ticket exhausted{};CHECK(pixaura_preview_begin(&f.raster,1,&exhausted)==13);
+    CHECK(f.serialize(f.base)==f.manifest);
+    std::puts("Dynamic gesture: checkpoint late-preview fence, preserved parameters/display/history, 64 terminal races, 10000 allocation-free churn and epoch exhaustion PASS");
+}
 static void preview_races(Fixture& f){
     for(unsigned action=0;action<4;++action){auto g=f.begin();f.update(g,op("exposure","milli_ev",1));uint64_t seq=0;const auto old=f.ticket(g,seq);
         Pause pause;preview::test_observer(&f.raster,pause_preview,&pause);pixaura_decode_handle output{};int result=-1;uint64_t rendered=99;
@@ -248,8 +308,10 @@ static void preset_interaction(Fixture& f){
     CHECK(pixaura_manual_release(&f.document,&after)==0&&pixaura_document_release(&f.document,&manual)==0&&pixaura_document_release(&f.document,&preset)==0&&f.serialize(f.base)==f.manifest);
 }
 int main(int argc,char** argv){CHECK(argc==2);const auto root=fs::absolute(argv[1])/std::string("gesture-").append(std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+    CHECK(budget_boundary_check()==0&&dynamic_policy_boundary_check()==0);
     auto run=[&]{
     {Fixture f(root);baseline(f);preview_races(f);stale_and_bounds(f);switch_and_stale_revision(f);preset_interaction(f);durable_history(f);faults(f);
+        {Fixture dynamic(fs::path(f.path)/"dynamic");dynamic_gesture(dynamic);}
         {Fixture isolated(fs::path(f.path)/"isolation");auto a=f.begin(),b=isolated.begin();f.update(a,op("exposure","milli_ev",1));isolated.update(b,op("exposure","milli_ev",2));uint64_t seq=0;const auto ticket=isolated.ticket(b,seq);CHECK(pixaura_manual_interrupt(&f.document)==0);CHECK(pixaura_manual_preview_current(&isolated.document,&b,&isolated.base,seq,&ticket,nullptr)==0);CHECK(pixaura_manual_interrupt(&isolated.document)==0);}
         {Fixture stopped(fs::path(f.path)/"stopped");CHECK(pixaura_preview_stop(&stopped.raster)==0);pixaura_manual_gesture token{};
             CHECK(pixaura_manual_edit_begin(1,&stopped.document,&stopped.base,bytes(id(++stopped.fresh)),32,reinterpret_cast<const uint8_t*>("pixaura.exposure"),16,nullptr,0,&stopped.raster,&stopped.original,&token)==13&&token.serial==0);

@@ -11,6 +11,9 @@ import java.nio.ByteBuffer
 
 @RunWith(AndroidJUnit4::class)
 class CapabilityFoundationTest {
+    @Test fun sharedDynamicPressureRecoveryAndBackendCorpus() {
+        assertEquals(0, CoreProbe().nativeDynamicPolicyBoundary())
+    }
     @Test fun sharedBudgetThresholdOverflowAndDowngradeCorpus() {
         assertEquals(0, CoreProbe().nativeBudgetBoundary())
     }

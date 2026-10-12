@@ -5,6 +5,7 @@
 #include "preview.hpp"
 #include "storage_files.hpp"
 #include "sha256.hpp"
+#include "dynamic_policy.hpp"
 #include <map>
 #include <mutex>
 #include <cstring>
@@ -15,6 +16,7 @@ template<class F> int32_t boundary(F&& fn)noexcept{try{fn();return 0;}catch(cons
 constexpr uint64_t live_tag=0x5049584445433031ULL,dead_tag=0x5049584445433030ULL;
 struct Entry { std::shared_ptr<const decode::Source> source;std::unique_ptr<decode::Vector<uint8_t>> pixels;bool image=false;working::Image working{};preview::Image preview{};uint64_t preview_generation=0;bool original=false; };
 struct Registry { std::mutex mutex, cancellation_mutex;pixaura_decode_limits limits;uint64_t next=1;std::map<uint64_t,Entry> entries;
+    policy::State policy{};bool policy_exhausted=false;
     std::map<uint64_t,std::shared_ptr<evaluation::Cancellation>> cancellations;
     std::atomic<uint64_t> preview_generation{0};std::atomic<bool> preview_revoked{false};
     bool preview_stopped=false,preview_started=false;
@@ -30,13 +32,27 @@ Header read(pixaura_decode_context* c){need(c!=nullptr);Header h{};std::memcpy(&
 Header live(pixaura_decode_context* c){auto h=read(c);need(c->api_version==1&&c->struct_size==sizeof(*c)&&c->reserved==0&&h.tag==live_tag&&h.registry!=nullptr,3);return h;}
 void write(pixaura_decode_context* c,const Header& h){std::memset(c,0,sizeof(*c));c->api_version=1;c->struct_size=sizeof(*c);std::memcpy(c->opaque,&h,sizeof(h));}
 const Entry& entry(const Header& h,const pixaura_decode_handle* handle){need(handle!=nullptr);need(handle->api_version==1&&handle->struct_size==sizeof(*handle)&&handle->reserved==0&&std::memcmp(handle->context_id,h.identity,32)==0,3);auto it=h.registry->entries.find(handle->serial);need(it!=h.registry->entries.end(),3);return it->second;}
-void room(Registry& r,uint64_t extra){std::lock_guard<std::mutex> guard(r.cancellation_mutex);need(r.entries.size()+r.cancellations.size()<64&&r.next!=UINT64_MAX,8);uint64_t used=0;const decode::Source* seen[64]{};std::size_t count=0;
+uint64_t retained_locked(const Registry& r){uint64_t used=0;const decode::Source* seen[64]{};std::size_t count=0;
     for(const auto& pair:r.entries){const auto& e=pair.second;used+=e.pixels?e.pixels->capacity():0;used+=e.preview.pixels?e.preview.pixels->capacity():0;used+=e.working.pixels?decode::multiply(e.working.pixels->capacity(),sizeof(float)):0;bool duplicate=false;for(std::size_t i=0;i<count;++i)if(seen[i]==e.source.get())duplicate=true;
         if(e.source&&!duplicate){seen[count++]=e.source.get();used+=e.source->encoded().capacity()+e.source->metadata().profile.capacity();}}
-    need(used<=r.limits.context_bytes&&extra<=r.limits.context_bytes-used,8);
+    return used;
 }
+void room_locked(Registry& r,uint64_t extra){need(!r.policy_exhausted,8);need(r.entries.size()+r.cancellations.size()<64&&r.next!=UINT64_MAX,8);
+    const auto used=retained_locked(r);
+    auto cap=r.policy.enabled?std::min(r.limits.context_bytes,r.policy.strategy.runtime_cap_bytes):r.limits.context_bytes;
+    if(r.policy.enabled)cap=cap>PIXAURA_POLICY_CONTROL_RESERVE_BYTES?cap-PIXAURA_POLICY_CONTROL_RESERVE_BYTES:0;
+    need(used<=cap&&extra<=cap-used,8);
+}
+void room(Registry& r,uint64_t extra){std::lock_guard<std::mutex> guard(r.cancellation_mutex);room_locked(r,extra);}
 pixaura_decode_handle handle(const Header& h,uint64_t serial){pixaura_decode_handle out{};out.api_version=1;out.struct_size=sizeof(out);out.serial=serial;std::memcpy(out.context_id,h.identity,32);return out;}
-pixaura_decode_handle insert_locked(const Header& h,Entry e){auto& r=*h.registry;const auto serial=r.next;r.entries.emplace(serial,std::move(e));++r.next;return handle(h,serial);}
+pixaura_decode_handle insert_locked(const Header& h,Entry e){auto& r=*h.registry;
+    if(r.policy.enabled){uint64_t extra=(e.pixels?e.pixels->capacity():0)+(e.preview.pixels?e.preview.pixels->capacity():0)+
+            (e.working.pixels?decode::multiply(e.working.pixels->capacity(),sizeof(float)):0);
+        bool retained=false;for(const auto& pair:r.entries)if(pair.second.source==e.source)retained=true;
+        if(e.source&&!retained)extra+=e.source->encoded().capacity()+e.source->metadata().profile.capacity();
+        room_locked(r,extra);
+    }
+    const auto serial=r.next;r.entries.emplace(serial,std::move(e));++r.next;return handle(h,serial);}
 pixaura_decode_handle insert(const Header& h,Entry e){std::lock_guard<std::mutex> guard(h.registry->cancellation_mutex);return insert_locked(h,std::move(e));}
 std::shared_ptr<evaluation::Cancellation> cancellation_locked(const Header& h,const pixaura_decode_handle* token){
     need(token&&token->api_version==1&&token->struct_size==sizeof(*token)&&token->reserved==0&&std::memcmp(token->context_id,h.identity,32)==0,3);
@@ -164,6 +180,50 @@ int32_t pixaura_preview_begin(pixaura_decode_context* c,uint32_t version,pixaura
     std::memcpy(t.context_id,h.identity,32);t.generation=previous+1;
     r.preview_generation.store(t.generation,std::memory_order_release);r.preview_revoked.store(false,std::memory_order_release);r.preview_started=false;*out=t;
 });}
+int32_t pixaura_policy_configure(uint32_t version,pixaura_decode_context* c,const pixaura_capability_profile* p,
+    const pixaura_policy_observation* o,pixaura_execution_strategy* output){return boundary([&]{
+    need(version==1,2);need(output);const auto h=live(c);auto& r=*h.registry;
+    std::lock_guard<std::mutex> guard(r.cancellation_mutex);need(!r.preview_stopped,13);
+    const auto code=policy::configure(r.policy,p,o,r.limits.context_bytes);need(code==0,code);
+    r.preview_revoked.store(true,std::memory_order_release);*output=r.policy.strategy;
+});}
+int32_t pixaura_policy_update(uint32_t version,pixaura_decode_context* c,const pixaura_policy_observation* o,
+    pixaura_execution_strategy* output){return boundary([&]{
+    need(version==1,2);need(output);const auto h=live(c);auto& r=*h.registry;
+    std::lock_guard<std::mutex> guard(r.cancellation_mutex);need(!r.preview_stopped,13);need(!r.policy_exhausted,8);
+    const auto epoch=r.policy.strategy.epoch;const auto code=policy::update(r.policy,o,r.limits.context_bytes);
+    if(code==8){r.policy_exhausted=true;r.preview_stopped=true;r.preview_revoked.store(true,std::memory_order_release);}
+    need(code==0,code);if(epoch!=r.policy.strategy.epoch)r.preview_revoked.store(true,std::memory_order_release);
+    *output=r.policy.strategy;
+});}
+int32_t pixaura_policy_query(uint32_t version,pixaura_decode_context* c,pixaura_execution_strategy* output){return boundary([&]{
+    need(version==1,2);need(output);const auto h=live(c);auto& r=*h.registry;
+    std::lock_guard<std::mutex> guard(r.cancellation_mutex);need(r.policy.enabled);need(!r.policy_exhausted,8);*output=r.policy.strategy;
+});}
+int32_t pixaura_policy_admit(uint32_t version,pixaura_decode_context* c,const pixaura_budget_request* request,
+    pixaura_budget_result* output,uint64_t* epoch){return boundary([&]{
+    need(version==1,2);need(output&&epoch);const auto h=live(c);auto& r=*h.registry;
+    std::lock_guard<std::mutex> guard(r.cancellation_mutex);need(!r.preview_stopped,13);need(!r.policy_exhausted,8);
+    auto q=request?*request:pixaura_budget_request{};need(request);
+    need(q.version==1&&q.struct_size==sizeof(q),2);
+    // Caller cannot raise this context's independently frozen admission limit.
+    need(q.context_limit_bytes<=r.limits.context_bytes,8);
+    // Derive from the actual owner; caller totals may include external copies,
+    // but cannot under-report already retained native bytes/handles.
+    q.retained_bytes=std::max(q.retained_bytes,retained_locked(r));
+    q.retained_handles=std::max(q.retained_handles,static_cast<uint32_t>(r.entries.size()+r.cancellations.size()));
+    pixaura_budget_result b{};const auto code=policy::admit(r.policy,&q,&b);need(code==0,code);
+    *output=b;*epoch=r.policy.strategy.epoch;
+});}
+int32_t pixaura_policy_current(uint32_t version,pixaura_decode_context* c,uint64_t epoch,
+    const pixaura_preview_ticket* ticket,const pixaura_decode_handle* result){return boundary([&]{
+    need(version==1,2);need(epoch&&ticket);const auto h=live(c);auto& r=*h.registry;
+    // Same order as native result checks: raster then publication, never inverse.
+    std::unique_lock<std::mutex> pixels(r.mutex,std::defer_lock);if(result)pixels.lock();
+    if(result){const auto& e=entry(h,result);need(e.preview.pixels&&e.preview_generation==ticket->generation,3);}
+    std::lock_guard<std::mutex> guard(r.cancellation_mutex);need(r.policy.enabled);need(!r.policy_exhausted,8);
+    need(epoch==r.policy.strategy.epoch,13);eligible(h,ticket);
+});}
 int32_t pixaura_preview_cancel(pixaura_decode_context* c,const pixaura_preview_ticket* t){return boundary([&]{
     const auto h=live(c);std::lock_guard<std::mutex> guard(h.registry->cancellation_mutex);ticket_valid(h,t);
     need(t->generation==h.registry->preview_generation.load(std::memory_order_acquire),13);
@@ -193,10 +253,31 @@ int32_t pixaura_preview_render_interactive(pixaura_decode_context* c,const pixau
     std::lock_guard<std::mutex> lock(h.registry->mutex);
     evaluation::checkpoint(&cancel,evaluation::Checkpoint::admission);
     const auto& e=entry(h,source);need(e.working.pixels!=nullptr,3);
-    const auto metadata=preview::layout(e.working,*request);room(*h.registry,metadata.image_bytes);
-    Entry result;result.preview=preview::render(e.working,*request,&cancel,observe,state);result.preview_generation=t->generation;
+    (void)preview::layout(e.working,*request); // Validate before any policy clamping.
+    auto strategy_request=*request;
+    {std::lock_guard<std::mutex> guard(h.registry->cancellation_mutex);auto& r=*h.registry;
+        if(r.policy.enabled){eligible(h,t);
+            const auto edge=r.policy.strategy.preview_edge;
+            if(request->mode==PIXAURA_PREVIEW_EXACT)need(e.working.metadata.width<=edge&&e.working.metadata.height<=edge,8);
+            else{strategy_request.max_width=std::min(request->max_width,edge);
+                strategy_request.max_height=std::min(request->max_height,edge);}
+            const auto cap=std::min(r.limits.context_bytes,r.policy.strategy.runtime_cap_bytes);
+            const auto usable=cap>PIXAURA_POLICY_CONTROL_RESERVE_BYTES?cap-PIXAURA_POLICY_CONTROL_RESERVE_BYTES:0;
+            const auto used=retained_locked(r);need(used<=usable,8);const auto remaining=usable-used;
+            // Apply the frozen bounded display-only halving strategy using the
+            // actual conversion-stage occupancy. Full working buffers stay live.
+            for(unsigned attempt=0;attempt<12;++attempt){
+                if(preview::layout(e.working,strategy_request).image_bytes<=remaining)break;
+                need(request->mode==PIXAURA_PREVIEW_FIT&&attempt<11&&(strategy_request.max_width>1||strategy_request.max_height>1),8);
+                strategy_request.max_width=std::max(1u,strategy_request.max_width/2);
+                strategy_request.max_height=std::max(1u,strategy_request.max_height/2);
+            }
+        }}
+    const auto metadata=preview::layout(e.working,strategy_request);room(*h.registry,metadata.image_bytes);
+    Entry result;result.preview=preview::render(e.working,strategy_request,&cancel,observe,state);result.preview_generation=t->generation;
     std::lock_guard<std::mutex> guard(h.registry->cancellation_mutex);eligible(h,t);
     evaluation::checkpoint(&cancel,evaluation::Checkpoint::publication);
+    room_locked(*h.registry,metadata.image_bytes);
     const auto published=insert_locked(h,std::move(result));*out=published;
 });}
 int32_t pixaura_preview_create(pixaura_decode_context* c,const pixaura_decode_handle* source,uint32_t version,
@@ -243,5 +324,8 @@ pixaura_decode_handle test_working(pixaura_decode_context* c,working::Image imag
 void test_observer(pixaura_decode_context* c,evaluation::Observer observer,void* state){const auto h=live(c);h.registry->observer=observer;h.registry->observer_state=state;}
 void test_generation(pixaura_decode_context* c,uint64_t value){const auto h=live(c);h.registry->preview_generation.store(value);}
 void test_context_budget(pixaura_decode_context* c,uint64_t bytes){const auto h=live(c);need(bytes>0&&bytes<=decode::defaults().context_bytes);h.registry->limits.context_bytes=bytes;}
+}
+namespace pixaura::policy {
+void test_epoch(pixaura_decode_context* c,uint64_t value){const auto h=live(c);std::lock_guard<std::mutex> guard(h.registry->cancellation_mutex);h.registry->policy.strategy.epoch=value;}
 }
 #endif

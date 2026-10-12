@@ -1,5 +1,28 @@
 # Quality gates and promotion policy
 
+## Phase 4 Step 3 dynamic execution gates
+
+Only Step 3 is authorized at `d118cd26f9384c2f1735a2fbc57682c24a5990e7`.
+Require NORMAL/ELEVATED/SEVERE/CRITICAL, unknown/malformed/versioned observations,
+strongest-signal precedence, constrained/backend-loss/trust-reduction/budget-shrink
+transitions, immediate componentwise downgrade, three distinct stable recovery
+observations, idempotent retries, nonwrapping epoch exhaustion and fixed state.
+Require LOW/MID/HIGH synthetic profiles; recovery never exceeds configured Step 2
+ceilings; unchanged static facts, full-source parameters/history and Schema 3.
+Checkpoint-controlled late-preview completion must fail existing PRV1 publication;
+active gesture and changed/neutral/cancel semantics must remain; prior display
+survives rejection. Updates/admissions/terminal races, stop/join/destroy, long churn,
+allocation-free updates and retained-resource equality must pass.
+Preserve all Phase 0–3 and capability/budget gates: source/docs, Windows/Linux/native,
+ASan/UBSan active controls, Android both ABIs/JVM/build/lint/instrumentation, Apple
+native/Swift/macOS/iOS simulator/app/UI, workflow lint and git diff --check.
+Both COMPLETE hosted workflows require all ten jobs SUCCESS on the SAME final SHA.
+Unexecuted/skipped/failed checks are never PASS. [Contract](docs/contracts/dynamic-capability-policy-v1.md)
+and [report](docs/reports/phase-4-step-3.md) separate implementation from observed evidence.
+No real platform probes, product UI, schema/AI/model/Phase 5 scope. Steps 4–7 NOT
+STARTED; DH-APPLE-METAL-01 unchanged. Stop after Step 3. Supersedes older authorization.
+
+
 ## Phase 4 Step 2 budget admission gates
 
 Step 1 accepted FULL PASS; roadmap FROZEN by Product Owner. Step 2 alone is

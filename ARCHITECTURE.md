@@ -1,5 +1,18 @@
 # System architecture
 
+## Phase 4 Step 3 dynamic execution authority
+
+Authorized baseline `d118cd26f9384c2f1735a2fbc57682c24a5990e7`; Steps 1/2 FULL PASS.
+[Dynamic policy v1](docs/contracts/dynamic-capability-policy-v1.md) composes the
+existing raster cancellation mutex, native registry caps, PRV1 generation fence
+and active gesture owner. Fixed context-owned policy, immutable static profile,
+normalized observations and deterministic recovery add no scheduler, publication
+owner, platform business semantics or persistence. Runtime caps only tighten
+Step 2/native ceilings. Dynamic enum family preserves Capability v1 bytes.
+Step 3 alone is authorized; Steps 4–7 NOT STARTED, no Phase 5. DH-APPLE-METAL-01
+unchanged. This supersedes historical Step 2-only authorization below.
+
+
 ## Phase 4 Step 2 shared admission authority
 
 Product Owner freezes the seven-step roadmap and accepts Step 1 at

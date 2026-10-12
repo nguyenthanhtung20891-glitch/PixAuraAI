@@ -4,6 +4,7 @@
 #include "preset.hpp"
 #include "pixaura/preset.h"
 #include "manual_preview_binding.hpp"
+#include "pixaura/dynamic_policy.h"
 
 #include <cstring>
 #include <limits>
@@ -23,6 +24,7 @@ struct GestureEntry {
     pixaura_decode_context* raster = nullptr;
     pixaura_decode_handle original{};
     pixaura_preview_ticket ticket{};
+    uint64_t policy_epoch=0;
     void revoke() const {
         if (raster && ticket.generation) (void)pixaura_preview_cancel(raster, &ticket);
     }
@@ -288,6 +290,14 @@ int32_t pixaura_manual_state(pixaura_document_context* context,const pixaura_man
 int32_t pixaura_manual_preview_ticket(pixaura_document_context* context,const pixaura_manual_gesture* token,const pixaura_document_handle* base,pixaura_preview_ticket* output,uint64_t* sequence){
     return boundary(nullptr,[&]{require(output&&sequence);const auto h=live(context);std::lock_guard<std::mutex> lock(h.registry->mutex);
         auto& entry=entry_locked(h,token);binding(entry,snapshot_locked(h,base));require(entry.raster!=nullptr);
+        pixaura_execution_strategy strategy{};
+        const auto policy_status=pixaura_policy_query(1,entry.raster,&strategy);
+        require(policy_status==0||policy_status==PIXAURA_INVALID_ARGUMENT,policy_status);
+        if(policy_status==0&&entry.policy_epoch!=strategy.epoch){
+            require(entry.controller->state()==PIXAURA_MANUAL_ACTIVE,PIXAURA_DOCUMENT_CANCELLED);
+            pixaura_preview_ticket next{};const auto status=pixaura_preview_begin(entry.raster,1,&next);
+            require(status==0,status);entry.ticket=next;entry.policy_epoch=strategy.epoch;
+        }
         *output=entry.ticket;*sequence=entry.controller->sequence();return PIXAURA_OK;});
 }
 int32_t pixaura_manual_preview_current(pixaura_document_context* context,const pixaura_manual_gesture* token,const pixaura_document_handle* base,uint64_t sequence,const pixaura_preview_ticket* ticket,const pixaura_decode_handle* preview){

@@ -1,5 +1,18 @@
 # Architectural decision index
 
+## Phase 4 Step 3 authorization
+
+Product Owner authorizes Dynamic Memory/Thermal Downgrade at
+`d118cd26f9384c2f1735a2fbc57682c24a5990e7`; Steps 1/2 COMPLETE / FULL PASS.
+[Dynamic policy v1](docs/contracts/dynamic-capability-policy-v1.md) freezes a
+separate normalized enum family including CRITICAL, immediate componentwise
+reductions, three distinct stable recovery observations and nonwrapping epochs.
+Existing PRV1/raster/gesture owners remain authoritative; no frozen architecture
+conflict or superseding ADR is required. Schema 3 and hard ceilings unchanged.
+Frozen roadmap remains seven steps; Steps 4–7 NOT STARTED; no Step 8+ or Phase 5.
+DH-APPLE-METAL-01 unchanged. Supersedes historical Step 2-only authorization.
+
+
 ## Phase 4 roadmap freeze and Step 2 authorization
 
 Product Owner accepts Step 1 COMPLETE / FULL PASS at

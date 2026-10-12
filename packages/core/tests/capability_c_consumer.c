@@ -1,5 +1,6 @@
 #include "capability_boundary.h"
 #include "budget_boundary.h"
+#include "dynamic_policy_boundary.h"
 #include <stdio.h>
 int main(void) {
     int status = capability_boundary_check();
@@ -8,5 +9,8 @@ int main(void) {
     status = budget_boundary_check();
     if (status != 0) { fprintf(stderr, "Budget admission failed at line %d\n", status); return 1; }
     puts("Budget v1: shared LOW/MID/HIGH, thresholds +/-1, overflow, occupancy, static downgrade, GPU trust and hard ceilings PASS");
+    status=dynamic_policy_boundary_check();
+    if(status){fprintf(stderr,"Dynamic policy failed at line %d\n",status);return 1;}
+    puts("Dynamic policy v1: LOW/MID/HIGH transitions, 30000 churn updates, hysteresis, backend loss and ceilings PASS");
     return 0;
 }

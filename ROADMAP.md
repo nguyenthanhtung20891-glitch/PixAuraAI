@@ -1,5 +1,19 @@
 # Delivery roadmap
 
+## Phase 4 current authorization — Step 3 only
+
+Step 3 Dynamic Memory/Thermal Downgrade is AUTHORIZED at
+`d118cd26f9384c2f1735a2fbc57682c24a5990e7`. Step 2 closure passed Foundation
+38236917817 (7/7) and Native application shells 38236917726 (3/3) on that SHA.
+Steps 1/2 COMPLETE / FULL PASS; Phase 0–3 remain closed. The seven-step roadmap
+remains FROZEN. Steps 4–7 NOT STARTED; no Step 8+ or Phase 5 authorization.
+[Dynamic policy contract](docs/contracts/dynamic-capability-policy-v1.md) and
+[Step 3 report](docs/reports/phase-4-step-3.md) track immediate execution-only
+reductions, deterministic recovery and the existing PRV1/gesture owners.
+Schema 3, source fidelity, hard ceilings and DH-APPLE-METAL-01 remain unchanged.
+Stop after Step 3. This authorization supersedes historical Step 2-only statuses.
+
+
 ## Phase 4 current authorization — frozen roadmap / Step 2 only
 
 Product Owner freezes the seven-step [Phase 4 roadmap](docs/plans/phase-4-roadmap.md)

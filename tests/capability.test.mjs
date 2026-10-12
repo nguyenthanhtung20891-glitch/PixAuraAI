@@ -35,12 +35,12 @@ test('all build and runtime boundaries execute capability foundation tests', () 
   for (const file of ['.github/workflows/foundation.yml', '.github/workflows/native-shells.yml', 'scripts/check-apple.sh']) assert.ok(read(file).includes('tests/capability.test.mjs'), file);
 });
 
-test('finite Phase 4 roadmap is frozen with only Step 2 currently authorized', () => {
+test('finite Phase 4 roadmap is frozen with only Step 3 currently authorized', () => {
   const roadmap = read('docs/plans/phase-4-roadmap.md');
   assert.match(roadmap, /FROZEN by Product Owner/);
   const rows = [...roadmap.matchAll(/^\| (\d+) \|/gm)];
   assert.deepEqual(rows.map(m => Number(m[1])), [1, 2, 3, 4, 5, 6, 7]);
-  assert.match(roadmap, /Steps 3–7 remain NOT STARTED/);
+  assert.match(roadmap, /Steps 4–7 remain NOT STARTED/);
   assert.match(read('QUALITY_GATES.md'), /Phase 4 Step 1/);
   assert.match(read('docs/contracts/capability-profile-v1.md'), /DH-APPLE-METAL-01/);
 });
@@ -65,4 +65,21 @@ test('shared budget corpus runs at native JNI and Swift boundaries', () => {
   for (const evidence of ['delta = -1', 'UINT64_MAX', 'PIXAURA_BUDGET_OVERFLOW', 'PIXAURA_BUDGET_OCCUPANCY', 'PIXAURA_BUDGET_PREVIEW_MEMORY', 'PIXAURA_GPU_PHYSICAL_CERTIFIED']) assert.ok(tests.includes(evidence));
   assert.match(read('packages/core/tests/capability_test.cpp'), /160000 parallel admission/);
   assert.ok(read('packages/core/Package.swift').includes('src/budget.cpp'));
+});
+
+test('dynamic policy is shared runtime authority with existing publication ownership', () => {
+  const contract = read('docs/contracts/dynamic-capability-policy-v1.md');
+  const header = read('packages/core/include/pixaura/dynamic_policy.h');
+  assert.match(header, /PIXAURA_DYNAMIC_POLICY_VERSION 1u/);
+  assert.match(contract, /THREE distinct monotonically increasing/);
+  assert.match(contract, /Schema 3/);
+  assert.match(contract, /Step 4 NOT STARTED/);
+  assert.ok(read('packages/core/Package.swift').includes('src/dynamic_policy.cpp'));
+  for (const file of ['packages/core/tests/capability_c_consumer.c', 'packages/core/tests/capability_test.cpp', 'platforms/android/native/capability_bridge.cpp']) {
+    assert.ok(read(file).includes('dynamic_policy_boundary_check'), file);
+  }
+  assert.ok(read('packages/core/swift/Tests/DynamicPolicyTests.swift').includes('pixaura_policy_update'));
+  assert.ok(read('platforms/android/app/src/androidTest/java/ai/pixaura/app/CapabilityFoundationTest.kt').includes('nativeDynamicPolicyBoundary'));
+  assert.ok(!/policy|Policy/.test(read('packages/core/src/storage_schema_v3.hpp')));
+  assert.ok(!/dynamic_policy|policy_update/.test(read('platforms/ios/PixAuraAI/ManualEditorScreen.swift')));
 });
