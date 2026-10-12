@@ -3,7 +3,9 @@
 ## Phase 4 Step 2 budget admission gates
 
 Step 1 accepted FULL PASS; roadmap FROZEN by Product Owner. Step 2 alone is
-AUTHORIZED / IMPLEMENTED / VALIDATION IN PROGRESS. Require shared fixture outcomes,
+COMPLETE / FULL PASS at `cf2026e9e712ddd9e1945ab5e97f9eb7f50c2cc9`:
+Foundation 38167080174 (7/7), Native application shells 38167080150 (3/3),
+all SUCCESS. The report records observed test totals. Require shared fixture outcomes,
 each CPU/RAM/process threshold ±1, unknown/contradictory/malformed profiles and
 requests, checked overflow, retained/in-flight bytes and handles, occupied work,
 static preview fit with full-source cost, GPU availability distinct from validation,

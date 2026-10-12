@@ -1,6 +1,7 @@
 # Phase 4 Step 2 — Budget Admission & Execution Tiers
 
-Status: **IMPLEMENTED / VALIDATION IN PROGRESS**.
+Status: **COMPLETE / FULL PASS** (technical gates; ready for Product Owner acceptance).
+Certified implementation SHA: `cf2026e9e712ddd9e1945ab5e97f9eb7f50c2cc9`.
 Baseline: `82fca1f6fe3a565a6704afe18cb5bc80cb9a9823`.
 Product Owner freezes the seven-step Phase 4 roadmap and accepts Step 1 FULL PASS.
 Only Step 2 is authorized; Steps 3–7 remain NOT STARTED. Phase 0–3 stay closed.
@@ -71,7 +72,8 @@ Android publication branch. No storage/security code or assertion is changed;
 these failures are not counted PASS. Final rebuilt admission corpus passed 2/2
 under ASan/UBSan. Hosted Linux must pass both unchanged filesystem cases and
 all 33 sanitizer tests on its native filesystem before delivery.
-Remaining exact-SHA hosted gates are pending and not counted PASS.
+The historical local filesystem failures above remain failures; final exact-SHA
+hosted Linux and sanitizer execution passed those cases on a native filesystem.
 Implementation SHA `0606c4ee934ec89243dabfc1e96ed1fe6ed8073e` passed
 Foundation 38162938140 (7/7), source 122/122 and Android runtime 18/18. Shells
 38162938172 failed only its existing iOS UI rotation readiness predicate;
@@ -96,10 +98,78 @@ evidence. The UI harness now waits for terminal gesture controls and absence of
 busy state after cancel/apply, and resolves current controls on every predicate
 poll instead of retaining an element across rebuilt views. All 20-second
 deadlines, real taps, selected postconditions and complete flows remain; no
-domain/UI production change. Full exact-SHA closure is still required.
+domain/UI production change. Implementation exact-SHA certification is observed below.
 Final delivery requires all seven Foundation and three Native application shell
 jobs SUCCESS on the same final SHA, including Android runtime and iOS app/UI.
 The delivery report supplies final SHA, workflow/job IDs and observed totals.
+
+## Implementation exact-SHA certification observed 2026-10-12
+
+Both completed workflows certify `cf2026e9e712ddd9e1945ab5e97f9eb7f50c2cc9`:
+[Foundation 38167080174](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38167080174)
+and [Native application shells 38167080150](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/38167080150).
+All 10 jobs SUCCESS; zero failed, running or infrastructure-failed jobs.
+
+| Workflow | Job | Job ID | Classification |
+| --- | --- | --- | --- |
+| Foundation | workflow-lint | 114551758344 | SUCCESS |
+| Foundation | apple-boundary | 114551758431 | SUCCESS |
+| Foundation | sanitizer | 114551758446 | SUCCESS |
+| Foundation | portable (ubuntu-24.04) | 114551758496 | SUCCESS |
+| Foundation | android-boundary (armeabi-v7a) | 114551758504 | SUCCESS |
+| Foundation | portable (windows-2025) | 114551758524 | SUCCESS |
+| Foundation | android-boundary (arm64-v8a) | 114551758689 | SUCCESS |
+| Shells | android-app | 114551758202 | SUCCESS |
+| Shells | source | 114551758301 | SUCCESS |
+| Shells | ios-app | 114551758390 | SUCCESS |
+
+Observed exact-job logs: source/documentation 122/122, zero skipped; portable
+source checks 80/80 on each host; Windows native 30/30; Linux native 31/31;
+Apple native 30/30; ASan/UBSan 33/33 with active negative controls. Workflow
+lint and both Android ABI builds passed. Android debug/release builds, both
+JVM test tasks (4/4 debug and 4/4 release, zero failures/ignored in downloaded
+exact-run reports), both lint tasks and instrumentation APK passed; runtime JNI/Compose
+instrumentation completed 18/18. Swift macOS and iOS simulator passed 18/18 each;
+iOS debug/release app builds, app tests 6/6 and UI tests 2/2 passed, zero failures.
+The Linux-only numerical-fixture step is intentionally inapplicable on Windows;
+its actual Linux execution passed, rather than treating the skipped step as PASS.
+
+Native logs confirm 160000 identical parallel admission queries across eight
+callers. Shared C/C++/JNI boundary corpus and independently expected Swift results
+passed. HIGH oversize, hard-limit preservation, threshold +/-1, checked overflow,
+unknown facts, occupancy and static fallback cases all passed their containing
+gates. These are synthetic policy and platform regression evidence, not physical
+device profiling or Apple Metal certification. Schema 3 and document semantics
+remain unchanged; admission is not persisted into history.
+
+Final iOS remediation is category B (test harness readiness/input observation).
+Cancellation completion requires absence of Editor busy plus an existing disabled
+Cancel control before querying rebuilt controls. Fresh predicate queries, actual
+visible coordinate taps and mandatory selected/revision/history/reopen assertions
+remain. No arbitrary sleeps, production timeout changes or core-error masking.
+No category A defect or category C runner failure requires further remediation.
+The macOS capacity annotation did not prevent successful execution.
+
+HEAD, cached origin/main and remotely queried main matched the certified SHA;
+initial working tree was clean and git diff --check passed. Documentation closure
+changes only the report, ROADMAP.md, QUALITY_GATES.md and contract status. The
+Product Owner authorizes a documentation-only commit and push; both complete
+workflows must independently pass all ten jobs on that closure SHA before final
+delivery. Implementation-SHA evidence above does not substitute for closure-SHA
+execution. The final delivery records the observed closure SHA and workflow IDs.
+Local documentation checks after these edits passed 16/16, zero skipped, using
+Node's --test-isolation=none. The initial default-isolation invocation failed to
+spawn three test workers with sandbox EPERM before executing tests; that local
+environment failure is not a product failure or a PASS. The in-process rerun
+executed all checks successfully. Final git diff --check passed.
+Closure pre-commit Windows source/documentation checks passed 86/86, zero skipped,
+with repository-local temporary storage. An initial attempt to run the Linux CI
+source suite on Windows passed 86/122 and failed its 36 Linux-only fake-SDK/Bash
+orchestration tests; those failures are not counted PASS. The applicable Windows
+suite excludes that Linux-only test file; the complete 122-test suite remains
+mandatory in the closure SHA's hosted Linux source job. No tests are changed.
+Frozen roadmap structure, DH-APPLE-METAL-01 and all later-step boundaries remain.
+Step 2 is ready for acceptance. Step 3 has NOT started; stop here.
 
 ## Scope and review boundary
 

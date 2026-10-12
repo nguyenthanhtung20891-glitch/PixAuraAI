@@ -4,7 +4,9 @@
 
 Product Owner freezes the seven-step [Phase 4 roadmap](docs/plans/phase-4-roadmap.md)
 at `82fca1f6fe3a565a6704afe18cb5bc80cb9a9823`. Step 1 is COMPLETE / FULL PASS;
-Step 2 is AUTHORIZED / IMPLEMENTED / VALIDATION IN PROGRESS. Steps 3–7 remain
+Step 2 is COMPLETE / FULL PASS (technical gates) at
+`cf2026e9e712ddd9e1945ab5e97f9eb7f50c2cc9`: Foundation 38167080174 (7/7),
+Native application shells 38167080150 (3/3), all SUCCESS. Steps 3–7 remain
 NOT STARTED; no Step 8+. This supersedes historical proposed/not-frozen wording.
 [Budget v1](docs/contracts/budget-admission-v1.md) and [Step 2 report](docs/reports/phase-4-step-2.md)
 freeze only static shared admission/tiers. All ten exact-SHA jobs are required.

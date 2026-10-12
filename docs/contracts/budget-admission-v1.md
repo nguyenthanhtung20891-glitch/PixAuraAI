@@ -1,5 +1,11 @@
 # Budget admission v1 — Phase 4 Step 2
 
+Status: COMPLETE / FULL PASS (technical gates), certified at
+`cf2026e9e712ddd9e1945ab5e97f9eb7f50c2cc9`; Foundation 38167080174 (7/7)
+and Native application shells 38167080150 (3/3), all SUCCESS.
+See the [Step 2 report](../reports/phase-4-step-2.md). Policy remains frozen;
+Step 3 has NOT started. This status does not authorize later integration.
+
 Authority: Product Owner freezes the seven-step Phase 4 roadmap and accepts
 Step 1 at `82fca1f6fe3a565a6704afe18cb5bc80cb9a9823`; only Step 2 is authorized.
 This contract freezes shared policy family 1. No dynamic transition orchestration,
