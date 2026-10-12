@@ -1,5 +1,20 @@
 # Delivery roadmap
 
+## Phase 4 Step 4 current authorization — Android capability integration
+
+Product Owner authorizes Step 4 at `6389750c5ccab3b40d3ee76cb29bbb88b0fb5596`.
+Steps 1–3 COMPLETE / FULL PASS; seven-step roadmap remains FROZEN.
+[Android contract](docs/contracts/android-capability-integration-v1.md) and
+[Step 4 report](docs/reports/phase-4-step-4.md) govern trusted local Android
+observations into shared capability/admission/dynamic policy and existing
+editor/PRV1 ownership. Step 4 IMPLEMENTATION / VALIDATION IN PROGRESS.
+All retained source/native/sanitizer/Android/Apple gates and both complete
+same-final-SHA hosted workflows must pass; unobserved gates are not PASS.
+No Android tier table, schema change, UI, telemetry, new dependency or trust
+expansion. Schema 3, hard ceilings and DH-APPLE-METAL-01 unchanged.
+Steps 5–7 NOT STARTED; no Step 8+ or Phase 5/AI/model authorization.
+Stop after Step 4. This supersedes historical Step 3-only authorization below.
+
 ## Phase 4 current authorization — Step 3 only
 
 Step 3 COMPLETE / FULL PASS at `f466a54ada85dcc9068b4daddfa690b2f00e06a7`:

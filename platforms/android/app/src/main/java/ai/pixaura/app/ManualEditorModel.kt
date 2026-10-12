@@ -10,11 +10,14 @@ import ai.pixaura.bridge.CoreProbe
 import ai.pixaura.bridge.ManualEditor
 import ai.pixaura.bridge.ManualState
 import ai.pixaura.bridge.ManualTool
+import ai.pixaura.bridge.AndroidCapabilitySnapshot
+import ai.pixaura.bridge.ExecutionStrategy
 import java.io.File
 import java.util.UUID
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
+import java.io.InputStream
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -37,6 +40,56 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     val state = mutable.asStateFlow()
     private val app = application
     private val preferences = app.getSharedPreferences("manual-editor", 0)
+    private val capabilities = (app as PixAuraApplication).capabilityOwner
+    private val pendingCapability = AtomicReference<AndroidCapabilitySnapshot?>(null)
+    private val applyingCapability = AtomicBoolean(false)
+    private var capabilitySubscription: AutoCloseable? = null
+    private var appliedCapabilitySequence = 0L
+    internal val capabilityStrategy = MutableStateFlow<ExecutionStrategy?>(null)
+    init { commands.execute {
+        capabilitySubscription = capabilities.subscribe { snapshot ->
+            pendingCapability.updateAndGet { previous ->
+                if (previous == null) snapshot else snapshot.copy(observation = snapshot.observation.copy(
+                    thermal = maxOf(previous.observation.thermal, snapshot.observation.thermal),
+                    memory = maxOf(previous.observation.memory, snapshot.observation.memory),
+                    constrained = previous.observation.constrained || snapshot.observation.constrained,
+                    vulkan = minOf(previous.observation.vulkan, snapshot.observation.vulkan),
+                    processBudgetBytes = minOf(previous.observation.processBudgetBytes, snapshot.observation.processBudgetBytes)))
+            }
+            drainCapabilities()
+        }
+    } }
+    private fun configured(root: String, input: InputStream? = null, bytes: Long = 0): ManualEditor {
+        val sampled = capabilities.sample()
+        val snapshot = pendingCapability.getAndSet(null) ?: sampled
+        val editor = ManualEditor(root, input, bytes, snapshot)
+        try { capabilityStrategy.value = editor.executionStrategy(); appliedCapabilitySequence = snapshot.observation.sequence; return editor }
+        catch (failure: Throwable) { editor.close(); throw failure }
+    }
+    private fun applyPendingCapability(): Boolean {
+        val editor = owner ?: return false
+        val snapshot = pendingCapability.getAndSet(null) ?: return false
+        if (snapshot.observation.sequence <= appliedCapabilitySequence) return false
+        val before = editor.executionStrategy().epoch
+        val next = editor.updateCapability(snapshot.observation)
+        capabilityStrategy.value = next
+        appliedCapabilitySequence = snapshot.observation.sequence
+        return next.epoch != before
+    }
+    /** One fixed pending slot/runnable; coalescing retains every worsening signal.
+     * Core alone derives transitions. Native calls stay on the command lane. */
+    private fun drainCapabilities() {
+        if (disposed.get() || !applyingCapability.compareAndSet(false, true)) return
+        commands.execute {
+            try { if (applyPendingCapability()) {
+                if (owner?.hasRequestedPreview() == true) preview()
+                refresh()
+            } }
+            catch (failure: Throwable) { refresh(message(failure)) }
+            finally { applyingCapability.set(false)
+                if (!disposed.get() && owner != null && pendingCapability.get() != null) drainCapabilities() }
+        }
+    }
     private fun root() = File(app.noBackupFilesDir, "manual-projects").apply { mkdirs() }
     private fun message(e: Throwable): String = if (e is EditorFailure) {
         val meaning = when (e.status) {
@@ -63,14 +116,14 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         if (owner == null) {
             val name = preferences.getString("project", null)
             if (name != null && name.matches(Regex("[0-9a-f-]{36}"))) {
-                owner = ManualEditor(File(root(), name).canonicalPath)
+                owner = configured(File(root(), name).canonicalPath)
                 preview()
             }
         }
     }
     fun reopenProject() = command { pendingValues.set(null); pendingPreview.set(null); owner?.close(); owner = null
         val name = preferences.getString("project", null)
-        if (name != null && name.matches(Regex("[0-9a-f-]{36}"))) { owner = ManualEditor(File(root(), name).canonicalPath); preview() }
+        if (name != null && name.matches(Regex("[0-9a-f-]{36}"))) { owner = configured(File(root(), name).canonicalPath); preview() }
     }
     /** Picker source is copied in a bounded stream to app-private staging, then
      * immutable AssetStore ingestion verifies it. The original URI is untouched.
@@ -93,7 +146,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     private fun importFileOnWorker(file: File) {
         pendingPreview.set(null); pendingValues.set(null)
         val name = UUID.randomUUID().toString(); val directory = File(root(), name).apply { check(mkdir()) }
-        val replacement = file.inputStream().use { ManualEditor(directory.canonicalPath, it, file.length()) }
+        val replacement = file.inputStream().use { configured(directory.canonicalPath, it, file.length()) }
         owner?.close(); owner = replacement
         preferences.edit { putString("project", name) }; preview()
     }
@@ -117,6 +170,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         }
     }
     fun action(action: Int) = command {
+        applyPendingCapability()
         val finalValues = pendingValues.getAndSet(null)
         if (action == 1 && finalValues != null) owner?.update(finalValues.second, finalValues.first)
         pendingPreview.set(null); owner?.action(action); preview()
@@ -127,6 +181,9 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     fun closeEditor() = command { pendingValues.set(null); pendingPreview.set(null); owner?.close(); owner = null; mutable.value = mutable.value.copy(previewLoading = false) }
     private fun preview() {
         val editor = owner ?: return
+        applyPendingCapability()
+        capabilities.sample()
+        applyPendingCapability()
         pendingPreview.set(editor to editor.request())
         mutable.value = mutable.value.copy(previewLoading = true)
         if (!renderingNow.compareAndSet(false, true)) return
@@ -155,6 +212,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     override fun onCleared() {
         disposed.set(true)
         pendingValues.set(null); pendingPreview.set(null)
-        commands.execute { owner?.close(); owner = null; rendering.shutdown(); commands.shutdown() }
+        commands.execute { capabilitySubscription?.close(); capabilitySubscription = null
+            pendingCapability.set(null); owner?.close(); owner = null; rendering.shutdown(); commands.shutdown() }
     }
 }

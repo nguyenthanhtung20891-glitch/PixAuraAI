@@ -1,6 +1,7 @@
 #ifndef PIXAURA_EDITOR_H
 #define PIXAURA_EDITOR_H
 #include "manual.h"
+#include "dynamic_policy.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -26,6 +27,12 @@ typedef struct pixaura_editor_request {
 PIXAURA_API int32_t pixaura_editor_open(uint32_t, pixaura_editor_context*,
     const uint8_t* root,uint64_t root_bytes,const uint8_t* identity,uint64_t identity_bytes,
     pixaura_editor_reader,void* reader_state,uint64_t import_bytes);
+/* Configure trusted runtime policy before any decode/working allocation.
+ * Legacy open remains unchanged. Output context/strategy preserved on failure. */
+PIXAURA_API int32_t pixaura_editor_open_policy(uint32_t, pixaura_editor_context*,
+    const uint8_t* root,uint64_t root_bytes,const uint8_t* identity,uint64_t identity_bytes,
+    pixaura_editor_reader,void* reader_state,uint64_t import_bytes,
+    const pixaura_capability_profile*, const pixaura_policy_observation*, pixaura_execution_strategy*);
 /* Descriptor index in existing ASCII registry order. Tool selection cancels A
  * before B; defaults/versions and parameter names come from that registry. */
 PIXAURA_API int32_t pixaura_editor_select(pixaura_editor_context*,uint32_t index);
@@ -46,6 +53,14 @@ PIXAURA_API int32_t pixaura_editor_render(pixaura_editor_context*,const pixaura_
 PIXAURA_API int32_t pixaura_editor_current(pixaura_editor_context*,const pixaura_editor_request*);
 PIXAURA_API int32_t pixaura_editor_stop(pixaura_editor_context*);
 PIXAURA_API int32_t pixaura_editor_destroy(pixaura_editor_context*);
+/* Trusted platform observations only. Existing platform lifecycle/display lock
+ * covers these calls. No private raster pointer escapes; shared policy owns all
+ * strategy choices. Runtime-only; stable storage and quiescent destroy required. */
+PIXAURA_API int32_t pixaura_editor_policy_configure(uint32_t, pixaura_editor_context*,
+    const pixaura_capability_profile*, const pixaura_policy_observation*, pixaura_execution_strategy*);
+PIXAURA_API int32_t pixaura_editor_policy_update(uint32_t, pixaura_editor_context*,
+    const pixaura_policy_observation*, pixaura_execution_strategy*);
+PIXAURA_API int32_t pixaura_editor_policy_query(uint32_t, pixaura_editor_context*, pixaura_execution_strategy*);
 #ifdef __cplusplus
 }
 #endif

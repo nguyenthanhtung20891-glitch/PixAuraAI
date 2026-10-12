@@ -2,6 +2,7 @@
 #include "pixaura/editor.h"
 #include <cstring>
 #include <vector>
+#include <algorithm>
 namespace {
 template<class T>T* storage(JNIEnv* env,jobject buffer){if(!buffer||env->GetDirectBufferCapacity(buffer)!=static_cast<jlong>(sizeof(T)))return nullptr;
     auto* p=env->GetDirectBufferAddress(buffer);return p&&reinterpret_cast<uintptr_t>(p)%alignof(T)==0?static_cast<T*>(p):nullptr;}
@@ -11,18 +12,83 @@ int64_t read(void* raw,uint8_t* output,uint64_t capacity){auto& r=*static_cast<I
     if(r.env->ExceptionCheck()){r.env->ExceptionClear();return -1;}if(n==-1)return 0;if(n<=0||static_cast<uint64_t>(n)>capacity)return -1;
     r.env->GetByteArrayRegion(r.buffer,0,n,reinterpret_cast<jbyte*>(output));return r.env->ExceptionCheck()?-1:n;}
 }
+namespace {
+bool words(JNIEnv* env,jlongArray input,jlong* output,jsize count){
+    if(!input||env->GetArrayLength(input)!=count)return false;
+    env->GetLongArrayRegion(input,0,count,output);
+    if(env->ExceptionCheck())return false;
+    for(jsize i=0;i<count;++i)if(output[i]<0)return false;
+    return true;
+}
+int32_t observation(JNIEnv* env,jlongArray input,pixaura_policy_observation& o){
+    jlong v[7]{};if(!words(env,input,v,7))return 1;
+    if(v[0]!=1)return 2;
+    if(v[1]>4||v[2]>4||v[3]>1||v[4]>2||v[6]==0)return 1;
+    o={};o.version=1;o.struct_size=sizeof(o);o.thermal=static_cast<uint32_t>(v[1]);
+    o.memory_pressure=static_cast<uint32_t>(v[2]);o.constrained=static_cast<uint32_t>(v[3]);
+    o.gpu_availability=static_cast<uint32_t>(v[4]);o.process_budget_bytes=static_cast<uint64_t>(v[5]);
+    o.sequence=static_cast<uint64_t>(v[6]); // Trust is never accepted from Java.
+    return 0;
+}
+jlongArray strategy(JNIEnv* env,int32_t status,const pixaura_execution_strategy& s){
+    const jlong v[11]={status,s.tier,static_cast<jlong>(s.runtime_cap_bytes),s.preview_edge,s.concurrency,
+        s.backend,s.forced_cpu,s.reason,s.recovery_pending,s.stable_observations,static_cast<jlong>(s.epoch)};
+    auto result=env->NewLongArray(11);if(!result)return nullptr;
+    env->SetLongArrayRegion(result,0,11,v);return env->ExceptionCheck()?nullptr:result;
+}
+int32_t profile(JNIEnv* env,jlongArray facts,pixaura_capability_profile& p){
+    jlong v[6]{};if(!words(env,facts,v,6))return 1;
+    if(v[0]!=1)return 2;
+    if(v[1]>PIXAURA_CAPABILITY_MAX_CPUS||v[2]>UINT32_MAX||v[5]>2)return 1;
+    const auto status=pixaura_capability_baseline(1,&p);if(status)return status;
+    p.hardware.logical_cpu_count=static_cast<uint32_t>(v[1]);p.hardware.runtime_version=static_cast<uint32_t>(v[2]);
+    p.hardware.physical_memory_bytes=static_cast<uint64_t>(v[3]);p.hardware.gpu_backend=PIXAURA_CAPABILITY_GPU_VULKAN;
+    p.hardware.gpu_availability=static_cast<uint32_t>(v[5]);p.hardware.gpu_validation=PIXAURA_GPU_NOT_VALIDATED;
+    // Conservative UNOBSERVED provenance: never assert physical trust from OS/model/emulator hints.
+    p.runtime.thermal=PIXAURA_THERMAL_NORMAL;p.runtime.memory_pressure=PIXAURA_PRESSURE_NORMAL;p.runtime.constrained=0;
+    p.runtime.gpu_availability=p.hardware.gpu_availability;p.runtime.process_budget_bytes=static_cast<uint64_t>(v[4]);p.runtime.sequence=1;
+    return pixaura_capability_validate(1,&p);
+}
+}
+extern "C" JNIEXPORT jlongArray JNICALL Java_ai_pixaura_bridge_ManualEditor_nativePolicyConfigure(
+    JNIEnv* env,jobject,jobject buffer,jlongArray facts,jlongArray input){
+    pixaura_execution_strategy s{};pixaura_policy_observation o{};
+    auto* c=storage<pixaura_editor_context>(env,buffer);
+    if(!c)return strategy(env,1,s);
+    const auto observation_status=observation(env,input,o);if(observation_status)return strategy(env,observation_status,s);
+    pixaura_capability_profile p{};auto status=profile(env,facts,p);
+    if(status)return strategy(env,status,s);
+    status=pixaura_editor_policy_configure(1,c,&p,&o,&s);return strategy(env,status,s);
+}
+extern "C" JNIEXPORT jlongArray JNICALL Java_ai_pixaura_bridge_ManualEditor_nativePolicyUpdate(
+    JNIEnv* env,jobject,jobject buffer,jlongArray input){
+    pixaura_execution_strategy s{};pixaura_policy_observation o{};auto* c=storage<pixaura_editor_context>(env,buffer);
+    if(!c)return strategy(env,1,s);
+    const auto parsed=observation(env,input,o);
+    const auto status=parsed?parsed:pixaura_editor_policy_update(1,c,&o,&s);
+    return strategy(env,status,s);
+}
+extern "C" JNIEXPORT jlongArray JNICALL Java_ai_pixaura_bridge_ManualEditor_nativePolicyQuery(JNIEnv* env,jobject,jobject buffer){
+    pixaura_execution_strategy s{};auto* c=storage<pixaura_editor_context>(env,buffer);
+    const auto status=c?pixaura_editor_policy_query(1,c,&s):1;return strategy(env,status,s);
+}
 extern "C" JNIEXPORT jlong JNICALL Java_ai_pixaura_bridge_CoreProbe_nativeImportLimit(JNIEnv*,jobject){pixaura_decode_limits limits{};return pixaura_decode_default_limits(1,&limits)==0?static_cast<jlong>(limits.encoded_bytes):0;}
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeStorageSize(JNIEnv*,jobject){return sizeof(pixaura_editor_context);}
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeRequestSize(JNIEnv*,jobject){return sizeof(pixaura_editor_request);}
 extern "C" JNIEXPORT jlong JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeGeneration(JNIEnv* env,jobject,jobject request){auto* r=storage<pixaura_editor_request>(env,request);jlong generation=0;if(r)std::memcpy(&generation,&r->ticket.generation,8);return generation;}
-extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeOpen(JNIEnv* env,jobject,jobject buffer,jbyteArray root,jbyteArray identity,jobject input,jlong bytes){
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeOpen(JNIEnv* env,jobject,jobject buffer,jbyteArray root,jbyteArray identity,jobject input,jlong bytes,jlongArray facts,jlongArray dynamic){
     auto* c=storage<pixaura_editor_context>(env,buffer);if(!c||!root||!identity||bytes<0||env->GetArrayLength(identity)!=32)return 1;
     const auto n=env->GetArrayLength(root);if(n<1||n>1024)return 1;
     uint8_t path[1024],id[32];env->GetByteArrayRegion(root,0,n,reinterpret_cast<jbyte*>(path));env->GetByteArrayRegion(identity,0,32,reinterpret_cast<jbyte*>(id));
     if(env->ExceptionCheck())return 1;Input r{env,input,nullptr,nullptr};
+    pixaura_capability_profile p{};pixaura_policy_observation o{};pixaura_execution_strategy execution{};
+    if(facts||dynamic){if(!facts||!dynamic)return 1;
+        const auto fact_status=profile(env,facts,p);if(fact_status)return fact_status;
+        const auto observation_status=observation(env,dynamic,o);if(observation_status)return observation_status;}
     if(bytes){if(!input)return 1;const auto cls=env->GetObjectClass(input);r.read=env->GetMethodID(cls,"read","([BII)I");env->DeleteLocalRef(cls);
         if(!r.read||env->ExceptionCheck())return 12;r.buffer=env->NewByteArray(65536);if(!r.buffer)return 8;}
-    const auto status=pixaura_editor_open(1,c,path,static_cast<uint64_t>(n),id,32,bytes?read:nullptr,&r,static_cast<uint64_t>(bytes));
+    const auto status=facts?pixaura_editor_open_policy(1,c,path,static_cast<uint64_t>(n),id,32,bytes?read:nullptr,&r,static_cast<uint64_t>(bytes),&p,&o,&execution):
+        pixaura_editor_open(1,c,path,static_cast<uint64_t>(n),id,32,bytes?read:nullptr,&r,static_cast<uint64_t>(bytes));
     if(r.buffer)env->DeleteLocalRef(r.buffer);return status;
 }
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeSelect(JNIEnv* env,jobject,jobject buffer,jint index){auto* c=storage<pixaura_editor_context>(env,buffer);return c?pixaura_editor_select(c,static_cast<uint32_t>(index)):1;}

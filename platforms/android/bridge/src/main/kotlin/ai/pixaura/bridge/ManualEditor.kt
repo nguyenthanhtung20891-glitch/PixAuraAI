@@ -20,7 +20,8 @@ class EditorFailure(val status: Int, val boundary: String) : Exception("$boundar
  * Bitmap copies, bounded synchronous worker admission, stop/join/destroy.
  * Construct and call IO/render/approval on application workers, never UI thread.
  */
-class ManualEditor(root: String, input: InputStream? = null, bytes: Long = 0) : AutoCloseable {
+class ManualEditor internal constructor(root: String, input: InputStream?, bytes: Long, initialCapability: AndroidCapabilitySnapshot?) : AutoCloseable {
+    constructor(root: String, input: InputStream? = null, bytes: Long = 0) : this(root, input, bytes, null)
     companion object { init { System.loadLibrary("pixaura_core"); System.loadLibrary("pixaura_bridge") } }
     private val identity = UUID.randomUUID().toString().replace("-", "")
     private val gate = ReentrantLock()
@@ -36,7 +37,8 @@ class ManualEditor(root: String, input: InputStream? = null, bytes: Long = 0) : 
     val tools: List<ManualTool>
     init {
         checked(nativeOpen(storage, root.toByteArray(Charsets.UTF_8),
-            identity.toByteArray(Charsets.US_ASCII), input, bytes), "Open")
+            identity.toByteArray(Charsets.US_ASCII), input, bytes, initialCapability?.facts?.nativeWords(),
+            initialCapability?.observation?.nativeWords()), "Open")
         tools = try {
         val json = JSONObject(String(checkNotNull(CoreProbe().nativeManualRegistry()), Charsets.UTF_8)).getJSONArray("tools")
         (0 until json.length()).map { i ->
@@ -83,6 +85,18 @@ class ManualEditor(root: String, input: InputStream? = null, bytes: Long = 0) : 
         else { displayed = candidate.bitmap; if (candidate.request.approved) committed = candidate.bitmap; replace(candidate.bitmap); true }
     }
     fun displayedBitmap(): Bitmap? = gate.withLock { displayed }
+    internal fun configureCapability(snapshot: AndroidCapabilitySnapshot): ExecutionStrategy = gate.withLock {
+        check(!closed)
+        ExecutionStrategy.fromNative(checkNotNull(nativePolicyConfigure(storage, snapshot.facts.nativeWords(), snapshot.observation.nativeWords())))
+    }
+    internal fun updateCapability(observation: AndroidObservation): ExecutionStrategy = gate.withLock {
+        check(!closed)
+        ExecutionStrategy.fromNative(checkNotNull(nativePolicyUpdate(storage, observation.nativeWords())))
+    }
+    internal fun executionStrategy(): ExecutionStrategy = gate.withLock {
+        check(!closed); ExecutionStrategy.fromNative(checkNotNull(nativePolicyQuery(storage)))
+    }
+    internal fun hasRequestedPreview(): Boolean = gate.withLock { !closed && requestedGeneration != 0L }
     fun isRequested(request: Request): Boolean = gate.withLock { !closed && request.owner == identity && request.generation == requestedGeneration }
     override fun close() = gate.withLock {
         if (!closed) {
@@ -94,7 +108,8 @@ class ManualEditor(root: String, input: InputStream? = null, bytes: Long = 0) : 
     private external fun nativeStorageSize(): Int
     private external fun nativeRequestSize(): Int
     private external fun nativeGeneration(request: ByteBuffer): Long
-    private external fun nativeOpen(storage: ByteBuffer, root: ByteArray, identity: ByteArray, input: InputStream?, bytes: Long): Int
+    private external fun nativeOpen(storage: ByteBuffer, root: ByteArray, identity: ByteArray, input: InputStream?, bytes: Long,
+        facts: LongArray?, observation: LongArray?): Int
     private external fun nativeSelect(storage: ByteBuffer, index: Int): Int
     private external fun nativeUpdate(storage: ByteBuffer, values: IntArray): Int
     private external fun nativeAction(storage: ByteBuffer, action: Int): Int
@@ -104,4 +119,7 @@ class ManualEditor(root: String, input: InputStream? = null, bytes: Long = 0) : 
     private external fun nativeCurrent(storage: ByteBuffer, request: ByteBuffer): Int
     private external fun nativeStop(storage: ByteBuffer): Int
     private external fun nativeDestroy(storage: ByteBuffer): Int
+    private external fun nativePolicyConfigure(storage: ByteBuffer, facts: LongArray, observation: LongArray): LongArray?
+    private external fun nativePolicyUpdate(storage: ByteBuffer, observation: LongArray): LongArray?
+    private external fun nativePolicyQuery(storage: ByteBuffer): LongArray?
 }

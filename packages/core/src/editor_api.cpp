@@ -87,9 +87,25 @@ struct Header{uint64_t tag_value;Service* service;};
 Service& owner(pixaura_editor_context* c){require(c&&c->api_version==1&&c->struct_size==sizeof(*c),3);
     Header h{};std::memcpy(&h,c->opaque,sizeof(h));require(h.tag_value==tag&&h.service,3);return *h.service;}
 }
-extern "C" int32_t pixaura_editor_open(uint32_t version,pixaura_editor_context* context,
+extern "C" int32_t pixaura_editor_policy_configure(uint32_t version,pixaura_editor_context* c,
+    const pixaura_capability_profile* p,const pixaura_policy_observation* o,pixaura_execution_strategy* out){return attempt([&]{
+    auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);s.ready();
+    check(pixaura_policy_configure(version,&s.raster,p,o,out));
+});}
+extern "C" int32_t pixaura_editor_policy_update(uint32_t version,pixaura_editor_context* c,
+    const pixaura_policy_observation* o,pixaura_execution_strategy* out){return attempt([&]{
+    auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);s.ready();
+    check(pixaura_policy_update(version,&s.raster,o,out));
+});}
+extern "C" int32_t pixaura_editor_policy_query(uint32_t version,pixaura_editor_context* c,pixaura_execution_strategy* out){return attempt([&]{
+    auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);s.ready();
+    check(pixaura_policy_query(version,&s.raster,out));
+});}
+static int32_t open_editor(uint32_t version,pixaura_editor_context* context,
     const uint8_t* root,uint64_t root_bytes,const uint8_t* identity,uint64_t identity_bytes,
-    pixaura_editor_reader reader,void* reader_state,uint64_t import_bytes){return attempt([&]{
+    pixaura_editor_reader reader,void* reader_state,uint64_t import_bytes,
+    const pixaura_capability_profile* profile,const pixaura_policy_observation* observation,
+    pixaura_execution_strategy* strategy){return attempt([&]{
     require(version==1,2);require(context&&context->api_version==0&&root&&root_bytes&&root_bytes<=1024&&identity&&identity_bytes==32);
     require(!reader||import_bytes!=0,17);
     const std::string_view path(reinterpret_cast<const char*>(root),static_cast<std::size_t>(root_bytes));
@@ -97,6 +113,8 @@ extern "C" int32_t pixaura_editor_open(uint32_t version,pixaura_editor_context* 
     (void)document::Id::parse(seed);auto s=std::make_unique<Service>(path,seed);
     pixaura_decode_limits dl{};check(pixaura_decode_default_limits(1,&dl));check(pixaura_working_default_limits(1,&s->limits));
     auto id=s->fresh();check(pixaura_decode_context_init(1,&s->raster,sizeof(s->raster),byte_pointer(id),32,&dl));
+    pixaura_execution_strategy initial{};
+    if(profile){require(observation&&strategy);check(pixaura_policy_configure(1,&s->raster,profile,observation,&initial));}
     id=s->fresh();check(pixaura_document_context_init(1,&s->document,sizeof(s->document),byte_pointer(id),32,nullptr));
     const auto session=s->fresh();storage::Asset asset;storage::AssetStore assets(path);
     if(import_bytes){
@@ -129,8 +147,21 @@ extern "C" int32_t pixaura_editor_open(uint32_t version,pixaura_editor_context* 
     const auto manifest=good(document::serialize(*s->loaded.snapshot));
     check(pixaura_document_open(1,&s->document,byte_pointer(manifest),manifest.size(),byte_pointer(session),32,&s->live,nullptr));
     s->approved_preview();Header h{tag,s.release()};pixaura_editor_context out{};out.api_version=1;out.struct_size=sizeof(out);
-    std::memcpy(out.opaque,&h,sizeof(h));*context=out;
+    std::memcpy(out.opaque,&h,sizeof(h));*context=out;if(strategy)*strategy=initial;
 });}
+extern "C" int32_t pixaura_editor_open(uint32_t version,pixaura_editor_context* context,
+    const uint8_t* root,uint64_t root_bytes,const uint8_t* identity,uint64_t identity_bytes,
+    pixaura_editor_reader reader,void* reader_state,uint64_t import_bytes){
+    return open_editor(version,context,root,root_bytes,identity,identity_bytes,reader,reader_state,import_bytes,nullptr,nullptr,nullptr);
+}
+extern "C" int32_t pixaura_editor_open_policy(uint32_t version,pixaura_editor_context* context,
+    const uint8_t* root,uint64_t root_bytes,const uint8_t* identity,uint64_t identity_bytes,
+    pixaura_editor_reader reader,void* reader_state,uint64_t import_bytes,
+    const pixaura_capability_profile* profile,const pixaura_policy_observation* observation,pixaura_execution_strategy* strategy){
+    if(version!=1)return 2;
+    if(!profile||!observation||!strategy)return 1;
+    return open_editor(version,context,root,root_bytes,identity,identity_bytes,reader,reader_state,import_bytes,profile,observation,strategy);
+}
 extern "C" int32_t pixaura_editor_select(pixaura_editor_context* c,uint32_t index){return attempt([&]{
     auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);s.ready();require(index<manual::registry().size(),5);
     s.clear();const auto& d=manual::registry()[index];const auto id=s.fresh();
