@@ -82,7 +82,7 @@ int32_t update(State& s,const pixaura_policy_observation* o,uint64_t limit) {
         chosen.runtime_cap_bytes=std::min(chosen.runtime_cap_bytes,candidate.runtime_cap_bytes);
         chosen.preview_edge=std::min(chosen.preview_edge,candidate.preview_edge);
         if(candidate.forced_cpu){chosen.backend=0;chosen.forced_cpu=1;}
-        chosen.reason=candidate.reason==PIXAURA_POLICY_BASELINE?PIXAURA_POLICY_BUDGET:candidate.reason;
+        chosen.reason=candidate.reason==PIXAURA_POLICY_BASELINE?uint32_t(PIXAURA_POLICY_BUDGET):candidate.reason;
         chosen.recovery_pending=chosen.stable_observations=0;next.recovery={};
     }else if(!same(candidate,chosen)){
         if(known_normal(*o)){

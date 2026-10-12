@@ -62,7 +62,13 @@ validation harness issues; neither failed invocation counts as PASS. Rejected-ca
 reporting, tiny-context clamping and native occupancy enforcement were tightened
 before final local acceptance. No assertions or resource limits were weakened.
 No hosted Apple/Android runtime execution is inferred from local build checks.
-Final exact-SHA Foundation and Native application shells remain pending.
+Initial hosted implementation SHA `747472b3025bf0f2bdf6a8d6ed9b4741e319c480`:
+Foundation 38265332585 exposed a GCC enum/unsigned conditional (A portability
+defect) and MSVC signed/unsigned test literals (B harness portability defect).
+Explicit unsigned types preserve all behavior, assertions and strict warnings.
+Local WSL lacks GCC; hosted GCC is the authoritative compiler-specific recheck.
+Rebuilt local capability/gesture tests passed 4/4. Final same-SHA workflows remain
+pending after the narrow fixes; prior jobs do not substitute for final closure.
 
 ## Scope and classification
 

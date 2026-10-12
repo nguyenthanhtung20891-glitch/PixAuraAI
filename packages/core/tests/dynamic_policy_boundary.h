@@ -33,7 +33,7 @@ static int dynamic_policy_boundary_check(void) {
             ++o.sequence;o.thermal=signal==0?severity:1;o.memory_pressure=signal==1?severity:1;
             prior=s;POLICY_CHECK(pixaura_policy_update(1,&c,&o,&s)==0);
             POLICY_CHECK(s.tier==0&&s.runtime_cap_bytes<=prior.runtime_cap_bytes&&s.forced_cpu==1);
-            POLICY_CHECK(s.preview_edge==(severity==4?360:720));
+            POLICY_CHECK(s.preview_edge==(severity==4?360u:720u));
             POLICY_CHECK(s.runtime_cap_bytes<=((severity==4?32:(severity==3?64:128))*mib));
             prior=s;POLICY_CHECK(pixaura_policy_update(1,&c,&o,&s)==0&&memcmp(&prior,&s,sizeof(s))==0);
             o.thermal=o.memory_pressure=1;
@@ -42,7 +42,7 @@ static int dynamic_policy_boundary_check(void) {
                     q=budget_request();q.temporary_bytes=200*mib;
                     POLICY_CHECK(pixaura_policy_admit(1,&c,&q,&b,&epoch)==0&&b.decision==PIXAURA_BUDGET_REJECT&&b.runtime_cap_bytes<=s.runtime_cap_bytes);
                     q=budget_request();}}
-            POLICY_CHECK(s.tier==tier&&s.preview_edge==(tier==0?720:(tier==1?1280:2048)));
+            POLICY_CHECK(s.tier==tier&&s.preview_edge==(tier==0?720u:(tier==1?1280u:2048u)));
         }
         ++o.sequence;o.thermal=2;o.memory_pressure=3;o.constrained=1;
         POLICY_CHECK(pixaura_policy_update(1,&c,&o,&s)==0&&s.reason==PIXAURA_POLICY_MEMORY&&s.runtime_cap_bytes<=64*mib);
