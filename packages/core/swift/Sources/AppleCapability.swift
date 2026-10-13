@@ -26,7 +26,11 @@ public struct AppleCapabilitySnapshot {
         if result.observation.memory_pressure <= 1, observation.memory_pressure == 0 || older.observation.memory_pressure == 0 { result.observation.memory_pressure = 0 }
         result.observation.constrained |= older.observation.constrained
         result.observation.process_budget_bytes = min(observation.process_budget_bytes, older.observation.process_budget_bytes)
-        if older.observation.gpu_availability != 2 { result.observation.gpu_availability = older.observation.gpu_availability }
+        if observation.gpu_availability == 0 || older.observation.gpu_availability == 0 {
+            result.observation.gpu_availability = 0
+        } else if observation.gpu_availability == 1 || older.observation.gpu_availability == 1 {
+            result.observation.gpu_availability = 1
+        }
         return result
     }
 }

@@ -202,6 +202,12 @@ final class AppleCapabilityTests: XCTestCase {
         XCTAssertEqual(merged.observation.memory_pressure, 4)
         XCTAssertEqual(merged.observation.gpu_availability, 1)
         XCTAssertEqual(merged.observation.gpu_validation, 0)
+        signals.backend = 0
+        let unknown = try owner.snapshot().retainingPressure(from: critical)
+        XCTAssertEqual(unknown.observation.gpu_availability, 0)
+        signals.memory = 0; let unknownMemory = try owner.snapshot()
+        signals.memory = 1; signals.backend = 2
+        XCTAssertEqual(try owner.snapshot().retainingPressure(from: unknownMemory).observation.memory_pressure, 0)
     }
     func testConcurrentCallbacksAndCloseAreBounded() throws {
         let signals = TestAppleSignals()

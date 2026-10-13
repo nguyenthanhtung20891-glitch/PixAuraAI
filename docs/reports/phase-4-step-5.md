@@ -38,6 +38,10 @@ including all five new Apple cases; Linux and ASan/UBSan SUCCESS. Android app
 job SUCCESS. Full workflow closure still pending Windows/iOS application job.
 Final test review adds the explicit NORMAL→ELEVATED→SEVERE→NORMAL thermal trace
 and UInt64.max budget rejection to the same fixture corpus before acceptance.
+Final adapter review found A: coalescing older unavailable backend with newer
+unknown must retain UNKNOWN, rather than accidentally create known recovery
+evidence. Availability merge now preserves unknown in either pending reading;
+tests cover both backend and memory unknown coalescing. Shared policy unchanged.
 
 Pending execution; no unobserved gate is PASS. Final acceptance requires both
 Foundation boundaries (7 jobs) and Native application shells (3 jobs) complete
