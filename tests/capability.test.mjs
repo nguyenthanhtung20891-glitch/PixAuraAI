@@ -38,12 +38,15 @@ test('all build and runtime boundaries execute capability foundation tests', () 
   for (const file of ['.github/workflows/foundation.yml', '.github/workflows/native-shells.yml', 'scripts/check-apple.sh']) assert.ok(read(file).includes('tests/capability.test.mjs'), file);
 });
 
-test('finite Phase 4 roadmap is frozen with only Step 4 currently authorized', () => {
+test('finite Phase 4 roadmap is frozen with Step 5 complete and later steps unauthorized', () => {
   const roadmap = read('docs/plans/phase-4-roadmap.md');
   assert.match(roadmap, /FROZEN by Product Owner/);
   const rows = [...roadmap.matchAll(/^\| (\d+) \|/gm)];
   assert.deepEqual(rows.map(m => Number(m[1])), [1, 2, 3, 4, 5, 6, 7]);
-  assert.match(roadmap, /Steps 5–7 remain NOT STARTED/);
+  assert.match(roadmap, /Steps 6–7 remain NOT STARTED/);
+  assert.match(roadmap, /\| 5 \| Apple Capability Integration \| COMPLETE \/ FULL PASS \|/);
+  assert.match(roadmap, /\| 6 \| Cross-tier Replay & Certification \| NOT STARTED \|/);
+  assert.match(roadmap, /\| 7 \| Phase 4 Closure \| NOT STARTED \|/);
   assert.match(read('QUALITY_GATES.md'), /Phase 4 Step 1/);
   assert.match(read('docs/contracts/capability-profile-v1.md'), /DH-APPLE-METAL-01/);
 });

@@ -1,5 +1,17 @@
 # System architecture
 
+## Phase 4 Step 5 accepted Apple integration
+
+Step 5 COMPLETE / FULL PASS at `944517952252cf1c9e6970bb3dfb2c62fe7f908a`:
+Foundation 38355260289 (7/7), Native application shells 38355259361 (3/3), both
+complete SUCCESS. [Apple contract](docs/contracts/apple-capability-integration-v1.md)
+composes one caller-owned observation service with existing shared policy and
+editor lifecycle/display/PRV1 owner. No new policy engine, publication authority,
+dependency or architecture conflict. Schema 3/hard ceilings unchanged; Metal
+availability is not certification. DH-APPLE-METAL-01 remains DEFERRED.
+Frozen roadmap unchanged; Steps 6–7 NOT STARTED, no Phase 5/AI/model work.
+This supersedes historical authorization sections below. Stop after Step 5.
+
 ## Phase 4 Step 4 current authorization — Android capability integration
 
 Product Owner authorizes Step 4 at `6389750c5ccab3b40d3ee76cb29bbb88b0fb5596`.

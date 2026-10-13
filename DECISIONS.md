@@ -1,5 +1,17 @@
 # Architectural decision index
 
+## Phase 4 Step 5 acceptance
+
+Apple integration COMPLETE / FULL PASS at `944517952252cf1c9e6970bb3dfb2c62fe7f908a`.
+Foundation 38355260289 (7/7) and Native application shells 38355259361 (3/3)
+are both complete SUCCESS. [Contract](docs/contracts/apple-capability-integration-v1.md)
+and [report](docs/reports/phase-4-step-5.md) compose accepted contracts without
+a new architectural decision or ADR. Static/dynamic facts remain separate;
+shared core owns policy, existing PRV1/display lock owns publication. Schema 3,
+hard ceilings and deferred DH-APPLE-METAL-01 unchanged. No physical Apple claim,
+Phase 5/AI/model work or Step 6 authorization. Frozen seven-step roadmap unchanged.
+This supersedes historical authorization sections below. Stop after Step 5.
+
 ## Phase 4 Step 4 current authorization — Android capability integration
 
 Product Owner authorizes Step 4 at `6389750c5ccab3b40d3ee76cb29bbb88b0fb5596`.

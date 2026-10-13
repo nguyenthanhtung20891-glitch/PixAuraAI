@@ -3,7 +3,9 @@
 ## Phase 4 Step 5 current authorization — Apple capability integration
 
 Authorized at `40a0c9bef05df328a2b3e89497316c368b81aa24`; Steps 1–4 COMPLETE /
-FULL PASS. Step 5 IN PROGRESS / VALIDATION. Frozen seven-step roadmap unchanged.
+FULL PASS. Step 5 COMPLETE / FULL PASS at `944517952252cf1c9e6970bb3dfb2c62fe7f908a`.
+Foundation 38355260289 (7/7), Native application shells 38355259361 (3/3),
+both COMPLETE / SUCCESS on that implementation SHA. Frozen roadmap unchanged.
 [Apple contract](docs/contracts/apple-capability-integration-v1.md) and
 [Step 5 report](docs/reports/phase-4-step-5.md) govern observations into existing
 shared authority. Require both complete same-final-SHA workflows and all affected

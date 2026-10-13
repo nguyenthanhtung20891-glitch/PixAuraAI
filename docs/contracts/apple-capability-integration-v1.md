@@ -1,6 +1,6 @@
 # Apple capability integration v1 — Phase 4 Step 5
 
-Status: IN VALIDATION. Authorized baseline `40a0c9bef05df328a2b3e89497316c368b81aa24`.
+Status: COMPLETE / FULL PASS. Authorized baseline `40a0c9bef05df328a2b3e89497316c368b81aa24`.
 Steps 1–4 COMPLETE / FULL PASS. Frozen seven-step roadmap unchanged;
 Steps 6–7 NOT STARTED. [Evidence](../reports/phase-4-step-5.md).
 
@@ -100,6 +100,10 @@ available; simulator and hosted macOS evidence cannot satisfy that gate.
 
 Schema 3 unchanged. No capability, tier, pressure, epoch or profile persistence.
 Fresh process/reopen reprobes current facts and starts a fresh native policy.
+Initial CRITICAL reopen may reject status 8: frozen 32 MiB scratch plus metadata/
+control exceeds the critical 32 MiB cap. This is correct admission behavior.
+After legitimate normal observations/fresh owner, admitted reopen preserves
+committed history/source and starts epoch one; no budget or semantic weakening.
 No Phase 5/AI/model work. Step 6 NOT STARTED.
 
 ## Validation

@@ -3,7 +3,9 @@
 ## Phase 4 Step 5 Apple integration gates
 
 Authorized baseline `40a0c9bef05df328a2b3e89497316c368b81aa24`.
-Step 5 IN PROGRESS / VALIDATION; Steps 1–4 COMPLETE / FULL PASS.
+Step 5 COMPLETE / FULL PASS at `944517952252cf1c9e6970bb3dfb2c62fe7f908a`;
+Foundation 38355260289 (7/7), Native application shells 38355259361 (3/3),
+both COMPLETE / SUCCESS on that implementation SHA. Steps 1–4 FULL PASS.
 [Contract](docs/contracts/apple-capability-integration-v1.md) and
 [report](docs/reports/phase-4-step-5.md) require observed mapping/trust/lifetime,
 pressure/recovery/history, stale publication, EXACT/FIT, ceiling and churn tests.
