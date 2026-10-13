@@ -2,7 +2,9 @@
 
 ## Phase 4 Step 6 cross-tier certification gates
 
-Step 6 authorized at `ce8d513764d6167aa6756b22ef5b0f81698c11c9`; IN VALIDATION.
+Step 6 authorized at `ce8d513764d6167aa6756b22ef5b0f81698c11c9`; COMPLETE / FULL PASS
+at `417f127d6018448910886d1760e1f8122bcecc11`. Foundation 38414896874 (7/7) and
+Native application shells 38414897742 (3/3), both complete SUCCESS on that SHA.
 Steps 1–5 FULL PASS; Step 7 NOT STARTED. [Contract](docs/contracts/cross-tier-replay-certification-v1.md)
 and [report](docs/reports/phase-4-step-6.md) require HIGH→MID→LOW, LOW→HIGH, T0 flow,
 exact canonical/history/source equivalence, ordered tools, full CPU reference,

@@ -4,6 +4,9 @@
 
 At `ce8d513764d6167aa6756b22ef5b0f81698c11c9` Product Owner authorizes bounded
 cross-tier replay certification; Steps 1–5 FULL PASS, Step 7 NOT STARTED.
+Step 6 COMPLETE / FULL PASS at `417f127d6018448910886d1760e1f8122bcecc11`:
+Foundation 38414896874 (7/7), Native application shells 38414897742 (3/3), both
+complete SUCCESS on that implementation SHA.
 The [contract](docs/contracts/cross-tier-replay-certification-v1.md) composes
 existing canonical storage, shared policy, CPU renderer and PRV1 owners.
 Critical admission failure preserving durable ownership uses preparation-before-

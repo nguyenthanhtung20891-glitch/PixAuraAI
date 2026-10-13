@@ -3,7 +3,9 @@
 ## Phase 4 Step 6 authorized certification
 
 Authorized baseline `ce8d513764d6167aa6756b22ef5b0f81698c11c9`; Steps 1–5 FULL PASS.
-Only Step 6 is authorized; [contract](docs/contracts/cross-tier-replay-certification-v1.md).
+Step 6 COMPLETE / FULL PASS at `417f127d6018448910886d1760e1f8122bcecc11`:
+Foundation 38414896874 (7/7), Native application shells 38414897742 (3/3), both
+complete SUCCESS. [Contract](docs/contracts/cross-tier-replay-certification-v1.md).
 Observed A: critical rejected reopen advanced durable session/epoch before decode.
 Preparation now precedes durable session acquisition, with existing-epoch CAS to
 reject intervening changes. No schema/history/policy or architecture redesign.

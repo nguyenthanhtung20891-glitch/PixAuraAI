@@ -3,7 +3,9 @@
 ## Phase 4 Step 6 current authorization — Cross-tier replay & certification
 
 Authorized baseline `ce8d513764d6167aa6756b22ef5b0f81698c11c9`; Steps 1–5 COMPLETE /
-FULL PASS. Step 6 IN PROGRESS / VALIDATION. Seven frozen steps unchanged.
+FULL PASS. Step 6 COMPLETE / FULL PASS at `417f127d6018448910886d1760e1f8122bcecc11`.
+Foundation 38414896874 (7/7), Native application shells 38414897742 (3/3), both
+complete SUCCESS on that implementation SHA. Seven frozen steps unchanged.
 [Replay contract](docs/contracts/cross-tier-replay-certification-v1.md) and
 [Step 6 report](docs/reports/phase-4-step-6.md) govern bounded synthetic tier,
 canonical/history/source and reference certification across native/Android/Apple.

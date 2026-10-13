@@ -1,6 +1,9 @@
 # Cross-tier replay certification v1 — Phase 4 Step 6
 
-Status: IN VALIDATION. Authorized baseline `ce8d513764d6167aa6756b22ef5b0f81698c11c9`.
+Status: COMPLETE / FULL PASS. Authorized baseline `ce8d513764d6167aa6756b22ef5b0f81698c11c9`.
+Certified implementation `417f127d6018448910886d1760e1f8122bcecc11`:
+Foundation 38414896874 (7/7), Native application shells 38414897742 (3/3), both
+complete SUCCESS. [Evidence and matrix](../reports/phase-4-step-6.md).
 Steps 1–5 COMPLETE / FULL PASS; seven frozen steps unchanged. Step 7 NOT STARTED.
 No schema, policy, numerical or publication-contract redesign is authorized.
 
