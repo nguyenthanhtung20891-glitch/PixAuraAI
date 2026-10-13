@@ -1,5 +1,18 @@
 # Quality gates and promotion policy
 
+## Phase 4 Step 6 cross-tier certification gates
+
+Step 6 authorized at `ce8d513764d6167aa6756b22ef5b0f81698c11c9`; IN VALIDATION.
+Steps 1–5 FULL PASS; Step 7 NOT STARTED. [Contract](docs/contracts/cross-tier-replay-certification-v1.md)
+and [report](docs/reports/phase-4-step-6.md) require HIGH→MID→LOW, LOW→HIGH, T0 flow,
+exact canonical/history/source equivalence, ordered tools, full CPU reference,
+pressure/recovery/rejection, backend/trust, contexts/races and fresh-policy tests.
+Require source/docs, Windows/Linux/Apple native, ASan/UBSan, Android ABI/JVM/
+instrumentation, Swift macOS/iOS Simulator, iOS app/UI and all retained persistence,
+Phase 0–3 and Step 1–5 gates. Both complete workflows PASS on SAME final SHA.
+No skipped/unobserved PASS. No Schema 4, ceiling increase, physical Apple claim,
+DH-APPLE-METAL-01 waiver or Phase 5 work. Frozen roadmap structure unchanged.
+
 ## Phase 4 Step 5 Apple integration gates
 
 Authorized baseline `40a0c9bef05df328a2b3e89497316c368b81aa24`.

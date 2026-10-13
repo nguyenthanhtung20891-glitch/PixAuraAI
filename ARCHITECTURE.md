@@ -1,5 +1,16 @@
 # System architecture
 
+## Phase 4 Step 6 authorized certification
+
+Authorized baseline `ce8d513764d6167aa6756b22ef5b0f81698c11c9`; Steps 1–5 FULL PASS.
+Only Step 6 is authorized; [contract](docs/contracts/cross-tier-replay-certification-v1.md).
+Observed A: critical rejected reopen advanced durable session/epoch before decode.
+Preparation now precedes durable session acquisition, with existing-epoch CAS to
+reject intervening changes. No schema/history/policy or architecture redesign.
+Test-only owner snapshots avoid duplicate live SQLite copies; release products
+exclude certification controls. Step 7 NOT STARTED. DH-APPLE-METAL-01 deferred.
+This supersedes historical step authorization below; no Phase 5/AI/model work.
+
 ## Phase 4 Step 5 accepted Apple integration
 
 Step 5 COMPLETE / FULL PASS at `944517952252cf1c9e6970bb3dfb2c62fe7f908a`:

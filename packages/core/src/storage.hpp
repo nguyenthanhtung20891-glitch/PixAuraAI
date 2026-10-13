@@ -51,6 +51,9 @@ public:
     // OS-generated session via open_session, invalidating earlier candidates.
     Loaded read();
     Loaded open_session(std::string_view fresh_session);
+    // Prepared reopen rejects if inspected state changed before acquisition.
+    // Zero retains legacy unconditional ownership acquisition.
+    Loaded open_session(std::string_view fresh_session, uint64_t expected_epoch);
     Saved create(const document::ImageDocument&);
     Saved apply(std::string_view command, uint64_t expected_epoch);
     bool checkpoint();

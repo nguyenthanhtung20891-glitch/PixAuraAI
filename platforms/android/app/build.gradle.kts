@@ -35,7 +35,10 @@ android {
         // targetSdk 36 is intentionally pinned; API 37 migration requires explicit behavior-change testing.
         disable += "OldTargetApi"
     }
-    buildTypes { release { isMinifyEnabled = false } }
+    buildTypes {
+        debug { externalNativeBuild { cmake { arguments += "-DPIXAURA_CERTIFICATION_TESTING=ON" } } }
+        release { isMinifyEnabled = false; externalNativeBuild { cmake { arguments += "-DPIXAURA_CERTIFICATION_TESTING=OFF" } } }
+    }
 }
 
 kotlin {

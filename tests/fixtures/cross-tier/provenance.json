@@ -1,0 +1,20 @@
+{
+  "kind": "SYNTHETIC POLICY EVIDENCE",
+  "generator": "scripts/cross-tier-fixtures.mjs",
+  "fixtures": [
+    {
+      "name": "small",
+      "width": 48,
+      "height": 32,
+      "encodedBytes": 1567,
+      "sha256": "410e778774cb0ef8e168dfc8aa10c6ad4e0683eede5cd2f4be2aa7590508f3c5"
+    },
+    {
+      "name": "large",
+      "width": 1024,
+      "height": 512,
+      "encodedBytes": 15060,
+      "sha256": "e3c3b7f373699ff992d82329937e274a462edc74b7f03411e0a4d106c9f8f5e4"
+    }
+  ]
+}

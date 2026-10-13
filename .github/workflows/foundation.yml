@@ -42,6 +42,7 @@ jobs:
           path: |
             build/host/Testing/
             build/host/document-canonical.json
+            build/host/cross-tier-*
           if-no-files-found: warn
           retention-days: 14
   apple-boundary:
@@ -63,6 +64,7 @@ jobs:
           path: |
             build/apple-host/Testing/
             build/apple-host/document-canonical.json
+            build/apple-host/cross-tier-*
             build/apple-devices.json
             build/apple-results.*/
           if-no-files-found: warn
@@ -83,6 +85,7 @@ jobs:
             build/sanitize/Testing/
             build/sanitize/test-logs/
             build/sanitize/document-canonical.json
+            build/sanitize/cross-tier-*
           if-no-files-found: warn
           retention-days: 14
   android-boundary:

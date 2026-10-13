@@ -24,10 +24,12 @@ let package = Package(
         .target(name: "CPixAuraCore", dependencies: ["CPixAuraSQLite", "CPixAuraCodecs"], path: ".",
                 exclude: ["Package.swift", "swift", "tests", "vendor"],
                 sources: ["src/editor_api.cpp", "src/core.cpp", "src/capability.cpp", "src/budget.cpp", "src/dynamic_policy.cpp", "src/document.cpp", "src/document_api.cpp", "src/storage_api.cpp", "src/storage.cpp", "src/storage_files.cpp", "src/sha256.cpp", "src/decode.cpp", "src/decode_api.cpp", "src/working.cpp", "src/evaluation.cpp", "src/geometry.cpp", "src/preview.cpp", "src/gpu.cpp", "src/manual_tools.cpp", "src/manual_geometry_preview.cpp"], publicHeadersPath: "include",
-                cxxSettings: [.headerSearchPath("vendor/codecs/zlib"), .unsafeFlags(["-fno-fast-math", "-ffp-contract=off"])]),
+                cxxSettings: [.define("PIXAURA_CERTIFICATION_TESTING", .when(configuration: .debug)), .define("PIXAURA_PREVIEW_TESTING", .when(configuration: .debug)), .headerSearchPath("vendor/codecs/zlib"), .unsafeFlags(["-fno-fast-math", "-ffp-contract=off"])]),
+        .target(name: "CPixAuraCertification", dependencies: ["CPixAuraCore"], path: "tests/certification",
+                publicHeadersPath: "include", cxxSettings: [.unsafeFlags(["-fno-fast-math", "-ffp-contract=off"])]),
         .target(name: "PixAuraCore", dependencies: ["CPixAuraCore"], path: "swift/Sources",
                 resources: [.copy("Shaders")], linkerSettings: [.linkedFramework("Metal")]),
-        .testTarget(name: "PixAuraCoreTests", dependencies: ["PixAuraCore", "CPixAuraCore"], path: "swift/Tests",
+        .testTarget(name: "PixAuraCoreTests", dependencies: ["PixAuraCore", "CPixAuraCore", "CPixAuraCertification"], path: "swift/Tests",
                     resources: [.copy("Fixtures")])
     ],
     cxxLanguageStandard: .cxx17

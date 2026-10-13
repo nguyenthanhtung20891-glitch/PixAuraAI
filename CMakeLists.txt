@@ -72,6 +72,12 @@ target_sources(pixaura_core PRIVATE packages/core/src/gpu.cpp packages/core/src/
 
 include(CTest)
 if(BUILD_TESTING)
+    target_compile_definitions(pixaura_core PRIVATE PIXAURA_CERTIFICATION_TESTING PIXAURA_PREVIEW_TESTING)
+    add_executable(cross_tier_replay_test packages/core/tests/cross_tier_replay_test.cpp packages/core/tests/certification/certification.cpp packages/core/src/document.cpp)
+    target_link_libraries(cross_tier_replay_test PRIVATE pixaura_core pixaura_storage)
+    target_compile_features(cross_tier_replay_test PRIVATE cxx_std_17)
+    pixaura_strict(cross_tier_replay_test)
+    add_test(NAME cross_tier_replay_test COMMAND cross_tier_replay_test "${CMAKE_BINARY_DIR}")
     add_executable(capability_c_consumer packages/core/tests/capability_c_consumer.c)
     set_target_properties(capability_c_consumer PROPERTIES LINKER_LANGUAGE CXX)
     target_link_libraries(capability_c_consumer PRIVATE pixaura_core)

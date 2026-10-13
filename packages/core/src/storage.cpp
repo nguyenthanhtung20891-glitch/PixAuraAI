@@ -155,7 +155,10 @@ Repository::~Repository()=default;
 uint32_t Repository::version(){std::lock_guard<std::mutex> lock(mutex_);impl_->progress_count=0;return impl_->validate_schema();}
 Loaded Repository::read(){std::lock_guard<std::mutex> lock(mutex_);Transaction tx(impl_->db,false);auto value=impl_->load();tx.commit();return value;}
 Loaded Repository::open_session(std::string_view fresh) {
-    std::lock_guard<std::mutex> lock(mutex_);const auto id=document::Id::parse(fresh);impl_->admit_write();Transaction tx(impl_->db,true);auto value=impl_->load();require(id!=value.snapshot->session().id,9);require(value.epoch<document::max_generation,8);
+    return open_session(fresh,0);
+}
+Loaded Repository::open_session(std::string_view fresh,uint64_t expected_epoch) {
+    std::lock_guard<std::mutex> lock(mutex_);const auto id=document::Id::parse(fresh);impl_->admit_write();Transaction tx(impl_->db,true);auto value=impl_->load();require(expected_epoch==0||value.epoch==expected_epoch,9);require(id!=value.snapshot->session().id,9);require(value.epoch<document::max_generation,8);
     Statement q(impl_->db,"UPDATE documents SET session=?,generation=0,epoch=epoch+1 WHERE epoch=?");q.text(1,fresh);q.number(2,value.epoch);q.done();require(sqlite3_changes(impl_->db)==1,9);fault(Point::in_transaction);auto next=impl_->load();tx.commit();return next;
 }
 Saved Repository::create(const document::ImageDocument& doc) {

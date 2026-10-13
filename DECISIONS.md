@@ -1,5 +1,16 @@
 # Architectural decision index
 
+## Phase 4 Step 6 authorization
+
+At `ce8d513764d6167aa6756b22ef5b0f81698c11c9` Product Owner authorizes bounded
+cross-tier replay certification; Steps 1–5 FULL PASS, Step 7 NOT STARTED.
+The [contract](docs/contracts/cross-tier-replay-certification-v1.md) composes
+existing canonical storage, shared policy, CPU renderer and PRV1 owners.
+Critical admission failure preserving durable ownership uses preparation-before-
+acquisition and existing-epoch CAS, not a new architecture decision. No new ADR,
+schema, limits, physical Apple certification or Phase 5 authorization.
+This supersedes historical step authorization below. Stop after Step 6.
+
 ## Phase 4 Step 5 acceptance
 
 Apple integration COMPLETE / FULL PASS at `944517952252cf1c9e6970bb3dfb2c62fe7f908a`.

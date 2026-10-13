@@ -1,5 +1,17 @@
 # Delivery roadmap
 
+## Phase 4 Step 6 current authorization — Cross-tier replay & certification
+
+Authorized baseline `ce8d513764d6167aa6756b22ef5b0f81698c11c9`; Steps 1–5 COMPLETE /
+FULL PASS. Step 6 IN PROGRESS / VALIDATION. Seven frozen steps unchanged.
+[Replay contract](docs/contracts/cross-tier-replay-certification-v1.md) and
+[Step 6 report](docs/reports/phase-4-step-6.md) govern bounded synthetic tier,
+canonical/history/source and reference certification across native/Android/Apple.
+Require all observed gates and both complete same-final-SHA workflows, including
+documentation closure. Schema 3/hard ceilings unchanged; no physical Apple claim
+or DH-APPLE-METAL-01 waiver. No Phase 5/AI/model work. Step 7 NOT STARTED.
+STOP after Step 6. This supersedes historical authorization sections below.
+
 ## Phase 4 Step 5 current authorization — Apple capability integration
 
 Authorized at `40a0c9bef05df328a2b3e89497316c368b81aa24`; Steps 1–4 COMPLETE /

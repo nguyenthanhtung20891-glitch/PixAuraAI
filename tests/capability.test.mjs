@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { execFileSync } from 'node:child_process';
 const read = p => fs.readFileSync(p, 'utf8');
 
 test('capability foundation has bounded versioned data and no execution or persistence authority', () => {
@@ -38,17 +39,32 @@ test('all build and runtime boundaries execute capability foundation tests', () 
   for (const file of ['.github/workflows/foundation.yml', '.github/workflows/native-shells.yml', 'scripts/check-apple.sh']) assert.ok(read(file).includes('tests/capability.test.mjs'), file);
 });
 
-test('finite Phase 4 roadmap is frozen with Step 5 complete and later steps unauthorized', () => {
+test('finite Phase 4 roadmap is frozen with Step 6 authorized and Step 7 not started', () => {
   const roadmap = read('docs/plans/phase-4-roadmap.md');
   assert.match(roadmap, /FROZEN by Product Owner/);
   const rows = [...roadmap.matchAll(/^\| (\d+) \|/gm)];
   assert.deepEqual(rows.map(m => Number(m[1])), [1, 2, 3, 4, 5, 6, 7]);
-  assert.match(roadmap, /Steps 6–7 remain NOT STARTED/);
+  assert.match(roadmap, /Step 7 remains NOT STARTED/);
   assert.match(roadmap, /\| 5 \| Apple Capability Integration \| COMPLETE \/ FULL PASS \|/);
-  assert.match(roadmap, /\| 6 \| Cross-tier Replay & Certification \| NOT STARTED \|/);
+  assert.match(roadmap, /\| 6 \| Cross-tier Replay & Certification \| (IN PROGRESS \/ VALIDATION|COMPLETE \/ FULL PASS) \|/);
   assert.match(roadmap, /\| 7 \| Phase 4 Closure \| NOT STARTED \|/);
   assert.match(read('QUALITY_GATES.md'), /Phase 4 Step 1/);
   assert.match(read('docs/contracts/capability-profile-v1.md'), /DH-APPLE-METAL-01/);
+});
+
+test('cross-tier certification is bounded, test-only and consumes common canonical fixtures', () => {
+  execFileSync(process.execPath,['scripts/cross-tier-fixtures.mjs','--check']);
+  execFileSync(process.execPath,['scripts/freeze-cross-tier-golden.mjs','--check']);
+  const corpus = read('packages/core/tests/certification/certification.cpp');
+  for(const proof of ['cross_tier_golden_document','cross_tier_golden_redo','cross_tier_golden_reference','PEER CANONICAL LOW','T0_MANUAL_FLOW_PASS','LOW_HIGH_PASS','rendering.join()','before.epoch==after.epoch','terminal.join()']) assert.ok(corpus.includes(proof),proof);
+  assert.ok(!corpus.includes('__has_include'));
+  assert.match(read('packages/core/src/editor_api.cpp'), /#ifdef PIXAURA_CERTIFICATION_TESTING/);
+  assert.match(read('platforms/android/app/build.gradle.kts'), /PIXAURA_CERTIFICATION_TESTING=OFF/);
+  assert.ok(read('packages/core/Package.swift').includes('CPixAuraCertification'));
+  assert.ok(read('packages/core/swift/Tests/CrossTierReplayTests.swift').includes('pixaura_test_cross_tier_replay'));
+  assert.ok(read('platforms/android/app/src/androidTest/java/ai/pixaura/app/CrossTierReplayTest.kt').includes('nativeCertify'));
+  assert.match(read('docs/contracts/cross-tier-replay-certification-v1.md'), /Failed admission must preserve BOTH/);
+  assert.ok(!fs.existsSync('packages/core/src/storage_schema_v4.hpp'));
 });
 
 test('budget authority is pure shared preflight and cannot bypass existing owners', () => {

@@ -9,6 +9,10 @@
 #include <filesystem>
 #include <mutex>
 #include <new>
+#ifdef PIXAURA_CERTIFICATION_TESTING
+#include "evaluation.hpp"
+namespace pixaura::preview { void test_observer(pixaura_decode_context*,evaluation::Observer,void*); }
+#endif
 
 namespace {
 using namespace pixaura;
@@ -39,6 +43,9 @@ struct Reader:storage::Reader {
     }
 };
 struct Service {
+#ifdef PIXAURA_CERTIFICATION_TESTING
+    struct TestObserver { void (*callback)(uint32_t,void*)=nullptr;void* state=nullptr; } test_observer;
+#endif
     std::mutex gate;
     String seed,root;uint64_t serial=0;
     pixaura_document_context document{};pixaura_decode_context raster{};
@@ -101,6 +108,22 @@ extern "C" int32_t pixaura_editor_policy_query(uint32_t version,pixaura_editor_c
     auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);s.ready();
     check(pixaura_policy_query(version,&s.raster,out));
 });}
+#ifdef PIXAURA_CERTIFICATION_TESTING
+static void certification_checkpoint(pixaura::evaluation::Checkpoint point,void* raw){
+    const auto& value=*static_cast<Service::TestObserver*>(raw);value.callback(static_cast<uint32_t>(point),value.state);
+}
+extern "C" PIXAURA_API int32_t pixaura_test_editor_observe(pixaura_editor_context* c,void (*callback)(uint32_t,void*),void* state){return attempt([&]{
+    auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);s.ready();s.test_observer={callback,state};
+    pixaura::preview::test_observer(&s.raster,callback?certification_checkpoint:nullptr,callback?&s.test_observer:nullptr);
+});}
+extern "C" PIXAURA_API int32_t pixaura_test_editor_document(pixaura_editor_context* c,uint8_t* out,uint64_t capacity,uint64_t* required){return attempt([&]{
+    auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);s.ready();require(required&&(!capacity||out));
+    const auto manifest=good(document::serialize(*s.loaded.snapshot));
+    if(out)require(capacity>=manifest.size(),11);
+    if(out)std::memcpy(out,manifest.data(),manifest.size());
+    *required=manifest.size();
+});}
+#endif
 static int32_t open_editor(uint32_t version,pixaura_editor_context* context,
     const uint8_t* root,uint64_t root_bytes,const uint8_t* identity,uint64_t identity_bytes,
     pixaura_editor_reader reader,void* reader_state,uint64_t import_bytes,
@@ -123,7 +146,7 @@ static int32_t open_editor(uint32_t version,pixaura_editor_context* context,
         Reader input(reader,reader_state);asset=assets.ingest(input,import_bytes);
     }else{
         s->repository=std::make_unique<storage::Repository>(path);require(s->repository->version()==3,4);
-        s->loaded=s->repository->open_session(session);asset={s->loaded.snapshot->source().sha256.text(),s->loaded.snapshot->source().byte_length};
+        s->loaded=s->repository->read();asset={s->loaded.snapshot->source().sha256.text(),s->loaded.snapshot->source().byte_length};
     }
     pixaura_decode_handle source{},decoded{};pixaura_decode_metadata metadata{};
     check(pixaura_decode_open(&s->raster,root,root_bytes,byte_pointer(asset.digest),64,asset.bytes,&source));
@@ -146,7 +169,12 @@ static int32_t open_editor(uint32_t version,pixaura_editor_context* context,
     }
     const auto manifest=good(document::serialize(*s->loaded.snapshot));
     check(pixaura_document_open(1,&s->document,byte_pointer(manifest),manifest.size(),byte_pointer(session),32,&s->live,nullptr));
-    s->approved_preview();Header h{tag,s.release()};pixaura_editor_context out{};out.api_version=1;out.struct_size=sizeof(out);
+    s->approved_preview();
+    // Decode/admission/native preparation precedes durable ownership. CAS
+    // rejects an intervening write rather than publishing older prepared state.
+    // After acquisition only nonthrowing context/output publication remains.
+    if(!import_bytes)s->loaded=s->repository->open_session(session,s->loaded.epoch);
+    Header h{tag,s.release()};pixaura_editor_context out{};out.api_version=1;out.struct_size=sizeof(out);
     std::memcpy(out.opaque,&h,sizeof(h));*context=out;if(strategy)*strategy=initial_strategy;
 });}
 extern "C" int32_t pixaura_editor_open(uint32_t version,pixaura_editor_context* context,
