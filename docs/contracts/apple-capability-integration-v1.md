@@ -72,7 +72,9 @@ legitimate normal source event clears pressure. Thermal is read before observer
 registration as required by Apple. No sleeps, polling timer, fabricated stable
 readings or model heuristics. Lifecycle reconstruction begins conservatively;
 current scene observations refresh constrained state. Existing interruption
-cancels without auto-commit. Closing editor removes its subscription.
+cancels without auto-commit. Closing the native editor quiesces its context;
+destroying the editor model removes its subscription. The service itself belongs
+to application composition, and the final unsubscribe unregisters observations.
 
 ## Shared invariants and trust
 
