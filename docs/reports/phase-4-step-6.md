@@ -59,6 +59,10 @@ and `build/step6-sanitize-tests.log`. Source canonical HIGH/MID/LOW hash
 `0711b34c325fc5ad10029e8cbda326e303758281d15587160928690fbf1fee05`;
 reference BE32F hash `779ce293329f4dcb461b800e06af18bc85901034d03416618fee2f0ada5e233f`.
 
+First pushed `13b35d4c58baf78ce49a080bba7ed9e6b5581824` exact Linux job failed
+GCC misleading-indentation diagnostics in two checkpoint harness lines (B).
+Statements separated; strict warnings and all semantic/race checks unchanged.
+
 No physical Apple hardware/evidence. DH-APPLE-METAL-01 remains DEFERRED; historical
 Z Fold7 evidence unchanged and not current measurement. Schema 3 unchanged;
 no Phase 5/AI/model work. No unobserved gate is PASS.

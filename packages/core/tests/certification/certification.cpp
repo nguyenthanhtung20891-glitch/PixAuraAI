@@ -179,8 +179,10 @@ struct Matrix {
 struct Checkpoint {
     std::mutex mutex;std::condition_variable changed;bool entered=false,released=false;
     static void pause(uint32_t point,void* raw) {
-        if(point!=0)return;auto& value=*static_cast<Checkpoint*>(raw);std::unique_lock<std::mutex> lock(value.mutex);
-        if(value.entered)return;value.entered=true;value.changed.notify_all();value.changed.wait(lock,[&]{return value.released;});
+        if(point!=0)return;
+        auto& value=*static_cast<Checkpoint*>(raw);std::unique_lock<std::mutex> lock(value.mutex);
+        if(value.entered)return;
+        value.entered=true;value.changed.notify_all();value.changed.wait(lock,[&]{return value.released;});
     }
     void wait() { std::unique_lock<std::mutex> lock(mutex);changed.wait(lock,[&]{return entered;}); }
     void release() { std::lock_guard<std::mutex> lock(mutex);released=true;changed.notify_all(); }
