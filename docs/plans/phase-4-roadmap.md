@@ -5,7 +5,10 @@ Status: **FROZEN by Product Owner** at Step 2 authorization, baseline
 Steps 1/2 are COMPLETE / FULL PASS. Step 3 is COMPLETE / FULL PASS.
 This roadmap is finite: seven steps, no Step 8+ without explicit approval.
 Steps 4/5/6 are COMPLETE / FULL PASS.
-Step 7 remains NOT STARTED. Do not begin Step 7 automatically.
+Phase 4 — CLOSED / COMPLETE / FULL PASS. Steps 1–7 COMPLETE / FULL PASS.
+Phase 5 NOT STARTED. Stop after Phase 4 closure; no Step 8 or Phase 4.5.
+Effective closure requires both complete workflows on the final closure SHA;
+see [Step 7 report](../reports/phase-4-step-7.md).
 
 | Step | Frozen name | Status | Bounded deliverable and exit |
 | --- | --- | --- | --- |
@@ -15,7 +18,7 @@ Step 7 remains NOT STARTED. Do not begin Step 7 automatically.
 | 4 | Android Capability Integration | COMPLETE / FULL PASS | Internal safe Android probes and lifecycle/pressure/thermal adapters; central policy consumption; actual hosted runtime and available physical probe evidence; availability separate from scope-matched accepted Vulkan certification; no chipset-name tiers. |
 | 5 | Apple Capability Integration | COMPLETE / FULL PASS | Safe Swift/iOS probe/signal adapters; macOS/simulator/app test seams; CPU fallback and uncertified Metal availability; explicitly no physical Apple evidence or DH-APPLE-METAL-01 waiver. |
 | 6 | Cross-tier Replay & Certification | COMPLETE / FULL PASS | Recorded synthetic LOW/MID/HIGH policy profiles plus separately labeled meaningful emulator/physical observations; HIGH-created project reopened under MID/LOW; same IDs/stacks/logical result; T0 complete manual flows; pressure/thermal/resource/security/race corpus and full platform parity. |
-| 7 | Phase 4 Closure | NOT STARTED | Certify frozen exit criteria, all same-final-SHA workflows, bounded local/private profiles, complete T0 and downgrade/recovery evidence; A fixes only; classify B/C; close only on observed PASS. Stop; Phase 5 requires separate authorization. |
+| 7 | Phase 4 Closure | COMPLETE / FULL PASS | Certify frozen exit criteria, all same-final-SHA workflows, bounded local/private profiles, complete T0 and downgrade/recovery evidence; A fixes only; classify B/C; close only on observed PASS. Stop; Phase 5 requires separate authorization. |
 
 ## Audit and fit
 
@@ -42,9 +45,9 @@ DH-APPLE-METAL-01 remains deferred and mandatory at its existing later gates.
 
 ## Review boundary and follow-ups
 
-A: Step 6 cross-tier replay certification and all applicable exact-SHA gates before delivery.
+A: No unresolved Category A; retained cross-tier and all exact-final-SHA gates mandatory.
 Step 1 remains accepted; roadmap freeze does not authorize later implementation.
-B: Step 7 after separate authorization; physical Apple Metal certification at
+B: Physical Apple Metal certification at
 Phase 11 hardening acceptance / Phase 12 Beta readiness / production / physical
 GPU claims; Phase 5 inference is outside Phase 4.
 C: optional device dashboards, performance scores, broad diagnostics and polish.

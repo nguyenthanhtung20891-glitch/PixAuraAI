@@ -1,5 +1,23 @@
 # Delivery roadmap
 
+## Phase 4 final closure
+
+**Phase 4 — CLOSED / COMPLETE / FULL PASS.** All Steps 1–7 COMPLETE / FULL PASS.
+Authorized closure baseline `3d5db65b82e16bb18cca7b906b5108b70fc95956` passed
+Foundation 38419049842 (7/7) and Native application shells 38419049786 (3/3).
+[Consolidated Step 7 report](docs/reports/phase-4-step-7.md) freezes retained
+contracts, limits, evidence classification and exit certification. Effective
+closure requires BOTH complete workflows passing on the final commit containing
+this status; delivery records its exact SHA/run IDs. Prior-SHA green is historical.
+Adapters provide observations; shared capability/admission/dynamic policy and
+existing PRV1/document/storage owners remain authoritative. Schema 3 and hard
+ceilings unchanged. No unresolved Category A or architecture conflict.
+DH-APPLE-METAL-01 remains DEFERRED at its existing hardening/Beta/release/physical
+claim boundaries. No physical Apple certification claim. No Step 8 or Phase 4.5.
+Phase 5 NOT STARTED; no AI/model/NPU work. STOP after Phase 4 closure.
+This current status supersedes historical authorization/stop points below.
+
+
 ## Phase 4 Step 6 current authorization — Cross-tier replay & certification
 
 Authorized baseline `ce8d513764d6167aa6756b22ef5b0f81698c11c9`; Steps 1–5 COMPLETE /
@@ -143,8 +161,8 @@ Current status: the user reports Phase 0 and Phase 1 fully passed GitHub Actions
 | 1 Native shells | Android Compose/iOS SwiftUI, shared bridge, navigation, services, storage policy, build locks | Debug and unsigned release builds both platforms; boundary smoke screen; no permissions before use; UI state tests |
 | 2 Non-destructive engine — COMPLETE / CLOSED | Source import, versioned graph, SQLite revisions, CPU reference/color/geometry and first GPU pipeline | Steps 1-11 FULL PASS; source hash invariance, recovery, CPU/parity and bounded memory validated; physical Android Vulkan PASS 14/14; Apple physical gate deferred by explicit product decision to DH-APPLE-METAL-01 |
 | 3 Manual tools — CLOSED / COMPLETE / FULL PASS | Frozen 11 geometry/tone/detail tools and deterministic preset foundation; shipping catalog empty | Steps 1–8 FULL PASS; units/ranges, parity, gesture/preview/history, numerical references, schema/reopen/replay, security/resources and exact-SHA hosted certification; Phase 4 NOT STARTED |
-| 4 Capability profiling | Probe service, budget admission, dynamic downgrade | Recorded low/mid/high devices; T0 manual flows; pressure/thermal fallback evidence |
-| 5 Local inference | Verified model packages, provider adapters and compact segmentation evaluation | CPU fallback offline; signed-manifest rejection; provider parity/license/size/task thresholds |
+| 4 Capability profiling — CLOSED / COMPLETE / FULL PASS | Normalized probes, shared admission/dynamic policy, Android/Apple observations and cross-tier replay | Seven frozen steps FULL PASS; synthetic LOW/MID/HIGH, T0 manual flow, pressure/recovery and canonical/reference parity; physical evidence classified separately; final same-SHA 10-job closure |
+| 5 Local inference — NOT STARTED | Verified model packages, provider adapters and compact segmentation evaluation | CPU fallback offline; signed-manifest rejection; provider parity/license/size/task thresholds |
 | 6 Editing Agent | Advisor/planner/operator boundaries, typed plans, audit and approval | Invalid/stale/over-budget plans rejected; no mutation before approval; interleaved manual/AI history |
 | 7 AI-assisted MVP | Auto Enhance, Smart Lighting, subject tools, background removal/portrait blur | Evaluation fixtures and editable masks; capability unavailability UX; refine/cancel/reject tests |
 | 8 Full review experience | Compare, detailed history, cross-mode undo/redo | Restart/branching/AI batch behavior; accessible compare; candidate distinction |

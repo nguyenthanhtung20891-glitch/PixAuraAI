@@ -39,15 +39,22 @@ test('all build and runtime boundaries execute capability foundation tests', () 
   for (const file of ['.github/workflows/foundation.yml', '.github/workflows/native-shells.yml', 'scripts/check-apple.sh']) assert.ok(read(file).includes('tests/capability.test.mjs'), file);
 });
 
-test('finite Phase 4 roadmap is frozen with Step 6 authorized and Step 7 not started', () => {
+test('finite Phase 4 roadmap closes all seven steps without starting Phase 5', () => {
   const roadmap = read('docs/plans/phase-4-roadmap.md');
   assert.match(roadmap, /FROZEN by Product Owner/);
   const rows = [...roadmap.matchAll(/^\| (\d+) \|/gm)];
   assert.deepEqual(rows.map(m => Number(m[1])), [1, 2, 3, 4, 5, 6, 7]);
-  assert.match(roadmap, /Step 7 remains NOT STARTED/);
-  assert.match(roadmap, /\| 5 \| Apple Capability Integration \| COMPLETE \/ FULL PASS \|/);
-  assert.match(roadmap, /\| 6 \| Cross-tier Replay & Certification \| (IN PROGRESS \/ VALIDATION|COMPLETE \/ FULL PASS) \|/);
-  assert.match(roadmap, /\| 7 \| Phase 4 Closure \| NOT STARTED \|/);
+  const names = [...roadmap.matchAll(/^\| \d+ \| ([^|]+) \|/gm)].map(m => m[1].trim());
+  assert.deepEqual(names, ['Capability Contract & Probe Foundation', 'Budget Admission & Execution Tiers',
+    'Dynamic Memory/Thermal Downgrade', 'Android Capability Integration', 'Apple Capability Integration',
+    'Cross-tier Replay & Certification', 'Phase 4 Closure']);
+  assert.match(roadmap, /Phase 4 — CLOSED \/ COMPLETE \/ FULL PASS/);
+  const statuses = [...roadmap.matchAll(/^\| (\d+) \| [^|]+ \| ([^|]+) \|/gm)];
+  assert.equal(statuses.length, 7);
+  for (const row of statuses) assert.equal(row[2].trim(), 'COMPLETE / FULL PASS');
+  assert.match(roadmap, /Phase 5 NOT STARTED/);
+  assert.match(read('docs/reports/phase-4-step-7.md'), /DH-APPLE-METAL-01 = DEFERRED/);
+  assert.match(read('docs/reports/phase-4-step-7.md'), /No unresolved Category A/);
   assert.match(read('QUALITY_GATES.md'), /Phase 4 Step 1/);
   assert.match(read('docs/contracts/capability-profile-v1.md'), /DH-APPLE-METAL-01/);
 });

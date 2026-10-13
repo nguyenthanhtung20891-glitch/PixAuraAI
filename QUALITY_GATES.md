@@ -1,5 +1,23 @@
 # Quality gates and promotion policy
 
+## Phase 4 final closure
+
+**Phase 4 — CLOSED / COMPLETE / FULL PASS.** All Steps 1–7 COMPLETE / FULL PASS.
+Authorized closure baseline `3d5db65b82e16bb18cca7b906b5108b70fc95956` passed
+Foundation 38419049842 (7/7) and Native application shells 38419049786 (3/3).
+[Consolidated Step 7 report](docs/reports/phase-4-step-7.md) freezes retained
+contracts, limits, evidence classification and exit certification. Effective
+closure requires BOTH complete workflows passing on the final commit containing
+this status; delivery records its exact SHA/run IDs. Prior-SHA green is historical.
+Adapters provide observations; shared capability/admission/dynamic policy and
+existing PRV1/document/storage owners remain authoritative. Schema 3 and hard
+ceilings unchanged. No unresolved Category A or architecture conflict.
+DH-APPLE-METAL-01 remains DEFERRED at its existing hardening/Beta/release/physical
+claim boundaries. No physical Apple certification claim. No Step 8 or Phase 4.5.
+Phase 5 NOT STARTED; no AI/model/NPU work. STOP after Phase 4 closure.
+This current status supersedes historical authorization/stop points below.
+
+
 ## Phase 4 Step 6 cross-tier certification gates
 
 Step 6 authorized at `ce8d513764d6167aa6756b22ef5b0f81698c11c9`; COMPLETE / FULL PASS
