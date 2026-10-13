@@ -144,6 +144,17 @@ final class AppleCapabilityTests: XCTestCase {
                     XCTAssertEqual(recovered.tier, index == 3 ? UInt32(tier) : 0)
                     XCTAssertLessThanOrEqual(recovered.runtimeCapBytes, baseline.runtimeCapBytes)
                 }
+                signals.thermal = 2
+                let elevated = try editor.applyCapability(capabilities.snapshot())
+                XCTAssertEqual(elevated.tier, 0); XCTAssertLessThanOrEqual(elevated.runtimeCapBytes, 128 << 20)
+                signals.thermal = 3
+                let severe = try editor.applyCapability(capabilities.snapshot())
+                XCTAssertEqual(severe.tier, 0); XCTAssertLessThanOrEqual(severe.runtimeCapBytes, 64 << 20)
+                signals.thermal = 1
+                for index in 1...3 {
+                    let recovering = try editor.applyCapability(capabilities.snapshot())
+                    XCTAssertEqual(recovering.tier, index == 3 ? UInt32(tier) : 0)
+                }
                 for severity: UInt32 in [2, 3, 4] {
                     signals.memory = severity
                     let strategy = try editor.applyCapability(capabilities.snapshot())
@@ -166,6 +177,9 @@ final class AppleCapabilityTests: XCTestCase {
                 XCTAssertThrowsError(try editor.applyCapability(malformed))
                 malformed = try capabilities.snapshot(); malformed.observation.version = 2
                 XCTAssertThrowsError(try editor.applyCapability(malformed))
+                malformed = try capabilities.snapshot(); malformed.observation.process_budget_bytes = UInt64.max
+                XCTAssertThrowsError(try editor.applyCapability(malformed))
+                XCTAssertLessThanOrEqual(try editor.strategy().runtimeCapBytes, baseline.runtimeCapBytes)
                 for iteration in 0..<16 {
                     try editor.select(exposure); try editor.update([1234])
                     var next = try capabilities.snapshot(); next.observation.memory_pressure = 3

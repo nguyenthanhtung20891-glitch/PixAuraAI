@@ -32,6 +32,13 @@ compilation (B): Swift concurrency diagnostics in the new race harness. Remediat
 moves blocking joins and synchronized immutable captures into a synchronous test
 fixture; production policy and strict warnings/assertions remain unchanged.
 
+Corrected implementation `7a0447a4c7815640815fa6e525b6e04262a6c941` observed
+Apple boundary SUCCESS: native 30/30, Swift macOS 24/24 and iOS Simulator 24/24,
+including all five new Apple cases; Linux and ASan/UBSan SUCCESS. Android app
+job SUCCESS. Full workflow closure still pending Windows/iOS application job.
+Final test review adds the explicit NORMAL→ELEVATED→SEVERE→NORMAL thermal trace
+and UInt64.max budget rejection to the same fixture corpus before acceptance.
+
 Pending execution; no unobserved gate is PASS. Final acceptance requires both
 Foundation boundaries (7 jobs) and Native application shells (3 jobs) complete
 SUCCESS on the same final SHA. Exact run IDs and counts will be recorded after
