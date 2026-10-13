@@ -33,7 +33,16 @@ final class ShellTests: XCTestCase {
             signals.constrained = true; try editor.applyCapability(live.snapshot())
             try editor.action(0); XCTAssertEqual(try editor.state().revisionCount, 2)
             editor.close()
-            let reopened = try ManualEditor(root: root, capability: live.snapshot()); defer { reopened.close() }
+            // Initial decode reserves the frozen codec scratch envelope. A
+            // critical 32 MiB cap cannot admit that envelope plus control and
+            // metadata, even though already-open preview/commit stayed safe.
+            XCTAssertThrowsError(try ManualEditor(root: root, capability: live.snapshot())) {
+                XCTAssertEqual(($0 as? ManualEditorFailure)?.status, 8)
+                XCTAssertEqual(($0 as? ManualEditorFailure)?.boundary, "Open")
+            }
+            signals.memory = 1; signals.constrained = false
+            let fresh = AppleCapabilityOwner(signals: signals); defer { fresh.close() }
+            let reopened = try ManualEditor(root: root, capability: fresh.snapshot()); defer { reopened.close() }
             XCTAssertEqual(try reopened.state().revisionCount, 2); XCTAssertEqual(try reopened.strategy().epoch, 1)
         }.value
     }

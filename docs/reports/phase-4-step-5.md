@@ -42,6 +42,13 @@ Final adapter review found A: coalescing older unavailable backend with newer
 unknown must retain UNKNOWN, rather than accidentally create known recovery
 evidence. Availability merge now preserves unknown in either pending reading;
 tests cover both backend and memory unknown coalescing. Shared policy unchanged.
+Earlier corrected iOS app job exposed B: the new test expected initial reopen
+under CRITICAL to succeed despite the frozen 32 MiB codec scratch reservation,
+metadata and control exceeding the critical 32 MiB cap. Already-open preview,
+commit and cancel passed. Harness now explicitly REQUIRES Open resource failure
+under critical pressure, then supplies normal test observations to a fresh
+owner and proves admitted reopen retains both revisions with fresh epoch one.
+No ceiling, admission, semantic assertion or production behavior is weakened.
 
 Pending execution; no unobserved gate is PASS. Final acceptance requires both
 Foundation boundaries (7 jobs) and Native application shells (3 jobs) complete
