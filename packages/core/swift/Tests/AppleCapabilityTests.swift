@@ -30,6 +30,32 @@ private final class AppleTestCounter: @unchecked Sendable {
     func increment() { lock.lock(); value += 1; lock.unlock() }
     var count: Int { lock.lock(); defer { lock.unlock() }; return value }
 }
+private final class AppleWeakOwner {
+    weak var value: AppleCapabilityOwner?
+    init(_ owner: AppleCapabilityOwner?) { value = owner }
+}
+// Test fixture owns immutable inputs. ManualEditor's existing gate serializes
+// native transitions; the counter synchronizes failures. No production Sendable
+// conformance or warning suppression is added for the test.
+private final class ApplePressureRace: @unchecked Sendable {
+    let editor: ManualEditor, observation: AppleCapabilitySnapshot, action: UInt32
+    let failures = AppleTestCounter()
+    init(_ editor: ManualEditor, _ observation: AppleCapabilitySnapshot, _ action: UInt32) {
+        self.editor = editor; self.observation = observation; self.action = action
+    }
+    func run() {
+        let group = DispatchGroup()
+        group.enter(); DispatchQueue.global().async { [self] in
+            defer { group.leave() }
+            do { try editor.applyCapability(observation) } catch { failures.increment() }
+        }
+        group.enter(); DispatchQueue.global().async { [self] in
+            defer { group.leave() }
+            do { try editor.action(action) } catch { failures.increment() }
+        }
+        group.wait()
+    }
+}
 
 final class AppleCapabilityTests: XCTestCase {
     func testMappingsAndActualProbeNeverCertifies() throws {
@@ -53,7 +79,7 @@ final class AppleCapabilityTests: XCTestCase {
     func testBoundedSubscriptionsReconstructionAndStaleCallbacks() throws {
         let signals = TestAppleSignals()
         var owner: AppleCapabilityOwner? = AppleCapabilityOwner(signals: signals)
-        weak var weakOwner = owner
+        let weakOwner = AppleWeakOwner(owner)
         var calls = 0
         let first = try owner!.subscribe { _ in calls += 1 }
         let second = try owner!.subscribe { _ in calls += 1 }
@@ -72,7 +98,7 @@ final class AppleCapabilityTests: XCTestCase {
         XCTAssertThrowsError(try owner!.subscribe { _ in })
         owner!.close(); stale?(); XCTAssertEqual(calls, 20001)
         XCTAssertEqual(signals.removals, 2)
-        owner = nil; XCTAssertNil(weakOwner)
+        owner = nil; XCTAssertNil(weakOwner.value)
         let fresh = AppleCapabilityOwner(signals: signals); defer { fresh.close() }
         XCTAssertEqual(try fresh.snapshot().observation.sequence, 1)
     }
@@ -143,17 +169,8 @@ final class AppleCapabilityTests: XCTestCase {
                 for iteration in 0..<16 {
                     try editor.select(exposure); try editor.update([1234])
                     var next = try capabilities.snapshot(); next.observation.memory_pressure = 3
-                    let pressure = next
-                    let group = DispatchGroup(), failures = AppleTestCounter()
-                    group.enter(); DispatchQueue.global().async {
-                        defer { group.leave() }
-                        do { try editor.applyCapability(pressure) } catch { failures.increment() }
-                    }
-                    group.enter(); DispatchQueue.global().async {
-                        defer { group.leave() }
-                        do { try editor.action(iteration % 2 == 0 ? 0 : 1) } catch { failures.increment() }
-                    }
-                    group.wait(); XCTAssertEqual(failures.count, 0)
+                    let race = ApplePressureRace(editor, next, iteration % 2 == 0 ? 0 : 1)
+                    race.run(); XCTAssertEqual(race.failures.count, 0)
                 }
                 let revisions = try editor.state().revisionCount
                 editor.close(); XCTAssertThrowsError(try editor.applyCapability(capabilities.snapshot()))

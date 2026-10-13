@@ -25,6 +25,13 @@ DH-APPLE-METAL-01 remains DEFERRED. Schema 3 unchanged. No Phase 5/AI/model work
 
 ## Observed validation
 
+Local source/docs 89/89 (zero skips), workflow actionlint and git diff check PASS.
+Local retained Windows native 30/30 PASS (`build/step5-windows.log`). First hosted
+implementation `8bf44312b0c97b4be88fdd0d582624b4c9ff9d84` failed Apple test
+compilation (B): Swift concurrency diagnostics in the new race harness. Remediation
+moves blocking joins and synchronized immutable captures into a synchronous test
+fixture; production policy and strict warnings/assertions remain unchanged.
+
 Pending execution; no unobserved gate is PASS. Final acceptance requires both
 Foundation boundaries (7 jobs) and Native application shells (3 jobs) complete
 SUCCESS on the same final SHA. Exact run IDs and counts will be recorded after
