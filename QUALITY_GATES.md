@@ -1,5 +1,20 @@
 # Quality gates and promotion policy
 
+## Phase 4 Step 5 Apple integration gates
+
+Authorized baseline `40a0c9bef05df328a2b3e89497316c368b81aa24`.
+Step 5 IN PROGRESS / VALIDATION; Steps 1–4 COMPLETE / FULL PASS.
+[Contract](docs/contracts/apple-capability-integration-v1.md) and
+[report](docs/reports/phase-4-step-5.md) require observed mapping/trust/lifetime,
+pressure/recovery/history, stale publication, EXACT/FIT, ceiling and churn tests.
+Require source/docs/lint/diff, Windows/Linux/Apple native, ASan/UBSan, Swift macOS/
+iOS simulator, iOS debug/release/app/UI and retained Android ABI/JVM/instrumentation
+plus Phase 0–3/Step 1–4 gates. Both complete workflows must PASS on the same final
+SHA, including any later documentation closure. No unobserved or skipped PASS.
+Simulator/hosted Mac are nonphysical target evidence. DH-APPLE-METAL-01 remains
+DEFERRED; Schema 3/hard ceilings unchanged. Step 6 NOT STARTED; no Phase 5 work.
+This supersedes historical step authorization below without changing the roadmap.
+
 ## Phase 4 Step 4 current authorization — Android capability integration
 
 Product Owner authorizes Step 4 at `6389750c5ccab3b40d3ee76cb29bbb88b0fb5596`.

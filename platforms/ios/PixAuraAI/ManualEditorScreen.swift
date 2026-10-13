@@ -5,7 +5,8 @@ import UIKit
 
 @MainActor
 struct ManualEditorScreen: View {
-    @StateObject private var model = ManualEditorModel()
+    @StateObject private var model: ManualEditorModel
+    init(capabilities: AppleCapabilityOwner) { _model = StateObject(wrappedValue: ManualEditorModel(capabilities: capabilities)) }
     @Environment(\.scenePhase) private var scenePhase
     @State private var picking = false
     @State private var category = "geometry"

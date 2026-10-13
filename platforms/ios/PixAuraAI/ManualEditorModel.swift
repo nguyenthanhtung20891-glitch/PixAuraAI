@@ -6,6 +6,47 @@ import PixAuraCore
 /// Application work lanes only. Core owns descriptors/gesture/history; queues
 /// retain one latest integer payload and one latest preview, never slider tasks.
 private final class EditorWorker {
+    private let capabilities: AppleCapabilityOwner
+    private var subscription: UUID?
+    private var latestCapability: AppleCapabilitySnapshot?
+    private var applyingCapability = false
+    init(capabilities: AppleCapabilityOwner) {
+        self.capabilities = capabilities
+        subscription = try? capabilities.subscribe { [weak self] value in self?.receiveCapability(value) }
+    }
+    deinit { if let subscription { capabilities.unsubscribe(subscription) }; owner?.close() }
+    private func receiveCapability(_ value: AppleCapabilitySnapshot) {
+        lock.lock(); latestCapability = value.retainingPressure(from: latestCapability)
+        let schedule = !applyingCapability; applyingCapability = true; lock.unlock()
+        if schedule { commands.async { self.drainCapability() } }
+    }
+    private func drainCapability() {
+        lock.lock(); let value = latestCapability; latestCapability = nil; lock.unlock()
+        if let value, let owner {
+            do {
+                let old = try owner.strategy()
+                let new = try owner.applyCapability(value)
+                // A selected but untouched gesture has no accepted preview request.
+                if old.epoch != new.epoch, owner.displayedImage() != nil {
+                    let state = try owner.state()
+                    if !state.active || state.values != owner.tools[state.selected].parameters.map({ Int32($0.defaultValue) }) { try preview(refreshFacts: false) }
+                }
+            } catch {
+                // Older callbacks can lose to a fresh request snapshot; other
+                // failures remain visible through the established error path.
+                if (error as? ManualEditorFailure)?.status != 9 {
+                    let message = error.localizedDescription
+                    DispatchQueue.main.async { self.previewError?(owner, message) }
+                }
+            }
+        }
+        lock.lock(); let more = latestCapability != nil; if !more { applyingCapability = false }; lock.unlock()
+        if more { commands.async { self.drainCapability() } }
+    }
+    private func initialCapability() throws -> AppleCapabilitySnapshot {
+        lock.lock(); let pending = latestCapability; latestCapability = nil; lock.unlock()
+        return try capabilities.snapshot().retainingPressure(from: pending)
+    }
     let commands = DispatchQueue(label: "ai.pixaura.editor.commands", qos: .userInitiated)
     private let rendering = DispatchQueue(label: "ai.pixaura.editor.preview", qos: .userInitiated)
     private let lock = NSLock()
@@ -37,7 +78,7 @@ private final class EditorWorker {
     }
     func reopen() throws {
         if owner == nil, let name = UserDefaults.standard.string(forKey: "manual-project"), UUID(uuidString: name) != nil {
-            owner = try ManualEditor(root: projectRoot().appendingPathComponent(name))
+            owner = try ManualEditor(root: projectRoot().appendingPathComponent(name), capability: initialCapability())
         }
         if owner != nil { try preview() }
     }
@@ -49,7 +90,7 @@ private final class EditorWorker {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false,
             attributes: [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication])
         var policy = URLResourceValues(); policy.isExcludedFromBackup = true; try directory.setResourceValues(policy)
-        let replacement = try ManualEditor(root: directory, importing: input)
+        let replacement = try ManualEditor(root: directory, importing: input, capability: initialCapability())
         clearPending(); owner?.close(); owner = replacement
         UserDefaults.standard.set(name, forKey: "manual-project"); try preview()
     }
@@ -80,8 +121,9 @@ private final class EditorWorker {
         if state.active && !state.approvalPending { try owner.update(state.values) }
         try preview()
     }
-    private func preview() throws {
+    private func preview(refreshFacts: Bool = true) throws {
         guard let owner else { return }
+        if refreshFacts { try owner.applyCapability(initialCapability()) }
         let request = try owner.request()
         lock.lock(); latestPreview = (owner, request)
         let schedule = !renderingNow; renderingNow = true; lock.unlock()
@@ -125,10 +167,11 @@ final class ManualEditorModel: ObservableObject {
     @Published private(set) var busy = false
     @Published private(set) var error: String?
     @Published private(set) var previewLoading = false
-    private let worker = EditorWorker()
+    private let worker: EditorWorker
     private var editor: ManualEditor?
     private var epoch: UInt64 = 0
-    init() {
+    init(capabilities: AppleCapabilityOwner = AppleCapabilityOwner()) {
+        worker = EditorWorker(capabilities: capabilities)
         worker.refresh = { [weak self] epoch, editor, state, image, error in
             guard let self, self.epoch == epoch else { return }
             self.editor = editor; self.tools = editor?.tools ?? []

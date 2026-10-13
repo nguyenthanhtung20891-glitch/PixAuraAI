@@ -97,7 +97,7 @@ public final class ManualEditor {
     private func checked(_ status: Int32, _ boundary: String) throws {
         if status != 0 { throw ManualEditorFailure(status: status, boundary: boundary) }
     }
-    public init(root: URL, importing input: URL? = nil) throws {
+    public init(root: URL, importing input: URL? = nil, capability: AppleCapabilitySnapshot? = nil) throws {
         do {
             let canonical: String = try root.withUnsafeFileSystemRepresentation { p in
                 guard let p, let resolved = realpath(p, nil) else { throw ManualEditorFailure(status: 12, boundary: "Open") }
@@ -109,7 +109,13 @@ public final class ManualEditor {
             let reader = handle.map(EditorInput.init)
             let count = try input.map { UInt64(try $0.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0) } ?? 0
             let status = rootBytes.withUnsafeBufferPointer { path in id.withUnsafeBufferPointer { seed in
-                pixaura_editor_open(1, context, path.baseAddress, UInt64(path.count), seed.baseAddress, UInt64(seed.count),
+                if var capability {
+                    var strategy = pixaura_execution_strategy()
+                    return pixaura_editor_open_policy(1, context, path.baseAddress, UInt64(path.count), seed.baseAddress, UInt64(seed.count),
+                        reader == nil ? nil : editorRead, reader.map { Unmanaged.passUnretained($0).toOpaque() }, count,
+                        &capability.profile, &capability.observation, &strategy)
+                }
+                return pixaura_editor_open(1, context, path.baseAddress, UInt64(path.count), seed.baseAddress, UInt64(seed.count),
                     reader == nil ? nil : editorRead, reader.map { Unmanaged.passUnretained($0).toOpaque() }, count)
             } }
             try checked(status, "Open")
@@ -124,6 +130,18 @@ public final class ManualEditor {
         }
     }
     private func checkedRegistry(_ status: Int32) throws { if status != 11 { try checked(status == 0 ? 14 : status, "Tools") } }
+    public func strategy() throws -> AppleExecutionStrategy {
+        gate.lock(); defer { gate.unlock() }
+        var value = pixaura_execution_strategy()
+        try checked(closed ? 13 : pixaura_editor_policy_query(1, context, &value), "Capability")
+        return AppleExecutionStrategy(value)
+    }
+    @discardableResult public func applyCapability(_ snapshot: AppleCapabilitySnapshot) throws -> AppleExecutionStrategy {
+        gate.lock(); defer { gate.unlock() }
+        var observation = snapshot.observation, value = pixaura_execution_strategy()
+        try checked(closed ? 13 : pixaura_editor_policy_update(1, context, &observation, &value), "Capability")
+        return AppleExecutionStrategy(value)
+    }
     public func state() throws -> ManualEditorState {
         gate.lock(); defer { gate.unlock() }
         return try stateLocked()

@@ -1,11 +1,42 @@
 import XCTest
-import PixAuraCore
+@testable import PixAuraCore
 import CPixAuraCore
 import CoreGraphics
 import Foundation
 @testable import PixAuraAI
 
 final class ShellTests: XCTestCase {
+    func testAppleOwnerPressureDuringGesturePreservesCommitCancelAndDisplay() async throws {
+        try await Task.detached {
+            let signals = AppTestAppleSignals()
+            let live = AppleCapabilityOwner(signals: signals); defer { live.close() }
+            let fixtureURL = try XCTUnwrap(Bundle(for: ShellTests.self).url(forResource: "fixtures", withExtension: "json"))
+            let fixtures = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: fixtureURL)) as? [String: [String: Any]])
+            let root = FileManager.default.temporaryDirectory.appendingPathComponent("apple-app-\(UUID())")
+            try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: root) }
+            let input = root.appendingPathComponent("input.png")
+            try Data(try XCTUnwrap(fixtures["png"]?["bytes"] as? [UInt8])).write(to: input)
+            let editor = try ManualEditor(root: root, importing: input, capability: live.snapshot()); defer { editor.close() }
+            let exposure = try XCTUnwrap(editor.tools.firstIndex { $0.name == "Exposure" })
+            let original = try XCTUnwrap(editor.render(editor.request())); XCTAssertTrue(editor.install(original))
+            try editor.select(exposure); try editor.update([1234])
+            let late = try XCTUnwrap(editor.render(editor.request()))
+            signals.memory = 4
+            XCTAssertEqual(try editor.applyCapability(live.snapshot()).previewEdge, 360)
+            XCTAssertFalse(editor.install(late)); XCTAssertTrue(editor.displayedImage() === original.image)
+            let next = try XCTUnwrap(editor.render(editor.request())); XCTAssertTrue(editor.install(next))
+            XCTAssertFalse(editor.install(late)); XCTAssertEqual(try editor.state().values, [1234])
+            XCTAssertEqual(try editor.state().revisionCount, 1)
+            try editor.action(1); XCTAssertEqual(try editor.state().revisionCount, 2)
+            try editor.select(exposure); try editor.update([-1234])
+            signals.constrained = true; try editor.applyCapability(live.snapshot())
+            try editor.action(0); XCTAssertEqual(try editor.state().revisionCount, 2)
+            editor.close()
+            let reopened = try ManualEditor(root: root, capability: live.snapshot()); defer { reopened.close() }
+            XCTAssertEqual(try reopened.state().revisionCount, 2); XCTAssertEqual(try reopened.strategy().epoch, 1)
+        }.value
+    }
     func testBoundedPreviewPlatformConsumer() async throws {
         try await Task.detached {
             let fixtureURL = try XCTUnwrap(Bundle(for: ShellTests.self).url(forResource: "fixtures", withExtension: "json"))
@@ -85,4 +116,20 @@ final class ShellTests: XCTestCase {
         XCTAssertEqual(model.probe, "Shared core ready · ABI 1")
         XCTAssertEqual(model.state.destination, .editor)
     }
+}
+
+private final class AppTestAppleSignals: AppleCapabilitySignals {
+    var memory: UInt32 = 1, constrained = false
+    func facts() -> pixaura_capability_profile {
+        var value = pixaura_capability_profile(); _ = pixaura_capability_baseline(1, &value)
+        value.hardware.logical_cpu_count = 8; value.hardware.physical_memory_bytes = 8 << 30
+        value.hardware.gpu_backend = 2; value.hardware.gpu_availability = 2; value.hardware.gpu_validation = 0
+        value.hardware.provenance = 1
+        value.runtime.thermal = 1; value.runtime.memory_pressure = 1; value.runtime.constrained = 0
+        value.runtime.gpu_availability = 2; value.runtime.process_budget_bytes = 512 << 20; value.runtime.sequence = 1
+        return value
+    }
+    func readings() -> (UInt32, UInt32, Bool, UInt32, UInt64) { (1, memory, constrained, 2, 512 << 20) }
+    func start(_ changed: @escaping () -> Void) {}
+    func stop() {}
 }

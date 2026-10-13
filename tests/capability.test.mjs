@@ -103,3 +103,17 @@ test('Android capability adapter delegates strategy and cannot escalate backend 
   assert.match(read('docs/contracts/android-capability-integration-v1.md'), /EXACT.*exact-or-resource-failure/);
   assert.match(read('docs/reports/phase-4-step-4.md'), /Steps 5–7 NOT STARTED/);
 });
+
+test('Apple observations preserve shared ownership and never establish certification', () => {
+  const owner = read('packages/core/swift/Sources/AppleCapability.swift');
+  const editor = read('packages/core/swift/Sources/ManualEditor.swift');
+  for (const api of ['activeProcessorCount', 'physicalMemory', 'thermalStateDidChangeNotification', 'makeMemoryPressureSource', 'os_proc_available_memory', 'MTLCreateSystemDefaultDevice', 'removeObserver']) assert.ok(owner.includes(api), api);
+  assert.match(owner, /gpu_validation = 0/);
+  assert.ok(!/PHYSICAL_CERTIFIED|identifierForVendor|advertisingIdentifier|serialNumber|URLSession|\bT[012]\b/.test(owner));
+  for (const api of ['pixaura_editor_open_policy', 'pixaura_editor_policy_update', 'pixaura_editor_policy_query']) assert.ok(editor.includes(api));
+  assert.ok(read('platforms/ios/PixAuraAI/PixAuraApp.swift').includes('ShellView(capabilities: capabilities)'));
+  assert.ok(read('platforms/ios/PixAuraAI/ManualEditorModel.swift').includes('retainingPressure'));
+  assert.match(read('docs/contracts/apple-capability-integration-v1.md'), /EXACT remains exact-or-resource-failure/);
+  assert.match(read('docs/contracts/apple-capability-integration-v1.md'), /DH-APPLE-METAL-01 remains DEFERRED/);
+  assert.ok(!/AppleCapability|thermal|policy_epoch/.test(read('packages/core/src/storage_schema_v3.hpp')));
+});

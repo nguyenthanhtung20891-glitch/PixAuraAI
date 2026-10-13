@@ -1,7 +1,9 @@
 import SwiftUI
+import PixAuraCore
 
 @MainActor
 struct ShellView: View {
+    let capabilities: AppleCapabilityOwner
     @StateObject private var model = ShellModel()
     @SceneStorage("destination") private var savedDestination = Destination.home.rawValue
     @SceneStorage("mode") private var savedMode = EditMode.manual.rawValue
@@ -32,7 +34,7 @@ struct ShellView: View {
                         Text(model.probe)
                         switch destination {
                         case .editor:
-                            if model.state.mode == .manual { ManualEditorScreen() }
+                            if model.state.mode == .manual { ManualEditorScreen(capabilities: capabilities) }
                             else { Text("\(model.state.mode.rawValue) session · Editing tools arrive in a later phase.") }
                         case .projects:
                             Text("Your projects will appear here.")

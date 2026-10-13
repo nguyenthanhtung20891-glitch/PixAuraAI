@@ -1,5 +1,16 @@
 # Delivery roadmap
 
+## Phase 4 Step 5 current authorization — Apple capability integration
+
+Authorized at `40a0c9bef05df328a2b3e89497316c368b81aa24`; Steps 1–4 COMPLETE /
+FULL PASS. Step 5 IN PROGRESS / VALIDATION. Frozen seven-step roadmap unchanged.
+[Apple contract](docs/contracts/apple-capability-integration-v1.md) and
+[Step 5 report](docs/reports/phase-4-step-5.md) govern observations into existing
+shared authority. Require both complete same-final-SHA workflows and all affected
+gates; no unobserved PASS. Schema 3, hard ceilings, DH-APPLE-METAL-01 unchanged.
+No physical Apple certification, Phase 5/AI/model work. Steps 6–7 NOT STARTED.
+STOP after Step 5. This supersedes historical authorization sections below.
+
 ## Phase 4 Step 4 current authorization — Android capability integration
 
 Product Owner authorizes Step 4 at `6389750c5ccab3b40d3ee76cb29bbb88b0fb5596`.

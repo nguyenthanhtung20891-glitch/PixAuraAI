@@ -1,0 +1,32 @@
+# Phase 4 Step 5 — Apple capability integration
+
+Status: IN PROGRESS / VALIDATION. Baseline HEAD and origin/main initially
+`40a0c9bef05df328a2b3e89497316c368b81aa24`; working tree and diff check clean.
+Steps 1–4 COMPLETE / FULL PASS; frozen seven-step roadmap unchanged.
+Steps 6–7 NOT STARTED. [Contract](../contracts/apple-capability-integration-v1.md).
+
+Implementation adds one caller-owned Apple service, trusted static/runtime
+observations, bounded observer lifetime and observation coalescing on existing
+command lanes. Policy-aware editor open precedes decode; apply/query reuse
+existing lifecycle/display gate. Shared policy, PRV1, schema, history, parameters,
+reference semantics and hard ceilings remain unchanged. No new architecture
+decision or conflict. No Android-only/shared semantics are introduced.
+
+Tests add legitimate probe/mapping checks, synthetic LOW/MID/HIGH pressure and
+recovery, large-source FIT resizing, delayed candidate rejection, gesture commit/
+cancel, process-style reopen, malformed records and trust rejection, observer
+cleanup/reconstruction, 10000 callback churn and concurrent close, 1000 stable
+updates per profile and 48 commit/cancel-pressure races. Retained native tests
+remain actual late-kernel checkpoint authority and EXACT-vs-FIT proof.
+
+No physical Apple hardware available. Simulator and hosted macOS evidence are
+nonphysical target evidence only. Metal availability never certification;
+DH-APPLE-METAL-01 remains DEFERRED. Schema 3 unchanged. No Phase 5/AI/model work.
+
+## Observed validation
+
+Pending execution; no unobserved gate is PASS. Final acceptance requires both
+Foundation boundaries (7 jobs) and Native application shells (3 jobs) complete
+SUCCESS on the same final SHA. Exact run IDs and counts will be recorded after
+observation. Failure classification A product, B harness, C infrastructure will
+be recorded from exact failing logs; assertions and limits remain intact.
