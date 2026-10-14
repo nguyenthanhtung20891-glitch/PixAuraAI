@@ -76,7 +76,7 @@ inline int certification(){
     expect(pixaura_inference_context_destroy(&normalized),0);
     // Distinguishable model weights, isolated cancellation, interleaved contexts.
     pixaura_inference_context a{},bb{};init(a,'c');init(bb,'d');const auto pa=admit(a,data[0]),pb=admit(bb,data[1]);pixaura_inference_handle ma{},mb{},oa{},ob{};
-    expect(prepare(a,pa,ma),0);expect(prepare(bb,pb,mb),0);in.assign(192,0);std::fill_n(in.begin(),64,1);auto rr=request(8,8);
+    expect(prepare(a,pa,ma),0);expect(prepare(bb,pb,mb),0);in.assign(192,0.0f);std::fill_n(in.begin(),64,1.0f);auto rr=request(8,8);
     auto cancelled=rr;cancelled.pre_cancel=1;expect(execute(a,ma,cancelled,in,oa),12);expect(execute(bb,mb,rr,in,ob),0);if(copy(bb,ob,64)[0]!=1)++failures;
     expect(execute(bb,ma,rr,in,oa),14);rr.generation=2;
     std::thread t([&]{expect(execute(a,ma,rr,in,oa),0);});expect(execute(bb,mb,rr,in,ob),0);t.join();if(copy(a,oa,64)[0]!=.25f||copy(bb,ob,64)[0]!=1)++failures;

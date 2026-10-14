@@ -131,6 +131,9 @@ Initial hosted MSVC compilation found an owned parameter shadowing the control
 reservation constant (C4459 under /W4 /WX). The parameter was renamed; no warnings
 were disabled and no arithmetic, contract or vendor source changed. That candidate
 cannot certify the corrected final SHA; both complete workflows are repeated.
+MSVC subsequently diagnosed an implicit int-to-float template conversion in the
+test corpus's fill_n call (C4244). Explicit float fixture values fix that test-only
+compile issue without changing expected outputs, runtime arithmetic or warnings.
 
 ## Classification and stop
 
