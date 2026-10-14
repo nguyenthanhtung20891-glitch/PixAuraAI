@@ -1,0 +1,124 @@
+{
+  "profile": "pixaura.onnx.reference-segmentation.v1",
+  "model_sha256": "f0148343156f0be1093ae6f9700f72afa5393fea8ffa90c221614bfb247e5e71",
+  "comparison": "exact binary32 words",
+  "oracle": "integer quarter-input units: (R+2*G+B)/16; independently computed, no interpreter",
+  "cases": [
+    {
+      "name": "zeros",
+      "dimensions": [
+        1,
+        3,
+        2,
+        2
+      ],
+      "input_quarter_units": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "output_hex": [
+        "00000000",
+        "00000000",
+        "00000000",
+        "00000000"
+      ]
+    },
+    {
+      "name": "ones",
+      "dimensions": [
+        1,
+        3,
+        2,
+        2
+      ],
+      "input_quarter_units": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "output_hex": [
+        "3f800000",
+        "3f800000",
+        "3f800000",
+        "3f800000"
+      ]
+    },
+    {
+      "name": "gradient",
+      "dimensions": [
+        1,
+        3,
+        2,
+        2
+      ],
+      "input_quarter_units": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        0,
+        1,
+        2,
+        3,
+        4,
+        0,
+        1
+      ],
+      "output_hex": [
+        "3f300000",
+        "3ea00000",
+        "3e800000",
+        "3f000000"
+      ]
+    },
+    {
+      "name": "checker",
+      "dimensions": [
+        1,
+        3,
+        2,
+        2
+      ],
+      "input_quarter_units": [
+        0,
+        4,
+        0,
+        4,
+        4,
+        0,
+        4,
+        0,
+        0,
+        4,
+        0,
+        4
+      ],
+      "output_hex": [
+        "3f000000",
+        "3f000000",
+        "3f000000",
+        "3f000000"
+      ]
+    }
+  ]
+}

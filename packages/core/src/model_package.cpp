@@ -5,10 +5,6 @@
 #include <cstring>
 #include <memory>
 #include <mutex>
-struct pixaura_model_package {
-    pixaura_model_info info{};
-    std::vector<pixaura::model::File> files;
-};
 namespace pixaura::model {
 namespace {
 bool utf8(const std::string& s) {
@@ -122,6 +118,11 @@ int32_t verify_owned(uint32_t version,std::vector<File> files,const Trust& trust
         for(size_t i=0;i<m.payloads.size();++i){need(hash(file(m.payloads[i].name)->bytes)==m.payloads[i].digest,PIXAURA_MODEL_DIGEST,static_cast<uint32_t>(i));}
         semantics(m);
         auto package=std::make_unique<pixaura_model_package>();package->info={1,m.model_version,m.task,static_cast<uint32_t>(m.payloads.size()),m.key,trust.generation,payload_total,m.memory,{}};
+        package->binding.input=m.input.dim;package->binding.output=m.output.dim;
+        package->binding.normalization=m.normalization;
+        const auto& cpu=m.providers.front();package->binding.cpu_payload=m.payloads[cpu.file].name;
+        package->binding.runtime_floor=cpu.runtime;package->binding.api_floor=cpu.api;
+        package->binding.operator_set=cpu.opset;package->binding.operators=cpu.ops;
         const auto digest=hash(manifest->bytes);std::copy(digest.begin(),digest.end(),package->info.manifest_sha256);package->files=std::move(files);
         *output=package.release();return fail(PIXAURA_MODEL_OK);
     }catch(const Failure& f){return fail(f.reason,f.ordinal);}catch(...){return fail(PIXAURA_MODEL_RESOURCE);}

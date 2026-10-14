@@ -5,6 +5,13 @@ Approved dependency: libsodium 1.0.22, ISC, reviewed archive SHA-256
 `adbdd8f16149e81ac6078a03aca6fc03b592b89ef7b5ed83841c086191be3349`.
 Step 1 verifies packages only; it never loads a graph or executes inference.
 
+Step 2 clarification: the shared verifier retains the already authenticated tensor,
+normalization and CPU payload/provider binding internally for prepared-model use.
+The inference context wraps successful Step 1 verification in stale-safe tokens
+and retains immutable ownership. This does not change package bytes, trust,
+signatures, limits, verification order/reasons or the legacy exclusive-pointer ABI.
+Only the separate Step 2 provider performs its reviewed graph parsing/execution.
+
 ## Local container and immutable ownership
 
 A flat uncompressed local directory contains `manifest.pxm`, `signature.pxs` and

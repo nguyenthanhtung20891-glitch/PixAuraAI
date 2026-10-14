@@ -1,5 +1,19 @@
 # Architectural decision index
 
+## Phase 5 Step 2 current authorization
+
+Step 1 COMPLETE / FULL PASS at `8d5a30338c97a05e987ecf1324b86a2afb795356`: Foundation
+38491704459 (7/7), Native application shells 38491704500 (3/3).
+Step 2 AUTHORIZED / IN PROGRESS. Product Owner approves dependency-free
+`cpu.reference.v1` with a narrowly bounded genuine ONNX reference profile.
+[Inference contract](docs/contracts/inference-provider-v1.md),
+[CPU profile](docs/contracts/cpu-reference-provider-v1.md),
+[Step 2 report](docs/reports/phase-5-step-2.md). No general ONNX execution or
+external runtime. Complete same-final-SHA Foundation/application-shell workflows
+are required for closure. Schema 3 and DH-APPLE-METAL-01 unchanged.
+Steps 3+ and Phase 6 NOT STARTED; stop after Step 2. This current authority
+supersedes historical Step 1-only stop text below, without rewriting closure evidence.
+
 ## Phase 5 Step 1 signature architecture
 
 Product Owner approves pure Ed25519 with one shared portable native verification
