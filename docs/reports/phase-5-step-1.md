@@ -109,6 +109,10 @@ the C source consumer links with CXX, matching existing consumers. Strict byte
 comparison and all sanitizer instrumentation remain active. Upstream vendor
 whitespace is preserved through vendor-only Git attributes, never source edits.
 These earlier failed candidates cannot certify the corrected final SHA.
+Apple native CTest passed before Swift rejected a misplaced vendor target inside
+the product-name list. The sodium target now resides in the target list; portable
+source parity and cryptographic configuration are unchanged. Swift execution is
+certified only after the corrected exact-SHA Apple jobs succeed.
 
 Local evidence remains ignored under build/phase5-*; unexecuted gates never PASS.
 Before final acceptance BOTH complete workflows must finish SUCCESS on the SAME

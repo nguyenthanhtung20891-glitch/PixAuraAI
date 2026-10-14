@@ -6,9 +6,9 @@ let sodiumSources = ["vendor/libsodium/src/libsodium/crypto_aead/aegis128l/aead_
 let package = Package(
     name: "PixAuraCore",
     platforms: [.iOS(.v16), .macOS(.v13)],
-    products: [.library(name: "PixAuraCore", targets: [
-        .target(name: "CPixAuraSodium", path: ".", exclude: ["Package.swift", "swift", "tests", "include"], sources: sodiumSources, publicHeadersPath: "sodium-config/include", cSettings: [.headerSearchPath("sodium-config"), .headerSearchPath("vendor/libsodium/src/libsodium/include"), .headerSearchPath("vendor/libsodium/src/libsodium/include/sodium"), .define("SODIUM_STATIC"), .define("CONFIGURED", to: "1"), .unsafeFlags(["-fvisibility=hidden", "-fno-lto"])]),"PixAuraCore"])],
+    products: [.library(name: "PixAuraCore", targets: ["PixAuraCore"])],
     targets: [
+        .target(name: "CPixAuraSodium", path: ".", exclude: ["Package.swift", "swift", "tests", "include"], sources: sodiumSources, publicHeadersPath: "sodium-config/include", cSettings: [.headerSearchPath("sodium-config"), .headerSearchPath("vendor/libsodium/src/libsodium/include"), .headerSearchPath("vendor/libsodium/src/libsodium/include/sodium"), .define("SODIUM_STATIC"), .define("CONFIGURED", to: "1"), .unsafeFlags(["-fvisibility=hidden", "-fno-lto"])]),
         .target(name: "CPixAuraSQLite", path: "vendor/sqlite", exclude: ["LICENSE.md", "provenance.json"], sources: ["sqlite3.c"], publicHeadersPath: ".",
                 cSettings: [.define("SQLITE_THREADSAFE", to: "1"), .define("SQLITE_DQS", to: "0"),
                     .define("SQLITE_OMIT_LOAD_EXTENSION"), .define("SQLITE_OMIT_SHARED_CACHE"),
