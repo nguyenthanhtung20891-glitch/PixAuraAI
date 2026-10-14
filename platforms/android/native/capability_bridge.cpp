@@ -42,3 +42,9 @@ extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_CoreProbe_nativeBudgetB
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_CoreProbe_nativeDynamicPolicyBoundary(JNIEnv*, jobject) {
     return dynamic_policy_boundary_check();
 }
+#ifdef PIXAURA_CERTIFICATION_TESTING
+extern "C" int32_t pixaura_model_test_boundary();
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_CoreProbe_nativeModelPackageBoundary(JNIEnv*, jobject) {
+    return pixaura_model_test_boundary();
+}
+#endif

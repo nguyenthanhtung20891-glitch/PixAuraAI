@@ -1,5 +1,17 @@
 # Architectural decision index
 
+## Phase 5 Step 1 signature architecture
+
+Product Owner approves pure Ed25519 with one shared portable native verification
+authority. [ADR 0022](docs/adr/0022-model-package-ed25519-authority.md) records the
+decision and accepts libsodium 1.0.22 (ISC), approved archive SHA-256
+`adbdd8f16149e81ac6078a03aca6fc03b592b89ef7b5ed83841c086191be3349`.
+[Candidate audit](docs/reviews/phase-5-ed25519-dependency-audit.md) recommends
+libsodium 1.0.22; Monocypher NOT selected. Exact source hashes/static portable
+configuration retained. Step 1 IN PROGRESS through implementation/certification.
+Eight-step roadmap FROZEN, Steps 2+ and Phase 6 NOT STARTED; Schema 3 and
+DH-APPLE-METAL-01 unchanged. This supersedes historical Phase 5 stop points only.
+
 ## Phase 4 final closure
 
 **Phase 4 — CLOSED / COMPLETE / FULL PASS.** All Steps 1–7 COMPLETE / FULL PASS.

@@ -21,6 +21,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/exposure_spirv.h"
 add_library(pixaura_bridge SHARED bridge.cpp editor_bridge.cpp asset_publication_bridge.cpp capability_bridge.cpp gpu_vulkan.cpp "${CMAKE_CURRENT_BINARY_DIR}/exposure_spirv.h")
 if(PIXAURA_CERTIFICATION_TESTING)
     target_sources(pixaura_bridge PRIVATE cross_tier_certification_bridge.cpp ../../../packages/core/tests/certification/certification.cpp)
+    target_compile_definitions(pixaura_bridge PRIVATE PIXAURA_CERTIFICATION_TESTING)
 endif()
 target_include_directories(pixaura_bridge PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(pixaura_bridge PRIVATE pixaura_core pixaura_storage vulkan)

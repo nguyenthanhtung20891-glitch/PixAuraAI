@@ -1,5 +1,18 @@
 # System architecture
 
+## Phase 5 Step 1 current authority
+
+Only the model-package foundation is authorized at baseline
+`098ac7890de5bed61b7c4823fd5ea3b1ef82c904`. [ADR 0022](docs/adr/0022-model-package-ed25519-authority.md)
+and the [frozen package contract](docs/contracts/model-package-v1.md) establish
+shared pure Ed25519/libsodium 1.0.22 verification, bounded canonical metadata,
+no-follow local directory acquisition and owned immutable verified snapshots.
+No model/provider execution, inference admission, AI UX or project-schema change.
+Phase 4 capability/policy ownership retained; Schema 3 and DH-APPLE-METAL-01 unchanged.
+The [eight-step Phase 5 roadmap](docs/plans/phase-5-roadmap.md) is FROZEN;
+Step 1 IN PROGRESS through exact-SHA certification, Steps 2+ and Phase 6 NOT STARTED.
+This supersedes historical Phase 5 stop points below without reopening Phase 0–4.
+
 ## Phase 4 final closure
 
 **Phase 4 — CLOSED / COMPLETE / FULL PASS.** All Steps 1–7 COMPLETE / FULL PASS.

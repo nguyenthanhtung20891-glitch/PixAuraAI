@@ -52,6 +52,8 @@ test('source hygiene: no conflict markers, trailing spaces or missing newlines',
   for (const file of files()) {
     // Exact codec distribution bytes are covered by decode.test.mjs hash checks.
     if (path.relative(root, file).split(path.sep).join('/').startsWith('packages/core/vendor/codecs/')) continue;
+    // Exact approved libsodium distribution bytes are covered by model-package integrity checks.
+    if (path.relative(root, file).split(path.sep).join('/').startsWith('packages/core/vendor/libsodium/')) continue;
     // Exact upstream bytes are covered by persistence.test.mjs SHA-256 gates.
     if (['packages/core/vendor/sqlite/sqlite3.c', 'packages/core/vendor/sqlite/sqlite3.h']
       .includes(path.relative(root, file).split(path.sep).join('/'))) continue;

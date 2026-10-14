@@ -11,6 +11,9 @@ import java.nio.ByteBuffer
 
 @RunWith(AndroidJUnit4::class)
 class CapabilityFoundationTest {
+    @Test fun sharedSignedModelPackageAndIndependentEd25519Corpus() {
+        assertEquals(0, CoreProbe().nativeModelPackageBoundary())
+    }
     @Test fun sharedDynamicPressureRecoveryAndBackendCorpus() {
         assertEquals(0, CoreProbe().nativeDynamicPolicyBoundary())
     }

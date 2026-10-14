@@ -1,0 +1,78 @@
+// TEST ONLY. RFC 8032 public test seed; never a production signing tool/key.
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+const seed=Buffer.from('9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60','hex');
+const secret=crypto.createPrivateKey({key:Buffer.concat([Buffer.from('302e020100300506032b657004220420','hex'),seed]),format:'der',type:'pkcs8'});
+const publicKey=crypto.createPublicKey(secret).export({format:'der',type:'spki'}).subarray(-32);
+const payload=Buffer.from('PixAuraAI synthetic non-executable segmentation fixture v1');
+const digest=crypto.createHash('sha256').update(payload).digest();
+const u32=v=>{const b=Buffer.alloc(4);b.writeUInt32BE(v);return b;};
+const u64=v=>{const b=Buffer.alloc(8);b.writeBigUInt64BE(BigInt(v));return b;};
+const text=s=>{const b=Buffer.from(s);const n=Buffer.alloc(2);n.writeUInt16BE(b.length);return Buffer.concat([n,b]);};
+function manifest(o={}){
+    const tensor=(channels)=>[o.rank??4,1,1,1,channels,o.dimension??8,o.width??8].map(u32);
+    const parts=[...['PXMP'].map(s=>Buffer.from(s)),u32(o.version??1),u32(0),...[o.algorithm??1,o.signatureVersion??1,o.key??7,o.domain??2,1].map(u32),text('signature.pxs'),u32(1),text('synthetic-segmentation'),u32(1),u32(o.task??1),...tensor(3),...tensor(1),...[0,1000000,0,1000000,0,1000000,0,1000000].map(u32),...(o.normalization??[1000000,0,1000000,0,1000000,0]).map(u32),text('background'),text('foreground'),u32(1),...[o.provider??1,1,1,0,1].map(u32),digest,u32(2),u32(1),u32(4),u32(0),u32(1),u64(1048576),u32(0),u32(0),u32(0),text(o.license??'ISC'),text('synthetic original fixture; no production weights'),u32(1),u32(1),u32(1),text('PixAuraAI test fixture'),u32(o.duplicate?2:1)];
+    const file=[text(o.path??'model.onnx'),u32(1),u64(o.size??payload.length),o.missingDigest?Buffer.alloc(0):digest];parts.push(...file);if(o.duplicate)parts.push(...file);
+    const b=Buffer.concat(parts);b.writeUInt32BE(b.length,8);return b;
+}
+const sig=b=>Buffer.concat([Buffer.from('PXSG'),u32(1),u32(1),u32(7),crypto.sign(null,b,secret)]);
+const cases=[];
+const add=(name,reason,o={},edit=()=>{})=>{const m=manifest(o);const c={name,reason,manifest:m,signature:sig(m),payload:Buffer.from(payload),path:o.path??'model.onnx',extra:false,missing:false,production:false,keyMode:0};edit(c);cases.push(c);};
+add('valid',0);
+add('modified-manifest',15,{},c=>c.manifest[c.manifest.indexOf(Buffer.from('synthetic-segmentation'))]^=1);
+add('modified-payload',20,{},c=>c.payload[0]^=1);
+add('unknown-key',12,{key:9});
+add('wrong-envelope-key',12,{},c=>c.signature.writeUInt32BE(9,12));
+add('wrong-trusted-key',15,{},c=>c.keyMode=1);
+add('wrong-signature',15,{},c=>c.signature[20]^=1);
+add('truncated-signature',14,{},c=>c.signature=c.signature.subarray(0,79));
+add('oversized-signature',14,{},c=>c.signature=Buffer.concat([c.signature,Buffer.from([0])]));
+add('noncanonical-scalar',15,{},c=>c.signature.fill(255,48));
+add('low-order-r',15,{},c=>{c.signature.fill(0,16,48);c.signature[16]=1;});
+add('malformed-key',13,{},c=>c.keyMode=2);
+add('small-order-key',13,{},c=>c.keyMode=3);
+add('noncanonical-key',13,{},c=>c.keyMode=4);
+add('unsupported-algorithm',10,{algorithm:2});
+add('unsupported-signature-version',11,{signatureVersion:2});
+add('unsupported-manifest-version',8,{version:2});
+add('duplicate-path',26,{duplicate:true});
+add('noncanonical-manifest',9,{},c=>c.manifest=Buffer.concat([c.manifest,Buffer.from([0])]));
+add('missing-signature',17,{},c=>c.signature=Buffer.alloc(0));
+add('missing-digest',7,{missingDigest:true});
+add('extra-payload',18,{},c=>c.extra=true);
+add('missing-payload',17,{},c=>c.missing=true);
+add('size-mismatch',19,{size:payload.length+1});
+add('traversal',4,{path:'../model.onnx'});
+add('absolute-path',4,{path:'/model.onnx'});
+add('device-path',4,{path:'con.onnx'});
+add('unknown-task',21,{task:2});
+add('invalid-tensor',22,{dimension:0});
+add('overflow-tensor',22,{dimension:4294967295});
+add('unknown-provider',23,{provider:4});
+add('missing-license',24,{license:''});
+add('unknown-license',24,{license:'Unknown'});
+add('test-key-production',16,{},c=>c.production=true);
+add('oversized-manifest',6,{},c=>c.manifest=Buffer.alloc(65537));
+add('malformed-utf8',9,{},c=>c.manifest[c.manifest.indexOf(Buffer.from('synthetic-segmentation'))]=255);
+add('duplicate-metadata',9,{},c=>{c.manifest=Buffer.concat([c.manifest,c.manifest.subarray(32,60)]);c.manifest.writeUInt32BE(c.manifest.length,8);});
+add('overflow-payload-size',19,{size:18446744073709551615n});
+add('compatibility-sensitive-s-plus-l',15,{},c=>{
+    const order=(1n<<252n)+27742317777372353535851937790883648493n;
+    let scalar=0n;for(let i=63;i>=32;--i)scalar=(scalar<<8n)|BigInt(c.signature[16+i]);
+    scalar+=order;for(let i=32;i<64;++i){c.signature[16+i]=Number(scalar&255n);scalar>>=8n;}
+});
+add('envelope-signature-version',11,{},c=>c.signature.writeUInt32BE(2,4));
+add('envelope-algorithm',10,{},c=>c.signature.writeUInt32BE(2,8));
+add('normalization-range-contradiction',22,{normalization:[2000000,0,1000000,0,1000000,0]});
+add('invalid-tensor-rank',22,{rank:5});
+add('maximum-supported-tensor',0,{dimension:1024,width:1024});
+add('zero-normalization-scale',22,{normalization:[0,0,1000000,0,1000000,0]});
+const array=b=>'{'+[...b].join(',')+'}';
+let h='// GENERATED TEST ONLY. RFC 8032 public test seed signs synthetic metadata.\n#ifndef PIXAURA_MODEL_FIXTURES_HPP\n#define PIXAURA_MODEL_FIXTURES_HPP\n#include <array>\n#include <cstdint>\n#include <vector>\n#include <string>\nnamespace pixaura::model::fixtures {\n';
+h+=`inline const std::array<uint8_t,32> key=${array(publicKey)};\n`;
+h+='struct Case { const char* name; uint32_t reason; std::vector<uint8_t> manifest,signature,payload;std::string path;bool extra,missing,production;int key_mode; };\ninline std::vector<Case> cases(){return {\n';
+h+=cases.map(c=>`{"${c.name}",${c.reason},${array(c.manifest)},${array(c.signature)},${array(c.payload)},"${c.path}",${c.extra},${c.missing},${c.production},${c.keyMode}}`).join(',\n');h+='};}\n}\n#endif\n';
+const target='packages/core/tests/model_package_fixtures.hpp';
+if(process.argv.includes('--check')) {if(fs.readFileSync(target,'utf8')!==h)throw Error('Model fixture drift');}
+else fs.writeFileSync(target,h);
+console.log(`Model package deterministic corpus: ${cases.length} rows`);

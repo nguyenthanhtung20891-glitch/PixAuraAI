@@ -1,5 +1,24 @@
 # Quality gates and promotion policy
 
+## Phase 5 Step 1 authorized gates
+
+Baseline `098ac7890de5bed61b7c4823fd5ea3b1ef82c904`; Phases 0–4 closed.
+[Frozen package contract](docs/contracts/model-package-v1.md) and
+[Step 1 audit](docs/reports/phase-5-step-1.md) are not implementation PASS evidence.
+Ed25519/shared authority and libsodium 1.0.22 (ISC) dependency approved.
+Step 1 must prove bounded canonical parsing, authenticated exact metadata/file
+identity, fail-closed license/trust/task/provider rejection, immutable private
+payload ownership, path/link/substitution/crash protections and release exclusion
+of test anchors, through the synthetic matrix and independent crypto vectors.
+Run affected source/documentation, Windows/Linux native, ASan/UBSan, Apple native,
+Android ABI and touched JNI JVM/instrumentation, Swift/macOS/iOS simulator gates,
+retained Phase 0–4 regressions, workflow lint and diff check. Both complete hosted
+workflows (Foundation 7/7, application shells 3/3) must pass on the exact final
+Step 1 SHA. Never promote baseline-only, unexecuted or skipped required evidence.
+Schema 3 unchanged; no execution/UI/download/Agent scope. Steps 2+ and Phase 6
+NOT STARTED. DH-APPLE-METAL-01 remains unchanged at its existing gates.
+This authorization supersedes historical Phase 5 NOT STARTED text below.
+
 ## Phase 4 final closure
 
 **Phase 4 — CLOSED / COMPLETE / FULL PASS.** All Steps 1–7 COMPLETE / FULL PASS.

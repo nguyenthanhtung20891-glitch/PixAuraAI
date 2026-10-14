@@ -1,5 +1,16 @@
 # Delivery roadmap
 
+## Phase 5 current authorization — Step 1 only
+
+Product Owner authorizes Phase 5 audit, finite roadmap proposal and Step 1 at
+`098ac7890de5bed61b7c4823fd5ea3b1ef82c904`. Phase 0–4 remain closed.
+[Frozen eight-step roadmap](docs/plans/phase-5-roadmap.md); Step 1 IN PROGRESS,
+Ed25519/shared authority and libsodium 1.0.22 dependency approved.
+Steps 2–8 NOT STARTED.
+No Step 9+ or Phase 6 without explicit authorization. This supersedes historical
+Phase 5 NOT STARTED/Phase 4 stop text below, not accepted historical evidence.
+Schema 3 and DH-APPLE-METAL-01 unchanged. Stop after Step 1 certification.
+
 ## Phase 4 final closure
 
 **Phase 4 — CLOSED / COMPLETE / FULL PASS.** All Steps 1–7 COMPLETE / FULL PASS.
