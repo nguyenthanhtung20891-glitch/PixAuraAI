@@ -32,7 +32,10 @@ enter the context. Execution accepts prepared model tokens, never paths/raw ONNX
 No caller trust injection, unsigned fallback or release test anchors.
 
 Lifecycle: initialize context -> verify package -> prepare explicit provider ->
-execute -> copy/query owned output -> release output/model/package -> destroy.
+query authenticated model metadata -> execute -> copy/query owned output ->
+release output/model/package -> destroy. Model query provides signed input shapes/
+normalization, validated output shapes, manifest digest and required input+output
+execution bytes; callers do not parse untrusted manifests to construct requests.
 Releasing a package after preparation is safe: the prepared model retains immutable
 ownership. Acquired snapshots survive concurrent release; retired models cannot
 publish later results. Stale, wrong-kind, cross-context and double-release tokens

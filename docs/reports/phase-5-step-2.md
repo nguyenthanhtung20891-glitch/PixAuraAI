@@ -134,6 +134,10 @@ cannot certify the corrected final SHA; both complete workflows are repeated.
 MSVC subsequently diagnosed an implicit int-to-float template conversion in the
 test corpus's fill_n call (C4244). Explicit float fixture values fix that test-only
 compile issue without changing expected outputs, runtime arithmetic or warnings.
+Final API review added the checked read-only prepared-model metadata query, so
+callers obtain authenticated shapes/normalization from shared native authority.
+Goldens construct their requests through that query; stale queries preserve output.
+The final SHA includes this addition and requires complete workflow certification.
 
 ## Classification and stop
 

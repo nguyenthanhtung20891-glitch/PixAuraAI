@@ -69,6 +69,7 @@ static_assert(sizeof(Header)<=sizeof(pixaura_inference_context::opaque),"opaque 
 static_assert(sizeof(pixaura_inference_handle)==56&&sizeof(pixaura_inference_tensor)==72,"inference ABI");
 static_assert(sizeof(pixaura_inference_request)==96&&sizeof(pixaura_inference_output)==120,"request/result ABI");
 static_assert(sizeof(pixaura_inference_descriptor)==152&&sizeof(pixaura_inference_resources)==32,"descriptor/resources ABI");
+static_assert(sizeof(pixaura_inference_model_metadata)==200,"model metadata ABI");
 bool overlap(const void* a,uint64_t an,const void* b,uint64_t bn){
     if(!an||!bn){return false;}require(a&&b);const auto x=reinterpret_cast<uintptr_t>(a),y=reinterpret_cast<uintptr_t>(b);
     require(an<=UINTPTR_MAX-x&&bn<=UINTPTR_MAX-y);return x<y+bn&&y<x+an;
@@ -147,6 +148,14 @@ extern "C" int32_t pixaura_inference_prepare(pixaura_inference_context* c,const 
     auto prepared=find_provider(id,n)->prepare(value);require(prepared->input==value.binding.input&&prepared->output==value.binding.output,PIXAURA_INFERENCE_MODEL_UNSUPPORTED);
     auto model=std::make_shared<Model>();model->lease=std::move(prepared_lease);model->package=p;model->prepared=std::move(prepared);
     Entry e{};e.kind=2;e.model=std::move(model);*out=insert_locked(h,std::move(e));
+});}
+extern "C" int32_t pixaura_inference_model_query(pixaura_inference_context* c,const pixaura_inference_handle* model,pixaura_inference_model_metadata* out,uint32_t size){return boundary([&]{
+    const auto h=live(c);output_pointer(h,c,out,size,sizeof(*out));separate(out,size,model,sizeof(*model));
+    std::lock_guard<std::mutex> lock(h.state->mutex);const auto m=acquire_locked(h,model,2).model;
+    pixaura_inference_model_metadata metadata{};metadata.version=1;metadata.struct_size=sizeof(metadata);metadata.task=m->package->value->info.task;
+    metadata.input=tensor(m->prepared->input,m->package->value->binding.normalization);metadata.output=tensor(m->prepared->output,{{0,0,0,0,0,0}});
+    require(metadata.input.bytes<=UINT64_MAX-metadata.output.bytes,PIXAURA_INFERENCE_RESOURCE);metadata.execution_bytes=metadata.input.bytes+metadata.output.bytes;
+    std::memcpy(metadata.manifest_sha256,m->package->value->info.manifest_sha256,32);*out=metadata;
 });}
 extern "C" int32_t pixaura_inference_execute(pixaura_inference_context* c,const pixaura_inference_handle* model,const pixaura_inference_request* request,uint32_t request_size,const uint8_t* input,uint64_t input_bytes,pixaura_inference_handle* out,uint32_t size){return boundary([&]{
     const auto h=live(c);output_pointer(h,c,out,size,sizeof(*out));require(request&&request_size==sizeof(*request),PIXAURA_INFERENCE_UNSUPPORTED_ABI);

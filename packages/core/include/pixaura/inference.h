@@ -39,6 +39,12 @@ typedef struct pixaura_inference_output {
     pixaura_inference_tensor tensor;
     uint8_t manifest_sha256[32];
 } pixaura_inference_output;
+typedef struct pixaura_inference_model_metadata {
+    uint32_t version, struct_size, task, reserved;
+    pixaura_inference_tensor input, output;
+    uint8_t manifest_sha256[32];
+    uint64_t execution_bytes;
+} pixaura_inference_model_metadata;
 typedef struct pixaura_inference_descriptor {
     uint32_t version, struct_size, provider_version, backend, task, type, layout;
     uint32_t deterministic, availability, validation, max_handles, max_dimension;
@@ -64,6 +70,9 @@ PIXAURA_API int32_t pixaura_inference_package_verify(pixaura_inference_context*,
     pixaura_inference_handle*, uint32_t, pixaura_model_diagnostic*);
 PIXAURA_API int32_t pixaura_inference_prepare(pixaura_inference_context*, const char*, uint64_t,
     const pixaura_inference_handle*, pixaura_inference_handle*, uint32_t);
+/* Authenticated model input/normalization and output contract; never caller parsing. */
+PIXAURA_API int32_t pixaura_inference_model_query(pixaura_inference_context*, const pixaura_inference_handle*,
+    pixaura_inference_model_metadata*, uint32_t);
 PIXAURA_API int32_t pixaura_inference_execute(pixaura_inference_context*, const pixaura_inference_handle*,
     const pixaura_inference_request*, uint32_t, const uint8_t*, uint64_t,
     pixaura_inference_handle*, uint32_t);
