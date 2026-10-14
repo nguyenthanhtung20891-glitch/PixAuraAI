@@ -31,9 +31,9 @@ struct PreparedExecution {
 struct CpuReference final:PreparedExecution {
     Plan plan;
     explicit CpuReference(Plan p):plan(p){input=p.input;output=p.output;}
-    void run(const float* in,float* out,const ExecutionControl& control)const override{
+    void run(const float* in,float* out,const ExecutionControl& execution_control)const override{
         const auto pixels=static_cast<size_t>(input[2])*input[3];
-        for(size_t i=0;i<pixels;++i){if(i%1024==0){control.check(control.state,evaluation::Checkpoint::tile);}double sum=0;
+        for(size_t i=0;i<pixels;++i){if(i%1024==0){execution_control.check(execution_control.state,evaluation::Checkpoint::tile);}double sum=0;
             for(size_t channel=0;channel<3;++channel)sum=sum+binary32_value(in[channel*pixels+i])*binary32_value(plan.weights[channel]);
             out[i]=binary32_round(sum);
         }

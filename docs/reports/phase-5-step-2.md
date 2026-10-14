@@ -127,6 +127,10 @@ Local Apple/instrumentation execution is not claimed. Both final exact-SHA hoste
 workflows must finish SUCCESS (Foundation 7/7, shells 3/3) on the same final commit.
 Delivery records SHA/run IDs/test totals after observing them; no later uncertified
 status commit or prior-SHA promotion. Unobserved/skipped required gates never PASS.
+Initial hosted MSVC compilation found an owned parameter shadowing the control
+reservation constant (C4459 under /W4 /WX). The parameter was renamed; no warnings
+were disabled and no arithmetic, contract or vendor source changed. That candidate
+cannot certify the corrected final SHA; both complete workflows are repeated.
 
 ## Classification and stop
 
