@@ -102,6 +102,14 @@ certification symbols. arm64 dynamic exports expose no vendor crypto/signing or
 internal trust API. Apple and instrumented parity must still be observed at the
 exact final SHA; local build success does not substitute for those executions.
 
+Initial hosted recovery exposed two build/checkout defects: Windows converted the
+generated fixture header to CRLF, and the new C consumer omitted the existing C++
+linker policy needed for UBSan's C++ runtime. The header is now pinned to LF and
+the C source consumer links with CXX, matching existing consumers. Strict byte
+comparison and all sanitizer instrumentation remain active. Upstream vendor
+whitespace is preserved through vendor-only Git attributes, never source edits.
+These earlier failed candidates cannot certify the corrected final SHA.
+
 Local evidence remains ignored under build/phase5-*; unexecuted gates never PASS.
 Before final acceptance BOTH complete workflows must finish SUCCESS on the SAME
 final commit containing this implementation/report: Foundation 7/7, application
