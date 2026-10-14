@@ -1,7 +1,9 @@
 set(PIXAURA_SODIUM_SOURCES
     packages/core/vendor/libsodium/src/libsodium/crypto_aead/aegis128l/aead_aegis128l.c
+    packages/core/vendor/libsodium/src/libsodium/crypto_aead/aegis128l/aegis128l_aesni.c
     packages/core/vendor/libsodium/src/libsodium/crypto_aead/aegis128l/aegis128l_soft.c
     packages/core/vendor/libsodium/src/libsodium/crypto_aead/aegis256/aead_aegis256.c
+    packages/core/vendor/libsodium/src/libsodium/crypto_aead/aegis256/aegis256_aesni.c
     packages/core/vendor/libsodium/src/libsodium/crypto_aead/aegis256/aegis256_soft.c
     packages/core/vendor/libsodium/src/libsodium/crypto_aead/aes256gcm/aead_aes256gcm.c
     packages/core/vendor/libsodium/src/libsodium/crypto_aead/chacha20poly1305/aead_chacha20poly1305.c
@@ -28,7 +30,10 @@ set(PIXAURA_SODIUM_SOURCES
     packages/core/vendor/libsodium/src/libsodium/crypto_core/salsa/ref/core_salsa_ref.c
     packages/core/vendor/libsodium/src/libsodium/crypto_core/softaes/softaes.c
     packages/core/vendor/libsodium/src/libsodium/crypto_generichash/blake2b/generichash_blake2.c
+    packages/core/vendor/libsodium/src/libsodium/crypto_generichash/blake2b/ref/blake2b-compress-avx2.c
     packages/core/vendor/libsodium/src/libsodium/crypto_generichash/blake2b/ref/blake2b-compress-ref.c
+    packages/core/vendor/libsodium/src/libsodium/crypto_generichash/blake2b/ref/blake2b-compress-sse41.c
+    packages/core/vendor/libsodium/src/libsodium/crypto_generichash/blake2b/ref/blake2b-compress-ssse3.c
     packages/core/vendor/libsodium/src/libsodium/crypto_generichash/blake2b/ref/blake2b-ref.c
     packages/core/vendor/libsodium/src/libsodium/crypto_generichash/blake2b/ref/generichash_blake2b.c
     packages/core/vendor/libsodium/src/libsodium/crypto_generichash/crypto_generichash.c
@@ -54,8 +59,11 @@ set(PIXAURA_SODIUM_SOURCES
     packages/core/vendor/libsodium/src/libsodium/crypto_onetimeauth/poly1305/onetimeauth_poly1305.c
     packages/core/vendor/libsodium/src/libsodium/crypto_pwhash/argon2/argon2-core.c
     packages/core/vendor/libsodium/src/libsodium/crypto_pwhash/argon2/argon2-encoding.c
+    packages/core/vendor/libsodium/src/libsodium/crypto_pwhash/argon2/argon2-fill-block-avx2.c
+    packages/core/vendor/libsodium/src/libsodium/crypto_pwhash/argon2/argon2-fill-block-avx512f.c
     packages/core/vendor/libsodium/src/libsodium/crypto_pwhash/argon2/argon2-fill-block-neon.c
     packages/core/vendor/libsodium/src/libsodium/crypto_pwhash/argon2/argon2-fill-block-ref.c
+    packages/core/vendor/libsodium/src/libsodium/crypto_pwhash/argon2/argon2-fill-block-ssse3.c
     packages/core/vendor/libsodium/src/libsodium/crypto_pwhash/argon2/argon2-fill-block-wasm32.c
     packages/core/vendor/libsodium/src/libsodium/crypto_pwhash/argon2/argon2.c
     packages/core/vendor/libsodium/src/libsodium/crypto_pwhash/argon2/blake2b-long.c
@@ -88,11 +96,15 @@ set(PIXAURA_SODIUM_SOURCES
     packages/core/vendor/libsodium/src/libsodium/crypto_sign/ed25519/ref10/open.c
     packages/core/vendor/libsodium/src/libsodium/crypto_sign/ed25519/ref10/sign.c
     packages/core/vendor/libsodium/src/libsodium/crypto_sign/ed25519/sign_ed25519.c
+    packages/core/vendor/libsodium/src/libsodium/crypto_stream/chacha20/dolbeau/chacha20_dolbeau-avx2.c
+    packages/core/vendor/libsodium/src/libsodium/crypto_stream/chacha20/dolbeau/chacha20_dolbeau-ssse3.c
     packages/core/vendor/libsodium/src/libsodium/crypto_stream/chacha20/ref/chacha20_ref.c
     packages/core/vendor/libsodium/src/libsodium/crypto_stream/chacha20/stream_chacha20.c
     packages/core/vendor/libsodium/src/libsodium/crypto_stream/crypto_stream.c
     packages/core/vendor/libsodium/src/libsodium/crypto_stream/salsa20/ref/salsa20_ref.c
     packages/core/vendor/libsodium/src/libsodium/crypto_stream/salsa20/stream_salsa20.c
+    packages/core/vendor/libsodium/src/libsodium/crypto_stream/salsa20/xmm6int/salsa20_xmm6int-avx2.c
+    packages/core/vendor/libsodium/src/libsodium/crypto_stream/salsa20/xmm6int/salsa20_xmm6int-sse2.c
     packages/core/vendor/libsodium/src/libsodium/crypto_stream/salsa2012/ref/stream_salsa2012_ref.c
     packages/core/vendor/libsodium/src/libsodium/crypto_stream/salsa2012/stream_salsa2012.c
     packages/core/vendor/libsodium/src/libsodium/crypto_stream/salsa208/ref/stream_salsa208_ref.c

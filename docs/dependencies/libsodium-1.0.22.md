@@ -34,3 +34,9 @@ archive/object size is never represented as an exact linked delta. No tiny/zero-
 claim. Required release-object and actual release-product scans exclude test keys
 and certification symbols. Production trust starts empty pending separate approved
 public-key provisioning. RFC test signing seed exists only in the engineering tool.
+
+MSVC upstream common.h automatically enables intrinsic dispatch references. The
+shared CMake/Swift source list therefore also retains the twelve unchanged guarded
+upstream AESNI/Blake2/Argon2/ChaCha/Salsa implementation files needed to close those
+references. Other compilers leave them inactive under the same generic flags.
+No optional ISA flags, native tuning, assembly, vendor edits or new PixAuraAI APIs.

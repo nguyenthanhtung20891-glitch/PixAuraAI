@@ -113,6 +113,12 @@ Apple native CTest passed before Swift rejected a misplaced vendor target inside
 the product-name list. The sodium target now resides in the target list; portable
 source parity and cryptographic configuration are unchanged. Swift execution is
 certified only after the corrected exact-SHA Apple jobs succeed.
+MSVC then exposed compiler-mandated intrinsic dispatch references in upstream
+common.h. Twelve unchanged guarded upstream implementation sources complete that
+closure on the common CMake/Swift source list; other generic compiler builds leave
+them inactive. No optional ISA flags, native tuning or verification-rule changes.
+The vendor source hashes remain unchanged, with only provenance configuration
+clarified. Windows fallback and Linux/sanitizer checks are rerun for the source list.
 
 Local evidence remains ignored under build/phase5-*; unexecuted gates never PASS.
 Before final acceptance BOTH complete workflows must finish SUCCESS on the SAME

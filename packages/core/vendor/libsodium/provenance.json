@@ -3,7 +3,7 @@
   "license": "ISC; upstream embedded notices retained",
   "source": "https://github.com/jedisct1/libsodium/releases/download/1.0.22-RELEASE/libsodium-1.0.22.tar.gz",
   "archive_sha256": "adbdd8f16149e81ac6078a03aca6fc03b592b89ef7b5ed83841c086191be3349",
-  "configuration": "portable full generic C; fe25.5; SODIUM_STATIC; CONFIGURED=1; compiler-mandated AArch64 NEON Argon2 source retained for initialization closure; no optional ISA/assembly, COMPAT, LTO or native tuning; point-validation API retained",
+  "configuration": "portable full generic C; fe25.5; SODIUM_STATIC; CONFIGURED=1; compiler-mandated AArch64 NEON and MSVC guarded dispatch sources retained for initialization closure; no optional ISA flags/assembly, COMPAT, LTO or native tuning; point-validation API retained",
   "files": {
     "AUTHORS": "ecd364ba590239cbd29d051e73a0a8b4bbd719137a0a64a41409e21f3e7a3035",
     "ChangeLog": "23a09e70f62d6f78ba66deae8ace6c8bae6bae1bbfc8cb9f86309480c68a4aee",
