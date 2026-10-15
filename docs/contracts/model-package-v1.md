@@ -120,6 +120,13 @@ providers or general ONNX execution. Vulkan availability/validation/certificatio
 remain separate. No Vulkan record, field, payload or package-schema extension is
 introduced; canonical signed bytes and Core ML/LiteRT records remain unchanged.
 
+Step 4 Apple-specific Option A clarification separately permits `apple.metal.v1`
+to consume that portable CPU ONNX semantic record ONLY for the same exact frozen
+reference profile, with mandatory CPU compatibility and unchanged version-1
+runtime/API/operator checks. This is not a general provider allowance. Metal
+availability/validation/certification remain separate; no Metal record/field,
+alternate payload, canonical byte/signature or package-schema change is introduced.
+
 Operator registry v1 IDs 1..16: Conv, Relu, Add, Sigmoid, Mul, Resize, MaxPool,
 AveragePool, Concat, Reshape, Transpose, Softmax, BatchNormalization, Identity,
 Clip, GlobalAveragePool. Actual graph coverage and model format/operator-set

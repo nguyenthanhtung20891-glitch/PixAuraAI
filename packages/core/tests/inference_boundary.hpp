@@ -25,6 +25,9 @@ inline int certification(){
        vulkan_probability_matches(0.51f,0.5)||vulkan_probability_matches(-0.01f,0)||
        vulkan_probability_matches(std::numeric_limits<float>::quiet_NaN(),0.5)||
        vulkan_probability_matches(std::numeric_limits<float>::infinity(),1))++failures;
+    if(!metal_probability_matches(0.5f,0.5)||!metal_probability_matches(0.0f,1e-45)||
+       metal_probability_matches(0.51f,0.5)||metal_probability_matches(-0.01f,0)||
+       metal_probability_matches(std::numeric_limits<float>::quiet_NaN(),0.5))++failures;
     const auto data=fixtures::cases();
     // Independent IEEE boundary vectors, including gradual underflow and ties.
     for(uint32_t bits:{0u,1u,2u,0x7fffffu,0x800000u,0x3e800000u,0x3f000000u,0x3f800000u}){

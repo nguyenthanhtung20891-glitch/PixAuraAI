@@ -85,3 +85,11 @@ Prepared-model execution_bytes additionally reports the backend's bounded transi
 reservation, admitted against the same context ceiling. CPU metadata/results are
 unchanged. See [Android contract](android-inference-provider-v1.md). No selection,
 fallback policy or package-schema extension is introduced.
+
+Step 4 additive clarification: Apple builds expose explicit `apple.metal.v1`,
+backend=3 (Metal/F32 storage), observed availability, validation UNKNOWN and
+deterministic=0. Metadata execution_bytes includes its bounded backend reservation;
+the same structs/statuses/CPU contracts remain unchanged. Apple-specific approval
+permits only the exact frozen profile to use the authenticated CPU ONNX record.
+See [Apple contract](apple-inference-provider-v1.md). No automatic selection,
+package-schema extension, Core ML runtime or physical certification is implied.

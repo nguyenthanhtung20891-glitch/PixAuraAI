@@ -10,6 +10,8 @@ extern "C" {
 int32_t pixaura_test_cross_tier_replay(const char* private_test_parent,uint32_t platform);
 PIXAURA_API int32_t pixaura_model_test_boundary(void);
 PIXAURA_API int32_t pixaura_inference_test_boundary(void);
+/* Apple debug/test only; no release corpus or trust surface. */
+PIXAURA_API int32_t pixaura_inference_apple_test_boundary(void);
 /* Implemented only in native test/debug core builds, never release product.
  * Avoid a second SQLite amalgamation inspecting an active editor connection. */
 PIXAURA_API int32_t pixaura_test_editor_document(pixaura_editor_context*,uint8_t*,uint64_t,uint64_t*);

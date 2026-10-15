@@ -1,5 +1,19 @@
 # System architecture
 
+## Phase 5 Step 4 current authorization
+
+Step 3 COMPLETE / FULL PASS at `bf31eb33d5b5027236d71cf56da4c648d6b56255`:
+Foundation 38685139496 (7/7), Native application shells 38685139454 (3/3).
+Step 4 AUTHORIZED / IN PROGRESS. Apple-specific Option A explicitly permits
+`apple.metal.v1` to consume the authenticated portable CPU ONNX record ONLY
+for the frozen reference profile. Mandatory CPU compatibility, separate Metal
+trust, explicit selection, no package-schema extension or Core ML execution.
+[Apple contract](docs/contracts/apple-inference-provider-v1.md),
+[Step 4 report](docs/reports/phase-5-step-4.md). Both complete same-final-SHA
+workflows govern closure. Schema 3 and DH-APPLE-METAL-01 unchanged; no physical
+Apple claim. Steps 5+ and Phase 6 NOT STARTED. Stop after Step 4.
+This supersedes historical Step 3 stop text below without reopening closure.
+
 ## Phase 5 Step 3 current authorization
 
 Step 2 COMPLETE / FULL PASS at `58202caf1fd86215abe4650b208b2134cdca9b58`:

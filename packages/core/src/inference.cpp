@@ -4,6 +4,10 @@
 #include "evaluation.hpp"
 #include "inference_parity.hpp"
 #include <chrono>
+#ifdef __APPLE__
+#include "metal_worker.hpp"
+#include <cstdio>
+#endif
 #ifdef __ANDROID__
 #include "vulkan_worker.hpp"
 #include "segmentation_spirv.h"
@@ -63,6 +67,9 @@ struct Backend {std::string_view id;std::unique_ptr<const PreparedExecution>(*pr
 #ifdef __ANDROID__
 #include "inference_vulkan.hpp"
 const std::array<Backend,2> backends{{{provider,prepare_cpu},{vulkan_provider,prepare_vulkan}}};
+#elif defined(__APPLE__)
+#include "inference_metal.hpp"
+const std::array<Backend,2> backends{{{provider,prepare_cpu},{metal_provider,prepare_metal}}};
 #else
 const std::array<Backend,1> backends{{{provider,prepare_cpu}}};
 #endif
@@ -143,6 +150,9 @@ extern "C" int32_t pixaura_inference_descriptor_query(uint32_t version,const cha
     const auto selected=find_provider(id,n)->id;
 #ifdef __ANDROID__
     if(selected==vulkan_provider){d.backend=2;d.deterministic=0;d.availability=vulkan_available()?2u:1u;d.validation=0;}
+#endif
+#ifdef __APPLE__
+    if(selected==metal_provider){d.backend=3;d.deterministic=0;d.availability=pixaura::apple::metal_available()?2u:1u;d.validation=0;}
 #endif
     std::memcpy(d.provider_id,selected.data(),selected.size());const char profile[]="pixaura.onnx.reference-segmentation.v1";std::memcpy(d.profile_id,profile,sizeof(profile));*out=d;
 });}
@@ -235,5 +245,9 @@ extern "C" PIXAURA_API int32_t pixaura_inference_test_boundary(){return boundary
 #ifdef __ANDROID__
 #include "../tests/inference_android_boundary.hpp"
 extern "C" PIXAURA_API int32_t pixaura_inference_android_test_boundary(){return boundary([&]{require(pixaura::inference::android_certification()==0,PIXAURA_INFERENCE_INTERNAL);});}
+#endif
+#ifdef __APPLE__
+#include "../tests/inference_apple_boundary.hpp"
+extern "C" PIXAURA_API int32_t pixaura_inference_apple_test_boundary(){return boundary([&]{require(pixaura::inference::apple_certification()==0,PIXAURA_INFERENCE_INTERNAL);});}
 #endif
 #endif

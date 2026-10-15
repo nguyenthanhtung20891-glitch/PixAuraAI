@@ -54,3 +54,27 @@ test('Android fixed Conv has bounded parity against an independent arithmetic or
     assert.match(shader,/precise float probability=rg\+b/);
     assert.doesNotMatch(shader,/\b(clamp|fma|float16_t|double)\b/);
 });
+
+test('Apple fixed rounded F32 chain independently bounds RTE/RTZ and FTZ',()=>{
+    execFileSync(process.execPath,['scripts/metal-inference-shaders.mjs','--check']);
+    const shader=fs.readFileSync('packages/core/swift/Sources/Shaders/segmentation.metal','utf8');
+    assert.equal((shader.match(/=fma\(/g)||[]).length,5);
+    assert.doesNotMatch(shader,/\b(half|double|clamp|fast)\b/);
+    const scratch=Buffer.alloc(4);
+    function rounded(value,rtz,ftz){let v=Math.fround(value);
+        if(rtz&&v>value){scratch.writeFloatLE(v);scratch.writeUInt32LE(scratch.readUInt32LE()-1);v=scratch.readFloatLE();}
+        return ftz&&v<2**-126?0:v;
+    }
+    const values=[0,1,0.1,1/3,0.5,0.99999994,2**-126,2**-149].map(Math.fround);
+    for(let r=0;r<=4;r++)for(let g=0;g<=4-r;g++)for(const a of values)for(const b of values)for(const c of values){
+        const w=[r/4,g/4,(4-r-g)/4],input=[a,b,c];
+        const cpu=Math.fround(a*w[0]+b*w[1]+c*w[2]);
+        for(const rtz of [false,true])for(const ftz of [false,true]){
+            const mul=input.map((x,i)=>rounded((ftz&&x<2**-126?0:x)*w[i],rtz,ftz));
+            const actual=rounded(rounded(mul[0]+mul[1],rtz,ftz)+mul[2],rtz,ftz);
+            assert.ok(Math.abs(actual-cpu)<=4e-38+3e-7*Math.abs(cpu));
+        }
+    }
+    const swift=fs.readFileSync('packages/core/swift/Sources/MetalValidation.swift','utf8');
+    assert.match(swift,/pixaura_metal_exposure_dispatch/);assert.doesNotMatch(swift,/makeCommandQueue|makeBuffer\(|makeLibrary\(/);
+});
