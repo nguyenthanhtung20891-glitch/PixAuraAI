@@ -7,6 +7,17 @@
 #include <chrono>
 #include <cstdio>
 namespace pixaura::inference {
+namespace {
+// Same internal linkage as its private prepared-backend base and member.
+struct ReservedBackend final:PreparedExecution {
+    CpuReference cpu;bool fail;int* calls;
+    ReservedBackend(Plan plan,bool error,int* count):cpu(plan),fail(error),calls(count){input=plan.input;output=plan.output;}
+    uint64_t transient_bytes()const override{return 1638400;}
+    void run(const float* input_values,float* output_values,const ExecutionControl& execution_control)const override{
+        ++*calls;if(fail)throw Error{PIXAURA_INFERENCE_INTERNAL};cpu.run(input_values,output_values,execution_control);
+    }
+};
+}
 inline int certification(){
     std::atomic<int> failures{0};auto expect=[&](int actual,int expected){if(actual!=expected)++failures;};
     // Shared GPU acceptance arithmetic is exercised under host ASan/UBSan too.
@@ -127,14 +138,6 @@ inline int certification(){
     // Public verifier has no caller trust injection or raw model execution shortcut.
     // Test-only backend exercises shared nonzero resource reservation and throw
     // cleanup under ASan/UBSan, without a GPU or a shipping mock registry.
-    struct ReservedBackend final:PreparedExecution {
-        CpuReference cpu;bool fail;int* calls;
-        ReservedBackend(Plan plan,bool error,int* count):cpu(plan),fail(error),calls(count){input=plan.input;output=plan.output;}
-        uint64_t transient_bytes()const override{return 1638400;}
-        void run(const float* input_values,float* output_values,const ExecutionControl& execution_control)const override{
-            ++*calls;if(fail)throw Error{PIXAURA_INFERENCE_INTERNAL};cpu.run(input_values,output_values,execution_control);
-        }
-    };
     for(unsigned mode=0;mode<3;++mode){pixaura_inference_context reserved{};init(reserved,'b',mode==2?400000:67108864);
         const auto rp=admit(reserved,data.back());pixaura_inference_handle rm{},ro{};expect(prepare(reserved,rp,rm),0);
         auto header=live(&reserved);auto model=acquire_locked(header,&rm,2).model;

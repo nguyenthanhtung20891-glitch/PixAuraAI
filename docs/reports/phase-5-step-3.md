@@ -123,6 +123,12 @@ Full retained suites and Apple/Swift must be observed on the final
 same-SHA workflows; delivery records their final SHA/IDs without a later
 uncertified documentation-only status commit.
 
+Initial exact-SHA GCC compilation diagnosed -Wsubobject-linkage in a test-only
+function-local reservation backend containing anonymous-namespace implementation
+types. Moving that test class into the same anonymous namespace fixes linkage;
+no warning, sanitizer, assertion or runtime semantic change. The corrected commit
+requires fresh complete same-SHA workflows; the initial run cannot certify it.
+
 Observed emulator engineering timings, not physical certification or speedup:
 256x256 CPU execute approximately 8-12 ms, Vulkan backend approximately 50-60 ms
 including per-request device/pipeline setup and per-tile CPU validation. One sample
