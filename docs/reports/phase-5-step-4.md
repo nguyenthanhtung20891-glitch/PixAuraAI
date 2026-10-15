@@ -107,6 +107,14 @@ Step 4 SHA; delivery records final SHA/IDs/totals without a later uncertified
 status-only commit. Timing/memory observations are engineering integration evidence,
 never real-device speedups or physical certification.
 
+First hosted Apple compilation diagnosed a modern SDK deprecation on the guarded
+legacy fastMathEnabled setter in Objective-C++. New OS versions use mathMode/safe
+and precise functions; older versions now set the same public legacy property by
+KVC, guarded before mathMode availability. Unknown-key failure is contained/fails
+closed. No warning suppression, OS minimum increase, arithmetic or trust change.
+The corrected SHA requires fresh complete workflows; prior-SHA results do not
+certify this fix.
+
 ## Classification and scope
 
 A: implementation review and complete platform/security/sanitizer/exact-SHA gates.

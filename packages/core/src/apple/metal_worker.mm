@@ -33,7 +33,13 @@ struct Worker final:MetalWorker {
         output=[device newBufferWithLength:tile_bytes options:MTLResourceStorageModeShared];require(queue&&input&&output,11);
         MTLCompileOptions* options=[MTLCompileOptions new];options.languageVersion=MTLLanguageVersion2_4;
         if(@available(iOS 18.0,macOS 15.0,*)){options.mathMode=MTLMathModeSafe;options.mathFloatingPointFunctions=MTLMathFloatingPointFunctionsPrecise;}
-        else {options.fastMathEnabled=NO;}
+        else {
+            // Public legacy property, used ONLY before mathMode exists. KVC
+            // preserves that supported ABI without referencing its deprecated
+            // SDK declaration in a modern ObjC++ translation unit. Unknown key
+            // would throw and fail closed through the factory boundary.
+            [options setValue:@NO forKey:@"fastMathEnabled"];
+        }
         NSError* error=nil;
         NSString* source=[NSString stringWithUTF8String:(ref?segmentation_msl:exposure_msl)];
         id<MTLLibrary> library=[device newLibraryWithSource:source options:options error:&error];require(library&&error==nil,15);
