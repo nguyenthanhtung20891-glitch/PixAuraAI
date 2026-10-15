@@ -111,6 +111,15 @@ with `.onnx`, `.mlmodel`, `.tflite` suffixes respectively. No format chosen from
 filename alone. Provider compatibility is declarative metadata, not execution or
 OS availability certification. Unknown IDs/opset versions reject.
 
+Step 3 approved Option A clarification: the CPU ONNX record authenticates portable
+ONNX semantic compatibility, not a requirement for physical CPU execution.
+`android.vulkan.v1` may consume that same authenticated record ONLY for the exact
+`pixaura.onnx.reference-segmentation.v1` profile, with unchanged version-1 floors
+and mandatory CPU reference compatibility. This is not permission for arbitrary
+providers or general ONNX execution. Vulkan availability/validation/certification
+remain separate. No Vulkan record, field, payload or package-schema extension is
+introduced; canonical signed bytes and Core ML/LiteRT records remain unchanged.
+
 Operator registry v1 IDs 1..16: Conv, Relu, Add, Sigmoid, Mul, Resize, MaxPool,
 AveragePool, Concat, Reshape, Transpose, Softmax, BatchNormalization, Identity,
 Clip, GlobalAveragePool. Actual graph coverage and model format/operator-set

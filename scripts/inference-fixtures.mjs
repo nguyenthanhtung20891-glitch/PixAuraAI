@@ -1,6 +1,7 @@
 // TEST ONLY: genuine ONNX profile, public RFC8032 signing material, independent dyadic oracle.
 import fs from 'node:fs';
 import crypto from 'node:crypto';
+import {fileURLToPath} from 'node:url';
 const seed=Buffer.from('9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60','hex');
 const key=crypto.createPrivateKey({key:Buffer.concat([Buffer.from('302e020100300506032b657004220420','hex'),seed]),format:'der',type:'pkcs8'});
 const cat=(...b)=>Buffer.concat(b.flat());
@@ -60,5 +61,10 @@ add('valid-golden-2x2',0,{h:2,w:2});
 header=header.slice(0,header.indexOf('inline std::vector<Case>'))+'inline std::vector<Case> cases(){return {\n'+cases.map(c=>`{"${c.name}",${c.status},${array(c.payload)},${array(c.manifest)},${array(c.signature)}}`).join(',\n')+'};}\n';
 header+='struct Golden {const char* name;std::vector<uint32_t> input_units,output_bits;};\ninline std::vector<Golden> goldens(){return {\n'+goldens.map(g=>`{"${g.name}",${array(g.input_quarter_units)},${array(g.output_hex.map(s=>parseInt(s,16)))}}`).join(',\n')+'};}\n}\n#endif\n';
 const outputs=[['packages/core/tests/inference_fixtures.hpp',header],['tests/fixtures/inference-reference-v1.json',golden]];
-for(const [path,data] of outputs){if(process.argv.includes('--check')){if(fs.readFileSync(path,'utf8')!==data)throw Error('Inference fixture drift');}else fs.writeFileSync(path,data);}
-console.log(`Inference fixtures: ${cases.length} signed ONNX packages; ${goldens.length} independent goldens`);
+if(process.argv[1]===fileURLToPath(import.meta.url)){
+    for(const [path,data] of outputs){if(process.argv.includes('--check')){if(fs.readFileSync(path,'utf8')!==data)throw Error('Inference fixture drift');}else fs.writeFileSync(path,data);}
+    console.log(`Inference fixtures: ${cases.length} signed ONNX packages; ${goldens.length} independent goldens`);
+}
+// Engineering-only reuse for Step 3 fixtures; never linked into application code.
+export function signedReferenceFixture(o){const payload=onnx(o),m=manifest(payload,o);
+    return {payload,manifest:m,signature:cat(Buffer.from('PXSG'),[1,1,7].map(u32),crypto.sign(null,m,key))};}

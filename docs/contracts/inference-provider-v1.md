@@ -76,3 +76,12 @@ Codes: 0 OK; 1 INVALID_ARGUMENT; 2 UNSUPPORTED_ABI; 3 UNVERIFIED_MODEL;
 17 BUFFER_TOO_SMALL; 18 NORMALIZATION. Diagnostics expose bounded numeric codes
 only; package-verification failure also returns Step 1's bounded reason. No paths,
 payload logs, network, telemetry, signing, acceleration or inference policy.
+
+Step 3 additive provider clarification: Android builds also expose explicitly
+selected `android.vulkan.v1` through these unchanged ABI structs/statuses.
+Descriptor backend=2 requires Vulkan compute/F32 storage; availability is observed,
+validation=UNKNOWN until separately established, deterministic=0 (bounded parity).
+Prepared-model execution_bytes additionally reports the backend's bounded transient
+reservation, admitted against the same context ceiling. CPU metadata/results are
+unchanged. See [Android contract](android-inference-provider-v1.md). No selection,
+fallback policy or package-schema extension is introduced.

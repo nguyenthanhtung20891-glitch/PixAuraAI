@@ -32,3 +32,25 @@ test('reference runtime has no external engine or release certification surface'
     assert.match(contract,/does NOT support general ONNX execution/);
     assert.ok(!/onnxruntime|tensorflow|ncnn|executorch/i.test(fs.readFileSync('CMakeLists.txt','utf8')));
 });
+
+test('Android fixed Conv has bounded parity against an independent arithmetic oracle',()=>{
+    execFileSync(process.execPath,['scripts/android-inference-fixtures.mjs','--check']);
+    const contract=fs.readFileSync('docs/contracts/android-inference-provider-v1.md','utf8');
+    assert.match(contract,/4e-38 \+ 3e-7/);
+    // Enumerate every accepted quarter-weight triple, including 0.75 cases.
+    const values=[0,1,0.5,0.1,1/3,2**-126,2**-149,0.99999994];
+    let combinations=0;
+    for(let r=0;r<=4;r++)for(let g=0;g<=4-r;g++){
+        const w=[r/4,g/4,(4-r-g)/4];combinations++;
+        for(const a of values)for(const b of values)for(const c of values){
+            const x=[a,b,c].map(Math.fround);
+            const reference=Math.fround(x[0]*w[0]+x[1]*w[1]+x[2]*w[2]);
+            const actual=Math.fround(Math.fround(Math.fround(x[0]*w[0])+Math.fround(x[1]*w[1]))+Math.fround(x[2]*w[2]));
+            assert.ok(Math.abs(actual-reference)<=4e-38+3e-7*Math.abs(reference));
+        }
+    }
+    assert.equal(combinations,15);
+    const shader=fs.readFileSync('platforms/android/native/segmentation.comp','utf8');
+    assert.match(shader,/precise float probability=rg\+b/);
+    assert.doesNotMatch(shader,/\b(clamp|fma|float16_t|double)\b/);
+});

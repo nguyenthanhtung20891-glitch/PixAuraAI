@@ -26,3 +26,18 @@ endif()
 target_include_directories(pixaura_bridge PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(pixaura_bridge PRIVATE pixaura_core pixaura_storage vulkan)
 pixaura_strict(pixaura_bridge)
+
+# The shared inference authority owns the Android backend; JNI only invokes it.
+find_program(PIXAURA_SPIRV_VAL NAMES spirv-val spirv-val.exe PATHS "${ANDROID_NDK}/shader-tools/${shader_host}" NO_DEFAULT_PATH REQUIRED)
+find_program(PIXAURA_SPIRV_DIS NAMES spirv-dis spirv-dis.exe PATHS "${ANDROID_NDK}/shader-tools/${shader_host}" NO_DEFAULT_PATH REQUIRED)
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/segmentation_spirv.h"
+    COMMAND "${PIXAURA_GLSLC}" --target-env=vulkan1.0 -O0 "${CMAKE_CURRENT_SOURCE_DIR}/segmentation.comp" -o "${CMAKE_CURRENT_BINARY_DIR}/segmentation.spv"
+    COMMAND "${PIXAURA_SPIRV_VAL}" --target-env vulkan1.0 "${CMAKE_CURRENT_BINARY_DIR}/segmentation.spv"
+    COMMAND "${PIXAURA_SPIRV_DIS}" "${CMAKE_CURRENT_BINARY_DIR}/segmentation.spv" -o "${CMAKE_CURRENT_BINARY_DIR}/segmentation.spvasm"
+    COMMAND "${CMAKE_COMMAND}" "-DINPUT=${CMAKE_CURRENT_BINARY_DIR}/segmentation.spvasm" -P "${CMAKE_CURRENT_SOURCE_DIR}/../../../scripts/check-inference-spirv.cmake"
+    COMMAND "${CMAKE_COMMAND}" "-DINPUT=${CMAKE_CURRENT_BINARY_DIR}/segmentation.spv" "-DOUTPUT=${CMAKE_CURRENT_BINARY_DIR}/segmentation_spirv.h" -DSYMBOL=segmentation_spirv -P "${CMAKE_CURRENT_SOURCE_DIR}/../../../scripts/embed-spirv.cmake"
+    DEPENDS segmentation.comp ../../../scripts/embed-spirv.cmake ../../../scripts/check-inference-spirv.cmake VERBATIM)
+add_custom_target(pixaura_inference_shader DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/segmentation_spirv.h")
+add_dependencies(pixaura_core pixaura_inference_shader)
+target_include_directories(pixaura_core PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
+target_link_libraries(pixaura_core PRIVATE vulkan log)

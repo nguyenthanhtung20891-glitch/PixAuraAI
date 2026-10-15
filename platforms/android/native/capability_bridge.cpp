@@ -44,6 +44,10 @@ extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_CoreProbe_nativeDynamic
 }
 #ifdef PIXAURA_CERTIFICATION_TESTING
 extern "C" int32_t pixaura_inference_test_boundary();
+extern "C" int32_t pixaura_inference_android_test_boundary();
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_CoreProbe_nativeAndroidInferenceBoundary(JNIEnv*, jobject) {
+    return pixaura_inference_android_test_boundary();
+}
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_CoreProbe_nativeInferenceBoundary(JNIEnv*, jobject) {
     return pixaura_inference_test_boundary();
 }

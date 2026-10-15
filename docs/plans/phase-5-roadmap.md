@@ -2,15 +2,18 @@
 
 Status: FROZEN under Product Owner's Step 1 dependency authorization. Step 1 accepted at
 `8d5a30338c97a05e987ecf1324b86a2afb795356`. Phases 0–4 remain closed.
-Step 1 COMPLETE / FULL PASS. Step 2 AUTHORIZED / IN PROGRESS under approved Option A.
-Steps 3–8 NOT STARTED.
+Steps 1 and 2 COMPLETE / FULL PASS. Step 2 accepted at
+`58202caf1fd86215abe4650b208b2134cdca9b58` (Foundation 38605609607 7/7,
+application shells 38605609516 3/3). Step 3 AUTHORIZED / IN PROGRESS under
+approved Option A: exact-profile Vulkan shares the authenticated portable ONNX
+record, without package schema extension. Steps 4–8 NOT STARTED.
 Eight steps only. Step 9+, Phase 6 and the Editing Agent require new authorization.
 
 | Step | Scope | Exit evidence |
 | --- | --- | --- |
 | 1 Model Package & Manifest Contract | Signed, bounded local segmentation package verification; immutable verified payload ownership; synthetic fixtures; checked shared boundary | Reject malformed/untrusted/tampered packages; native/platform/security gates and both complete exact-SHA workflows |
 | 2 Provider Abstraction & CPU Reference Provider | Explicit load/infer/cancel/release; approved dependency-free narrow genuine ONNX CPU reference profile; bounded tensors/operators and offline execution | CPU correctness, cancellation, lifetime and allocation failure; no platform policy duplication |
-| 3 Android Local Inference Provider | Android lifecycle/native CPU integration; optional acceleration only after separate dependency/coverage review | Offline execution, API/ABI checks, cancellation and CPU fallback; no NNAPI foundation |
+| 3 Android Local Inference Provider | Approved android.vulkan.v1 exact-profile execution, shared CPU authority, bounded existing Vulkan ownership | Offline execution, API/ABI checks, cancellation and CPU fallback; no NNAPI foundation |
 | 4 Apple Local Inference Provider | Apple lifecycle and evaluated Core ML adapter; shared metadata/CPU fallback | Swift/C parity, unsupported operators and provider failure; simulator distinct from hardware evidence |
 | 5 Compact Segmentation Evaluation | Licensed compact model selection; thresholds frozen before selection; boundary/task quality and size/latency/memory evaluation | Approved redistribution/license, quality thresholds and reproducible conversion provenance; no UI |
 | 6 Capability-Aware Admission & Fallback | Shared T0/T1/T2, truthful occupancy, availability/validation, thermal/pressure; bounded CPU retry | Unknown/pressure/failure rejection, deterministic fallback, retained manual editing and no raised Phase 4 ceilings |

@@ -13,6 +13,7 @@ class CoreProbe {
     // Debug certification only; release native library has no test trust anchors.
     external fun nativeModelPackageBoundary(): Int
     external fun nativeInferenceBoundary(): Int
+    external fun nativeAndroidInferenceBoundary(): Int
     external fun nativeImportLimit(): Long
     external fun nativeAndroidAssetPublication(root: ByteArray): Int
     companion object {

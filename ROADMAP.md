@@ -1,5 +1,19 @@
 # Delivery roadmap
 
+## Phase 5 Step 3 current authorization
+
+Step 2 COMPLETE / FULL PASS at `58202caf1fd86215abe4650b208b2134cdca9b58`:
+Foundation 38605609607 (7/7), Native application shells 38605609516 (3/3).
+Step 3 AUTHORIZED / IN PROGRESS. Approved Option A permits `android.vulkan.v1`
+to consume the authenticated portable CPU ONNX compatibility record ONLY for the
+exact frozen reference profile. No package schema extension or new dependency.
+[Android contract](docs/contracts/android-inference-provider-v1.md),
+[Step 3 report](docs/reports/phase-5-step-3.md). CPU reference remains authority;
+Vulkan availability is separate from validation/certification. Explicit selection;
+Step 6 owns admission/fallback. Both complete same-final-SHA workflows required.
+Schema 3 and DH-APPLE-METAL-01 unchanged. Steps 4+ and Phase 6 NOT STARTED.
+This supersedes historical Step 2 stop text below. Stop after Step 3.
+
 ## Phase 5 Step 2 current authorization
 
 Step 1 COMPLETE / FULL PASS at `8d5a30338c97a05e987ecf1324b86a2afb795356`: Foundation

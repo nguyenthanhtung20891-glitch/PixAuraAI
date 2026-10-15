@@ -2,6 +2,15 @@
 #include "model_package_internal.hpp"
 #include "onnx_profile.hpp"
 #include "evaluation.hpp"
+#include "inference_parity.hpp"
+#include <chrono>
+#ifdef __ANDROID__
+#include "vulkan_worker.hpp"
+#include "segmentation_spirv.h"
+#ifdef PIXAURA_CERTIFICATION_TESTING
+#include <android/log.h>
+#endif
+#endif
 #include <algorithm>
 #include <atomic>
 #include <cfenv>
@@ -22,10 +31,15 @@ struct Lease {
     Lease(State&,uint64_t);~Lease();Lease(const Lease&)=delete;
 };
 struct Package { std::shared_ptr<Lease> lease;std::unique_ptr<const pixaura_model_package> value; };
-struct ExecutionControl {void(*check)(void*,evaluation::Checkpoint);void* state;};
+struct ExecutionControl {void(*check)(void*,evaluation::Checkpoint);void* state;
+#ifdef PIXAURA_CERTIFICATION_TESTING
+    uint32_t backend_fault=0;
+#endif
+};
 struct PreparedExecution {
     std::array<uint32_t,4> input{},output{};
     virtual ~PreparedExecution()=default;
+    virtual uint64_t transient_bytes()const{return 0;}
     virtual void run(const float*,float*,const ExecutionControl&)const=0;
 };
 struct CpuReference final:PreparedExecution {
@@ -46,7 +60,12 @@ std::unique_ptr<const PreparedExecution> prepare_cpu(const pixaura_model_package
     require(file,PIXAURA_INFERENCE_MODEL_INVALID);return std::make_unique<CpuReference>(parse_onnx(file->bytes.data(),file->bytes.size()));
 }
 struct Backend {std::string_view id;std::unique_ptr<const PreparedExecution>(*prepare)(const pixaura_model_package&);};
+#ifdef __ANDROID__
+#include "inference_vulkan.hpp"
+const std::array<Backend,2> backends{{{provider,prepare_cpu},{vulkan_provider,prepare_vulkan}}};
+#else
 const std::array<Backend,1> backends{{{provider,prepare_cpu}}};
+#endif
 struct Model {
     std::shared_ptr<Lease> lease;std::shared_ptr<const Package> package;std::unique_ptr<const PreparedExecution> prepared;
     evaluation::Cancellation cancellation;std::atomic<bool> retired{false};uint64_t last=0,active=0;
@@ -57,7 +76,7 @@ struct State {
     std::mutex mutex;std::map<uint64_t,Entry> entries;uint64_t next=1,ceiling;
     std::atomic<uint64_t> used{control};bool executing=false;
 #ifdef PIXAURA_CERTIFICATION_TESTING
-    evaluation::Observer observer=nullptr;void* observer_state=nullptr;bool output_fault=false;
+    evaluation::Observer observer=nullptr;void* observer_state=nullptr;bool output_fault=false;uint32_t backend_fault=0;
 #endif
     explicit State(uint64_t n):ceiling(n){}
 };
@@ -121,7 +140,11 @@ extern "C" int32_t pixaura_inference_descriptor_query(uint32_t version,const cha
     require(version==1&&size==sizeof(*out),PIXAURA_INFERENCE_UNSUPPORTED_ABI);require(out);require(is_provider(id,n),PIXAURA_INFERENCE_PROVIDER_UNAVAILABLE);separate(out,size,id,n);
     pixaura_inference_descriptor d{};d.version=1;d.struct_size=sizeof(d);d.provider_version=1;d.backend=1;d.task=1;d.type=1;d.layout=1;
     d.deterministic=1;d.availability=2;d.validation=1;d.max_handles=32;d.max_dimension=1024;d.max_context_bytes=268435456;
-    std::memcpy(d.provider_id,provider.data(),provider.size());const char profile[]="pixaura.onnx.reference-segmentation.v1";std::memcpy(d.profile_id,profile,sizeof(profile));*out=d;
+    const auto selected=find_provider(id,n)->id;
+#ifdef __ANDROID__
+    if(selected==vulkan_provider){d.backend=2;d.deterministic=0;d.availability=vulkan_available()?2u:1u;d.validation=0;}
+#endif
+    std::memcpy(d.provider_id,selected.data(),selected.size());const char profile[]="pixaura.onnx.reference-segmentation.v1";std::memcpy(d.profile_id,profile,sizeof(profile));*out=d;
 });}
 extern "C" int32_t pixaura_inference_context_init(uint32_t version,pixaura_inference_context* c,uint32_t size,const uint8_t* id,uint64_t n,uint64_t ceiling){return boundary([&]{
     require(version==1&&size==sizeof(*c),PIXAURA_INFERENCE_UNSUPPORTED_ABI);require(c&&id&&n==32);separate(c,size,id,n);
@@ -155,6 +178,7 @@ extern "C" int32_t pixaura_inference_model_query(pixaura_inference_context* c,co
     pixaura_inference_model_metadata metadata{};metadata.version=1;metadata.struct_size=sizeof(metadata);metadata.task=m->package->value->info.task;
     metadata.input=tensor(m->prepared->input,m->package->value->binding.normalization);metadata.output=tensor(m->prepared->output,{{0,0,0,0,0,0}});
     require(metadata.input.bytes<=UINT64_MAX-metadata.output.bytes,PIXAURA_INFERENCE_RESOURCE);metadata.execution_bytes=metadata.input.bytes+metadata.output.bytes;
+    require(m->prepared->transient_bytes()<=UINT64_MAX-metadata.execution_bytes,PIXAURA_INFERENCE_RESOURCE);metadata.execution_bytes+=m->prepared->transient_bytes();
     std::memcpy(metadata.manifest_sha256,m->package->value->info.manifest_sha256,32);*out=metadata;
 });}
 extern "C" int32_t pixaura_inference_execute(pixaura_inference_context* c,const pixaura_inference_handle* model,const pixaura_inference_request* request,uint32_t request_size,const uint8_t* input,uint64_t input_bytes,pixaura_inference_handle* out,uint32_t size){return boundary([&]{
@@ -180,7 +204,11 @@ extern "C" int32_t pixaura_inference_execute(pixaura_inference_context* c,const 
         owned[i]=binary32_round((binary32_value(owned[i])*expected.normalization[(i/pixels)*2])/1000000.0);}
     auto result=std::make_shared<Output>();result->lease=std::make_shared<Lease>(*h.state,pixels*4);result->values=std::make_unique<float[]>(pixels);result->count=pixels;
     struct CheckState {std::shared_ptr<Model> m;State* state;} checked{m,h.state};
-    const ExecutionControl execution{[](void* opaque,evaluation::Checkpoint phase){auto& state=*static_cast<CheckState*>(opaque);checkpoint(state.m,*state.state,phase);},&checked};
+    ExecutionControl execution{[](void* opaque,evaluation::Checkpoint phase){auto& state=*static_cast<CheckState*>(opaque);checkpoint(state.m,*state.state,phase);},&checked};
+#ifdef PIXAURA_CERTIFICATION_TESTING
+    execution.backend_fault=h.state->backend_fault;
+#endif
+    std::unique_ptr<Lease> backend_lease;if(m->prepared->transient_bytes())backend_lease=std::make_unique<Lease>(*h.state,m->prepared->transient_bytes());
     m->prepared->run(owned.get(),result->values.get(),execution);
 #ifdef PIXAURA_CERTIFICATION_TESTING
     if(h.state->output_fault)result->values[0]=std::numeric_limits<float>::quiet_NaN();
@@ -204,4 +232,8 @@ extern "C" int32_t pixaura_inference_resources_query(pixaura_inference_context* 
 #ifdef PIXAURA_CERTIFICATION_TESTING
 #include "../tests/inference_boundary.hpp"
 extern "C" PIXAURA_API int32_t pixaura_inference_test_boundary(){return boundary([&]{require(pixaura::inference::certification()==0,PIXAURA_INFERENCE_INTERNAL);});}
+#ifdef __ANDROID__
+#include "../tests/inference_android_boundary.hpp"
+extern "C" PIXAURA_API int32_t pixaura_inference_android_test_boundary(){return boundary([&]{require(pixaura::inference::android_certification()==0,PIXAURA_INFERENCE_INTERNAL);});}
+#endif
 #endif

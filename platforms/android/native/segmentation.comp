@@ -1,0 +1,16 @@
+#version 450
+// Fixed reference-profile Conv only. Model bytes never become executable code.
+layout(local_size_x=64) in;
+layout(set=0,binding=0,std430) readonly buffer Source { vec4 pixels[]; } source;
+layout(set=0,binding=1,std430) writeonly buffer Result { vec4 pixels[]; } result;
+layout(push_constant) uniform Parameters { uint count; float r; float g; float b; } p;
+void main() {
+    uint i=gl_GlobalInvocationID.x;
+    if(i>=p.count) return;
+    precise float r=source.pixels[i].r*p.r;
+    precise float g=source.pixels[i].g*p.g;
+    precise float b=source.pixels[i].b*p.b;
+    precise float rg=r+g;
+    precise float probability=rg+b;
+    result.pixels[i]=vec4(probability,0.0,0.0,0.0);
+}
