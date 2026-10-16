@@ -115,6 +115,12 @@ skips after build completion. All 134 source cases observed passing across
 those runs; complete hosted gates still require final-SHA observation.
 No unobserved gate counts as PASS. Final delivery supplies exact-SHA job totals.
 
+First exact-SHA MSVC build diagnosed C4244 in std::fill baseline constants: the
+template deduced int for a float vector. Both constants are now explicit 0.0f/
+1.0f; values and metric semantics are unchanged. Warning enforcement remains
+enabled. Affected local Windows checks 6/6 PASS after the fix; the corrected
+SHA requires both fresh complete workflows, never inherited prior-SHA results.
+
 A: evaluation implementation, negative/golden/corpus tests and exact-SHA closure.
 Production model/runtime/operator expansion is a separate architecture decision,
 not a defect to hide inside A. B: broader model/operator/runtime architecture

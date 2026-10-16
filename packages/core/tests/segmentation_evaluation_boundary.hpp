@@ -93,8 +93,8 @@ inline int segmentation_evaluation(std::string_view selected){
                     row+="}";check(row.size()<3500,Status::shape);evaluation_emit(row);
                 };
                 emit("reference-conv",measured,true);
-                if(selected==provider){std::fill(warm.begin(),warm.end(),0);emit("all-background",evaluate(1,size,size,data.expected.data(),pixels,warm.data(),pixels),false);
-                    std::fill(warm.begin(),warm.end(),1);emit("all-foreground",evaluate(1,size,size,data.expected.data(),pixels,warm.data(),pixels),false);}
+                if(selected==provider){std::fill(warm.begin(),warm.end(),0.0f);emit("all-background",evaluate(1,size,size,data.expected.data(),pixels,warm.data(),pixels),false);
+                    std::fill(warm.begin(),warm.end(),1.0f);emit("all-foreground",evaluate(1,size,size,data.expected.data(),pixels,warm.data(),pixels),false);}
             }
             expect(pixaura_inference_release(&context,&model));pixaura_inference_model_metadata invalid{};expect(pixaura_inference_model_query(&context,&model,&invalid,sizeof(invalid)),14);
             expect(pixaura_inference_release(&context,&package));pixaura_inference_resources final{};expect(pixaura_inference_resources_query(&context,&final,sizeof(final)));check(final.handles==0&&final.reserved_bytes==control,Status::identity);
