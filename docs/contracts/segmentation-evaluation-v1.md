@@ -99,6 +99,12 @@ fields: evaluation_version, metric_version, case_id, width, height, threshold
 provider_id, manifest_sha256, payload_sha256, counts [TP,FP,FN,TN] and five ratios.
 Baseline identity fields are null. Executable rows additionally contain timing
 and resource fields described below. No paths/photos/secret material in rows.
+Android liblog printf has a smaller buffer than logcat's entry ceiling. Its
+transport uses `PXSEG_PART row_id zero_based_index total_parts fragment`, each
+fragment <=700 ASCII characters, <=5 parts. Atomic process-local IDs distinguish
+interleaving rows. Extraction permits <=8 pending rows, checks sequential indices,
+constant part count, <3500 reconstructed bytes and complete termination; malformed,
+duplicate/out-of-order or missing parts fail. The reconstructed JSON is unchanged.
 
 Cold preparation measured once per resolution/provider, repeated as shared
 metadata across its cases. It excludes verification and includes the actual

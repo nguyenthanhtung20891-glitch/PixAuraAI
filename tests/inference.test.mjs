@@ -30,6 +30,27 @@ test('engineering evaluation stays isolated from release and uses checked provid
     assert.match(source,/#ifdef PIXAURA_CERTIFICATION_TESTING\s+#include "\.\.\/tests\/inference_boundary.hpp"/);
 });
 
+test('bounded Android evidence fragments preserve JSON and reject malformed transport',()=>{
+    fs.mkdirSync('build',{recursive:true});const directory=fs.mkdtempSync('build/segmentation-transport-');
+    try{
+        const row={evaluation_version:1,metric_version:1,case_id:'transport-test-only',width:1,height:1,threshold:[1,2],
+            expected_sha256:'0'.repeat(64),predictor:'all-background',candidate_state:'BASELINE',production_selection:'UNRESOLVED',
+            provider_id:null,manifest_sha256:null,payload_sha256:null,counts:[0,0,0,1],iou:[1,1],dice:[1,1],accuracy:[1,1],precision:[1,1],recall:[1,1],
+            transport_test_padding:'x'.repeat(1500)};
+        const encoded=JSON.stringify(row),parts=encoded.match(/.{1,700}/g);
+        const lines=parts.map((part,i)=>`I/PixAuraEvaluation(123): PXSEG_PART 1 ${i} ${parts.length} ${part}`);
+        const run=(records,success=true)=>{
+            fs.writeFileSync(`${directory}/input.log`,records.join('\n')+'\n');let failed=false;
+            try{execFileSync(process.execPath,['scripts/segmentation-results.mjs',`${directory}/input.log`,`${directory}/output.jsonl`,'transport-test-only'],{stdio:'pipe'});}
+            catch{failed=true;}assert.equal(failed,!success);
+            if(success){const value=JSON.parse(fs.readFileSync(`${directory}/output.jsonl`,'utf8'));delete value.evidence;assert.deepEqual(value,row);}
+        };
+        run(lines);run(lines.slice(0,-1),false);run([...lines.slice(0,1),...lines],false);
+        run([...lines].reverse(),false);run([lines[0].replace(' 0 ',' 4 ')],false);
+        run([`PXSEG ${encoded}`]);
+    }finally{fs.rmSync(directory,{recursive:true,force:true});}
+});
+
 test('genuine signed reference ONNX and independent dyadic goldens remain reproducible',()=>{
     execFileSync(process.execPath,['scripts/inference-fixtures.mjs','--check']);
     const data=JSON.parse(fs.readFileSync('tests/fixtures/inference-reference-v1.json','utf8'));

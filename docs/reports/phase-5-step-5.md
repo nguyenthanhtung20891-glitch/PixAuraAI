@@ -121,6 +121,15 @@ template deduced int for a float vector. Both constants are now explicit 0.0f/
 enabled. Affected local Windows checks 6/6 PASS after the fix; the corrected
 SHA requires both fresh complete workflows, never inherited prior-SHA results.
 
+Android instrumentation subsequently passed 30/30, but its liblog printf buffer
+truncated a >1 KiB JSON row and extraction correctly failed closed. Engineering
+transport now emits <=700-character identified fragments with bounded, ordered,
+complete reassembly. No field/assertion removed and no provider/model semantics
+changed. The corrected SHA again requires both complete workflows.
+Local documentation/source/fragment checks 11/11 PASS, including missing,
+duplicate and out-of-order fragment rejection; all three Android debug ABIs and
+instrumentation APK compile PASS. Unfragmented native rows remain compatible.
+
 A: evaluation implementation, negative/golden/corpus tests and exact-SHA closure.
 Production model/runtime/operator expansion is a separate architecture decision,
 not a defect to hide inside A. B: broader model/operator/runtime architecture

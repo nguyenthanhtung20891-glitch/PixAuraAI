@@ -18,7 +18,13 @@ uint64_t evaluation_ns(EvaluationClock::time_point start){return static_cast<uin
 std::string evaluation_ratio(pixaura::segmentation::Ratio r){return "["+std::to_string(r.numerator)+","+std::to_string(r.denominator)+"]";}
 void evaluation_emit(const std::string& row){
 #ifdef __ANDROID__
-    __android_log_print(ANDROID_LOG_INFO,"PixAuraEvaluation","PXSEG %s",row.c_str());
+    // liblog's printf buffer can be smaller than logcat's entry limit. Keep each
+    // call below 1 KiB, preserving the complete JSON through checked fragments.
+    static std::atomic<uint64_t> sequence{1};const auto id=sequence.fetch_add(1);
+    constexpr size_t width=700;const auto parts=(row.size()+width-1)/width;
+    for(size_t part=0;part<parts;++part){const auto text=row.substr(part*width,width);
+        __android_log_print(ANDROID_LOG_INFO,"PixAuraEvaluation","PXSEG_PART %llu %zu %zu %s",
+            static_cast<unsigned long long>(id),part,parts,text.c_str());}
 #else
     std::printf("PXSEG %s\n",row.c_str());
 #endif
