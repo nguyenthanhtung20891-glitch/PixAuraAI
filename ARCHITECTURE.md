@@ -1,5 +1,18 @@
 # System architecture
 
+## Phase 5 Step 5 current authorization
+
+Step 4 COMPLETE / FULL PASS at `a3ad7e7a61030992d933b3ca68572f83604dd5a9`:
+Foundation 38730904780 (7/7), Native application shells 38730904823 (3/3).
+Step 5 AUTHORIZED / IN PROGRESS under approved Option A: bounded synthetic
+segmentation evaluation only. [Evaluation contract](docs/contracts/segmentation-evaluation-v1.md),
+[Step 5 report](docs/reports/phase-5-step-5.md). Production selection UNRESOLVED;
+U2NETP audited/unsupported, no weights/runtime/profile expansion. Require metrics,
+independent goldens, corpus, retained Steps 1-4/sanitizers and both complete
+same-final-SHA workflows; no unobserved PASS. Schema 3 and DH-APPLE-METAL-01
+unchanged. No AI UX, Step 6+ or Phase 6. Stop after Step 5. This supersedes
+historical authorization text below without rewriting prior closure.
+
 ## Phase 5 Step 4 current authorization
 
 Step 3 COMPLETE / FULL PASS at `bf31eb33d5b5027236d71cf56da4c648d6b56255`:

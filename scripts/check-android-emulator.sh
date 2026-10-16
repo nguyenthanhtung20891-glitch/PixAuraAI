@@ -32,6 +32,7 @@ if [[ ! "$poll_interval" =~ ^([01]([.][0-9]+)?|2([.]0+)?)$ ]] || [[ "$poll_inter
 fi
 
 emulator_pid=""
+evaluation_pid=""
 phase=setup
 touch "$evidence/emulator.stdout.log" "$evidence/emulator.stderr.log"
 adb_command() { timeout --kill-after=5s "${command_timeout}s" "$adb" "$@"; }
@@ -53,6 +54,7 @@ cleanup() {
     local result=$?
     trap - EXIT
     set +e
+    if [[ -n "$evaluation_pid" ]]; then kill "$evaluation_pid" 2>/dev/null; wait "$evaluation_pid" 2>/dev/null; fi
     diagnostics
     # Preserve the build/test result even when the process already exited.
     if [[ -n "$emulator_pid" ]] && kill -0 "$emulator_pid" 2>/dev/null; then
@@ -314,6 +316,11 @@ fi
 echo "SELinux certification: Enforcing"
 phase=instrumentation
 echo "Executing JNI/Compose tests (independent budget ${test_timeout}s)"
+# Preserve bounded engineering rows as they occur; the final 200-line diagnostic
+# tail alone can lose early CPU/provider measurements during later UI tests.
+timeout --kill-after=5s "${test_timeout}s" "$adb" -s "$ANDROID_SERIAL" logcat -v brief \
+    -s PixAuraEvaluation:I '*:S' > "$evidence/segmentation.log" 2>&1 &
+evaluation_pid=$!
 transport_run="$("$node_command" -e 'process.stdout.write(require("node:crypto").randomBytes(16).toString("hex"))')"
 transport_path="/data/local/tmp/pixaura-gpu-$transport_run"
 adb_command -s "$ANDROID_SERIAL" shell "umask 077; mkdir '$transport_path'"
@@ -322,6 +329,11 @@ cd platforms/android
 timeout --kill-after=10s "${test_timeout}s" bash gradlew --no-daemon --dependency-verification strict \
     "-Pandroid.testInstrumentationRunnerArguments.pixauraTransportRun=$transport_run" \
     connectedDebugAndroidTest 2>&1 | tee "$evidence/instrumentation.log"
+kill "$evaluation_pid" 2>/dev/null || true
+wait "$evaluation_pid" 2>/dev/null || true
+evaluation_pid=""
+"$node_command" "$workspace_path/scripts/segmentation-results.mjs" "$evidence/segmentation.log" \
+    "$evidence/segmentation.jsonl" android-emulator > "$evidence/segmentation-summary.json"
 # Read the exact synthetic artifact after UTP's package lifecycle completes.
 # This regression has no GPU PASS authority and reads no app-private phone data.
 transport_json="$(adb_command -s "$ANDROID_SERIAL" shell "test -f '$transport_path/evidence.json' && head -c 16385 '$transport_path/evidence.json'")"

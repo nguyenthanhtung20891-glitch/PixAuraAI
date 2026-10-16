@@ -1,14 +1,15 @@
-# Phase 5 frozen finite roadmap — Local inference
+# Phase 5 frozen finite roadmap - Local inference
 
-Status: FROZEN under Product Owner's Step 1 dependency authorization. Step 1 accepted at
-`8d5a30338c97a05e987ecf1324b86a2afb795356`. Phases 0–4 remain closed.
-Steps 1 and 2 COMPLETE / FULL PASS. Step 2 accepted at
-`58202caf1fd86215abe4650b208b2134cdca9b58` (Foundation 38605609607 7/7,
-application shells 38605609516 3/3). Step 3 COMPLETE / FULL PASS at
-`bf31eb33d5b5027236d71cf56da4c648d6b56255` (Foundation 38685139496 7/7,
-application shells 38685139454 3/3). Step 4 AUTHORIZED / IN PROGRESS: separately
-approved exact-profile Apple Metal reuses the authenticated CPU ONNX record,
-without package-schema extension. Steps 5–8 NOT STARTED.
+Status: FROZEN; eight steps only. Phases 0-4 and Steps 1-4 remain accepted.
+Step 1: `8d5a30338c97a05e987ecf1324b86a2afb795356`.
+Step 2: `58202caf1fd86215abe4650b208b2134cdca9b58` (Foundation 38605609607
+7/7, shells 38605609516 3/3). Step 3: `bf31eb33d5b5027236d71cf56da4c648d6b56255`
+(Foundation 38685139496 7/7, shells 38685139454 3/3).
+Step 4 COMPLETE / FULL PASS at `a3ad7e7a61030992d933b3ca68572f83604dd5a9`
+(Foundation 38730904780 7/7, shells 38730904823 3/3).
+Step 5 AUTHORIZED / IN PROGRESS under approved Option A: bounded synthetic
+evaluation; production selection UNRESOLVED. No model/runtime/operator expansion.
+Steps 6-8 and Phase 6 NOT STARTED.
 Eight steps only. Step 9+, Phase 6 and the Editing Agent require new authorization.
 
 | Step | Scope | Exit evidence |
@@ -17,7 +18,7 @@ Eight steps only. Step 9+, Phase 6 and the Editing Agent require new authorizati
 | 2 Provider Abstraction & CPU Reference Provider | Explicit load/infer/cancel/release; approved dependency-free narrow genuine ONNX CPU reference profile; bounded tensors/operators and offline execution | CPU correctness, cancellation, lifetime and allocation failure; no platform policy duplication |
 | 3 Android Local Inference Provider | Approved android.vulkan.v1 exact-profile execution, shared CPU authority, bounded existing Vulkan ownership | Offline execution, API/ABI checks, cancellation and CPU fallback; no NNAPI foundation |
 | 4 Apple Local Inference Provider | Approved apple.metal.v1 exact-profile execution; bounded reused Metal worker; shared CPU authority | Swift/C parity, unsupported operators and provider failure; simulator distinct from hardware evidence |
-| 5 Compact Segmentation Evaluation | Licensed compact model selection; thresholds frozen before selection; boundary/task quality and size/latency/memory evaluation | Approved redistribution/license, quality thresholds and reproducible conversion provenance; no UI |
+| 5 Compact Segmentation Evaluation | Approved Option A: bounded metrics/synthetic evaluation, candidate/license/profile audit; production model selection may remain UNRESOLVED | Exact metric semantics/goldens, reproducible synthetic results, timing/resource evidence, accurate candidate gaps; no unapproved weights/runtime/profile expansion or UI |
 | 6 Capability-Aware Admission & Fallback | Shared T0/T1/T2, truthful occupancy, availability/validation, thermal/pressure; bounded CPU retry | Unknown/pressure/failure rejection, deterministic fallback, retained manual editing and no raised Phase 4 ceilings |
 | 7 Provider Parity & Security Certification | CPU/provider golden corpus, package tampering/races, operator/quantization parity and security | Native/JNI/Swift parity; sanitizer and lifetime/security corpora; evidence classification |
 | 8 Phase 5 Closure | Finite audit and retained regression certification | Both complete exact-final-SHA workflows, A/B/C classification and explicit stop before Phase 6 |

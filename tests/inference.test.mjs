@@ -4,6 +4,32 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 
+test('segmentation synthetic geometry, exact mask digests and counts are reproducible',()=>{
+    execFileSync(process.execPath,['scripts/segmentation-evaluation-fixtures.mjs','--check']);
+    const corpus=JSON.parse(fs.readFileSync('tests/fixtures/segmentation-evaluation-v1.json','utf8'));
+    assert.equal(corpus.selection,'UNRESOLVED');assert.equal(corpus.cases.length,24);
+    for(const c of corpus.cases){
+        assert.ok([8,256].includes(c.size));assert.equal(c.pixels,c.size*c.size);
+        const [tp,fp,fn,tn]=c.reference_counts;assert.equal(tp+fp+fn+tn,c.pixels);assert.equal(tp+fn,c.foreground);
+        assert.match(c.expected_sha256,/^[a-f0-9]{64}$/);
+        if(c.id==='low-contrast'||c.id==='small'){assert.equal(tp,0);assert.equal(fn,c.foreground);}
+        else if(c.id!=='gradient'){assert.equal(tp,c.foreground);assert.equal(fp+fn,0);}
+    }
+    // Independent hand calculations, unrelated to interpreter output.
+    const ratio=(a,b)=>b?a/b:1;
+    assert.equal(ratio(1,1+1+1),1/3);assert.equal(ratio(2,2+1+1),1/2);
+    assert.equal(ratio(0,0),1);assert.equal(ratio(0,3),0);
+});
+
+test('engineering evaluation stays isolated from release and uses checked provider output',()=>{
+    const runner=fs.readFileSync('packages/core/tests/segmentation_evaluation_boundary.hpp','utf8');
+    for(const call of ['verify_owned','pixaura_inference_prepare','pixaura_inference_execute','pixaura_inference_output_copy','pixaura_inference_output_info','evaluation_identity'])assert.ok(runner.includes(call));
+    for(const file of ['inference_boundary.hpp','inference_android_boundary.hpp','inference_apple_boundary.hpp'])assert.ok(fs.readFileSync(`packages/core/tests/${file}`,'utf8').includes('segmentation_evaluation('));
+    assert.ok(fs.readFileSync('scripts/check-model-release.mjs','utf8').includes("Buffer.from('PXSEG')"));
+    const source=fs.readFileSync('packages/core/src/inference.cpp','utf8');
+    assert.match(source,/#ifdef PIXAURA_CERTIFICATION_TESTING\s+#include "\.\.\/tests\/inference_boundary.hpp"/);
+});
+
 test('genuine signed reference ONNX and independent dyadic goldens remain reproducible',()=>{
     execFileSync(process.execPath,['scripts/inference-fixtures.mjs','--check']);
     const data=JSON.parse(fs.readFileSync('tests/fixtures/inference-reference-v1.json','utf8'));

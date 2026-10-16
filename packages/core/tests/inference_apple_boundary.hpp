@@ -84,7 +84,7 @@ inline int apple_certification(){
     lr.generation=3;out={};expect(execute(large,lm,lr,in,out),12);expect(hook.status,0);if(out.serial)++failures;state->observer=nullptr;
     expect(pixaura_inference_context_destroy(&large),0);
     std::printf("Apple shared corpus: ONNX=32 goldens=4 model_cases=21 weight_triples=15 faults=4 failures=%d; integration only, no physical certification\n",failures);
-    return failures;
+    return failures+segmentation_evaluation(metal_provider);
 }
 }
 #endif

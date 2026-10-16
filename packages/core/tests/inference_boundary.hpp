@@ -1,5 +1,6 @@
 #ifndef PIXAURA_INFERENCE_BOUNDARY_HPP
 #define PIXAURA_INFERENCE_BOUNDARY_HPP
+#include "segmentation_evaluation_boundary.hpp"
 #include "inference_fixtures.hpp"
 #include "inference_android_fixtures.hpp"
 #include "model_package_fixtures.hpp"
@@ -155,7 +156,7 @@ inline int certification(){
     }
     pixaura_inference_context untrusted{};init(untrusted,'a');pixaura_model_diagnostic diagnostic{};pixaura_inference_handle none{};
     expect(pixaura_inference_package_verify(&untrusted,"invalid",7,&none,sizeof(none),&diagnostic),3);if(none.serial)++failures;
-    expect(pixaura_inference_context_destroy(&untrusted),0);return failures.load();
+    expect(pixaura_inference_context_destroy(&untrusted),0);return failures.load()+segmentation_evaluation(provider);
 }
 }
 #endif

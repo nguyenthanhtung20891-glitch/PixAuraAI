@@ -1,0 +1,319 @@
+{
+  "version": 1,
+  "ownership": "PixAuraAI original generated synthetic geometry; no external images",
+  "selection": "UNRESOLVED",
+  "cases": [
+    {
+      "id": "rectangle",
+      "size": 8,
+      "pixels": 64,
+      "foreground": 16,
+      "reference_counts": [
+        16,
+        0,
+        0,
+        48
+      ],
+      "expected_sha256": "2f943be77d4194ab1018f9306b6108f74ff55aa9ba39e0254f9b104dde68f0e8"
+    },
+    {
+      "id": "ellipse",
+      "size": 8,
+      "pixels": 64,
+      "foreground": 12,
+      "reference_counts": [
+        12,
+        0,
+        0,
+        52
+      ],
+      "expected_sha256": "5b76f36c1b88fd261ce6db904bad7f03711635a92b88b10e39b73bd9b3a179a2"
+    },
+    {
+      "id": "thin",
+      "size": 8,
+      "pixels": 64,
+      "foreground": 15,
+      "reference_counts": [
+        15,
+        0,
+        0,
+        49
+      ],
+      "expected_sha256": "229dd968749550eb098540c9e094da58336265ea39af2a8913ee3e019410f8f3"
+    },
+    {
+      "id": "disconnected",
+      "size": 8,
+      "pixels": 64,
+      "foreground": 8,
+      "reference_counts": [
+        8,
+        0,
+        0,
+        56
+      ],
+      "expected_sha256": "e08db017bd1783a0ac66d97ac4ac999b360f903bfbc031f527ffc7331649f4c4"
+    },
+    {
+      "id": "border",
+      "size": 8,
+      "pixels": 64,
+      "foreground": 16,
+      "reference_counts": [
+        16,
+        0,
+        0,
+        48
+      ],
+      "expected_sha256": "2fe1d1d865b218b47c66bcd7302569cb3b5bdbd7d095955485cbc86c20ea9e10"
+    },
+    {
+      "id": "high-contrast",
+      "size": 8,
+      "pixels": 64,
+      "foreground": 16,
+      "reference_counts": [
+        16,
+        0,
+        0,
+        48
+      ],
+      "expected_sha256": "2f943be77d4194ab1018f9306b6108f74ff55aa9ba39e0254f9b104dde68f0e8"
+    },
+    {
+      "id": "low-contrast",
+      "size": 8,
+      "pixels": 64,
+      "foreground": 16,
+      "reference_counts": [
+        0,
+        0,
+        16,
+        48
+      ],
+      "expected_sha256": "2f943be77d4194ab1018f9306b6108f74ff55aa9ba39e0254f9b104dde68f0e8"
+    },
+    {
+      "id": "gradient",
+      "size": 8,
+      "pixels": 64,
+      "foreground": 16,
+      "reference_counts": [
+        16,
+        24,
+        0,
+        24
+      ],
+      "expected_sha256": "2f943be77d4194ab1018f9306b6108f74ff55aa9ba39e0254f9b104dde68f0e8"
+    },
+    {
+      "id": "small",
+      "size": 8,
+      "pixels": 64,
+      "foreground": 1,
+      "reference_counts": [
+        0,
+        0,
+        1,
+        63
+      ],
+      "expected_sha256": "0fa87652efd33c81d12afcd1ecec26570b5095ea17830b3a86287151d952ba1f"
+    },
+    {
+      "id": "large",
+      "size": 8,
+      "pixels": 64,
+      "foreground": 36,
+      "reference_counts": [
+        36,
+        0,
+        0,
+        28
+      ],
+      "expected_sha256": "be6ecd02d2d6b3e1572969ab016b6985c3b91d06090a90f9f2a50320675fa872"
+    },
+    {
+      "id": "hole",
+      "size": 8,
+      "pixels": 64,
+      "foreground": 12,
+      "reference_counts": [
+        12,
+        0,
+        0,
+        52
+      ],
+      "expected_sha256": "615f269bf05f854960273c4bbab2875dcef8cc288d8dde8249b6e25b234ddaf0"
+    },
+    {
+      "id": "alias-edge",
+      "size": 8,
+      "pixels": 64,
+      "foreground": 32,
+      "reference_counts": [
+        32,
+        0,
+        0,
+        32
+      ],
+      "expected_sha256": "d028438078417f2cc5343b72b9d1e2ed80f72a45cfc99c573102655c6603f970"
+    },
+    {
+      "id": "rectangle",
+      "size": 256,
+      "pixels": 65536,
+      "foreground": 16384,
+      "reference_counts": [
+        16384,
+        0,
+        0,
+        49152
+      ],
+      "expected_sha256": "6cf0aa6f4c87b65eb392f18a18c519df85ec678acaeb94208e0b771432a7ad3b"
+    },
+    {
+      "id": "ellipse",
+      "size": 256,
+      "pixels": 65536,
+      "foreground": 12892,
+      "reference_counts": [
+        12892,
+        0,
+        0,
+        52644
+      ],
+      "expected_sha256": "37015642604c8d7cafce56adcc4388c5261c250e2e81dfac871f12b4ee735ce0"
+    },
+    {
+      "id": "thin",
+      "size": 256,
+      "pixels": 65536,
+      "foreground": 511,
+      "reference_counts": [
+        511,
+        0,
+        0,
+        65025
+      ],
+      "expected_sha256": "f62c4c1282d1b68b356fdbdb81a46ebdc14f7e5ba4156354565f452069306913"
+    },
+    {
+      "id": "disconnected",
+      "size": 256,
+      "pixels": 65536,
+      "foreground": 8192,
+      "reference_counts": [
+        8192,
+        0,
+        0,
+        57344
+      ],
+      "expected_sha256": "0a41906cfde6195f428d869698c27df3458c283448407b1f3c5e011792a1ee95"
+    },
+    {
+      "id": "border",
+      "size": 256,
+      "pixels": 65536,
+      "foreground": 16384,
+      "reference_counts": [
+        16384,
+        0,
+        0,
+        49152
+      ],
+      "expected_sha256": "8299dfe0280e9dc9baa4a2dab37967578a5c16ded894f7f2d7d0d595fc88cfe3"
+    },
+    {
+      "id": "high-contrast",
+      "size": 256,
+      "pixels": 65536,
+      "foreground": 16384,
+      "reference_counts": [
+        16384,
+        0,
+        0,
+        49152
+      ],
+      "expected_sha256": "6cf0aa6f4c87b65eb392f18a18c519df85ec678acaeb94208e0b771432a7ad3b"
+    },
+    {
+      "id": "low-contrast",
+      "size": 256,
+      "pixels": 65536,
+      "foreground": 16384,
+      "reference_counts": [
+        0,
+        0,
+        16384,
+        49152
+      ],
+      "expected_sha256": "6cf0aa6f4c87b65eb392f18a18c519df85ec678acaeb94208e0b771432a7ad3b"
+    },
+    {
+      "id": "gradient",
+      "size": 256,
+      "pixels": 65536,
+      "foreground": 16384,
+      "reference_counts": [
+        16384,
+        24576,
+        0,
+        24576
+      ],
+      "expected_sha256": "6cf0aa6f4c87b65eb392f18a18c519df85ec678acaeb94208e0b771432a7ad3b"
+    },
+    {
+      "id": "small",
+      "size": 256,
+      "pixels": 65536,
+      "foreground": 1,
+      "reference_counts": [
+        0,
+        0,
+        1,
+        65535
+      ],
+      "expected_sha256": "dc69fa0289b1fc0797926e730990ec9e185f65f986f200f4ba732c385572b070"
+    },
+    {
+      "id": "large",
+      "size": 256,
+      "pixels": 65536,
+      "foreground": 64516,
+      "reference_counts": [
+        64516,
+        0,
+        0,
+        1020
+      ],
+      "expected_sha256": "c4c6e87b8b317135b155ccc7344610852e128142c2a46103f2a235fd049bfd2d"
+    },
+    {
+      "id": "hole",
+      "size": 256,
+      "pixels": 65536,
+      "foreground": 12288,
+      "reference_counts": [
+        12288,
+        0,
+        0,
+        53248
+      ],
+      "expected_sha256": "66b73906bb529c8e536be10229fa964c3bd1112e1b71bd39e3e26bdd82886522"
+    },
+    {
+      "id": "alias-edge",
+      "size": 256,
+      "pixels": 65536,
+      "foreground": 32768,
+      "reference_counts": [
+        32768,
+        0,
+        0,
+        32768
+      ],
+      "expected_sha256": "367f49ac6555c492fc728f6ff97c46efc4f58d165a219c0d30a4e6e0b2be75c6"
+    }
+  ]
+}

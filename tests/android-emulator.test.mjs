@@ -19,6 +19,7 @@ function runScenario(scenario) {
   write('scripts/check-android-emulator.sh', fs.readFileSync(path.join(root, 'scripts/check-android-emulator.sh')));
   write('scripts/assert-android-userdata.mjs', fs.readFileSync(path.join(root, 'scripts/assert-android-userdata.mjs')));
   write('scripts/publish-gpu-android-evidence.sh', fs.readFileSync(path.join(root, 'scripts/publish-gpu-android-evidence.sh')));
+  write('scripts/segmentation-results.mjs', fs.readFileSync(path.join(root, 'scripts/segmentation-results.mjs')));
   write('sdk/system-images/android-35/google_apis/x86_64/data/empty_data_disk', 'factory-empty userdata marker');
   if (scenario === 'unsupported-factory-data') {
     fs.unlinkSync(path.join(directory, 'sdk/system-images/android-35/google_apis/x86_64/data/empty_data_disk'));
@@ -150,6 +151,11 @@ case "$*" in
     rm "$MOCK_STATE_DIRECTORY/artifact/evidence.json" "$MOCK_STATE_DIRECTORY/artifact/publish.sh"
     rmdir "$MOCK_STATE_DIRECTORY/artifact" ;;
   'logcat -d -t 200') echo synthetic-logcat ;;
+  'logcat -v brief -s PixAuraEvaluation:I *:S')
+    if [[ "$MOCK_SCENARIO" != missing-segmentation ]]; then
+      echo 'PXSEG ${JSON.stringify({evaluation_version:1,metric_version:1,case_id:'mock-log-transport-only',width:1,height:1,threshold:[1,2],expected_sha256:'0'.repeat(64),predictor:'all-background',candidate_state:'BASELINE',production_selection:'UNRESOLVED',provider_id:null,manifest_sha256:null,payload_sha256:null,counts:[0,0,0,1],iou:[1,1],dice:[1,1],accuracy:[1,1],precision:[1,1],recall:[1,1]})}'
+    fi
+    touch "$MOCK_STATE_DIRECTORY/evaluation-ready" ;;
   *) exit 91 ;;
 esac
 `);
@@ -159,6 +165,10 @@ echo "$*" > "$MOCK_STATE_DIRECTORY/gradle-args.txt"
 mkdir -p app/build/outputs/androidTest-results/connected
 echo '<testsuite tests="1"/>' > app/build/outputs/androidTest-results/connected/test.xml
 echo instrumentation-output
+for attempt in {1..100}; do
+  [[ -f "$MOCK_STATE_DIRECTORY/evaluation-ready" ]] && break
+  sleep 0.01
+done
 if [[ "$MOCK_SCENARIO" == test-failure ]]; then
   kill "$(cat "$MOCK_STATE_DIRECTORY/emulator.pid")"
   sleep 0.2
@@ -254,6 +264,8 @@ echo uninstall-target-and-test >> "$MOCK_STATE_DIRECTORY/calls.log"
       gradleArgs: fs.existsSync(path.join(directory, 'state/gradle-args.txt'))
         ? fs.readFileSync(path.join(directory, 'state/gradle-args.txt'), 'utf8') : '',
       testResultsWritten: fs.existsSync(path.join(directory, 'platforms/android/app/build/outputs/androidTest-results/connected/test.xml')),
+      segmentationRows: fs.existsSync(path.join(evidence, 'segmentation-summary.json')) && read('segmentation-summary.json').trim()
+        ? JSON.parse(read('segmentation-summary.json')).rows : 0,
     };
   } finally {
     const pidFile = path.join(directory, 'state/emulator.pid');
@@ -362,6 +374,7 @@ for (const scenario of ['success', 'boundary-disk', 'cleanup-recovers']) {
   test(scenario + ': small disks and sufficient preflight space allow instrumentation', () => {
     const result = runScenario(scenario);
     assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.segmentationRows, 1, 'mock log transport must preserve and validate engineering evidence');
     assert.match(result.stdoutLog, /-partition-size 2048 -cache-size 128/);
     assert.match(result.stdoutLog, /-data .*ci-userdata\..*\.img -datadir /);
     assert.doesNotMatch(result.stdoutLog, /-wipe-data/);
