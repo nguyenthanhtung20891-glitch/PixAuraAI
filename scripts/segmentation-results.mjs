@@ -14,7 +14,7 @@ try{
         let encoded;const fragment=line.indexOf('PXSEG_PART ');
         if(fragment>=0){
             assert.ok(line.length<=8192,'Fragment line bound');
-            const match=line.slice(fragment).match(/^PXSEG_PART ([1-9][0-9]{0,19}) ([0-4]) ([1-5]) (.*)$/);
+            const match=line.slice(fragment).match(/^PXSEG_PART ([1-9][0-9]{0,19}) ([0-8]) ([1-9]) (.*)$/);
             assert.ok(match,'Malformed fragment envelope');const [,id,indexText,totalText,body]=match,index=Number(indexText),total=Number(totalText);
             assert.ok(index<total&&body.length<=700,'Fragment size/index bound');
             let item=pending.get(id);if(!item){assert.equal(index,0,'Missing first fragment');assert.ok(pending.size<8,'Pending row bound');item={total,next:0,text:''};pending.set(id,item);}

@@ -130,6 +130,18 @@ Local documentation/source/fragment checks 11/11 PASS, including missing,
 duplicate and out-of-order fragment rejection; all three Android debug ABIs and
 instrumentation APK compile PASS. Unfragmented native rows remain compatible.
 
+Independent extraction also caught XCTest output interleaved inside buffered
+Apple JSON despite successful native/Swift tests. Apple now uses <=400-character
+fragments with direct complete <512-byte writes, and both macOS/Simulator scripts
+gate on structured extraction and retain JSONL/summary artifacts. Fragment count
+is bounded at nine and reconstruction remains <3500 bytes. No row dropped and
+no metric/model/provider execution semantics changed. Fresh exact-SHA workflows
+must certify this final evidence correction.
+The same POSIX implementation is exercised on Linux: affected native and
+ASan/UBSan checks 6/6 each PASS; 72 rows reconstruct with a competing notification
+writer. Source/codec checks 11/11, shell/build-source checks 12/12 and workflow
+lint PASS. These local observations do not substitute for hosted Apple gates.
+
 A: evaluation implementation, negative/golden/corpus tests and exact-SHA closure.
 Production model/runtime/operator expansion is a separate architecture decision,
 not a defect to hide inside A. B: broader model/operator/runtime architecture

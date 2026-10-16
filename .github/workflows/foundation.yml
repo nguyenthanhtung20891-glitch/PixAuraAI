@@ -69,6 +69,7 @@ jobs:
             build/apple-host/cross-tier-*
             build/apple-host/model-footprint.json
             build/apple-devices.json
+            build/apple-segmentation-*
             build/apple-results.*/
           if-no-files-found: warn
           retention-days: 14

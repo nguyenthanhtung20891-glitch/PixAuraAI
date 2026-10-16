@@ -8,6 +8,9 @@
 #include "../src/sha256.hpp"
 #include <cstdio>
 #include <string>
+#if defined(__APPLE__) || defined(__linux__)
+#include <unistd.h>
+#endif
 namespace pixaura::inference {
 namespace {
 std::string evaluation_hash(const uint8_t* data,size_t count){pixaura::storage::Sha256 sha;sha.update(data,count);const auto text=sha.finish();return std::string(text.data(),text.size());}
@@ -17,14 +20,26 @@ using EvaluationClock=std::chrono::steady_clock;
 uint64_t evaluation_ns(EvaluationClock::time_point start){return static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(EvaluationClock::now()-start).count());}
 std::string evaluation_ratio(pixaura::segmentation::Ratio r){return "["+std::to_string(r.numerator)+","+std::to_string(r.denominator)+"]";}
 void evaluation_emit(const std::string& row){
-#ifdef __ANDROID__
+#if defined(__ANDROID__) || defined(__APPLE__) || defined(__linux__)
     // liblog's printf buffer can be smaller than logcat's entry limit. Keep each
     // call below 1 KiB, preserving the complete JSON through checked fragments.
     static std::atomic<uint64_t> sequence{1};const auto id=sequence.fetch_add(1);
-    constexpr size_t width=700;const auto parts=(row.size()+width-1)/width;
+#ifndef __ANDROID__
+    constexpr size_t width=400; // Complete write, including envelope, < PIPE_BUF minimum 512.
+#else
+    constexpr size_t width=700;
+#endif
+    const auto parts=(row.size()+width-1)/width;
     for(size_t part=0;part<parts;++part){const auto text=row.substr(part*width,width);
+#ifdef __ANDROID__
         __android_log_print(ANDROID_LOG_INFO,"PixAuraEvaluation","PXSEG_PART %llu %zu %zu %s",
-            static_cast<unsigned long long>(id),part,parts,text.c_str());}
+            static_cast<unsigned long long>(id),part,parts,text.c_str());
+#else
+        const auto packet="PXSEG_PART "+std::to_string(id)+" "+std::to_string(part)+" "+std::to_string(parts)+" "+text+"\n";
+        segmentation::check(packet.size()<512,segmentation::Status::shape);
+        segmentation::check(::write(STDOUT_FILENO,packet.data(),packet.size())==static_cast<ssize_t>(packet.size()),segmentation::Status::identity);
+#endif
+    }
 #else
     std::printf("PXSEG %s\n",row.c_str());
 #endif

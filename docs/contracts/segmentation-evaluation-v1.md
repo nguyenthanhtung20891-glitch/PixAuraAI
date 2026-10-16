@@ -101,10 +101,15 @@ Baseline identity fields are null. Executable rows additionally contain timing
 and resource fields described below. No paths/photos/secret material in rows.
 Android liblog printf has a smaller buffer than logcat's entry ceiling. Its
 transport uses `PXSEG_PART row_id zero_based_index total_parts fragment`, each
-fragment <=700 ASCII characters, <=5 parts. Atomic process-local IDs distinguish
+fragment <=700 ASCII characters, <=9 parts. Atomic process-local IDs distinguish
 interleaving rows. Extraction permits <=8 pending rows, checks sequential indices,
 constant part count, <3500 reconstructed bytes and complete termination; malformed,
 duplicate/out-of-order or missing parts fail. The reconstructed JSON is unchanged.
+POSIX hosts (Linux and Apple) use <=400-character fragments and direct complete writes <512 bytes to
+avoid stdio-buffer interleaving with XCTest messages. Both hosted macOS and
+Simulator streams must successfully reconstruct/validate before their gate passes;
+JSONL and summaries are retained in Apple workflow artifacts. No row is dropped
+to conceal malformed evidence. Windows retains its observed complete raw rows.
 
 Cold preparation measured once per resolution/provider, repeated as shared
 metadata across its cases. It excludes verification and includes the actual

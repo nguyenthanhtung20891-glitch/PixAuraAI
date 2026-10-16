@@ -61,4 +61,5 @@ jobs:
             build/apple-host/document-canonical.json
             build/apple-host/cross-tier-*
             build/ios-shell-devices.json
+            build/apple-segmentation-*
           retention-days: 14

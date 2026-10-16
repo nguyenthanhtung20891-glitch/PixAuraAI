@@ -15,7 +15,9 @@ cmake --build build/apple-host
 ctest --test-dir build/apple-host --output-on-failure
 node scripts/model-footprint.mjs build/apple-host
 swift test --package-path packages/core --scratch-path "$workspace_path/build/apple-swift" \
-    -Xswiftc -warnings-as-errors -Xcc -Werror
+    -Xswiftc -warnings-as-errors -Xcc -Werror 2>&1 | tee "$workspace_path/build/apple-segmentation-macos.log"
+node scripts/segmentation-results.mjs build/apple-segmentation-macos.log \
+    build/apple-segmentation-macos.jsonl hosted-macos > build/apple-segmentation-macos-summary.json
 
 xcrun simctl list devices available --json > build/apple-devices.json
 simulator_id="$(node scripts/select-ios-simulator.mjs build/apple-devices.json)"
@@ -33,4 +35,7 @@ xcodebuild -scheme PixAuraCore -destination "platform=iOS Simulator,id=$simulato
     -resultBundlePath "$result_directory/ios-tests.xcresult" \
     'KEEP_PRIVATE_EXTERNS=$(PIXAURA_PRIVATE_EXTERNS_$(TARGET_NAME))' \
     PIXAURA_PRIVATE_EXTERNS_CPixAuraSQLite=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraCodecs=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraSodium=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraMetal=YES \
-    ARCHS="$simulator_arch" ONLY_ACTIVE_ARCH=YES EXCLUDED_ARCHS= CODE_SIGNING_ALLOWED=NO test
+    ARCHS="$simulator_arch" ONLY_ACTIVE_ARCH=YES EXCLUDED_ARCHS= CODE_SIGNING_ALLOWED=NO test \
+    2>&1 | tee "$workspace_path/build/apple-segmentation-simulator.log"
+node "$workspace_path/scripts/segmentation-results.mjs" "$workspace_path/build/apple-segmentation-simulator.log" \
+    "$workspace_path/build/apple-segmentation-simulator.jsonl" ios-simulator > "$workspace_path/build/apple-segmentation-simulator-summary.json"
