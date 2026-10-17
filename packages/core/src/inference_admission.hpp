@@ -67,7 +67,7 @@ struct AdmissionTestExecution final:PreparedExecution {
     std::unique_ptr<const PreparedExecution> cpu;State& owner;
     AdmissionTestExecution(std::unique_ptr<const PreparedExecution> p,State& s):cpu(std::move(p)),owner(s){input=cpu->input;output=cpu->output;}
     uint64_t transient_bytes()const override{return owner.admission_test_transient;}
-    void run(const float* in,float* out,const ExecutionControl& c)const override{++owner.admission_test_calls;if(owner.backend_fault)throw Error{15};cpu->run(in,out,c);}
+    void run(const float* in,float* out,const ExecutionControl& c)const override{++owner.admission_test_calls;if(owner.backend_fault)throw Error{owner.backend_fault==1?15:static_cast<int32_t>(owner.backend_fault)};cpu->run(in,out,c);}
 };
 #endif
 }
@@ -184,6 +184,7 @@ extern "C" int32_t pixaura_inference_execute_admitted(pixaura_inference_context*
     ExecutionControl execution{[](void* opaque,evaluation::Checkpoint phase){auto& check=*static_cast<Checks*>(opaque);checkpoint(check.model,*check.state,phase);},&checks};
 #ifdef PIXAURA_CERTIFICATION_TESTING
     execution.backend_fault=h.state->backend_fault;
+    execution.cpu_execution_calls=&h.state->cpu_execution_calls;
 #endif
     m->prepared->run(a->input.get(),result->values.get(),execution);
 #ifdef PIXAURA_CERTIFICATION_TESTING

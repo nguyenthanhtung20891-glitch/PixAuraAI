@@ -8,6 +8,7 @@
 #include <chrono>
 #include <cstdio>
 #include "inference_admission_boundary.hpp"
+#include "inference_certification_boundary.hpp"
 namespace pixaura::inference {
 namespace {
 // Same internal linkage as its private prepared-backend base and member.
@@ -66,7 +67,7 @@ inline int certification(){
         pixaura_inference_context weighted{};init(weighted,'b');const auto wp=admit(weighted,weight_cases[weight_case++]);pixaura_inference_handle wm{},wo{};
         expect(prepare(weighted,wp,wm),0);auto wr=request(256,256);std::vector<float> wi(3*256*256);
         std::fill_n(wi.begin(),256*256,1.0f);expect(execute(weighted,wm,wr,wi,wo),0);
-        const auto values=copy(weighted,wo,256*256);if(values.front()!=static_cast<float>(red)/4.0f||values.back()!=static_cast<float>(red)/4.0f)++failures;
+        const auto values=copy(weighted,wo,256*256);for(auto value:values){if(value!=static_cast<float>(red)/4.0f){++failures;}}
         expect(pixaura_inference_context_destroy(&weighted),0);
     }
     pixaura_inference_context c{};init(c,'b');auto p=admit(c,data.back());pixaura_inference_handle m{};expect(prepare(c,p,m),0);
@@ -106,20 +107,20 @@ inline int certification(){
     pixaura_inference_resources resources{};expect(pixaura_inference_resources_query(&c,&resources,sizeof(resources)),0);if(resources.handles||resources.reserved_bytes!=control)++failures;
     expect(pixaura_inference_context_destroy(&c),0);
     pixaura_inference_context normalized{};init(normalized,'b');auto np=admit(normalized,data[4]);pixaura_inference_handle nm{},no{};expect(prepare(normalized,np,nm),0);
-    auto nr=request(8,8);nr.input.normalization[0]=500000;in.assign(192,1);expect(execute(normalized,nm,nr,in,no),0);if(copy(normalized,no,64)[0]!=.875f)++failures;
+    auto nr=request(8,8);nr.input.normalization[0]=500000;in.assign(192,1);expect(execute(normalized,nm,nr,in,no),0);if(!certification_all_equal(copy(normalized,no,64),.875f))++failures;
     expect(pixaura_inference_context_destroy(&normalized),0);
     // Distinguishable model weights, isolated cancellation, interleaved contexts.
     pixaura_inference_context a{},bb{};init(a,'c');init(bb,'d');const auto pa=admit(a,data[0]),pb=admit(bb,data[1]);pixaura_inference_handle ma{},mb{},oa{},ob{};
     expect(prepare(a,pa,ma),0);expect(prepare(bb,pb,mb),0);in.assign(192,0.0f);std::fill_n(in.begin(),64,1.0f);auto rr=request(8,8);
-    auto cancelled=rr;cancelled.pre_cancel=1;expect(execute(a,ma,cancelled,in,oa),12);expect(execute(bb,mb,rr,in,ob),0);if(copy(bb,ob,64)[0]!=1)++failures;
+    auto cancelled=rr;cancelled.pre_cancel=1;expect(execute(a,ma,cancelled,in,oa),12);expect(execute(bb,mb,rr,in,ob),0);if(!certification_all_equal(copy(bb,ob,64),1))++failures;
     expect(execute(bb,ma,rr,in,oa),14);rr.generation=2;
-    std::thread t([&]{expect(execute(a,ma,rr,in,oa),0);});expect(execute(bb,mb,rr,in,ob),0);t.join();if(copy(a,oa,64)[0]!=.25f||copy(bb,ob,64)[0]!=1)++failures;
+    std::thread t([&]{expect(execute(a,ma,rr,in,oa),0);});expect(execute(bb,mb,rr,in,ob),0);t.join();if(!certification_all_equal(copy(a,oa,64),.25f)||!certification_all_equal(copy(bb,ob,64),1))++failures;
     pixaura_inference_output identity_a{},identity_b{};expect(pixaura_inference_output_info(&a,&oa,&identity_a,sizeof(identity_a)),0);expect(pixaura_inference_output_info(&bb,&ob,&identity_b,sizeof(identity_b)),0);
     if(!std::memcmp(identity_a.manifest_sha256,identity_b.manifest_sha256,32))++failures;
     expect(pixaura_inference_context_destroy(&a),0);expect(pixaura_inference_context_destroy(&bb),0);
     // Boundary tensor, cancellation checkpoints, capacity failure, repeated cleanup.
     pixaura_inference_context large{};init(large,'e');auto lp=admit(large,data[3]);pixaura_inference_handle lm{};expect(prepare(large,lp,lm),0);
-    in.assign(3*1024*1024,1);rr=request(1024,1024);expect(execute(large,lm,rr,in,oa),0);if(copy(large,oa,1024*1024).back()!=1){++failures;}expect(pixaura_inference_release(&large,&oa),0);
+    in.assign(3*1024*1024,1);rr=request(1024,1024);expect(execute(large,lm,rr,in,oa),0);if(!certification_all_equal(copy(large,oa,1024*1024),1)){++failures;}expect(pixaura_inference_release(&large,&oa),0);
     struct Hook {pixaura_inference_context* c;pixaura_inference_handle* m;uint64_t generation;unsigned tiles=0;bool release=false;int status=-1,busy=-1;
         const pixaura_inference_request* request=nullptr;const std::vector<float>* input=nullptr;};
     Hook hook{&large,&lm,2};auto* state=live(&large).state;state->observer_state=&hook;
@@ -157,7 +158,7 @@ inline int certification(){
     }
     pixaura_inference_context untrusted{};init(untrusted,'a');pixaura_model_diagnostic diagnostic{};pixaura_inference_handle none{};
     expect(pixaura_inference_package_verify(&untrusted,"invalid",7,&none,sizeof(none),&diagnostic),3);if(none.serial)++failures;
-    expect(pixaura_inference_context_destroy(&untrusted),0);return failures.load()+segmentation_evaluation(provider)+admission_certification();
+    expect(pixaura_inference_context_destroy(&untrusted),0);return failures.load()+segmentation_evaluation(provider)+admission_certification()+provider_security_certification(provider);
 }
 }
 #endif

@@ -1,5 +1,19 @@
 # Architectural decision index
 
+## Phase 5 Step 7 current authorization
+
+Step 6 COMPLETE / FULL PASS at `5592cd839c2607379c6cb8c02a4b42a44e80311d`,
+accepted by Product Owner. Step 7 AUTHORIZED / IN PROGRESS under approved Option A:
+software parity/security evidence is separate from release trust. CPU remains
+VALIDATED; Vulkan and Metal remain UNKNOWN. No hosted-evidence promotion policy.
+[Certification contract](docs/contracts/inference-provider-certification-v1.md)
+and [Step 7 report](docs/reports/phase-5-step-7.md) govern the complete retained
+suite and both complete same-final-SHA workflows. Physical evidence stays separate;
+DH-APPLE-METAL-01 unchanged and DEFERRED. Production model UNRESOLVED, profile and
+Schema 3 unchanged. No weights, external runtime or AI UX. Step 8 and Phase 6
+NOT STARTED. Stop after Step 7. Supersedes historical authorization text below.
+
+
 ## Phase 5 Step 6 current authorization
 
 Step 5 COMPLETE / FULL PASS at `59d846967fffef7e735597f6b65301841659336f`:

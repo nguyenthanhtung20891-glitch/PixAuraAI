@@ -6,6 +6,8 @@ for(const file of process.argv.slice(2)){
     const b=fs.readFileSync(file);
     for(const marker of [testAnchor,Buffer.from('pixaura_model_test_boundary'),Buffer.from('pixaura_inference_test_boundary'),Buffer.from('pixaura_inference_android_test_boundary'),Buffer.from('pixaura_inference_apple_test_boundary'),Buffer.from('synthetic-segmentation'),Buffer.from('PXSEG'),Buffer.from('production_selection'),Buffer.from('AdmissionTestExecution'),Buffer.from('admission_test_')])
         assert.equal(b.includes(marker),false,`${file}: test trust/certification surface in production object`);
+    for(const marker of ['provider_security_certification','certification_output_fault','cpu_execution_calls','PXSEC'])
+        assert.equal(b.includes(Buffer.from(marker)),false,`${file}: Step 7 test surface in production object`);
     console.log(`Model production trust isolation PASS: ${b.length} bytes`);
 }
 assert.ok(process.argv.length>2,'No production object inspected');

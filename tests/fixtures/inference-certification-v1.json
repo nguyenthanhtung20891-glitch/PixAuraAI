@@ -1,0 +1,51 @@
+{
+  "certification_contract": "inference-provider-certification-v1",
+  "version": 1,
+  "semantic_profile": "pixaura.onnx.reference-segmentation.v1",
+  "security_corpus": "Step1-full+Step2-32+Step7-15+mutations96-v1",
+  "resource_contract": "inference-admission-v1+provider-v1",
+  "implementation_identity": "provider version 1 plus final workflow headSha containing this record",
+  "software_suite_result": "Recorded by PXSEC v1 failures=0 and complete same-SHA workflow SUCCESS; never inferred from this file",
+  "production_model": "UNRESOLVED",
+  "runtime_authority": false,
+  "threshold": "foreground >= 0.5; classification may differ inside the accepted CPU tolerance band",
+  "providers": [
+    {
+      "id": "cpu.reference.v1",
+      "version": 1,
+      "platforms": ["Windows", "Linux", "Apple host", "Android arm64-v8a", "Android armeabi-v7a"],
+      "availability": "AVAILABLE",
+      "parity": "exact binary32 reference goldens plus independent dyadic oracle",
+      "release_trust": "VALIDATED",
+      "release_trust_value": 1,
+      "physical_validation": "NOT CLAIMED"
+    },
+    {
+      "id": "android.vulkan.v1",
+      "version": 1,
+      "platforms": ["Android arm64-v8a", "Android armeabi-v7a", "hosted Android x86_64"],
+      "availability": "OBSERVED separately by checked descriptor",
+      "parity": "abs(Vulkan - CPU) <= 4e-38 + 3e-7 * abs(CPU)",
+      "release_trust": "UNKNOWN",
+      "release_trust_value": 0,
+      "hosted_evidence": "software/integration only",
+      "physical_validation": "NOT OBSERVED for Phase 5 inference",
+      "historical_physical": "Z Fold7 exposure 14/14 at ade92bea17561a99d0fe3275cbfc75c21fd07dae; supporting only, insufficient for inference certification"
+    },
+    {
+      "id": "apple.metal.v1",
+      "version": 1,
+      "platforms": ["hosted macOS", "iOS Simulator"],
+      "availability": "OBSERVED separately by checked descriptor",
+      "parity": "abs(Metal - CPU) <= 4e-38 + 3e-7 * abs(CPU)",
+      "release_trust": "UNKNOWN",
+      "release_trust_value": 0,
+      "hosted_evidence": "software/integration only; not physical certification",
+      "physical_validation": "NOT OBSERVED",
+      "deferred_gate": "DH-APPLE-METAL-01 unchanged and DEFERRED"
+    }
+  ],
+  "required_areas": ["identity/version", "availability", "software validation", "parity/full-vector/threshold", "package security", "malformed ONNX/ABI/input/output", "lifecycle/handles", "cancellation/publication", "resource/overflow", "context isolation/races", "admission/fallback/no replay", "release isolation"],
+  "required_workflows": ["Foundation boundaries: all 7 jobs", "Native application shells: all 3 jobs"],
+  "limitations": ["No production key provisioning", "No positive release-package execution claim", "No physical inference certification", "No new trust-promotion policy", "No production model quality claim", "No driver RSS or real-time cancellation guarantee"]
+}

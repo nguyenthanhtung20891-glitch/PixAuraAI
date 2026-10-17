@@ -70,7 +70,7 @@ inline int android_certification(){
     expect(prepare(a,pa,ma),0);expect(prepare(bb,pb,mb),0);auto ra=request(a,ma,1),rb=request(bb,mb,1);in.assign(192,0);std::fill_n(in.begin(),64,1.0f);
     expect(execute(bb,ma,rb,in,oa),14);auto cancelled=ra;cancelled.pre_cancel=1;expect(execute(a,ma,cancelled,in,oa),12);ra.generation=2;
     int thread_status=-1;std::thread worker([&]{thread_status=execute(a,ma,ra,in,oa);});expect(execute(bb,mb,rb,in,ob),0);worker.join();expect(thread_status,0);
-    if(copy(a,oa,64)[0]!=0.25f||copy(bb,ob,64)[0]!=1.0f)++failures;
+    if(!certification_all_equal(copy(a,oa,64),0.25f)||!certification_all_equal(copy(bb,ob,64),1.0f))++failures;
     expect(pixaura_inference_context_destroy(&a),0);expect(pixaura_inference_context_destroy(&bb),0);
     // Cancel/release after a real completed tile: no successful publication.
     pixaura_inference_context large{};init(large);const auto lp=admit(large,cases[3]);pixaura_inference_handle lm{};expect(prepare(large,lp,lm),0);
@@ -84,7 +84,7 @@ inline int android_certification(){
     lr.generation=3;out={};expect(execute(large,lm,lr,in,out),12);expect(hook.status,0);if(out.serial)++failures;state->observer=nullptr;
     expect(pixaura_inference_context_destroy(&large),0);
     __android_log_print(ANDROID_LOG_INFO,"PixAuraInference","Android shared corpus: ONNX=32 goldens=4 model_cases=21 weight_triples=15 faults=4 failures=%d; integration only, no physical certification",failures);
-    return failures+segmentation_evaluation(vulkan_provider);
+    return failures+segmentation_evaluation(vulkan_provider)+provider_security_certification(vulkan_provider);
 }
 }
 #endif

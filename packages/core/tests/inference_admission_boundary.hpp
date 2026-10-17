@@ -82,7 +82,11 @@ inline int admission_certification(){
     expect(admit(c,p,req(generation++),a,result),0);out={};expect(pixaura_inference_execute_admitted(&c,&a,&out,sizeof(out)),14);check(__LINE__,!out.serial&&race.once);expect(race.code,0);s.observer=nullptr;
     // No post-start replay on INTERNAL; an independently eligible CPU is not run.
     o=race.observation;o.memory_pressure=1;for(unsigned n=0;n<3;++n){++o.sequence;expect(pixaura_inference_policy_update(1,&c,&o,&strategy),0);}
-    s.backend_fault=1;const auto calls=s.admission_test_calls;expect(admit(c,p,req(generation++),a,result),0);out={};expect(pixaura_inference_execute_admitted(&c,&a,&out,sizeof(out)),15);check(__LINE__,s.admission_test_calls==calls+1&&!out.serial);s.backend_fault=0;
+    for(uint32_t fault:{1u,4u,11u,12u,13u,15u}){
+        s.backend_fault=fault;const auto calls=s.admission_test_calls;const auto cpu_calls=s.cpu_execution_calls;
+        expect(admit(c,p,req(generation++),a,result),0);out={};expect(pixaura_inference_execute_admitted(&c,&a,&out,sizeof(out)),fault==1?15:static_cast<int32_t>(fault));
+        check(__LINE__,s.admission_test_calls==calls+1&&s.cpu_execution_calls==cpu_calls&&!out.serial);s.backend_fault=0;
+    }
     s.output_fault=true;expect(admit(c,p,req(generation++),a,result),0);out={};expect(pixaura_inference_execute_admitted(&c,&a,&out,sizeof(out)),13);check(__LINE__,!out.serial);s.output_fault=false;
     // Completed output remains readable, but cannot pass publication eligibility after epoch changes.
     expect(admit(c,p,req(generation++),a,result),0);expect(pixaura_inference_execute_admitted(&c,&a,&out,sizeof(out)),0);o.constrained=1;++o.sequence;

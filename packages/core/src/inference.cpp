@@ -40,6 +40,7 @@ struct Package { std::shared_ptr<Lease> lease;std::unique_ptr<const pixaura_mode
 struct ExecutionControl {void(*check)(void*,evaluation::Checkpoint);void* state;
 #ifdef PIXAURA_CERTIFICATION_TESTING
     uint32_t backend_fault=0;
+    uint64_t* cpu_execution_calls=nullptr;
 #endif
 };
 struct PreparedExecution {
@@ -52,6 +53,9 @@ struct CpuReference final:PreparedExecution {
     Plan plan;
     explicit CpuReference(Plan p):plan(p){input=p.input;output=p.output;}
     void run(const float* in,float* out,const ExecutionControl& execution_control)const override{
+#ifdef PIXAURA_CERTIFICATION_TESTING
+        if(execution_control.cpu_execution_calls){++*execution_control.cpu_execution_calls;}
+#endif
         const auto pixels=static_cast<size_t>(input[2])*input[3];
         for(size_t i=0;i<pixels;++i){if(i%1024==0){execution_control.check(execution_control.state,evaluation::Checkpoint::tile);}double sum=0;
             for(size_t channel=0;channel<3;++channel)sum=sum+binary32_value(in[channel*pixels+i])*binary32_value(plan.weights[channel]);
@@ -91,6 +95,8 @@ struct State {
     std::mutex resource_mutex;std::atomic<uint64_t> effective_ceiling;policy::State policy{};uint64_t pending=0,last_admission_generation=0;bool policy_stopped=false;
 #ifdef PIXAURA_CERTIFICATION_TESTING
     evaluation::Observer observer=nullptr;void* observer_state=nullptr;bool output_fault=false;uint32_t backend_fault=0;
+    uint32_t certification_output_fault=0;
+    uint64_t cpu_execution_calls=0;
     uint32_t admission_test_platform=0,admission_test_validation=0,admission_test_availability=0;
     bool admission_test_backend=false,admission_test_unsupported=false;uint64_t admission_test_transient=0;int admission_test_calls=0;
 #endif
@@ -231,11 +237,20 @@ extern "C" int32_t pixaura_inference_execute(pixaura_inference_context* c,const 
     ExecutionControl execution{[](void* opaque,evaluation::Checkpoint phase){auto& state=*static_cast<CheckState*>(opaque);checkpoint(state.m,*state.state,phase);},&checked};
 #ifdef PIXAURA_CERTIFICATION_TESTING
     execution.backend_fault=h.state->backend_fault;
+    execution.cpu_execution_calls=&h.state->cpu_execution_calls;
 #endif
     std::unique_ptr<Lease> backend_lease;if(m->prepared->transient_bytes())backend_lease=std::make_unique<Lease>(*h.state,m->prepared->transient_bytes());
     m->prepared->run(owned.get(),result->values.get(),execution);
 #ifdef PIXAURA_CERTIFICATION_TESTING
     if(h.state->output_fault)result->values[0]=std::numeric_limits<float>::quiet_NaN();
+    switch(h.state->certification_output_fault){
+    case 1:result->values[0]=std::numeric_limits<float>::quiet_NaN();break;
+    case 2:result->values[0]=std::numeric_limits<float>::infinity();break;
+    case 3:result->values[0]=-0.1f;break;
+    case 4:result->values[0]=1.1f;break;
+    case 5:result->values[pixels-1]=std::numeric_limits<float>::quiet_NaN();break;
+    default:break;
+    }
 #endif
     require(valid_probabilities(result->values.get(),pixels),PIXAURA_INFERENCE_OUTPUT_INVALID);checkpoint(m,*h.state,evaluation::Checkpoint::publication);
     result->info.version=1;result->info.struct_size=sizeof(result->info);result->info.generation=request->generation;

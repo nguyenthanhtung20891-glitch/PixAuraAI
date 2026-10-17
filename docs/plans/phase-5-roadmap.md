@@ -9,7 +9,7 @@ Step 4 COMPLETE / FULL PASS at `a3ad7e7a61030992d933b3ca68572f83604dd5a9`
 (Foundation 38730904780 7/7, shells 38730904823 3/3).
 Step 5 COMPLETE / FULL PASS at 59d846967fffef7e735597f6b65301841659336f (Foundation 38999701451 7/7; shells 38999701458 3/3), under approved Option A: bounded synthetic
 evaluation; production selection UNRESOLVED. No model/runtime/operator expansion.
-Step 6 AUTHORIZED / IN PROGRESS: shared capability-aware admission and pre-execution fallback only. Steps 7-8 and Phase 6 NOT STARTED.
+Step 6 COMPLETE / FULL PASS at 5592cd839c2607379c6cb8c02a4b42a44e80311d (Product Owner accepted). Step 7 AUTHORIZED / IN PROGRESS under Option A: software-suite evidence separate from unchanged release trust CPU VALIDATED / Vulkan UNKNOWN / Metal UNKNOWN. [Certification](../contracts/inference-provider-certification-v1.md). Step 8 and Phase 6 NOT STARTED.
 Eight steps only. Step 9+, Phase 6 and the Editing Agent require new authorization.
 
 | Step | Scope | Exit evidence |

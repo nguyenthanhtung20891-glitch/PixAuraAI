@@ -68,3 +68,6 @@ if(process.argv[1]===fileURLToPath(import.meta.url)){
 // Engineering-only reuse for Step 3 fixtures; never linked into application code.
 export function signedReferenceFixture(o){const payload=onnx(o),m=manifest(payload,o);
     return {payload,manifest:m,signature:cat(Buffer.from('PXSG'),[1,1,7].map(u32),crypto.sign(null,m,key))};}
+// Bounded security corpus only; still signs canonical metadata and payload digest.
+export function signedReferencePayloadFixture(payload){const m=manifest(payload);
+    return {payload,manifest:m,signature:cat(Buffer.from('PXSG'),[1,1,7].map(u32),crypto.sign(null,m,key))};}
