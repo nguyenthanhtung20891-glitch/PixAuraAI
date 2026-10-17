@@ -1,5 +1,19 @@
 # Architectural decision index
 
+## Phase 5 Step 6 current authorization
+
+Step 5 COMPLETE / FULL PASS at `59d846967fffef7e735597f6b65301841659336f`:
+Foundation 38999701451 (7/7), Native application shells 38999701458 (3/3).
+Step 6 AUTHORIZED / IN PROGRESS: deterministic capability-aware inference
+admission and PRE-EXECUTION fallback only. Reuse Phase 4 policy authority and
+existing provider/package semantics. Accelerated UNKNOWN trust remains ineligible
+for automatic selection. Production model selection UNRESOLVED. Require retained
+Steps 1-5, malformed/resource/epoch/concurrency tests, sanitizers and both complete
+same-final-SHA workflows. [Admission contract](docs/contracts/inference-admission-v1.md),
+[Step 6 report](docs/reports/phase-5-step-6.md). Schema 3, provider profiles and
+DH-APPLE-METAL-01 unchanged. No AI UX, runtime/model expansion, Step 7 or Phase 6.
+Stop after Step 6. This authority supersedes historical authorization text below.
+
 ## Phase 5 Step 5 current authorization
 
 Step 4 COMPLETE / FULL PASS at `a3ad7e7a61030992d933b3ca68572f83604dd5a9`:

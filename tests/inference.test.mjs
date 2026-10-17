@@ -4,6 +4,21 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 
+test('admission reuses shared capability authority and isolates synthetic provider trust',()=>{
+    execFileSync(process.execPath,['scripts/inference-admission-fixtures.mjs','--check']);
+    const implementation=fs.readFileSync('packages/core/src/inference_admission.hpp','utf8');
+    assert.ok(implementation.includes('pixaura::policy::configure'));
+    assert.ok(implementation.includes('pixaura::policy::update'));
+    assert.match(implementation,/#ifdef PIXAURA_CERTIFICATION_TESTING\s+struct AdmissionTestExecution/);
+    const core=fs.readFileSync('packages/core/tests/inference_boundary.hpp','utf8');
+    assert.ok(core.includes('+admission_certification()'));
+    const release=fs.readFileSync('scripts/check-model-release.mjs','utf8');
+    for(const marker of ['AdmissionTestExecution','admission_test_'])assert.ok(release.includes(`Buffer.from('${marker}')`));
+    assert.ok(fs.readFileSync('packages/core/tests/inference_c_consumer.c','utf8').includes('pixaura/inference_admission.h'));
+    assert.ok(fs.readFileSync('packages/core/swift/Tests/InferenceTests.swift','utf8').includes('testAdmissionPolicyRequiresTrustedConfiguration'));
+    assert.ok(fs.readFileSync('docs/contracts/inference-admission-v1.md','utf8').includes('No post-start replay'));
+});
+
 test('segmentation synthetic geometry, exact mask digests and counts are reproducible',()=>{
     execFileSync(process.execPath,['scripts/segmentation-evaluation-fixtures.mjs','--check']);
     const corpus=JSON.parse(fs.readFileSync('tests/fixtures/segmentation-evaluation-v1.json','utf8'));

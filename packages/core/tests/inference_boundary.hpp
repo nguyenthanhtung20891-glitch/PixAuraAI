@@ -7,6 +7,7 @@
 #include <thread>
 #include <chrono>
 #include <cstdio>
+#include "inference_admission_boundary.hpp"
 namespace pixaura::inference {
 namespace {
 // Same internal linkage as its private prepared-backend base and member.
@@ -156,7 +157,7 @@ inline int certification(){
     }
     pixaura_inference_context untrusted{};init(untrusted,'a');pixaura_model_diagnostic diagnostic{};pixaura_inference_handle none{};
     expect(pixaura_inference_package_verify(&untrusted,"invalid",7,&none,sizeof(none),&diagnostic),3);if(none.serial)++failures;
-    expect(pixaura_inference_context_destroy(&untrusted),0);return failures.load()+segmentation_evaluation(provider);
+    expect(pixaura_inference_context_destroy(&untrusted),0);return failures.load()+segmentation_evaluation(provider)+admission_certification();
 }
 }
 #endif

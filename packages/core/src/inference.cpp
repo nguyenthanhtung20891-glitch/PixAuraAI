@@ -1,4 +1,6 @@
 #include "pixaura/inference.h"
+#include "pixaura/inference_admission.h"
+#include "dynamic_policy.hpp"
 #include "model_package_internal.hpp"
 #include "onnx_profile.hpp"
 #include "evaluation.hpp"
@@ -75,20 +77,27 @@ const std::array<Backend,1> backends{{{provider,prepare_cpu}}};
 #endif
 struct Model {
     std::shared_ptr<Lease> lease;std::shared_ptr<const Package> package;std::unique_ptr<const PreparedExecution> prepared;
-    evaluation::Cancellation cancellation;std::atomic<bool> retired{false};uint64_t last=0,active=0;
+    evaluation::Cancellation cancellation;std::atomic<bool> retired{false},policy_revoked{false};uint64_t last=0,active=0;
 };
-struct Output { std::shared_ptr<Lease> lease;std::unique_ptr<float[]> values;size_t count=0;pixaura_inference_output info{}; };
-struct Entry { uint32_t kind=0;std::shared_ptr<const Package> package;std::shared_ptr<Model> model;std::shared_ptr<const Output> output; };
+struct Output { std::shared_ptr<Lease> lease;std::unique_ptr<float[]> values;size_t count=0;pixaura_inference_output info{};uint64_t policy_epoch=0; };
+struct Admission {
+    std::shared_ptr<Model> model;std::shared_ptr<Lease> reservation;std::unique_ptr<float[]> input;
+    pixaura_inference_request request{};pixaura_inference_admission_result result{};bool started=false;
+};
+struct Entry { uint32_t kind=0;std::shared_ptr<const Package> package;std::shared_ptr<Model> model;std::shared_ptr<const Output> output;std::shared_ptr<Admission> admission; };
 struct State {
     std::mutex mutex;std::map<uint64_t,Entry> entries;uint64_t next=1,ceiling;
     std::atomic<uint64_t> used{control};bool executing=false;
+    std::mutex resource_mutex;std::atomic<uint64_t> effective_ceiling;policy::State policy{};uint64_t pending=0,last_admission_generation=0;bool policy_stopped=false;
 #ifdef PIXAURA_CERTIFICATION_TESTING
     evaluation::Observer observer=nullptr;void* observer_state=nullptr;bool output_fault=false;uint32_t backend_fault=0;
+    uint32_t admission_test_platform=0,admission_test_validation=0,admission_test_availability=0;
+    bool admission_test_backend=false,admission_test_unsupported=false;uint64_t admission_test_transient=0;int admission_test_calls=0;
 #endif
-    explicit State(uint64_t n):ceiling(n){}
+    explicit State(uint64_t n):ceiling(n),effective_ceiling(n){}
 };
-Lease::Lease(State& s,uint64_t n):owner(&s),bytes(n){auto used=s.used.load();
-    for(;;){require(n<=s.ceiling-used,PIXAURA_INFERENCE_RESOURCE);if(s.used.compare_exchange_weak(used,used+n))break;}}
+Lease::Lease(State& s,uint64_t n):owner(&s),bytes(n){std::lock_guard<std::mutex> resource_lock(s.resource_mutex);auto used=s.used.load();
+    for(;;){const auto cap=s.effective_ceiling.load();require(used<=cap&&n<=cap-used,PIXAURA_INFERENCE_RESOURCE);if(s.used.compare_exchange_weak(used,used+n))break;}}
 Lease::~Lease(){owner->used.fetch_sub(bytes);}
 struct Header {uint64_t tag;State* state;uint8_t identity[32];};
 static_assert(sizeof(Header)<=sizeof(pixaura_inference_context::opaque),"opaque context");
@@ -138,6 +147,12 @@ void checkpoint(const std::shared_ptr<Model>& m,State& state,evaluation::Checkpo
     (void)state;(void)phase;
 #endif
     require(!m->retired.load()&&!m->cancellation.requested.load(),PIXAURA_INFERENCE_CANCELLED);
+    require(!m->policy_revoked.load(),PIXAURA_INFERENCE_STALE_HANDLE);
+}
+void normalize_input(float* values,size_t count,const uint32_t* normalization,const std::shared_ptr<Model>& model,State& state){
+    const auto pixels=count/3;
+    for(size_t i=0;i<count;++i){if(i%1024==0)checkpoint(model,state,evaluation::Checkpoint::allocation);
+        values[i]=binary32_round((binary32_value(values[i])*normalization[(i/pixels)*2])/1000000.0);}
 }
 }
 }
@@ -168,7 +183,7 @@ extern "C" int32_t pixaura_inference_context_destroy(pixaura_inference_context* 
 extern "C" int32_t pixaura_inference_package_verify(pixaura_inference_context* c,const char* root,uint64_t n,pixaura_inference_handle* out,uint32_t size,pixaura_model_diagnostic* diagnostic){return boundary([&]{
     const auto h=live(c);output_pointer(h,c,out,size,sizeof(*out));require(root&&n&&n<=4096);separate(out,size,root,n);
     if(diagnostic){separate(diagnostic,sizeof(*diagnostic),out,size);separate(diagnostic,sizeof(*diagnostic),root,n);separate(diagnostic,sizeof(*diagnostic),c,sizeof(*c));}
-    std::lock_guard<std::mutex> lock(h.state->mutex);require(!h.state->executing,PIXAURA_INFERENCE_BUSY);const auto available=h.state->ceiling-h.state->used.load();require(available>=65536,PIXAURA_INFERENCE_RESOURCE);
+    std::lock_guard<std::mutex> lock(h.state->mutex);require(!h.state->executing,PIXAURA_INFERENCE_BUSY);const auto cap=h.state->effective_ceiling.load(),used=h.state->used.load();const auto available=used<cap?cap-used:0;require(available>=65536,PIXAURA_INFERENCE_RESOURCE);
     pixaura_model_package* raw=nullptr;pixaura_model_diagnostic d{};const auto status=pixaura_model_package_verify(1,root,n,available,&raw,&d);
     if(status){if(diagnostic)*diagnostic=d;throw Error{PIXAURA_INFERENCE_UNVERIFIED_MODEL};}
     auto p=adopt(h,std::unique_ptr<pixaura_model_package>(raw));Entry e{};e.kind=1;e.package=std::move(p);const auto t=insert_locked(h,std::move(e));*out=t;if(diagnostic)*diagnostic=d;
@@ -196,7 +211,7 @@ extern "C" int32_t pixaura_inference_execute(pixaura_inference_context* c,const 
     require(request->version==1&&request->struct_size==sizeof(*request),PIXAURA_INFERENCE_UNSUPPORTED_ABI);require(request->task==1,PIXAURA_INFERENCE_TASK_UNSUPPORTED);
     require(request->generation&&request->pre_cancel<=1);require(input);separate(out,size,input,input_bytes);separate(out,size,request,sizeof(*request));separate(out,size,model,sizeof(*model));separate(input,input_bytes,c,sizeof(*c));
     std::shared_ptr<Model> m;{
-        std::lock_guard<std::mutex> lock(h.state->mutex);m=acquire_locked(h,model,2).model;require(!h.state->executing,PIXAURA_INFERENCE_BUSY);
+        std::lock_guard<std::mutex> lock(h.state->mutex);m=acquire_locked(h,model,2).model;require(!h.state->executing&&!h.state->pending,PIXAURA_INFERENCE_BUSY);
         require(request->generation>m->last,PIXAURA_INFERENCE_STALE_HANDLE);m->last=request->generation;
         require(!request->pre_cancel,PIXAURA_INFERENCE_CANCELLED);m->active=request->generation;m->cancellation.requested=false;h.state->executing=true;
     }
@@ -210,8 +225,7 @@ extern "C" int32_t pixaura_inference_execute(pixaura_inference_context* c,const 
     const auto count=static_cast<size_t>(expected.bytes/4),pixels=count/3;
     auto input_lease=std::make_shared<Lease>(*h.state,expected.bytes);auto owned=std::make_unique<float[]>(count);std::memcpy(owned.get(),input,static_cast<size_t>(expected.bytes));
     for(size_t i=0;i<count;i+=1024){checkpoint(m,*h.state,evaluation::Checkpoint::allocation);require(valid_probabilities(owned.get()+i,std::min<size_t>(1024,count-i)),PIXAURA_INFERENCE_INPUT_RANGE);}
-    for(size_t i=0;i<count;++i){if(i%1024==0)checkpoint(m,*h.state,evaluation::Checkpoint::allocation);
-        owned[i]=binary32_round((binary32_value(owned[i])*expected.normalization[(i/pixels)*2])/1000000.0);}
+    normalize_input(owned.get(),count,expected.normalization,m,*h.state);
     auto result=std::make_shared<Output>();result->lease=std::make_shared<Lease>(*h.state,pixels*4);result->values=std::make_unique<float[]>(pixels);result->count=pixels;
     struct CheckState {std::shared_ptr<Model> m;State* state;} checked{m,h.state};
     ExecutionControl execution{[](void* opaque,evaluation::Checkpoint phase){auto& state=*static_cast<CheckState*>(opaque);checkpoint(state.m,*state.state,phase);},&checked};
@@ -236,9 +250,12 @@ extern "C" int32_t pixaura_inference_output_copy(pixaura_inference_context* c,co
     std::shared_ptr<const Output> value;{std::lock_guard<std::mutex> lock(h.state->mutex);value=acquire_locked(h,output,3).output;}
     require(capacity==value->count*4,PIXAURA_INFERENCE_BUFFER_TOO_SMALL);std::memcpy(out,value->values.get(),static_cast<size_t>(capacity));});}
 extern "C" int32_t pixaura_inference_release(pixaura_inference_context* c,const pixaura_inference_handle* token){return boundary([&]{const auto h=live(c);std::lock_guard<std::mutex> lock(h.state->mutex);const auto entry=acquire_locked(h,token,0);
-    if(entry.model){entry.model->retired=true;entry.model->cancellation.requested=true;}h.state->entries.erase(token->serial);});}
+    if(entry.model){entry.model->retired=true;entry.model->cancellation.requested=true;}
+    if(entry.admission){entry.admission->model->retired=true;entry.admission->model->cancellation.requested=true;if(h.state->pending==token->serial)h.state->pending=0;}
+    h.state->entries.erase(token->serial);});}
 extern "C" int32_t pixaura_inference_resources_query(pixaura_inference_context* c,pixaura_inference_resources* out,uint32_t size){return boundary([&]{const auto h=live(c);output_pointer(h,c,out,size,sizeof(*out));std::lock_guard<std::mutex> lock(h.state->mutex);
     *out={1,sizeof(*out),static_cast<uint32_t>(h.state->entries.size()),h.state->executing?1u:0u,h.state->ceiling,h.state->used.load()};});}
+#include "inference_admission.hpp"
 #ifdef PIXAURA_CERTIFICATION_TESTING
 #include "../tests/inference_boundary.hpp"
 extern "C" PIXAURA_API int32_t pixaura_inference_test_boundary(){return boundary([&]{require(pixaura::inference::certification()==0,PIXAURA_INFERENCE_INTERNAL);});}

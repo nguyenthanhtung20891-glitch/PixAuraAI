@@ -120,6 +120,8 @@ int32_t verify_owned(uint32_t version,std::vector<File> files,const Trust& trust
         auto package=std::make_unique<pixaura_model_package>();package->info={1,m.model_version,m.task,static_cast<uint32_t>(m.payloads.size()),m.key,trust.generation,payload_total,m.memory,{}};
         package->binding.input=m.input.dim;package->binding.output=m.output.dim;
         package->binding.normalization=m.normalization;
+        package->binding.minimum_tier=m.tier;package->binding.cpu_threads=m.threads;package->binding.budget_class=m.budget;
+        package->binding.accelerator_preference=m.accel;package->binding.required_validation=m.validation;
         const auto& cpu=m.providers.front();package->binding.cpu_payload=m.payloads[cpu.file].name;
         package->binding.runtime_floor=cpu.runtime;package->binding.api_floor=cpu.api;
         package->binding.operator_set=cpu.opset;package->binding.operators=cpu.ops;

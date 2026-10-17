@@ -25,7 +25,7 @@ const string=s=>{const b=Buffer.from(s),n=Buffer.alloc(2);n.writeUInt16BE(b.leng
 function manifest(payload,o={}){
     const hash=crypto.createHash('sha256').update(payload).digest(),h=o.h??8,w=o.w??8;
     const t=c=>[4,1,1,1,c,h,w].map(u32);
-    const b=cat(Buffer.from('PXMP'),u32(1),u32(0),[1,1,7,2,1].map(u32),string('signature.pxs'),u32(1),string('reference-segmentation'),u32(1),u32(1),t(3),t(1),[0,1000000,0,1000000,0,1000000,0,1000000].map(u32),[o.scale??1000000,0,1000000,0,1000000,0].map(u32),string('background'),string('foreground'),u32(1),[1,1,1,0,1].map(u32),hash,u32(1),u32(1),u32(0),u32(1),u64(16777216),[0,0,0].map(u32),string('ISC'),string('PixAuraAI original synthetic ONNX reference; no production weights'),[1,1,0].map(u32),string(''),u32(1),string('reference.onnx'),u32(1),u64(payload.length),hash);
+    const b=cat(Buffer.from('PXMP'),u32(1),u32(0),[1,1,7,2,1].map(u32),string('signature.pxs'),u32(1),string('reference-segmentation'),u32(1),u32(1),t(3),t(1),[0,1000000,0,1000000,0,1000000,0,1000000].map(u32),[o.scale??1000000,0,1000000,0,1000000,0].map(u32),string('background'),string('foreground'),u32(1),[1,1,1,0,1].map(u32),hash,u32(1),u32(1),u32(o.tier??0),u32(o.threads??1),u64(o.memory??16777216),[o.budget??0,o.accel??0,o.validation??0].map(u32),string('ISC'),string('PixAuraAI original synthetic ONNX reference; no production weights'),[1,1,0].map(u32),string(''),u32(1),string('reference.onnx'),u32(1),u64(payload.length),hash);
     b.writeUInt32BE(b.length,8);return b;
 }
 const cases=[];

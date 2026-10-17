@@ -15,6 +15,7 @@ struct Binding {
     std::array<uint32_t,6> normalization{};
     std::string cpu_payload;
     uint32_t runtime_floor=0,api_floor=0,operator_set=0;
+    uint32_t minimum_tier=0,cpu_threads=1,budget_class=0,accelerator_preference=0,required_validation=0;
     std::vector<uint32_t> operators;
 };
 std::vector<File> read_directory(const char*, uint64_t, uint64_t);

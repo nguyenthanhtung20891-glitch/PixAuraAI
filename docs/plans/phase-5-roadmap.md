@@ -7,9 +7,9 @@ Step 2: `58202caf1fd86215abe4650b208b2134cdca9b58` (Foundation 38605609607
 (Foundation 38685139496 7/7, shells 38685139454 3/3).
 Step 4 COMPLETE / FULL PASS at `a3ad7e7a61030992d933b3ca68572f83604dd5a9`
 (Foundation 38730904780 7/7, shells 38730904823 3/3).
-Step 5 AUTHORIZED / IN PROGRESS under approved Option A: bounded synthetic
+Step 5 COMPLETE / FULL PASS at 59d846967fffef7e735597f6b65301841659336f (Foundation 38999701451 7/7; shells 38999701458 3/3), under approved Option A: bounded synthetic
 evaluation; production selection UNRESOLVED. No model/runtime/operator expansion.
-Steps 6-8 and Phase 6 NOT STARTED.
+Step 6 AUTHORIZED / IN PROGRESS: shared capability-aware admission and pre-execution fallback only. Steps 7-8 and Phase 6 NOT STARTED.
 Eight steps only. Step 9+, Phase 6 and the Editing Agent require new authorization.
 
 | Step | Scope | Exit evidence |
@@ -19,7 +19,7 @@ Eight steps only. Step 9+, Phase 6 and the Editing Agent require new authorizati
 | 3 Android Local Inference Provider | Approved android.vulkan.v1 exact-profile execution, shared CPU authority, bounded existing Vulkan ownership | Offline execution, API/ABI checks, cancellation and CPU fallback; no NNAPI foundation |
 | 4 Apple Local Inference Provider | Approved apple.metal.v1 exact-profile execution; bounded reused Metal worker; shared CPU authority | Swift/C parity, unsupported operators and provider failure; simulator distinct from hardware evidence |
 | 5 Compact Segmentation Evaluation | Approved Option A: bounded metrics/synthetic evaluation, candidate/license/profile audit; production model selection may remain UNRESOLVED | Exact metric semantics/goldens, reproducible synthetic results, timing/resource evidence, accurate candidate gaps; no unapproved weights/runtime/profile expansion or UI |
-| 6 Capability-Aware Admission & Fallback | Shared T0/T1/T2, truthful occupancy, availability/validation, thermal/pressure; bounded CPU retry | Unknown/pressure/failure rejection, deterministic fallback, retained manual editing and no raised Phase 4 ceilings |
+| 6 Capability-Aware Admission & Fallback | Shared T0/T1/T2, truthful occupancy, availability/validation, thermal/pressure; pre-execution CPU fallback only | Unknown/pressure/failure rejection, deterministic fallback, retained manual editing and no raised Phase 4 ceilings |
 | 7 Provider Parity & Security Certification | CPU/provider golden corpus, package tampering/races, operator/quantization parity and security | Native/JNI/Swift parity; sanitizer and lifetime/security corpora; evidence classification |
 | 8 Phase 5 Closure | Finite audit and retained regression certification | Both complete exact-final-SHA workflows, A/B/C classification and explicit stop before Phase 6 |
 
