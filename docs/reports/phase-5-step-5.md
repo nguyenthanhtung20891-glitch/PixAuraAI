@@ -148,6 +148,59 @@ not a defect to hide inside A. B: broader model/operator/runtime architecture
 for real production segmentation, separately reviewed; not assigned to Step 6.
 C: optional further candidate research/physical measurements.
 
+## Retained iOS UI gate investigation
+
+Candidate `467ce21d537c121a29c10796af4fd30c6683b2b8` passed Foundation
+38915254024 (7/7); Native shells 38915254130 preserved source/Android success.
+Original iOS job 117020944573 failed waiting for actionable pixaura.crop after
+background/foreground. The failure hierarchy nevertheless contained Crop and
+Rotate, neither disabled, with revisions still 2. No missing project or crash.
+The ONE authorized unchanged rerun, job 117280842933, passed the same crop
+selection/fields/error/cancel sequence, then failed waiting for pixaura.blur
+selection. Its failure hierarchy showed Blur Selected, its parameter value and
+manual-slider, enabled Apply, and revisions 2. Swift macOS 31/31, Simulator
+31/31 and app tests 7/7 passed; UI tests 2 executed, 1 failed. These observations
+disprove a deterministic crop/reopen failure for this sequence; neither run
+alone proves all application responsiveness behavior.
+
+Inspection found an observer defect: the polling closure chained separate remote
+exists/enabled or exists/selected queries under one 20-second XCTest waiter.
+Logs show accessibility queries stalling/retrying across the deadline. Later
+selection checks and the diagnostic hierarchy observed the valid state, but the
+stored timeout was still asserted. The closure already built a fresh element
+query, so stale-snapshot caching is NOT an established cause. The fallback also
+retained a button across the transition, and the slider was retained across
+Apply/undo/redo. No evidence establishes a production lifecycle/selection defect;
+production Swift/native/shaders remain unchanged.
+
+The targeted harness correction evaluates attribute matching in ONE query per
+poll. A selected/enabled button AND its expected category content or associated
+tool control must coexist in the same result. Crop requires width_ppm, rotate
+requires 90-degree control, exposure/blur require manual-slider. Tool readiness
+also requires enabled Apply/Cancel, proving a new active gesture rather than a
+previously selected but inactive tool whose slider remains visible. Existing IDs,
+coordinate visibility guard, real upper-quarter event and 20-second bounds
+remain. The former second tap is removed. Failure records XCTFail and aborts
+the scenario; a later valid snapshot never overrides timeout. Sliders are
+re-resolved for each adjustment, and foreground activation is explicitly checked.
+No fixed sleep, timeout increase, repeated action, assertion removal, test skip
+or late-success exception. The postcondition is stronger than selection alone.
+
+Bounded test-process PXUI records identify action sequence, stage, monotonic
+tap start/end, wait duration, poll count, final match count and longest query.
+Timeout includes activation state and at most 16384 hierarchy characters. No
+production logging/telemetry or application state modification. Hosted evidence
+must demonstrate these predicates and timing observations before closure; local
+source checks cannot establish XCUITest runtime behavior. A new commit requires
+both complete fresh exact-SHA workflows; prior candidate passes are diagnostic
+history only. Final delivery records the new SHA/workflow IDs and whether the
+A-class retained gate is resolved. B/C remain unchanged.
+Local correction checks: targeted shell/source 6/6 PASS; full WSL source 135/135
+PASS, zero skips; shell syntax, workflow lint and git diff --check PASS. Apple
+UI execution is unavailable on this Windows host and is explicitly pending
+the fresh exact-SHA hosted application workflow. No native production source
+changed; all retained native/sanitizer/platform gates must run on that new SHA.
+
 Schema 3, prior providers, package signature/normalization/trust and
 DH-APPLE-METAL-01 unchanged. No AI UX, training, cloud inference, model download,
 Step 6 implementation or Phase 6 work. No physical Apple claim.

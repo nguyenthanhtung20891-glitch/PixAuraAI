@@ -27,66 +27,105 @@ final class ShellUITests: XCTestCase {
             }, object: nil)
             XCTAssertEqual(XCTWaiter.wait(for: [terminal], timeout: 20), .completed)
         }
-        func selectControl(_ id: String) {
-            let ready = XCTNSPredicateExpectation(
-                predicate: NSPredicate { _, _ in
-                    let current = app.buttons[id].firstMatch
-                    return current.exists && current.isEnabled
-                }, object: nil)
-            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else {
-                XCTFail("Tool is not actionable: \(id)\n\(app.debugDescription)"); return
+        var actionSequence = 0
+        func selectControl(_ id: String) -> Bool {
+            actionSequence += 1
+            let sequence = actionSequence
+            // Match attributes in one query result, rather than chaining remote
+            // exists/enabled/selected snapshots inside the waiter's predicate.
+            func buttonPredicate(selected: Bool) -> NSPredicate {
+                NSPredicate(format: "elementType == %d AND (identifier == %@ OR label == %@) AND enabled == true" +
+                    (selected ? " AND selected == true" : ""),
+                    XCUIElement.ElementType.button.rawValue, id, id)
             }
+            func waitForMatches(_ predicate: NSPredicate, count: Int, stage: String) -> Bool {
+                let query = app.descendants(matching: .any).matching(predicate)
+                let start = ProcessInfo.processInfo.systemUptime
+                var polls = 0
+                var lastCount = -1
+                var longestQuery: TimeInterval = 0
+                let expected = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+                    let queryStart = ProcessInfo.processInfo.systemUptime
+                    // count re-evaluates the query. No element or snapshot is
+                    // retained across polling or a category/lifecycle transition.
+                    lastCount = query.count
+                    longestQuery = max(longestQuery, ProcessInfo.processInfo.systemUptime - queryStart)
+                    polls += 1
+                    return lastCount == count
+                }, object: nil)
+                let result = XCTWaiter.wait(for: [expected], timeout: 20)
+                let elapsed = ProcessInfo.processInfo.systemUptime - start
+                print("PXUI action=\(sequence) id=\(id) stage=\(stage) result=\(result.rawValue) polls=\(polls) matches=\(lastCount)/\(count) elapsed_s=\(elapsed) max_query_s=\(longestQuery)")
+                guard result == .completed else {
+                    // A later snapshot explains failure; it cannot turn a timed
+                    // out wait into success. Bound hierarchy output to 16 KiB.
+                    XCTFail("Tool readiness timeout: \(id) stage=\(stage) app_state=\(app.state.rawValue)\n\(String(app.debugDescription.prefix(16384)))")
+                    return false
+                }
+                return true
+            }
+            guard waitForMatches(buttonPredicate(selected: false), count: 1, stage: "actionable") else { return false }
             let button = app.buttons[id].firstMatch
-            // The captured iOS 26 hierarchy places the horizontal scrollbar's
-            // accessibility region over the lower half of this button row. Target
-            // the visible upper-left quarter, then observe selection (core-backed
-            // for tools). The left quarter also avoids the vertical scrollbar;
-            // a synthesized tap alone does not prove a gesture began.
-            // isHittable uses XCTest's default hit point, which can be covered
-            // by that scrollbar even while this upper target remains visible.
-            // Check our actual coordinate is on screen, then require selection
-            // after a real event; do not substitute a controller/test-only action.
+            // Keep the reviewed upper-quarter target above scrollbars. Existence,
+            // a visible event target and semantic readiness are distinct checks.
             let frame = button.frame
             let target = CGPoint(x: frame.minX + frame.width * 0.25, y: frame.minY + frame.height * 0.25)
             guard app.windows.firstMatch.frame.contains(target) else {
-                XCTFail("Tool target is off screen: \(id)\n\(app.debugDescription)"); return
+                XCTFail("Tool target is off screen: \(id)\n\(String(app.debugDescription.prefix(16384)))"); return false
             }
+            print("PXUI action=\(sequence) id=\(id) stage=tap start_s=\(ProcessInfo.processInfo.systemUptime)")
             button.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.25)).tap()
-            let selectionPredicate = NSPredicate { _, _ in
-                let current = app.buttons[id].firstMatch
-                return current.exists && current.isSelected
+            print("PXUI action=\(sequence) id=\(id) stage=tap-complete end_s=\(ProcessInfo.processInfo.systemUptime)")
+            let control: NSPredicate
+            switch id {
+            case "Geometry", "Tone/Color", "Detail":
+                let firstTool = ["Geometry": "pixaura.crop", "Tone/Color": "pixaura.exposure", "Detail": "pixaura.blur"][id]!
+                control = NSPredicate(format: "elementType == %d AND identifier == %@ AND enabled == true",
+                                      XCUIElement.ElementType.button.rawValue, firstTool)
+            case "Filters/Presets":
+                control = NSPredicate(format: "elementType == %d AND label == %@",
+                                      XCUIElement.ElementType.staticText.rawValue,
+                                      "No presets available. The shipping catalog is empty.")
+            case "pixaura.crop":
+                control = NSPredicate(format: "elementType == %d AND identifier == %@ AND enabled == true",
+                                      XCUIElement.ElementType.textField.rawValue, "width_ppm")
+            case "pixaura.rotate":
+                control = NSPredicate(format: "elementType == %d AND label == %@ AND enabled == true",
+                                      XCUIElement.ElementType.button.rawValue, "90°")
+            default:
+                control = NSPredicate(format: "elementType == %d AND identifier == %@ AND enabled == true",
+                                      XCUIElement.ElementType.slider.rawValue, "manual-slider")
             }
-            let selected = XCTNSPredicateExpectation(predicate: selectionPredicate, object: nil)
-            var result = XCTWaiter.wait(for: [selected], timeout: 20)
-            if result != .completed && !app.staticTexts["editor-error"].exists {
-                // Category changes remove controls and move this row. On loaded
-                // simulator hosts a coordinate event can miss that moving target.
-                // Retry only an unselected, enabled tool, using a fresh snapshot
-                // and a point above the scrollbar. Never retry a core error or
-                // proceed without observing the same selection postcondition.
-                if button.exists && button.isEnabled && !button.isSelected {
-                    button.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.1)).tap()
-                    let retried = XCTNSPredicateExpectation(predicate: selectionPredicate, object: nil)
-                    result = XCTWaiter.wait(for: [retried], timeout: 20)
-                }
+            // Selected/enabled button AND associated control must coexist in the
+            // same query result. No second tap, late-success override or sleep.
+            var required = [buttonPredicate(selected: true), control]
+            if id.hasPrefix("pixaura.") {
+                // Re-selecting the same tool can leave its old selected trait
+                // and slider visible while no gesture is active. Require the
+                // real core-backed action state as well as those UI controls.
+                required.append(NSPredicate(format: "elementType == %d AND (label == %@ OR label == %@) AND enabled == true",
+                                            XCUIElement.ElementType.button.rawValue, "Apply", "Cancel"))
             }
-            XCTAssertEqual(result, .completed,
-                           "Tool did not become selected: \(id)\n\(app.debugDescription)")
+            return waitForMatches(NSCompoundPredicate(orPredicateWithSubpredicates: required),
+                                  count: id.hasPrefix("pixaura.") ? 4 : 2, stage: "selected-and-control")
         }
         tap("Open Manual editor"); revisions(1)
-        selectControl("Tone/Color"); selectControl("pixaura.exposure")
-        let slider = app.sliders["manual-slider"]
-        XCTAssertTrue(slider.waitForExistence(timeout: 10))
-        slider.adjust(toNormalizedSliderPosition: 0.6)
+        guard selectControl("Tone/Color"), selectControl("pixaura.exposure") else { return }
+        XCTAssertTrue(app.sliders["manual-slider"].waitForExistence(timeout: 10))
+        app.sliders["manual-slider"].adjust(toNormalizedSliderPosition: 0.6)
         tap("Apply"); terminalGesture(); revisions(2)
         tap("Undo"); XCTAssertTrue(app.buttons["Redo"].isEnabled)
         tap("Redo"); revisions(2)
-        selectControl("pixaura.exposure"); slider.adjust(toNormalizedSliderPosition: 0.4)
+        guard selectControl("pixaura.exposure") else { return }
+        app.sliders["manual-slider"].adjust(toNormalizedSliderPosition: 0.4)
         tap("Cancel"); terminalGesture(); revisions(2)
-        selectControl("Geometry"); selectControl("pixaura.rotate"); tap("90°")
-        XCUIDevice.shared.press(.home); app.activate(); revisions(2)
+        guard selectControl("Geometry"), selectControl("pixaura.rotate") else { return }
+        tap("90°")
+        XCUIDevice.shared.press(.home); app.activate()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 20))
+        revisions(2)
         XCTAssertFalse(app.buttons["Apply"].isEnabled)
-        selectControl("pixaura.crop")
+        guard selectControl("pixaura.crop") else { return }
         func field(_ id: String, _ value: String) {
             let field = app.textFields[id]; XCTAssertTrue(field.waitForExistence(timeout: 10)); field.tap()
             let old = field.value as? String ?? ""
@@ -96,8 +135,9 @@ final class ShellUITests: XCTestCase {
         tap("Preview crop")
         XCTAssertTrue(app.staticTexts["editor-error"].waitForExistence(timeout: 10))
         tap("Cancel"); terminalGesture(); revisions(2)
-        selectControl("Detail"); selectControl("pixaura.blur"); tap("Reset to default"); tap("Apply"); terminalGesture(); revisions(2)
-        selectControl("Filters/Presets")
+        guard selectControl("Detail"), selectControl("pixaura.blur") else { return }
+        tap("Reset to default"); tap("Apply"); terminalGesture(); revisions(2)
+        guard selectControl("Filters/Presets") else { return }
         XCTAssertTrue(app.staticTexts["No presets available. The shipping catalog is empty."].exists)
         XCUIDevice.shared.orientation = .landscapeLeft
         tap("Back to Home"); tap("Open Manual editor"); revisions(2)
