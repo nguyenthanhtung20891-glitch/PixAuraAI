@@ -73,7 +73,9 @@ struct AdmissionTestExecution final:PreparedExecution {
 }
 }
 extern "C" int32_t pixaura_inference_policy_configure(uint32_t v,pixaura_inference_context* c,const pixaura_capability_profile* p,const pixaura_policy_observation* o,pixaura_execution_strategy* out){return policy_boundary([&]{
-    if(v!=1)return 2;if(!p||!o||!out)return 1;const auto h=live(c);
+    if(v!=1){return 2;}
+    if(!p||!o||!out){return 1;}
+    const auto h=live(c);
     separate(out,sizeof(*out),c,sizeof(*c));separate(out,sizeof(*out),p,sizeof(*p));separate(out,sizeof(*out),o,sizeof(*o));
     std::lock_guard<std::mutex> lock(h.state->mutex);auto& s=*h.state;
     if(s.executing||s.pending||p->hardware.platform!=admission_platform(s))return 1;
@@ -81,7 +83,9 @@ extern "C" int32_t pixaura_inference_policy_configure(uint32_t v,pixaura_inferen
     apply_policy_cap(s);*out=s.policy.strategy;return 0;
 });}
 extern "C" int32_t pixaura_inference_policy_update(uint32_t v,pixaura_inference_context* c,const pixaura_policy_observation* o,pixaura_execution_strategy* out){return policy_boundary([&]{
-    if(v!=1)return 2;if(!o||!out)return 1;const auto h=live(c);
+    if(v!=1){return 2;}
+    if(!o||!out){return 1;}
+    const auto h=live(c);
     separate(out,sizeof(*out),c,sizeof(*c));separate(out,sizeof(*out),o,sizeof(*o));
     std::lock_guard<std::mutex> lock(h.state->mutex);auto& s=*h.state;if(s.policy_stopped)return 8;
     const auto old=s.policy.strategy.epoch;const auto code=pixaura::policy::update(s.policy,o,s.ceiling);
@@ -89,7 +93,9 @@ extern "C" int32_t pixaura_inference_policy_update(uint32_t v,pixaura_inference_
     apply_policy_cap(s);if(old!=s.policy.strategy.epoch)revoke_admissions(s);*out=s.policy.strategy;return 0;
 });}
 extern "C" int32_t pixaura_inference_policy_query(uint32_t v,pixaura_inference_context* c,pixaura_execution_strategy* out){return policy_boundary([&]{
-    if(v!=1)return 2;if(!out)return 1;const auto h=live(c);separate(out,sizeof(*out),c,sizeof(*c));
+    if(v!=1){return 2;}
+    if(!out){return 1;}
+    const auto h=live(c);separate(out,sizeof(*out),c,sizeof(*c));
     std::lock_guard<std::mutex> lock(h.state->mutex);if(!h.state->policy.enabled)return 1;if(h.state->policy_stopped)return 8;*out=h.state->policy.strategy;return 0;
 });}
 extern "C" int32_t pixaura_inference_admit(pixaura_inference_context* c,const pixaura_inference_handle* package,const pixaura_inference_request* request,uint32_t request_size,const uint8_t* input,uint64_t bytes,pixaura_inference_handle* out,uint32_t size,pixaura_inference_admission_result* result,uint32_t result_size){return boundary([&]{

@@ -17,6 +17,7 @@ packages/core/vendor/codecs/** -text whitespace=-blank-at-eof
 packages/core/vendor/libsodium/** -text whitespace=-blank-at-eof,-blank-at-eol
 packages/core/tests/model_package_fixtures.hpp text eol=lf
 packages/core/tests/inference_fixtures.hpp text eol=lf
+packages/core/tests/inference_admission_fixtures.hpp text eol=lf
 tests/fixtures/inference-reference-v1.json text eol=lf
 
 tests/fixtures/preset-reference-v1.json text eol=lf

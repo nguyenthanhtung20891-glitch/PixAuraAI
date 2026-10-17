@@ -64,6 +64,15 @@ in the final delivery. Both complete fresh workflows on the SAME final Step 6
 SHA are required. No old-SHA PASS is transferred. Admission preparation/input
 snapshot time is reported separately from execution, not a benchmark heuristic.
 
+First candidate 29e67a9 passed source and both Android ABI boundaries, but GCC CI
+rejected misleading single-line control flow and external linkage of a test lambda
+capturing a private type. Local C++ builds used Clang and did not expose those
+GCC diagnostics. Control-flow braces and internal test-helper linkage fix them;
+no warning is suppressed. Windows source CI also exposed CRLF checkout of the
+new generated .hpp: an explicit LF attribute now matches existing fixture policy.
+The exact fixture check is retained unchanged. These fixes require a new SHA and
+both complete fresh workflows; prior candidate passes cannot close Step 6.
+
 A: policy correctness, trusted authority, races, security and complete certification.
 B: Step 7 provider certification and separately reviewed production model/runtime
 architecture. C: optional tuning/physical measurements. No architecture conflict

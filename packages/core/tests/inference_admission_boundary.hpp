@@ -3,6 +3,7 @@
 #include "capability_fixtures.h"
 #include "inference_admission_fixtures.hpp"
 namespace pixaura::inference {
+namespace {
 inline int admission_certification(){
     int failures=0,checks=0;const auto started=std::chrono::steady_clock::now();uint64_t admission_ns=0,admission_calls=0;
     auto expect=[&](int actual,int expected){++checks;if(actual!=expected){++failures;std::printf("admission check=%d actual=%d expected=%d\n",checks,actual,expected);}};
@@ -148,7 +149,8 @@ inline int admission_certification(){
     expect(pixaura_inference_admit(&c,&p,&r,sizeof(r),reinterpret_cast<const uint8_t*>(normalized_input.data()),metadata.input.bytes,&a,sizeof(a),&result,sizeof(result)),0);
     expect(pixaura_inference_execute_admitted(&c,&a,&out,sizeof(out)),0);std::vector<float> direct(64),automatic(64);
     expect(pixaura_inference_output_copy(&c,&explicit_output,reinterpret_cast<uint8_t*>(direct.data()),256),0);expect(pixaura_inference_output_copy(&c,&out,reinterpret_cast<uint8_t*>(automatic.data()),256),0);
-    for(size_t n=0;n<64;++n)check(__LINE__,direct[n]==0.4375f&&direct[n]==automatic[n]);expect(pixaura_inference_context_destroy(&c),0);
+    for(size_t n=0;n<64;++n){check(__LINE__,direct[n]==0.4375f&&direct[n]==automatic[n]);}
+    expect(pixaura_inference_context_destroy(&c),0);
     // Epoch exhaustion fails closed without wrapping, and no new reservation.
     init(c,native_platform());p=package(c);f=facts(native_platform(),1);o=observation(f);expect(pixaura_inference_policy_configure(1,&c,&f,&o,&strategy),0);
     expect(admit(c,p,req(1),a,result),0);live(&c).state->policy.strategy.epoch=UINT64_MAX;o.constrained=1;++o.sequence;
@@ -157,6 +159,7 @@ inline int admission_certification(){
     const auto elapsed=std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now()-started).count();
     std::printf("Inference admission: matrix_rows=%u checks=%d failures=%d total_us=%lld admission_calls=%llu admission_total_ns=%llu; SYNTHETIC trust/platform only; no certification grant\n",rows,checks,failures,static_cast<long long>(elapsed),static_cast<unsigned long long>(admission_calls),static_cast<unsigned long long>(admission_ns));
     return failures;
+}
 }
 }
 #endif
