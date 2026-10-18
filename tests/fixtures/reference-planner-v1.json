@@ -1,0 +1,586 @@
+{
+  "structured_intent_version": 1,
+  "planner_version": 1,
+  "registry_version": 1,
+  "mappings": [
+    [
+      "adjust.brightness",
+      "pixaura.brightness"
+    ],
+    [
+      "adjust.contrast",
+      "pixaura.contrast"
+    ],
+    [
+      "adjust.exposure",
+      "pixaura.exposure"
+    ],
+    [
+      "adjust.highlights",
+      "pixaura.highlights"
+    ],
+    [
+      "adjust.saturation",
+      "pixaura.saturation"
+    ],
+    [
+      "adjust.shadows",
+      "pixaura.shadows"
+    ],
+    [
+      "adjust.temperature",
+      "pixaura.temperature"
+    ],
+    [
+      "detail.blur",
+      "pixaura.blur"
+    ],
+    [
+      "detail.sharpen",
+      "pixaura.sharpen"
+    ],
+    [
+      "transform.crop_normalized",
+      "pixaura.crop"
+    ],
+    [
+      "transform.rotate_quarter",
+      "pixaura.rotate"
+    ]
+  ],
+  "cases": [
+    {
+      "name": "adjust.brightness-neutral",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.brightness\",\"parameters\":{\"milli_linear\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_linear\":0},\"tool_id\":\"pixaura.brightness\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "c86b1813a5e20e2127982fa9748b519cba7cac73bd3417acd4ec5102a46e3a5a",
+      "plan_sha256": "94d367884ad457b5611d5c00549db87a63db2b29ece977bd82f17a97335e7084",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_linear\":0},\"type\":\"pixaura.brightness\"}]}\n"
+    },
+    {
+      "name": "adjust.brightness-milli_linear-minimum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.brightness\",\"parameters\":{\"milli_linear\":-1000},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_linear\":-1000},\"tool_id\":\"pixaura.brightness\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "5740e962fd70d5096d2207b23294c6f39e1316598954c3991e2603b2777736e1",
+      "plan_sha256": "019a7ae18c5cd16f0046c9a2c0f193daf15f452d8a8271541e52f40c101439e2",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_linear\":-1000},\"type\":\"pixaura.brightness\"}]}\n"
+    },
+    {
+      "name": "adjust.brightness-milli_linear-maximum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.brightness\",\"parameters\":{\"milli_linear\":1000},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_linear\":1000},\"tool_id\":\"pixaura.brightness\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "2b34e2a3943bd984855a29abce2c46a42f861a01fc7bf62f926be460bb9f3c3f",
+      "plan_sha256": "0c45e1e293a3e76523b3d764eb3f96e63e613fe6cba918fdc6ba473860940e6c",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_linear\":1000},\"type\":\"pixaura.brightness\"}]}\n"
+    },
+    {
+      "name": "adjust.contrast-neutral",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.contrast\",\"parameters\":{\"milli_stops\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_stops\":0},\"tool_id\":\"pixaura.contrast\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "90ea02f8a32de28fff372646c1e308a54c76baf220cb980645084b443cdeb56f",
+      "plan_sha256": "ffb6d4d294f0040d2ce82ff70e52aec11c3919b03f2ce200bf84d59d40481774",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_stops\":0},\"type\":\"pixaura.contrast\"}]}\n"
+    },
+    {
+      "name": "adjust.contrast-milli_stops-minimum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.contrast\",\"parameters\":{\"milli_stops\":-2000},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_stops\":-2000},\"tool_id\":\"pixaura.contrast\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "3affb07c8aa14f2bd56fd953d9f385dfa5ea17606b42f2a79ff961b61998ee45",
+      "plan_sha256": "585df0068c1a620df5a93d17e7b993966b7d8fdd8e45b7cc42d700eaaf8be395",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_stops\":-2000},\"type\":\"pixaura.contrast\"}]}\n"
+    },
+    {
+      "name": "adjust.contrast-milli_stops-maximum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.contrast\",\"parameters\":{\"milli_stops\":2000},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_stops\":2000},\"tool_id\":\"pixaura.contrast\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "f29e3a2b47f11433ed7f8b085a65636f6af2989ffef0e420400abb12cf707275",
+      "plan_sha256": "f212e9d6001d7f8bca81a08c4edd8ae9e0ce6577aa6cce2343b64fe0e6c2389e",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_stops\":2000},\"type\":\"pixaura.contrast\"}]}\n"
+    },
+    {
+      "name": "adjust.exposure-neutral",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.exposure\",\"parameters\":{\"milli_ev\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":0},\"tool_id\":\"pixaura.exposure\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "3816e7cb75bd5a264608615c4007a55986d7a4f82d5881b55ffdb28ad5371ea5",
+      "plan_sha256": "c9b8f473f0188e17db96b68d45febe7a87102936b9188f4cb9b08ca33365eb56",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":0},\"type\":\"pixaura.exposure\"}]}\n"
+    },
+    {
+      "name": "adjust.exposure-milli_ev-minimum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.exposure\",\"parameters\":{\"milli_ev\":-5000},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":-5000},\"tool_id\":\"pixaura.exposure\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "d07fdcce4ca68cadecb6462be75f9d33777d296e07c30f65ebf0932816c86cf4",
+      "plan_sha256": "cddc2402a615659c42fa297fa71887849d69e4c5b630b1553505c7e0a93bf427",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":-5000},\"type\":\"pixaura.exposure\"}]}\n"
+    },
+    {
+      "name": "adjust.exposure-milli_ev-maximum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.exposure\",\"parameters\":{\"milli_ev\":5000},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":5000},\"tool_id\":\"pixaura.exposure\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "1081e39909932e16a79f45fcf1c01d7685919815d50b0c365b0d7aa7412883d8",
+      "plan_sha256": "b92422a5b19519a2b37d8924ceedf774743b4b12fdf7b97f6938b4908945619c",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":5000},\"type\":\"pixaura.exposure\"}]}\n"
+    },
+    {
+      "name": "adjust.highlights-neutral",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.highlights\",\"parameters\":{\"milli_ev\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":0},\"tool_id\":\"pixaura.highlights\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "98db595095d5e7defa1cc99b48b19a3f6371787f9e8c374a6cc6b3625c38cb30",
+      "plan_sha256": "3510382ccec1ccf5829b137cf7fc09a5d31c567d49e42a669ce455d352867eed",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":0},\"type\":\"pixaura.highlights\"}]}\n"
+    },
+    {
+      "name": "adjust.highlights-milli_ev-minimum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.highlights\",\"parameters\":{\"milli_ev\":-2000},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":-2000},\"tool_id\":\"pixaura.highlights\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "8e190210d507b8b1a7d56b7aa9968708a37e0c589da1dc1d57f242b909611a68",
+      "plan_sha256": "4e34b7d768dc4227216a81d726f1316e627a69fe3849631617db9f9f7a63a060",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":-2000},\"type\":\"pixaura.highlights\"}]}\n"
+    },
+    {
+      "name": "adjust.highlights-milli_ev-maximum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.highlights\",\"parameters\":{\"milli_ev\":2000},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":2000},\"tool_id\":\"pixaura.highlights\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "f11de8bde287aade34705e7adb87eed5e77fb53d67a74b9753babab067305a66",
+      "plan_sha256": "b54950c5234ef4f47679803bba7f56b3bad5dc28cfc6e1454fec0ebd4e1df808",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":2000},\"type\":\"pixaura.highlights\"}]}\n"
+    },
+    {
+      "name": "adjust.saturation-neutral",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.saturation\",\"parameters\":{\"milli_ratio\":1000},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ratio\":1000},\"tool_id\":\"pixaura.saturation\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "619238faf221217b2171782cbbb32bd91195ccd48e9e516b8ee31997187da87a",
+      "plan_sha256": "164bde52ca55c51b0c2ce7ecb1d125f5b347faadb3689f461f31b22885c198bb",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ratio\":1000},\"type\":\"pixaura.saturation\"}]}\n"
+    },
+    {
+      "name": "adjust.saturation-milli_ratio-minimum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.saturation\",\"parameters\":{\"milli_ratio\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ratio\":0},\"tool_id\":\"pixaura.saturation\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "b49a3e7a09ce98df65fc4f9a4c8fe0655479766d3b301bb17a47acaadf5aefc0",
+      "plan_sha256": "dbcf724de276646d795b9fbcb081fd81c1d7441e4608029ca7205f0484fd1960",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ratio\":0},\"type\":\"pixaura.saturation\"}]}\n"
+    },
+    {
+      "name": "adjust.saturation-milli_ratio-maximum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.saturation\",\"parameters\":{\"milli_ratio\":2000},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ratio\":2000},\"tool_id\":\"pixaura.saturation\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "263ff47c2200058f74cdcf2e898659e50c128ed2062d5c621e5c7ce9be9edabc",
+      "plan_sha256": "2c5f634322041051208f92bd6885f76101d6e2fd461c0a2fd403db95b925d52a",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ratio\":2000},\"type\":\"pixaura.saturation\"}]}\n"
+    },
+    {
+      "name": "adjust.shadows-neutral",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.shadows\",\"parameters\":{\"milli_ev\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":0},\"tool_id\":\"pixaura.shadows\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "c58138545aa0aad1ebdd6ddab817344265cebead22255ac74b6aa9cff6e97f56",
+      "plan_sha256": "eac55e0e6a2f41a090c0b0c2b12db89cc548679d7c0692e5396aa5bff7663809",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":0},\"type\":\"pixaura.shadows\"}]}\n"
+    },
+    {
+      "name": "adjust.shadows-milli_ev-minimum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.shadows\",\"parameters\":{\"milli_ev\":-2000},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":-2000},\"tool_id\":\"pixaura.shadows\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "7f14b756de5dd40de79016f55f5b8c2dd63902a147eaadcd1c46c227519eb71f",
+      "plan_sha256": "3acfda9b2fec5f6443fc5642411251ccde0ceff2ad03c0d4e8666dc1ea9afd9f",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":-2000},\"type\":\"pixaura.shadows\"}]}\n"
+    },
+    {
+      "name": "adjust.shadows-milli_ev-maximum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.shadows\",\"parameters\":{\"milli_ev\":2000},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":2000},\"tool_id\":\"pixaura.shadows\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "dec4d9c4dcbf9e084263d099223029e7238a911b1337b5a70a67e9080ad58cb2",
+      "plan_sha256": "987276876387d707553d053c946bdd6fb7117a69aa84cc074fec866df2866582",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":2000},\"type\":\"pixaura.shadows\"}]}\n"
+    },
+    {
+      "name": "adjust.temperature-neutral",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.temperature\",\"parameters\":{\"kelvin\":6504},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"kelvin\":6504},\"tool_id\":\"pixaura.temperature\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "4ab773dfe9e60fdcbf533f4d8000f7eb0271122885db64aa005505105ad995c9",
+      "plan_sha256": "f7c17f1d25c6d674528f9796c7de52515ba4ff4701cd753e734eb8f4553bc205",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"kelvin\":6504},\"type\":\"pixaura.temperature\"}]}\n"
+    },
+    {
+      "name": "adjust.temperature-kelvin-minimum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.temperature\",\"parameters\":{\"kelvin\":4000},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"kelvin\":4000},\"tool_id\":\"pixaura.temperature\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "4754ac131496555bb61e99e77c29c15b5a7e62008fb0b79002ec9570a9b95d8c",
+      "plan_sha256": "6056433b0bb76cf26a12283d6c2b8cd440d5074a9807a7b4fc3207348288904d",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"kelvin\":4000},\"type\":\"pixaura.temperature\"}]}\n"
+    },
+    {
+      "name": "adjust.temperature-kelvin-maximum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.temperature\",\"parameters\":{\"kelvin\":25000},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"kelvin\":25000},\"tool_id\":\"pixaura.temperature\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "7b67a6014650abff458898db377d538b2800f6b21008b48ffefb1f06ff90e0cb",
+      "plan_sha256": "2b901510f4c211e45eaf1958569dd75da5021552cea245d4d017a87bf57301e6",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"kelvin\":25000},\"type\":\"pixaura.temperature\"}]}\n"
+    },
+    {
+      "name": "detail.blur-neutral",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"detail.blur\",\"parameters\":{\"milli_strength\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_strength\":0},\"tool_id\":\"pixaura.blur\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "512b8db508bc592064fad3119d2649fa6ea12f2d1a725b9ffaeb30d2a195753e",
+      "plan_sha256": "18dc30121ec9e90a15c7c574d5bdaa08fa73dc18a5a605ce81d9424afe1feb7a",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_strength\":0},\"type\":\"pixaura.blur\"}]}\n"
+    },
+    {
+      "name": "detail.blur-milli_strength-minimum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"detail.blur\",\"parameters\":{\"milli_strength\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_strength\":0},\"tool_id\":\"pixaura.blur\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "512b8db508bc592064fad3119d2649fa6ea12f2d1a725b9ffaeb30d2a195753e",
+      "plan_sha256": "18dc30121ec9e90a15c7c574d5bdaa08fa73dc18a5a605ce81d9424afe1feb7a",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_strength\":0},\"type\":\"pixaura.blur\"}]}\n"
+    },
+    {
+      "name": "detail.blur-milli_strength-maximum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"detail.blur\",\"parameters\":{\"milli_strength\":1000},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_strength\":1000},\"tool_id\":\"pixaura.blur\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "71527871e8d526c9dc2482bd0f594886e47b47500fb4246b1dd08fba613b342b",
+      "plan_sha256": "85458dbdadd03d15d9933a1d83effb3330a0adaf0908895f5593cd88044588be",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_strength\":1000},\"type\":\"pixaura.blur\"}]}\n"
+    },
+    {
+      "name": "detail.sharpen-neutral",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"detail.sharpen\",\"parameters\":{\"milli_amount\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_amount\":0},\"tool_id\":\"pixaura.sharpen\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "2962f9e113a67486b49733a9601d89ad5f39873005f2861431c4b9c81d231f02",
+      "plan_sha256": "15217893d543f0e00857370b6434a766add41acff4038ffe5c2653703f5b35c7",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_amount\":0},\"type\":\"pixaura.sharpen\"}]}\n"
+    },
+    {
+      "name": "detail.sharpen-milli_amount-minimum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"detail.sharpen\",\"parameters\":{\"milli_amount\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_amount\":0},\"tool_id\":\"pixaura.sharpen\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "2962f9e113a67486b49733a9601d89ad5f39873005f2861431c4b9c81d231f02",
+      "plan_sha256": "15217893d543f0e00857370b6434a766add41acff4038ffe5c2653703f5b35c7",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_amount\":0},\"type\":\"pixaura.sharpen\"}]}\n"
+    },
+    {
+      "name": "detail.sharpen-milli_amount-maximum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"detail.sharpen\",\"parameters\":{\"milli_amount\":1000},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_amount\":1000},\"tool_id\":\"pixaura.sharpen\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "207610db1582be14b10636d58f25c64d037012f697d2aefc255b7f46a579b0fa",
+      "plan_sha256": "5c1c0ad662cca94df342fc773b525c5a486618d1356848e07b0d993cb1cf07e4",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_amount\":1000},\"type\":\"pixaura.sharpen\"}]}\n"
+    },
+    {
+      "name": "transform.crop_normalized-neutral",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.crop_normalized\",\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":0},\"tool_id\":\"pixaura.crop\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "e9cc74f8b13d0f93155fdc5b35c7d7a5284940b8654ee5caa5d65dcd6aa08249",
+      "plan_sha256": "9233b5d684330d452c5173cac86307053ec6b3ea228c91f2d648a05819a66502",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":0},\"type\":\"pixaura.crop\"}]}\n"
+    },
+    {
+      "name": "transform.crop_normalized-height_ppm-minimum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.crop_normalized\",\"parameters\":{\"height_ppm\":1,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":1,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":0},\"tool_id\":\"pixaura.crop\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "63276309540f3ed9aaea7c3c1aaca755ea9dd36b5826e3aa56bf0fa9bb8f7537",
+      "plan_sha256": "3aa4e850120a54345cfe0dd0db5758fa545bcaf4a6f333b4a035b3534e99fff2",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":1,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":0},\"type\":\"pixaura.crop\"}]}\n"
+    },
+    {
+      "name": "transform.crop_normalized-height_ppm-maximum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.crop_normalized\",\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":0},\"tool_id\":\"pixaura.crop\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "e9cc74f8b13d0f93155fdc5b35c7d7a5284940b8654ee5caa5d65dcd6aa08249",
+      "plan_sha256": "9233b5d684330d452c5173cac86307053ec6b3ea228c91f2d648a05819a66502",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":0},\"type\":\"pixaura.crop\"}]}\n"
+    },
+    {
+      "name": "transform.crop_normalized-width_ppm-minimum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.crop_normalized\",\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1,\"x_ppm\":0,\"y_ppm\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1,\"x_ppm\":0,\"y_ppm\":0},\"tool_id\":\"pixaura.crop\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "1fab4f07f12294993c3c0dadc217d6882e7f8c15da879965d78bc2a12118bbe4",
+      "plan_sha256": "2096f7b39303c6e6318400bbfb99d3a791f0bf4ff98db7e9c160b102f0263fe6",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1,\"x_ppm\":0,\"y_ppm\":0},\"type\":\"pixaura.crop\"}]}\n"
+    },
+    {
+      "name": "transform.crop_normalized-width_ppm-maximum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.crop_normalized\",\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":0},\"tool_id\":\"pixaura.crop\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "e9cc74f8b13d0f93155fdc5b35c7d7a5284940b8654ee5caa5d65dcd6aa08249",
+      "plan_sha256": "9233b5d684330d452c5173cac86307053ec6b3ea228c91f2d648a05819a66502",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":0},\"type\":\"pixaura.crop\"}]}\n"
+    },
+    {
+      "name": "transform.crop_normalized-x_ppm-minimum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.crop_normalized\",\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1,\"x_ppm\":0,\"y_ppm\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1,\"x_ppm\":0,\"y_ppm\":0},\"tool_id\":\"pixaura.crop\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "1fab4f07f12294993c3c0dadc217d6882e7f8c15da879965d78bc2a12118bbe4",
+      "plan_sha256": "2096f7b39303c6e6318400bbfb99d3a791f0bf4ff98db7e9c160b102f0263fe6",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1,\"x_ppm\":0,\"y_ppm\":0},\"type\":\"pixaura.crop\"}]}\n"
+    },
+    {
+      "name": "transform.crop_normalized-x_ppm-maximum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.crop_normalized\",\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1,\"x_ppm\":999999,\"y_ppm\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1,\"x_ppm\":999999,\"y_ppm\":0},\"tool_id\":\"pixaura.crop\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "b8344eb164ab750b98e87d7d7f11476bb4011a1648adc96ce8ed4bf53cb28326",
+      "plan_sha256": "3a39e1e6dd32203bec07ffde29179f07997c0ec6ae8e4584739a6dfcbd6534f4",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1,\"x_ppm\":999999,\"y_ppm\":0},\"type\":\"pixaura.crop\"}]}\n"
+    },
+    {
+      "name": "transform.crop_normalized-y_ppm-minimum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.crop_normalized\",\"parameters\":{\"height_ppm\":1,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":1,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":0},\"tool_id\":\"pixaura.crop\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "63276309540f3ed9aaea7c3c1aaca755ea9dd36b5826e3aa56bf0fa9bb8f7537",
+      "plan_sha256": "3aa4e850120a54345cfe0dd0db5758fa545bcaf4a6f333b4a035b3534e99fff2",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":1,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":0},\"type\":\"pixaura.crop\"}]}\n"
+    },
+    {
+      "name": "transform.crop_normalized-y_ppm-maximum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.crop_normalized\",\"parameters\":{\"height_ppm\":1,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":999999},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":1,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":999999},\"tool_id\":\"pixaura.crop\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "8f0c46ae506e84be722d9cd4fe8e7f2deac280a9fd2e4542b3b4289710bd7b6d",
+      "plan_sha256": "c3d372dacab8c3e56cae191bd6a43c1f2bd319c0601c6ee6f905020d3bf03e78",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":1,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":999999},\"type\":\"pixaura.crop\"}]}\n"
+    },
+    {
+      "name": "transform.rotate_quarter-neutral",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.rotate_quarter\",\"parameters\":{\"quarter_turns\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"quarter_turns\":0},\"tool_id\":\"pixaura.rotate\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "86ece91bf22cba251446182d1b6ea3c92093641ecf0606ccafce846be4aca4ac",
+      "plan_sha256": "158abd5d7845eb01e71b1e270ed9475f43cb870e5ac0cb9eb1850c406d745fc9",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"quarter_turns\":0},\"type\":\"pixaura.rotate\"}]}\n"
+    },
+    {
+      "name": "transform.rotate_quarter-quarter_turns-minimum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.rotate_quarter\",\"parameters\":{\"quarter_turns\":0},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"quarter_turns\":0},\"tool_id\":\"pixaura.rotate\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "86ece91bf22cba251446182d1b6ea3c92093641ecf0606ccafce846be4aca4ac",
+      "plan_sha256": "158abd5d7845eb01e71b1e270ed9475f43cb870e5ac0cb9eb1850c406d745fc9",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"quarter_turns\":0},\"type\":\"pixaura.rotate\"}]}\n"
+    },
+    {
+      "name": "transform.rotate_quarter-quarter_turns-maximum",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.rotate_quarter\",\"parameters\":{\"quarter_turns\":3},\"structured_intent_version\":1}\n",
+      "expected_plan": "{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"quarter_turns\":3},\"tool_id\":\"pixaura.rotate\"}],\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"plan_version\":1}\n",
+      "intent_sha256": "a4022aaae09fac96142137908c113c835b39932f8d57da84d9473925501a1440",
+      "plan_sha256": "abe1c73781cd1b0d8f05c1479cf403ed590c1d4f7c1b0b471dcc79f63bd25494",
+      "test_stage": "{\"operations\":[{\"id\":\"00000000000000000000000000000011\",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"quarter_turns\":3},\"type\":\"pixaura.rotate\"}]}\n"
+    }
+  ],
+  "negative": [
+    {
+      "name": "adjust.brightness-milli_linear-minimum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.brightness\",\"parameters\":{\"milli_linear\":-1001},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "adjust.brightness-milli_linear-maximum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.brightness\",\"parameters\":{\"milli_linear\":1001},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "adjust.contrast-milli_stops-minimum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.contrast\",\"parameters\":{\"milli_stops\":-2001},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "adjust.contrast-milli_stops-maximum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.contrast\",\"parameters\":{\"milli_stops\":2001},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "adjust.exposure-milli_ev-minimum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.exposure\",\"parameters\":{\"milli_ev\":-5001},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "adjust.exposure-milli_ev-maximum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.exposure\",\"parameters\":{\"milli_ev\":5001},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "adjust.highlights-milli_ev-minimum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.highlights\",\"parameters\":{\"milli_ev\":-2001},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "adjust.highlights-milli_ev-maximum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.highlights\",\"parameters\":{\"milli_ev\":2001},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "adjust.saturation-milli_ratio-minimum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.saturation\",\"parameters\":{\"milli_ratio\":-1},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "adjust.saturation-milli_ratio-maximum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.saturation\",\"parameters\":{\"milli_ratio\":2001},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "adjust.shadows-milli_ev-minimum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.shadows\",\"parameters\":{\"milli_ev\":-2001},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "adjust.shadows-milli_ev-maximum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.shadows\",\"parameters\":{\"milli_ev\":2001},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "adjust.temperature-kelvin-minimum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.temperature\",\"parameters\":{\"kelvin\":3999},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "adjust.temperature-kelvin-maximum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.temperature\",\"parameters\":{\"kelvin\":25001},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "detail.blur-milli_strength-minimum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"detail.blur\",\"parameters\":{\"milli_strength\":-1},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "detail.blur-milli_strength-maximum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"detail.blur\",\"parameters\":{\"milli_strength\":1001},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "detail.sharpen-milli_amount-minimum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"detail.sharpen\",\"parameters\":{\"milli_amount\":-1},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "detail.sharpen-milli_amount-maximum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"detail.sharpen\",\"parameters\":{\"milli_amount\":1001},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "transform.crop_normalized-height_ppm-minimum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.crop_normalized\",\"parameters\":{\"height_ppm\":0,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":0},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "transform.crop_normalized-height_ppm-maximum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.crop_normalized\",\"parameters\":{\"height_ppm\":1000001,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":0},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "transform.crop_normalized-width_ppm-minimum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.crop_normalized\",\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":0,\"x_ppm\":0,\"y_ppm\":0},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "transform.crop_normalized-width_ppm-maximum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.crop_normalized\",\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1000001,\"x_ppm\":0,\"y_ppm\":0},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "transform.crop_normalized-x_ppm-minimum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.crop_normalized\",\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1,\"x_ppm\":-1,\"y_ppm\":0},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "transform.crop_normalized-x_ppm-maximum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.crop_normalized\",\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1,\"x_ppm\":1000000,\"y_ppm\":0},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "transform.crop_normalized-y_ppm-minimum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.crop_normalized\",\"parameters\":{\"height_ppm\":1,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":-1},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "transform.crop_normalized-y_ppm-maximum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.crop_normalized\",\"parameters\":{\"height_ppm\":1,\"width_ppm\":1000000,\"x_ppm\":0,\"y_ppm\":1000000},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "transform.rotate_quarter-quarter_turns-minimum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.rotate_quarter\",\"parameters\":{\"quarter_turns\":-1},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "transform.rotate_quarter-quarter_turns-maximum-outside",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.rotate_quarter\",\"parameters\":{\"quarter_turns\":4},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "unknown-version",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.exposure\",\"parameters\":{\"milli_ev\":0},\"structured_intent_version\":2}\n",
+      "status": 2
+    },
+    {
+      "name": "unknown-goal",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"enhance\",\"parameters\":{\"milli_ev\":0},\"structured_intent_version\":1}\n",
+      "status": 5
+    },
+    {
+      "name": "unknown-tool-requirement",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"pixaura.unknown\",\"parameters\":{\"milli_ev\":0},\"structured_intent_version\":1}\n",
+      "status": 5
+    },
+    {
+      "name": "missing-parameter",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.exposure\",\"parameters\":{},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "extra-parameter",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.exposure\",\"parameters\":{\"milli_ev\":0,\"unknown\":1},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "wrong-type",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.exposure\",\"parameters\":{\"milli_ev\":\"0\"},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "ambiguous-direction",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"increase_exposure\",\"parameters\":{\"milli_ev\":0},\"structured_intent_version\":1}\n",
+      "status": 5
+    },
+    {
+      "name": "overflow",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.exposure\",\"parameters\":{\"milli_ev\":18446744073709551616},\"structured_intent_version\":1}\n",
+      "status": 6
+    },
+    {
+      "name": "float",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.exposure\",\"parameters\":{\"milli_ev\":0.5},\"structured_intent_version\":1}\n",
+      "status": 6
+    },
+    {
+      "name": "duplicate-parameter",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.exposure\",\"parameters\":{\"milli_ev\":0,\"milli_ev\":1},\"structured_intent_version\":1}\n",
+      "status": 6
+    },
+    {
+      "name": "stale-generation",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":1,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.exposure\",\"parameters\":{\"milli_ev\":0},\"structured_intent_version\":1}\n",
+      "status": 9
+    },
+    {
+      "name": "wrong-context",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a2\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"adjust.exposure\",\"parameters\":{\"milli_ev\":0},\"structured_intent_version\":1}\n",
+      "status": 9
+    },
+    {
+      "name": "crop-invalid-extent",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal_id\":\"transform.crop_normalized\",\"parameters\":{\"height_ppm\":1000000,\"width_ppm\":1000000,\"x_ppm\":1,\"y_ppm\":0},\"structured_intent_version\":1}\n",
+      "status": 7
+    },
+    {
+      "name": "free-form-non-mapping",
+      "input": "{\"binding\":{\"context_id\":\"000000000000000000000000000000a1\",\"document_id\":\"00000000000000000000000000000002\",\"generation\":0,\"project_id\":\"00000000000000000000000000000001\",\"revision_id\":\"00000000000000000000000000000102\",\"session_id\":\"00000000000000000000000000000500\",\"source_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"goal\":\"make this photo brighter\",\"intent_version\":1,\"scope\":\"document\",\"type\":\"edit\"}\n",
+      "status": 5
+    }
+  ],
+  "retained_sha256": {
+    "docs/contracts/editing-agent-core-v1.md": "23a2afdfa1a92d97598a5f24837c3f1a278cc771064ae4cc0c7589fdae7eef96",
+    "docs/contracts/editing-intent-plan-v1.md": "d77a7eee4de9c0e5c2ae4d245b9aad614221a9f642e451b4e2b35a854df21dc8",
+    "docs/contracts/editing-tool-registry-v1.md": "dd4f8a008227b2a6303bf0703fc91f3c356dbaef94a982f54d010a532329477b",
+    "tests/intent-plan.test.mjs": "ab4c20fd81cff1c6b550d8c5d9750531dbcec52d1fd7b3d99bd87cc9d675d8e4",
+    "tests/fixtures/agent-schema-v1/goldens.json": "ad3908aae7e0984d3afe907ad828e3775a4ad2b3deba2d8cad5f256a029b123c",
+    "tests/fixtures/agent-tools-v1.json": "0a8d197ebeb5be70107b2934d7c873a73233d7e2484c6ace34484aea46d71e97",
+    "packages/core/src/manual_tools.cpp": "8db1c86fa4e8f7a145771f7a91ec3fabc950d191566cb57d8d76e0c9002a938c"
+  }
+}

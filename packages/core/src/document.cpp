@@ -1,6 +1,7 @@
 #include "document.hpp"
 #include "tone.hpp"
 #include "detail.hpp"
+#include "structured_goals.hpp"
 #include "pixaura/document.h"
 
 #include <algorithm>
@@ -32,7 +33,7 @@ struct Json {
     explicit Json(Object value) : data(std::move(value)) {}
     explicit Json(Array value) : data(std::move(value)) {}
 };
-enum class Shape { Manifest, Source, Metadata, Operation, Parameters, Revision, Command, Evaluation, Preset, Bindings, AgentIntent, AgentPlan, AgentBinding, AgentAction, Scalar };
+enum class Shape { Manifest, Source, Metadata, Operation, Parameters, Revision, Command, Evaluation, Preset, Bindings, AgentIntent, AgentPlan, AgentBinding, AgentAction, StructuredIntent, Scalar };
 const std::set<String>& allowed(Shape shape) {
     // Immutable registry data only; no global mutable state.
     static const std::set<String> manifest{"schema_version", "project_id", "document_id", "source", "operations", "revisions", "current_revision_id", "redo"};
@@ -49,6 +50,7 @@ const std::set<String>& allowed(Shape shape) {
     static const std::set<String> agent_plan{"actions","binding","plan_version"};
     static const std::set<String> agent_binding{"context_id","document_id","generation","project_id","revision_id","session_id","source_sha256"};
     static const std::set<String> agent_action{"action_index","tool_id","operation_version","parameter_version","parameters"};
+    static const std::set<String> structured_intent{"binding","goal_id","parameters","structured_intent_version"};
     switch (shape) {
         case Shape::Manifest: return manifest;
         case Shape::Source: return source;
@@ -64,6 +66,7 @@ const std::set<String>& allowed(Shape shape) {
         case Shape::AgentPlan: return agent_plan;
         case Shape::AgentBinding: return agent_binding;
         case Shape::AgentAction: return agent_action;
+        case Shape::StructuredIntent: return structured_intent;
         default: fail();
     }
 }
@@ -603,6 +606,42 @@ Result<String> canonical_agent_schema(std::string_view input, uint32_t kind,
         auto canonical=Writer().write(value);
         require(canonical.size()<=8192,PIXAURA_DOCUMENT_RESOURCE_LIMIT);
         return canonical;
+    });
+}
+Result<ReferencePlan> plan_structured_intent(std::string_view input,
+    const ImageDocument& doc,std::string_view context) {
+    return attempt<ReferencePlan>([&]{
+        require(!input.empty() && input.size()<=2048,PIXAURA_DOCUMENT_RESOURCE_LIMIT);
+        Json value;
+        try { value=Parser(input,2048).parse(Shape::StructuredIntent); }
+        catch(const Failure&) {
+            // Recognize a valid free-form envelope ONLY to reject it. No goal interpretation.
+            const auto freeform=canonical_agent_schema(input,1,doc,context);
+            if(!freeform.code)fail(PIXAURA_DOCUMENT_UNSUPPORTED_OPERATION);
+            throw;
+        }
+        keys(value,{"binding","goal_id","parameters","structured_intent_version"});
+        require(integer(field(value,"structured_intent_version"),0,UINT32_MAX)==1,PIXAURA_UNSUPPORTED_ABI);
+        const auto binding=agent_binding_json(doc,context);
+        check_agent_binding(field(value,"binding"),binding);
+        const auto& goal=text(field(value,"goal_id"));
+        require(!goal.empty() && goal.size()<=64);
+        const structured::Goal* mapping=nullptr;
+        for(const auto& entry:structured::goals)if(entry.id==goal)mapping=&entry;
+        require(mapping!=nullptr,PIXAURA_DOCUMENT_UNSUPPORTED_OPERATION);
+        Json::Array actions;
+        actions.emplace_back(Json::Object{{"action_index",Json(int64_t{0})},
+            {"operation_version",Json(int64_t{1})},{"parameter_version",Json(int64_t{1})},
+            {"parameters",field(value,"parameters")},{"tool_id",Json(String(mapping->tool))}});
+        const auto raw=Writer().write(Json(Json::Object{{"actions",Json(std::move(actions))},
+            {"binding",binding},{"plan_version",Json(int64_t{1})}}));
+        ReferencePlan result;
+        auto checked=canonical_agent_schema(raw,2,doc,context,&result.operations);
+        if(checked.code)fail(checked.code);
+        require(result.operations.size()==1,PIXAURA_DOCUMENT_RESOURCE_LIMIT);
+        result.plan=std::move(checked.value);result.intent=Writer().write(value);
+        require(result.intent.size()<=2048 && result.plan.size()<=8192,PIXAURA_DOCUMENT_RESOURCE_LIMIT);
+        return result;
     });
 }
 namespace {

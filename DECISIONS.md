@@ -1,5 +1,45 @@
 # Architectural decision index
 
+## Phase 6 Step 4 — current authority
+
+Step 3 COMPLETE / FULL PASS at `fa6462e2bc1c0a88b30a46e69a9d982f8d843fe4`:
+Foundation 39131908247 SUCCESS 7/7; Native application shells 39131908300 SUCCESS 3/3.
+Step 4 AUTHORIZED / IN PROGRESS; exact-SHA certification pending.
+Approved Option B: separate [Structured Intent v1](docs/contracts/editing-structured-intent-v1.md)
+and [deterministic reference planner v1](docs/contracts/editing-reference-planner-v1.md).
+Eleven explicit one-to-one goal/tool mappings; exact existing parameter validation,
+canonical Plan v1 and Registry v1 binding. Free-form Intent v1 unchanged and never
+interpreted. No multi-tool release recipe, NLP, model, approval, execution or AI UX.
+[Step 4 report](docs/reports/phase-6-step-4.md) records bounded parsing/planning,
+cancellation, canonical-byte goldens and retained evidence. Both complete final-SHA
+workflows, Windows/Linux/Apple/Android, active ASan/UBSan, full retained Phase 0–5
+and Steps 1–3/manual gates, release isolation, workflow lint and diff check required.
+Production model UNRESOLVED. Schema 3, Plan v1, Registry v1 and Phase 5 unchanged.
+No external runtime or weights. DH-APPLE-METAL-01 unchanged: DEFERRED, NOT WAIVED,
+NOT SATISFIED. Step 5 NOT STARTED. Phase 7 NOT STARTED. No Step 9+. STOP after Step 4.
+Historical authorization below is retained.
+
+## Approved structured-intent architecture decision — Phase 6 Step 4
+
+Product Owner decision at baseline `fa6462e2bc1c0a88b30a46e69a9d982f8d843fe4`:
+
+Phase 6 Step 4 may introduce a separately versioned structured-intent contract
+without modifying free-form intent v1.
+
+The initial stop gate was triggered because free-form intent v1 has no structured
+operation/amount semantics. Approved Option B resolves that gap by adding a separate
+explicit machine-semantic envelope. Free-form Intent v1 -> future NLP/model input
+boundary; Structured Intent v1 -> deterministic reference planner -> unchanged
+Plan v1 -> later human approval -> existing deterministic execution. Only the
+structured-input/reference-planner layers are implemented in Step 4. No NLP,
+heuristic, model, release multi-tool recipe, approval or execution authority.
+Eleven explicit goal IDs select exactly one accepted tool tuple 1/1; all numeric
+semantics remain authoritative in existing manual/document validators. Unknown,
+missing, extra, ambiguous and invalid data reject. Intent, plan and execution remain
+distinct. Schema 3, Phase 5, manual editing and DH-APPLE-METAL-01 unchanged.
+Step 5 NOT STARTED. Phase 7 NOT STARTED. This decision supersedes no historical ADR.
+
+
 ## Phase 6 Step 3 — current authority
 
 Step 2 COMPLETE / FULL PASS at `578958979f2fc4b5fea4b53dfc3ecfee7aafe34f`:

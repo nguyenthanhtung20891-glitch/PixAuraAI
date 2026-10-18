@@ -97,6 +97,9 @@ Result<String> agent_schema_binding(const ImageDocument&, std::string_view conte
 Result<String> canonical_agent_schema(std::string_view input, uint32_t kind,
     const ImageDocument&, std::string_view context, Vector<EditOperation>* validated = nullptr);
 struct PresetRecipe { String preset_id, name; Vector<EditOperation> operations; };
+struct ReferencePlan { String intent, plan; Vector<EditOperation> operations; };
+Result<ReferencePlan> plan_structured_intent(std::string_view input,
+    const ImageDocument&, std::string_view context);
 Result<PresetRecipe> parse_preset(std::string_view recipe);
 Result<String> serialize_preset(const PresetRecipe& recipe);
 Result<Vector<Id>> parse_preset_bindings(std::string_view bindings);

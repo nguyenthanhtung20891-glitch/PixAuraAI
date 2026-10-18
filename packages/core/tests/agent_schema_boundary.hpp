@@ -4,6 +4,8 @@
 #include "pixaura/agent_schema.h"
 #include "pixaura/agent_tools.h"
 #include "agent_tools_fixture.hpp"
+#include "pixaura/reference_planner.h"
+#include "reference_planner_fixtures.hpp"
 #include <array>
 #include <cstdio>
 #include <cstring>
@@ -45,6 +47,22 @@ extern "C" int32_t pixaura_agent_schema_test_boundary(){
         SCHEMA_CHECK(pixaura_agent_schema_canonicalize(1,&context,&base,&request,out.data(),size,again.data(),again.size(),&n)==0);
         SCHEMA_CHECK(n==size && std::memcmp(out.data(),again.data(),size)==0);
     }
+    for(const auto& f:pixaura::reference_planner_fixtures::cases){
+        pixaura_reference_planner_request r{};r.api_version=1;r.struct_size=sizeof(r);r.planner_version=1;r.registry_version=1;
+        std::array<uint8_t,2048> canonical{};uint64_t count=0;
+        SCHEMA_CHECK(pixaura_structured_intent_canonicalize(1,&context,&base,&r,
+            reinterpret_cast<const uint8_t*>(f.input),std::strlen(f.input),canonical.data(),canonical.size(),&count)==0);
+        SCHEMA_CHECK(count==std::strlen(f.input) && std::memcmp(canonical.data(),f.input,count)==0);
+        for(unsigned repeat=0;repeat<3;++repeat){
+            std::array<uint8_t,8192> plan{};uint64_t size=0;
+            SCHEMA_CHECK(pixaura_reference_planner_plan(1,&context,&base,&r,canonical.data(),count,plan.data(),plan.size(),&size)==0);
+            SCHEMA_CHECK(size==std::strlen(f.plan) && std::memcmp(plan.data(),f.plan,size)==0);
+            pixaura_agent_schema_request check{};check.api_version=1;check.struct_size=sizeof(check);check.kind=2;check.require_canonical=1;
+            std::array<uint8_t,9216> receipt{};uint64_t receipt_size=0;
+            SCHEMA_CHECK(pixaura_agent_tools_bind(1,1,&context,&base,&check,plan.data(),size,receipt.data(),receipt.size(),&receipt_size)==0);
+        }
+    }
+    std::puts("Reference planner v1 goldens=39 repeats=3 failures=0; structured/plan bytes exact; Step 3 binding PASS");
     std::puts("Agent schema v1 goldens=7 valid=6 failures=0 canonical_bytes=exact; no execution/approval");
     std::puts("Agent tools v1 registry=11 exact; plan binding goldens=6 failures=0; NOT_APPROVED; no effects");
     return 0;

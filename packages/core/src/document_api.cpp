@@ -2,6 +2,7 @@
 #include "pixaura/agent.h"
 #include "pixaura/agent_schema.h"
 #include "pixaura/agent_tools.h"
+#include "pixaura/reference_planner.h"
 #include "agent_schema_testing.hpp"
 #include "document.hpp"
 #include "manual_tools.hpp"
@@ -422,6 +423,7 @@ extern "C" int32_t pixaura_preset_propose(uint32_t version,pixaura_document_cont
 }
 #include "agent_boundary.hpp"
 #include "agent_schema_boundary.hpp"
+#include "reference_planner_boundary.hpp"
 #ifdef PIXAURA_CERTIFICATION_TESTING
 #include "../tests/agent_schema_boundary.hpp"
 #endif

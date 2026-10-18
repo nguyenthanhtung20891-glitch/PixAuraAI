@@ -9,6 +9,12 @@ int32_t schema_copy(const String& value,uint8_t* output,uint64_t capacity,uint64
     if(!output || capacity<value.size()){*required=value.size();return PIXAURA_DOCUMENT_BUFFER_TOO_SMALL;}
     std::memcpy(output,value.data(),value.size());*required=value.size();return PIXAURA_OK;
 }
+void agent_bind_tools(const Vector<EditOperation>& operations){
+    for(const auto& op:operations){
+        const auto* descriptor=pixaura::manual::find(op.type,op.operation_version,op.parameter_version);
+        require(descriptor && pixaura::manual::agent_exposable(*descriptor),PIXAURA_DOCUMENT_UNSUPPORTED_OPERATION);
+    }
+}
 }
 int32_t pixaura_agent_schema_binding(uint32_t version,pixaura_document_context* context,
     const pixaura_document_handle* base,uint8_t* output,uint64_t capacity,uint64_t* required){
@@ -56,12 +62,7 @@ static int32_t schema_work(bool bind,uint32_t version,pixaura_document_context* 
         Vector<EditOperation> validated;
         auto canonical=pixaura::document::canonical_agent_schema(
             {reinterpret_cast<const char*>(input),static_cast<std::size_t>(bytes)},request->kind,*snapshot,context_id,bind?&validated:nullptr);
-        if(bind && !canonical.code){
-            for(const auto& op:validated){
-                const auto* descriptor=pixaura::manual::find(op.type,op.operation_version,op.parameter_version);
-                require(descriptor && pixaura::manual::agent_exposable(*descriptor),PIXAURA_DOCUMENT_UNSUPPORTED_OPERATION);
-            }
-        }
+        if(bind && !canonical.code)agent_bind_tools(validated);
 #ifdef PIXAURA_CERTIFICATION_TESTING
         if(checkpoint)checkpoint(checkpoint_state);
 #endif
