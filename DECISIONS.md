@@ -1,5 +1,25 @@
 # Architectural decision index
 
+## Phase 6 Step 2 — current authority
+
+Step 1 COMPLETE / FULL PASS at `f07016da62556b0634fde8ed081b1361b8c9eb57`:
+Foundation 39104299393 SUCCESS 7/7; Native application shells 39104299376 SUCCESS 3/3.
+Step 2 AUTHORIZED / IN PROGRESS; exact-SHA certification pending.
+[Intent/plan v1](docs/contracts/editing-intent-plan-v1.md) and
+[Step 2 report](docs/reports/phase-6-step-2.md) freeze separate bounded canonical
+objects with native document/revision/session/context binding. Shared JSON and
+operation semantics retained. Max eight actions and 8192 bytes. Unknown fields,
+versions and malformed data fail closed. No new handles, persistence, planner,
+capability registry, approval issuer or execution bridge. No AI UX.
+Both complete final-SHA workflows, goldens/security/canonical-byte/context and
+cancellation tests, retained Step 1 and Phase 0–5/manual gates, active ASan/UBSan,
+Windows/Linux/Apple/Android, workflow lint and diff check are required.
+Production model UNRESOLVED; Schema 3, manual and Phase 5 semantics unchanged.
+No external runtime or weights. DH-APPLE-METAL-01 unchanged and DEFERRED,
+NOT WAIVED, NOT SATISFIED. Step 3 NOT STARTED. Phase 7 NOT STARTED.
+No Step 9+. STOP after Step 2. Historical authorization below is retained.
+
+
 ## Phase 6 Step 1 — current authority
 
 Phase 5 CLOSED / COMPLETE / FULL PASS at

@@ -11,6 +11,9 @@ import java.nio.ByteBuffer
 
 @RunWith(AndroidJUnit4::class)
 class CapabilityFoundationTest {
+    @Test fun sharedCanonicalIntentAndPlanGoldens() {
+        assertEquals(0, CoreProbe().nativeAgentSchemaBoundary())
+    }
     @Test fun sharedVerifiedOnnxVulkanProviderCorpus() {
         assertEquals(0, CoreProbe().nativeAndroidInferenceBoundary())
     }

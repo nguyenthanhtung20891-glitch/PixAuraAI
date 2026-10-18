@@ -1,8 +1,11 @@
 #include "pixaura/agent.h"
+#include "pixaura/agent_schema.h"
 #include <stdio.h>
 int main(void) {
     pixaura_agent_proposal proposal = {0};
     if (sizeof(proposal) != 56 || offsetof(pixaura_agent_proposal, serial) != 48) return 1;
+    if (sizeof(pixaura_agent_schema_request) != 32) return 4;
+    if (pixaura_agent_schema_cancel(2, NULL) != PIXAURA_UNSUPPORTED_ABI) return 5;
     if (pixaura_agent_validate(2, NULL, NULL, NULL) != PIXAURA_UNSUPPORTED_ABI) return 2;
     if (pixaura_agent_stage(1, NULL, NULL, NULL, 0, &proposal) != PIXAURA_DOCUMENT_RESOURCE_LIMIT) return 3;
     puts("Independent agent C ABI v1 PASS");

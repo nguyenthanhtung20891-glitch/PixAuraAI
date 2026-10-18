@@ -3,12 +3,12 @@
 Phase 5 CLOSED / COMPLETE / FULL PASS at
 `a66bbb0a303b707d48590df37cbd369148fba6a8`:
 Foundation 39087829531 SUCCESS 7/7; Native application shells 39087829537 SUCCESS 3/3.
-Phase 6 Step 1 AUTHORIZED / IN PROGRESS. Exact-SHA certification pending.
+Phase 6 Step 1 COMPLETE / FULL PASS at `f07016da62556b0634fde8ed081b1361b8c9eb57` (Foundation 39104299393; shells 39104299376). Step 2 AUTHORIZED / IN PROGRESS. Exact-SHA certification pending.
 
 | Step | Scope | Status |
 | --- | --- | --- |
-| 1 | Editing Agent Core Contract & Safety Boundary | AUTHORIZED / IN PROGRESS |
-| 2 | Versioned Intent & Editing Plan Schema | NOT STARTED |
+| 1 | Editing Agent Core Contract & Safety Boundary | COMPLETE / FULL PASS |
+| 2 | Versioned Intent & Editing Plan Schema | AUTHORIZED / IN PROGRESS |
 | 3 | Tool Capability Registry & Agent Tool Binding | NOT STARTED |
 | 4 | Deterministic Reference Planner | NOT STARTED |
 | 5 | Plan Validation, Approval & Execution Bridge | NOT STARTED |
@@ -17,10 +17,10 @@ Phase 6 Step 1 AUTHORIZED / IN PROGRESS. Exact-SHA certification pending.
 | 8 | Phase 6 Closure | NOT STARTED |
 
 No Step 9+. Human DIRECTOR/APPROVER; AI ADVISOR/PLANNER and optional OPERATOR
-only after approval. Step 1 implements bounded proposal staging/inspection and
-closed execution authority, reusing native document/manual contracts. No new plan
-schema, binding registry, planner, approval issuer or execution/candidate bridge.
-No AI UX. Step 2 NOT STARTED. Phase 7 NOT STARTED. Stop after Step 1.
+only after approval. Step 1 established bounded proposal staging/inspection and
+closed execution authority, reusing native document/manual contracts. Its accepted
+scope did not include a plan schema, registry, planner or execution bridge.
+Step 2 adds bounded canonical intent/plan objects only. No AI UX, planner, capability registry, approval or execution bridge. Step 3 NOT STARTED. Phase 7 NOT STARTED. Stop after Step 2.
 
 Production model UNRESOLVED; no weights/runtime; Schema 3 and Phase 5 profile/trust
 unchanged. DH-APPLE-METAL-01 DEFERRED, NOT WAIVED, NOT SATISFIED.

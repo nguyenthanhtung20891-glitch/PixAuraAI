@@ -1,5 +1,7 @@
 #include "pixaura/document.h"
 #include "pixaura/agent.h"
+#include "pixaura/agent_schema.h"
+#include "agent_schema_testing.hpp"
 #include "document.hpp"
 #include "manual_tools.hpp"
 #include "preset.hpp"
@@ -40,6 +42,12 @@ struct Registry {
     std::map<uint64_t, Snapshot> snapshots;
     std::map<uint64_t, GestureEntry> gestures;
     std::map<uint64_t, AgentEntry> agents;
+    bool schema_busy = false;
+    uint64_t schema_epoch = 1;
+#ifdef PIXAURA_CERTIFICATION_TESTING
+    void (*schema_checkpoint)(void*) = nullptr;
+    void* schema_checkpoint_state = nullptr;
+#endif
     uint64_t next = 1;
 };
 struct Header { uint64_t tag; Registry* registry; uint8_t identity[32]; };
@@ -412,3 +420,7 @@ extern "C" int32_t pixaura_preset_propose(uint32_t version,pixaura_document_cont
         const auto handle=mutation?insert_locked(h,std::move(proposal)):*current;*output=handle;*changed=mutation?1u:0u;return PIXAURA_OK;});
 }
 #include "agent_boundary.hpp"
+#include "agent_schema_boundary.hpp"
+#ifdef PIXAURA_CERTIFICATION_TESTING
+#include "../tests/agent_schema_boundary.hpp"
+#endif

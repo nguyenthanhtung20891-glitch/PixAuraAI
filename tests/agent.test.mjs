@@ -15,7 +15,7 @@ test('finite Phase 6 authority preserves approval separation and later stop gate
     const roadmap=read('docs/plans/phase-6-roadmap.md');
     assert.deepEqual([...roadmap.matchAll(/^\| (\d+) \|/gm)].map(m=>+m[1]),[1,2,3,4,5,6,7,8]);
     for(const file of ['AGENTS.md','ROADMAP.md','QUALITY_GATES.md','ARCHITECTURE.md','DECISIONS.md','docs/reports/phase-6-step-1.md']){
-        const current=read(file).split('## Phase 5 Step 8')[0];
+        const all=read(file),current=(all.includes('## Phase 6 Step 1')?all.slice(all.indexOf('## Phase 6 Step 1')):all).split('## Phase 5 Step 8')[0];
         for(const marker of ['Phase 6 Step 1','Step 2 NOT STARTED','Phase 7 NOT STARTED','Production model UNRESOLVED','DH-APPLE-METAL-01'])assert.ok(current.includes(marker),`${file}: ${marker}`);
     }
     const contract=read('docs/contracts/editing-agent-core-v1.md');

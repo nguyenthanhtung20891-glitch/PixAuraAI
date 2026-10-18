@@ -32,7 +32,7 @@ struct Json {
     explicit Json(Object value) : data(std::move(value)) {}
     explicit Json(Array value) : data(std::move(value)) {}
 };
-enum class Shape { Manifest, Source, Metadata, Operation, Parameters, Revision, Command, Evaluation, Preset, Bindings, Scalar };
+enum class Shape { Manifest, Source, Metadata, Operation, Parameters, Revision, Command, Evaluation, Preset, Bindings, AgentIntent, AgentPlan, AgentBinding, AgentAction, Scalar };
 const std::set<String>& allowed(Shape shape) {
     // Immutable registry data only; no global mutable state.
     static const std::set<String> manifest{"schema_version", "project_id", "document_id", "source", "operations", "revisions", "current_revision_id", "redo"};
@@ -45,6 +45,10 @@ const std::set<String>& allowed(Shape shape) {
     static const std::set<String> evaluation{"operations"};
     static const std::set<String> preset{"schema_version","recipe_version","preset_id","name","operations"};
     static const std::set<String> bindings{"operation_ids"};
+    static const std::set<String> agent_intent{"binding","goal","intent_version","scope","type"};
+    static const std::set<String> agent_plan{"actions","binding","plan_version"};
+    static const std::set<String> agent_binding{"context_id","document_id","generation","project_id","revision_id","session_id","source_sha256"};
+    static const std::set<String> agent_action{"action_index","tool_id","operation_version","parameter_version","parameters"};
     switch (shape) {
         case Shape::Manifest: return manifest;
         case Shape::Source: return source;
@@ -56,6 +60,10 @@ const std::set<String>& allowed(Shape shape) {
         case Shape::Evaluation: return evaluation;
         case Shape::Preset: return preset;
         case Shape::Bindings: return bindings;
+        case Shape::AgentIntent: return agent_intent;
+        case Shape::AgentPlan: return agent_plan;
+        case Shape::AgentBinding: return agent_binding;
+        case Shape::AgentAction: return agent_action;
         default: fail();
     }
 }
@@ -161,6 +169,8 @@ class Parser {
                 whitespace(); take(':');
                 Shape child = Shape::Scalar; Shape item = Shape::Scalar; std::size_t bound = 0;
                 if (key == "source") child = Shape::Source;
+                else if (key == "binding") child = Shape::AgentBinding;
+                else if (key == "actions") { bound = 8; item = Shape::AgentAction; }
                 else if (key == "metadata") child = Shape::Metadata;
                 else if (key == "parameters") child = Shape::Parameters;
                 else if (key == "operations") { bound = preset_ ? 16 : evaluation_ ? 256 : 4096; item = Shape::Operation; }
@@ -533,6 +543,66 @@ Result<Vector<EditOperation>> parse_evaluation(std::string_view request) {
             ordered.push_back(std::move(op));
         }
         return ordered;
+    });
+}
+namespace {
+Json agent_binding_json(const ImageDocument& doc, std::string_view context) {
+    const auto context_id = Id::parse(context);
+    return Json(Json::Object{{"context_id",Json(context_id.text())},
+        {"document_id",Json(doc.identity().document.text())},
+        {"generation",Json(static_cast<int64_t>(doc.session().generation))},
+        {"project_id",Json(doc.identity().project.text())},
+        {"revision_id",Json(doc.current().text())},
+        {"session_id",Json(doc.session().id.text())},
+        {"source_sha256",Json(doc.source().sha256.text())}});
+}
+void check_agent_binding(const Json& binding, const Json& expected) {
+    keys(binding,{"context_id","document_id","generation","project_id","revision_id","session_id","source_sha256"});
+    for (const char* name : {"context_id","document_id","project_id","revision_id","session_id"})
+        (void)Id::parse(text(field(binding,name)));
+    (void)Digest::parse(text(field(binding,"source_sha256")));
+    (void)integer(field(binding,"generation"),0,max_generation);
+    require(Writer().write(binding)==Writer().write(expected),PIXAURA_DOCUMENT_STALE_BASE);
+}
+}
+Result<String> agent_schema_binding(const ImageDocument& doc, std::string_view context) {
+    return attempt<String>([&]{return Writer().write(agent_binding_json(doc,context));});
+}
+Result<String> canonical_agent_schema(std::string_view input, uint32_t kind,
+    const ImageDocument& doc, std::string_view context) {
+    return attempt<String>([&]{
+        require(kind==1 || kind==2,PIXAURA_INVALID_ARGUMENT);
+        require(!input.empty(),PIXAURA_INVALID_ARGUMENT);
+        const auto value=Parser(input,8192).parse(kind==1?Shape::AgentIntent:Shape::AgentPlan);
+        if(kind==1)keys(value,{"binding","goal","intent_version","scope","type"});
+        else keys(value,{"actions","binding","plan_version"});
+        const auto version=integer(field(value,kind==1?"intent_version":"plan_version"),0,UINT32_MAX);
+        require(version==1,PIXAURA_UNSUPPORTED_ABI);
+        check_agent_binding(field(value,"binding"),agent_binding_json(doc,context));
+        if(kind==1){
+            require(text(field(value,"type"))=="edit" && text(field(value,"scope"))=="document");
+            const auto& goal=text(field(value,"goal"));
+            require(!goal.empty());
+            for(unsigned char c:goal)require(c>=32 && c!=127);
+        }else{
+            const auto& actions=array(field(value,"actions"));
+            require(!actions.empty());
+            require(actions.size()<=8,PIXAURA_DOCUMENT_RESOURCE_LIMIT);
+            for(std::size_t i=0;i<actions.size();++i){
+                const auto& action=actions[i];
+                keys(action,{"action_index","tool_id","operation_version","parameter_version","parameters"});
+                require(integer(field(action,"action_index"),0,7)==static_cast<int64_t>(i));
+                // Temporary validator identity only, NEVER a durable operation ID.
+                String temporary_id(32,'0');temporary_id.back()=static_cast<char>('1'+i);
+                const auto checked=operation(Json(Json::Object{{"id",Json(temporary_id)},
+                    {"type",field(action,"tool_id")},{"operation_version",field(action,"operation_version")},
+                    {"parameter_version",field(action,"parameter_version")},{"parameters",field(action,"parameters")}}));
+                (void)checked;
+            }
+        }
+        auto canonical=Writer().write(value);
+        require(canonical.size()<=8192,PIXAURA_DOCUMENT_RESOURCE_LIMIT);
+        return canonical;
     });
 }
 namespace {
