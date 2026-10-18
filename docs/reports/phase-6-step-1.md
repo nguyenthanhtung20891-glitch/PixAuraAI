@@ -77,3 +77,15 @@ unchanged 64-handle ceiling. A local overlapping Ninja regeneration failed;
 sequential regeneration/build/test passed. Full native/platform/sanitizer and
 retained Phase 0–5 execution remains required on the final commit, with actual
 SHA/run IDs/results recorded in delivery. No unexecuted check counts as PASS.
+
+## Exact-SHA CI remediation
+
+Candidate `1587245422dd23a46ebece8d8fd31b9fa03dabeb`, Foundation 39104013407:
+sanitizer job failed before tests at the new C consumer's link. Clang's C link
+driver omitted the C++ UBSan vptr runtime required by the instrumented shared
+library (`__ubsan_vptr_type_cache`, `__ubsan_handle_dynamic_type_cache_miss`).
+Set this C-compiled consumer's LINKER_LANGUAGE to CXX, matching retained consumers.
+No instrumentation, diagnostic, test or production behavior is disabled. This
+candidate is not FULL PASS; both complete workflows must certify the fix SHA.
+Local Clang ASan/UBSan rebuild of both agent targets then passed 2/2, with 259
+checks/zero failures, leak detection and halt-on-error active. No suppression.
