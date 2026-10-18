@@ -47,7 +47,8 @@ int main(){
  auto call=[&](const std::string& input,int expected){
   std::array<uint8_t,9216> out;out.fill(0x5a);uint64_t size=777;
   const auto result=pixaura_agent_tools_bind(api,version,&o.c,&o.h,&r,b(input),input.size(),out.data(),out.size(),&size);
-  if(result!=expected)std::fprintf(stderr,"expected %d got %d: %.160s\n",expected,result,input.c_str());CHECK(result==expected);
+  if(result!=expected){std::fprintf(stderr,"expected %d got %d: %.160s\n",expected,result,input.c_str());}
+  CHECK(result==expected);
   if(result){CHECK(size==777);for(auto c:out)CHECK(c==0x5a);}else{
    const auto receipt=std::string("{\"approval\":\"not_approved\",\"binding_version\":1,\"plan\":")+input.substr(0,input.size()-1)+",\"registry_version\":1}\n";
    CHECK(size==receipt.size());CHECK(std::memcmp(out.data(),receipt.data(),size)==0);CHECK(out[size]==0x5a);
@@ -117,7 +118,8 @@ int main(){
  // Immutable enumeration is safe to interleave without a registration lock.
  bool threads_ok[2]={false,false};std::thread threads[2];
  for(unsigned i=0;i<2;++i)threads[i]=std::thread([&,i]{std::array<uint8_t,32768> data{};uint64_t count=0;threads_ok[i]=pixaura_agent_tools_registry(1,1,data.data(),data.size(),&count)==0&&count==std::strlen(agent_tools_golden)&&std::memcmp(data.data(),agent_tools_golden,count)==0;});
- for(auto& t:threads)t.join();CHECK(threads_ok[0]&&threads_ok[1]);
+ for(auto& t:threads){t.join();}
+ CHECK(threads_ok[0]&&threads_ok[1]);
  CHECK(o.dump()==before);CHECK(other.dump()==other_before);
  hook={&o,2};CHECK(pixaura_agent_schema_test_checkpoint(&o.c,checkpoint,&hook)==0);call(valid,9);
  CHECK(pixaura_agent_schema_test_checkpoint(&o.c,nullptr,nullptr)==0);call(valid,3);CHECK(pixaura_document_release(&o.c,&o.h)==3);

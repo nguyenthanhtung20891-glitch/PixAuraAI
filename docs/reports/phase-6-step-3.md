@@ -79,3 +79,12 @@ were then executed and passed. None of these attempts is substituted for evidenc
 Apple/Android and final complete retained gates still require observed final-SHA
 CI results. This source report remains a certification candidate until both full
 workflows pass; final receipt and delivery record actual SHA/run results.
+
+## Exact-SHA CI remediation
+
+Candidate `06b3ff88dd3597b286b487ca6fcaa3d4b2bc3d33`, Foundation 39131709820,
+Linux job 117688056207 failed GCC -Werror=misleading-indentation at two new test
+statements (lines 50 and 120). Explicit braces separate the diagnostic from its
+assertion and the join loop from its final check. No semantic change, warning
+suppression, test removal or weakened gate. Both full workflows must recertify
+the correction on the new final SHA; old-candidate results cannot close Step 3.
