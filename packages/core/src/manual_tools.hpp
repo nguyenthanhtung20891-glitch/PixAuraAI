@@ -16,6 +16,9 @@ struct Descriptor {
     std::size_t parameter_count;
 };
 const std::array<Descriptor, 11>& registry();
+// Fixed trusted exposure policy only; parameter semantics remain in registry().
+bool agent_exposable(const Descriptor&);
+document::String agent_registry_json();
 // Validates controlled startup tables; never installs or changes the registry.
 int32_t validate_descriptors(const Descriptor* descriptors, std::size_t count);
 bool is_neutral(const document::EditOperation& operation);

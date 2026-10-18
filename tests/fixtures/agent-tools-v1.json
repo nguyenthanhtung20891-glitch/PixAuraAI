@@ -1,0 +1,318 @@
+{
+  "registry_version": 1,
+  "tools": [
+    {
+      "agent_exposable": true,
+      "capability": "offline_cpu",
+      "category": "detail",
+      "commit": "one_immutable_revision_per_changed_gesture",
+      "invalid": "reject",
+      "name": "Blur",
+      "operation_version": 1,
+      "parameter_version": 1,
+      "parameters": [
+        {
+          "default": 0,
+          "maximum": 1000,
+          "minimum": 0,
+          "name": "milli_strength",
+          "step": 1,
+          "type": "integer",
+          "unit": "thousandths_fixed_kernel_blend"
+        }
+      ],
+      "preview": "detached_latest_generation",
+      "replay": "ordered_phase2_versions",
+      "serialization": "schema1_canonical_integer_json",
+      "tool_id": "pixaura.blur",
+      "type": "pixaura.blur"
+    },
+    {
+      "agent_exposable": true,
+      "capability": "offline_cpu",
+      "category": "tone_color",
+      "commit": "one_immutable_revision_per_changed_gesture",
+      "invalid": "reject",
+      "name": "Brightness",
+      "operation_version": 1,
+      "parameter_version": 1,
+      "parameters": [
+        {
+          "default": 0,
+          "maximum": 1000,
+          "minimum": -1000,
+          "name": "milli_linear",
+          "step": 1,
+          "type": "integer",
+          "unit": "thousandths_linear_white"
+        }
+      ],
+      "preview": "detached_latest_generation",
+      "replay": "ordered_phase2_versions",
+      "serialization": "schema1_canonical_integer_json",
+      "tool_id": "pixaura.brightness",
+      "type": "pixaura.brightness"
+    },
+    {
+      "agent_exposable": true,
+      "capability": "offline_cpu",
+      "category": "tone_color",
+      "commit": "one_immutable_revision_per_changed_gesture",
+      "invalid": "reject",
+      "name": "Contrast",
+      "operation_version": 1,
+      "parameter_version": 1,
+      "parameters": [
+        {
+          "default": 0,
+          "maximum": 2000,
+          "minimum": -2000,
+          "name": "milli_stops",
+          "step": 1,
+          "type": "integer",
+          "unit": "thousandths_log2_contrast_slope"
+        }
+      ],
+      "preview": "detached_latest_generation",
+      "replay": "ordered_phase2_versions",
+      "serialization": "schema1_canonical_integer_json",
+      "tool_id": "pixaura.contrast",
+      "type": "pixaura.contrast"
+    },
+    {
+      "agent_exposable": true,
+      "capability": "offline_cpu",
+      "category": "geometry",
+      "commit": "one_immutable_revision_per_changed_gesture",
+      "invalid": "reject",
+      "name": "Crop",
+      "operation_version": 1,
+      "parameter_version": 1,
+      "parameters": [
+        {
+          "default": 1000000,
+          "maximum": 1000000,
+          "minimum": 1,
+          "name": "height_ppm",
+          "step": 1,
+          "type": "integer",
+          "unit": "millionths_current_extent"
+        },
+        {
+          "default": 1000000,
+          "maximum": 1000000,
+          "minimum": 1,
+          "name": "width_ppm",
+          "step": 1,
+          "type": "integer",
+          "unit": "millionths_current_extent"
+        },
+        {
+          "default": 0,
+          "maximum": 999999,
+          "minimum": 0,
+          "name": "x_ppm",
+          "step": 1,
+          "type": "integer",
+          "unit": "millionths_current_extent"
+        },
+        {
+          "default": 0,
+          "maximum": 999999,
+          "minimum": 0,
+          "name": "y_ppm",
+          "step": 1,
+          "type": "integer",
+          "unit": "millionths_current_extent"
+        }
+      ],
+      "preview": "detached_latest_generation",
+      "replay": "ordered_phase2_versions",
+      "serialization": "schema1_canonical_integer_json",
+      "tool_id": "pixaura.crop",
+      "type": "pixaura.crop"
+    },
+    {
+      "agent_exposable": true,
+      "capability": "offline_cpu",
+      "category": "tone_color",
+      "commit": "one_immutable_revision_per_changed_gesture",
+      "invalid": "reject",
+      "name": "Exposure",
+      "operation_version": 1,
+      "parameter_version": 1,
+      "parameters": [
+        {
+          "default": 0,
+          "maximum": 5000,
+          "minimum": -5000,
+          "name": "milli_ev",
+          "step": 1,
+          "type": "integer",
+          "unit": "thousandths_exposure_stop"
+        }
+      ],
+      "preview": "detached_latest_generation",
+      "replay": "ordered_phase2_versions",
+      "serialization": "schema1_canonical_integer_json",
+      "tool_id": "pixaura.exposure",
+      "type": "pixaura.exposure"
+    },
+    {
+      "agent_exposable": true,
+      "capability": "offline_cpu",
+      "category": "tone_color",
+      "commit": "one_immutable_revision_per_changed_gesture",
+      "invalid": "reject",
+      "name": "Highlights",
+      "operation_version": 1,
+      "parameter_version": 1,
+      "parameters": [
+        {
+          "default": 0,
+          "maximum": 2000,
+          "minimum": -2000,
+          "name": "milli_ev",
+          "step": 1,
+          "type": "integer",
+          "unit": "thousandths_highlight_exposure_stop"
+        }
+      ],
+      "preview": "detached_latest_generation",
+      "replay": "ordered_phase2_versions",
+      "serialization": "schema1_canonical_integer_json",
+      "tool_id": "pixaura.highlights",
+      "type": "pixaura.highlights"
+    },
+    {
+      "agent_exposable": true,
+      "capability": "offline_cpu",
+      "category": "geometry",
+      "commit": "one_immutable_revision_per_changed_gesture",
+      "invalid": "reject",
+      "name": "Rotate",
+      "operation_version": 1,
+      "parameter_version": 1,
+      "parameters": [
+        {
+          "default": 0,
+          "maximum": 3,
+          "minimum": 0,
+          "name": "quarter_turns",
+          "step": 1,
+          "type": "integer",
+          "unit": "clockwise_quarter_turns"
+        }
+      ],
+      "preview": "detached_latest_generation",
+      "replay": "ordered_phase2_versions",
+      "serialization": "schema1_canonical_integer_json",
+      "tool_id": "pixaura.rotate",
+      "type": "pixaura.rotate"
+    },
+    {
+      "agent_exposable": true,
+      "capability": "offline_cpu",
+      "category": "tone_color",
+      "commit": "one_immutable_revision_per_changed_gesture",
+      "invalid": "reject",
+      "name": "Saturation",
+      "operation_version": 1,
+      "parameter_version": 1,
+      "parameters": [
+        {
+          "default": 1000,
+          "maximum": 2000,
+          "minimum": 0,
+          "name": "milli_ratio",
+          "step": 1,
+          "type": "integer",
+          "unit": "thousandths_chroma_multiplier"
+        }
+      ],
+      "preview": "detached_latest_generation",
+      "replay": "ordered_phase2_versions",
+      "serialization": "schema1_canonical_integer_json",
+      "tool_id": "pixaura.saturation",
+      "type": "pixaura.saturation"
+    },
+    {
+      "agent_exposable": true,
+      "capability": "offline_cpu",
+      "category": "tone_color",
+      "commit": "one_immutable_revision_per_changed_gesture",
+      "invalid": "reject",
+      "name": "Shadows",
+      "operation_version": 1,
+      "parameter_version": 1,
+      "parameters": [
+        {
+          "default": 0,
+          "maximum": 2000,
+          "minimum": -2000,
+          "name": "milli_ev",
+          "step": 1,
+          "type": "integer",
+          "unit": "thousandths_shadow_exposure_stop"
+        }
+      ],
+      "preview": "detached_latest_generation",
+      "replay": "ordered_phase2_versions",
+      "serialization": "schema1_canonical_integer_json",
+      "tool_id": "pixaura.shadows",
+      "type": "pixaura.shadows"
+    },
+    {
+      "agent_exposable": true,
+      "capability": "offline_cpu",
+      "category": "detail",
+      "commit": "one_immutable_revision_per_changed_gesture",
+      "invalid": "reject",
+      "name": "Sharpen",
+      "operation_version": 1,
+      "parameter_version": 1,
+      "parameters": [
+        {
+          "default": 0,
+          "maximum": 1000,
+          "minimum": 0,
+          "name": "milli_amount",
+          "step": 1,
+          "type": "integer",
+          "unit": "thousandths_fixed_kernel_unsharp"
+        }
+      ],
+      "preview": "detached_latest_generation",
+      "replay": "ordered_phase2_versions",
+      "serialization": "schema1_canonical_integer_json",
+      "tool_id": "pixaura.sharpen",
+      "type": "pixaura.sharpen"
+    },
+    {
+      "agent_exposable": true,
+      "capability": "offline_cpu",
+      "category": "tone_color",
+      "commit": "one_immutable_revision_per_changed_gesture",
+      "invalid": "reject",
+      "name": "Temperature",
+      "operation_version": 1,
+      "parameter_version": 1,
+      "parameters": [
+        {
+          "default": 6504,
+          "maximum": 25000,
+          "minimum": 4000,
+          "name": "kelvin",
+          "step": 1,
+          "type": "integer",
+          "unit": "daylight_white_kelvin"
+        }
+      ],
+      "preview": "detached_latest_generation",
+      "replay": "ordered_phase2_versions",
+      "serialization": "schema1_canonical_integer_json",
+      "tool_id": "pixaura.temperature",
+      "type": "pixaura.temperature"
+    }
+  ]
+}

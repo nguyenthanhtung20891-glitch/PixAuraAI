@@ -95,7 +95,7 @@ Result<Vector<EditOperation>> parse_evaluation(std::string_view request);
 // Ephemeral agent representations only; reuse canonical JSON and operation validators.
 Result<String> agent_schema_binding(const ImageDocument&, std::string_view context);
 Result<String> canonical_agent_schema(std::string_view input, uint32_t kind,
-    const ImageDocument&, std::string_view context);
+    const ImageDocument&, std::string_view context, Vector<EditOperation>* validated = nullptr);
 struct PresetRecipe { String preset_id, name; Vector<EditOperation> operations; };
 Result<PresetRecipe> parse_preset(std::string_view recipe);
 Result<String> serialize_preset(const PresetRecipe& recipe);

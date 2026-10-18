@@ -23,7 +23,7 @@ int32_t pixaura_agent_schema_binding(uint32_t version,pixaura_document_context* 
         return schema_copy(binding.value,output,capacity,required);
     });
 }
-int32_t pixaura_agent_schema_canonicalize(uint32_t version,pixaura_document_context* context,
+static int32_t schema_work(bool bind,uint32_t version,pixaura_document_context* context,
     const pixaura_document_handle* base,const pixaura_agent_schema_request* request,
     const uint8_t* input,uint64_t bytes,uint8_t* output,uint64_t capacity,uint64_t* required){
     return boundary(nullptr,[&]{
@@ -36,6 +36,7 @@ int32_t pixaura_agent_schema_canonicalize(uint32_t version,pixaura_document_cont
         require(request->api_version==1,PIXAURA_UNSUPPORTED_ABI);
         require(request->struct_size==sizeof(*request) && request->reserved[0]==0 && request->reserved[1]==0 && request->reserved[2]==0);
         require((request->kind==1 || request->kind==2) && request->require_canonical<=1 && request->pre_cancel<=1);
+        if(bind)require(request->kind==2 && request->require_canonical==1);
         require(!request->pre_cancel,PIXAURA_DOCUMENT_CANCELLED);
         const auto h=live(context);Snapshot snapshot;uint64_t epoch=0;
         const String context_id(reinterpret_cast<const char*>(h.identity),32);
@@ -52,8 +53,15 @@ int32_t pixaura_agent_schema_canonicalize(uint32_t version,pixaura_document_cont
 #endif
         }
         SchemaLease lease{*h.registry};
+        Vector<EditOperation> validated;
         auto canonical=pixaura::document::canonical_agent_schema(
-            {reinterpret_cast<const char*>(input),static_cast<std::size_t>(bytes)},request->kind,*snapshot,context_id);
+            {reinterpret_cast<const char*>(input),static_cast<std::size_t>(bytes)},request->kind,*snapshot,context_id,bind?&validated:nullptr);
+        if(bind && !canonical.code){
+            for(const auto& op:validated){
+                const auto* descriptor=pixaura::manual::find(op.type,op.operation_version,op.parameter_version);
+                require(descriptor && pixaura::manual::agent_exposable(*descriptor),PIXAURA_DOCUMENT_UNSUPPORTED_OPERATION);
+            }
+        }
 #ifdef PIXAURA_CERTIFICATION_TESTING
         if(checkpoint)checkpoint(checkpoint_state);
 #endif
@@ -63,8 +71,34 @@ int32_t pixaura_agent_schema_canonicalize(uint32_t version,pixaura_document_cont
         require(h.registry->snapshots.count(base->serial)!=0,PIXAURA_DOCUMENT_STALE_BASE);
         if(canonical.code)throw Failure{canonical.code};
         if(request->require_canonical)require(canonical.value==std::string_view(reinterpret_cast<const char*>(input),static_cast<std::size_t>(bytes)),PIXAURA_DOCUMENT_INVALID_PROJECT);
+        if(bind){
+            canonical.value.pop_back(); // remove ONLY the already-verified terminal LF
+            canonical.value=String("{\"approval\":\"not_approved\",\"binding_version\":1,\"plan\":")+canonical.value+",\"registry_version\":1}\n";
+            require(canonical.value.size()<=PIXAURA_AGENT_TOOLS_MAX_BINDING_BYTES,PIXAURA_DOCUMENT_RESOURCE_LIMIT);
+        }
         return schema_copy(canonical.value,output,capacity,required);
     });
+}
+int32_t pixaura_agent_schema_canonicalize(uint32_t version,pixaura_document_context* context,
+    const pixaura_document_handle* base,const pixaura_agent_schema_request* request,
+    const uint8_t* input,uint64_t bytes,uint8_t* output,uint64_t capacity,uint64_t* required){
+    return schema_work(false,version,context,base,request,input,bytes,output,capacity,required);
+}
+int32_t pixaura_agent_tools_registry(uint32_t version,uint32_t registry_version,
+    uint8_t* output,uint64_t capacity,uint64_t* required){
+    return boundary(nullptr,[&]{
+        agent_version(version);agent_version(registry_version);
+        agent_ranges({{output,capacity},{required,sizeof(*required),alignof(uint64_t)}});
+        auto json=pixaura::manual::agent_registry_json();
+        require(json.size()<=PIXAURA_AGENT_TOOLS_MAX_REGISTRY_BYTES,PIXAURA_DOCUMENT_RESOURCE_LIMIT);
+        return schema_copy(json,output,capacity,required);
+    });
+}
+int32_t pixaura_agent_tools_bind(uint32_t version,uint32_t registry_version,pixaura_document_context* context,
+    const pixaura_document_handle* base,const pixaura_agent_schema_request* request,
+    const uint8_t* input,uint64_t bytes,uint8_t* output,uint64_t capacity,uint64_t* required){
+    if(version!=1 || registry_version!=1)return PIXAURA_UNSUPPORTED_ABI;
+    return schema_work(true,version,context,base,request,input,bytes,output,capacity,required);
 }
 #ifdef PIXAURA_CERTIFICATION_TESTING
 int32_t pixaura_agent_schema_test_checkpoint(pixaura_document_context* context,void (*checkpoint)(void*),void* state){

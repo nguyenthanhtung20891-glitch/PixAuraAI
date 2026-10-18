@@ -569,7 +569,7 @@ Result<String> agent_schema_binding(const ImageDocument& doc, std::string_view c
     return attempt<String>([&]{return Writer().write(agent_binding_json(doc,context));});
 }
 Result<String> canonical_agent_schema(std::string_view input, uint32_t kind,
-    const ImageDocument& doc, std::string_view context) {
+    const ImageDocument& doc, std::string_view context, Vector<EditOperation>* validated) {
     return attempt<String>([&]{
         require(kind==1 || kind==2,PIXAURA_INVALID_ARGUMENT);
         require(!input.empty(),PIXAURA_INVALID_ARGUMENT);
@@ -597,7 +597,7 @@ Result<String> canonical_agent_schema(std::string_view input, uint32_t kind,
                 const auto checked=operation(Json(Json::Object{{"id",Json(temporary_id)},
                     {"type",field(action,"tool_id")},{"operation_version",field(action,"operation_version")},
                     {"parameter_version",field(action,"parameter_version")},{"parameters",field(action,"parameters")}}));
-                (void)checked;
+                if(validated)validated->push_back(checked);
             }
         }
         auto canonical=Writer().write(value);

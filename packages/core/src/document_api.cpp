@@ -1,6 +1,7 @@
 #include "pixaura/document.h"
 #include "pixaura/agent.h"
 #include "pixaura/agent_schema.h"
+#include "pixaura/agent_tools.h"
 #include "agent_schema_testing.hpp"
 #include "document.hpp"
 #include "manual_tools.hpp"

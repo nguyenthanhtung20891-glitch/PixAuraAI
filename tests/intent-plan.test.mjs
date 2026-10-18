@@ -24,7 +24,7 @@ test('independent canonical goldens/digests and native embedded fixtures agree c
 });
 test('current Step 2 authority retains eight steps and closes execution/approval',()=>{
     for(const file of ['AGENTS.md','ROADMAP.md','QUALITY_GATES.md','ARCHITECTURE.md','DECISIONS.md','docs/reports/phase-6-step-2.md']){
-        const text=read(file).split('## Phase 6 Step 1')[0];
+        const all=read(file),text=(all.includes('## Phase 6 Step 2')?all.slice(all.indexOf('## Phase 6 Step 2')):all).split('## Phase 6 Step 1')[0];
         for(const marker of ['Step 2','Step 3 NOT STARTED','Phase 7 NOT STARTED','Production model UNRESOLVED','DH-APPLE-METAL-01'])assert.ok(text.includes(marker),`${file}: ${marker}`);
     }
     const plan=read('docs/plans/phase-6-roadmap.md');

@@ -80,14 +80,15 @@ bool neutral(const EditOperation& op) {
     if(const auto* value=std::get_if<Detail>(&op.parameters))return value->value==0;
     return std::get<Rotate>(op.parameters).quarter_turns == 0;
 }
-String registry_json() {
+String registry_json(bool agent = false) {
     require(validate_descriptors(descriptors.data(), descriptors.size()) == 0, PIXAURA_DOCUMENT_INTERNAL_ERROR);
-    String output = "{\"descriptor_version\":1,\"tools\":[";
+    String output = agent ? "{\"registry_version\":1,\"tools\":[" : "{\"descriptor_version\":1,\"tools\":[";
     bool first = true;
     for (const auto& d : descriptors) {
+        if (agent && !agent_exposable(d)) continue;
         if (!first) output += ',';
         first = false;
-        output += "{\"capability\":\"offline_cpu\",\"category\":\""; output += d.category;
+        output += agent ? "{\"agent_exposable\":true,\"capability\":\"offline_cpu\",\"category\":\"" : "{\"capability\":\"offline_cpu\",\"category\":\""; output += d.category;
         output += "\",\"commit\":\"one_immutable_revision_per_changed_gesture\",\"invalid\":\"reject\",\"name\":\""; output += d.name;
         output += "\",\"operation_version\":"; number(output, d.operation_version);
         output += ",\"parameter_version\":"; number(output, d.parameter_version);
@@ -113,6 +114,15 @@ String registry_json() {
 bool is_neutral(const EditOperation& op) { return neutral(op); }
 bool preset_operation(const EditOperation& op) { const auto* descriptor=find(op.type,op.operation_version,op.parameter_version); return descriptor&&(descriptor->category=="tone_color"||descriptor->category=="detail"); }
 const std::array<Descriptor, 11>& registry() { return descriptors; }
+bool agent_exposable(const Descriptor& d) {
+    // Listing a future manual tool never implicitly grants agent exposure.
+    constexpr std::string_view allowed[] = {"pixaura.blur","pixaura.brightness",
+        "pixaura.contrast","pixaura.crop","pixaura.exposure","pixaura.highlights",
+        "pixaura.rotate","pixaura.saturation","pixaura.shadows","pixaura.sharpen","pixaura.temperature"};
+    return d.operation_version==1 && d.parameter_version==1 && d.tool_id==d.type &&
+        std::find(std::begin(allowed),std::end(allowed),d.tool_id)!=std::end(allowed);
+}
+String agent_registry_json() { return registry_json(true); }
 int32_t validate_descriptors(const Descriptor* table, std::size_t count) {
     if (!table || count == 0 || count > PIXAURA_MANUAL_MAX_DESCRIPTORS) return PIXAURA_DOCUMENT_RESOURCE_LIMIT;
     for (std::size_t i = 0; i < count; ++i) {

@@ -1,5 +1,24 @@
 # Quality gates and promotion policy
 
+## Phase 6 Step 3 — current authority
+
+Step 2 COMPLETE / FULL PASS at `578958979f2fc4b5fea4b53dfc3ecfee7aafe34f`:
+Foundation 39106599021 SUCCESS 7/7; Native application shells 39106599002 SUCCESS 3/3.
+Step 3 AUTHORIZED / IN PROGRESS; exact-SHA certification pending.
+[Editing tool registry v1](docs/contracts/editing-tool-registry-v1.md) and
+[Step 3 report](docs/reports/phase-6-step-3.md) govern immutable manual-derived
+editing metadata and canonical plan binding. Eleven explicitly allowed tools,
+exact existing integer/version/parameter semantics, deny by default. No plan
+mutation, approval, execution, planner, dynamic registration, persistence or AI UX.
+Both complete final-SHA workflows, registry/table/binding/security/side-effect
+and release-isolation tests, retained Phase 0–5 and Steps 1–2/manual gates,
+Windows/Linux/Apple/Android, active ASan/UBSan, workflow lint and diff check required.
+Production model UNRESOLVED. Schema 3 and Phase 5 unchanged. No runtime or weights.
+DH-APPLE-METAL-01 unchanged: DEFERRED, NOT WAIVED, NOT SATISFIED.
+Step 4 NOT STARTED. Phase 7 NOT STARTED. No Step 9+. STOP after Step 3.
+Historical authorization below is retained.
+
+
 ## Phase 6 Step 2 — current authority
 
 Step 1 COMPLETE / FULL PASS at `f07016da62556b0634fde8ed081b1361b8c9eb57`:
