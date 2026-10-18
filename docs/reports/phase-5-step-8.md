@@ -96,3 +96,17 @@ SHA; no old-SHA native/platform result is reported as Step 8 PASS here.
 * `ROADMAP.md`
 * `scripts/phase5-closure.mjs`
 * `tests/phase5-closure.test.mjs`
+* `platforms/ios/PixAuraAIUITests/ShellUITests.swift`
+
+## Closure CI remediation
+
+Candidate `28906d5b30ba0478f195dfc91cb91eac29f1f85f` passed Foundation
+39085975402 (7/7), but shells 39085975388 failed its retained gesture UI test.
+The cancel-completion waiter chained `exists` and `isEnabled` remote snapshots:
+the log shows Cancel resolution retries consuming the 20-second wait, while
+later editor actions and revision checks succeeded. This is not closure PASS.
+The A-class test fix queries Cancel existence/disabled state together, retaining
+the separate no-busy condition and original 20-second bound. Timeout diagnostics
+are bounded to 16 KiB. No product, native or inference behavior changes.
+Both complete workflows must execute again on the remediation SHA; the first
+candidate's successful jobs cannot substitute for final-SHA results.

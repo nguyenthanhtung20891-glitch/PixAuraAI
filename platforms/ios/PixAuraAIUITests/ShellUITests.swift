@@ -21,11 +21,19 @@ final class ShellUITests: XCTestCase {
             // The revision label already has the expected value on cancel and
             // neutral apply. Observe completion rather than racing the worker's
             // refresh with the next navigation query.
+            // Resolve existence and enabled state together. Reading isEnabled
+            // after exists can trigger XCTest's element-resolution retries on
+            // a replaced accessibility snapshot, exhausting the outer waiter.
+            let idle = app.staticTexts.matching(NSPredicate(format: "label == %@", "Editor busy"))
+            let inactive = app.buttons.matching(NSPredicate(format: "label == %@ AND enabled == false", "Cancel"))
             let terminal = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
-                let cancel = app.buttons["Cancel"].firstMatch
-                return !app.staticTexts["Editor busy"].exists && cancel.exists && !cancel.isEnabled
+                return idle.count == 0 && inactive.count == 1
             }, object: nil)
-            XCTAssertEqual(XCTWaiter.wait(for: [terminal], timeout: 20), .completed)
+            let result = XCTWaiter.wait(for: [terminal], timeout: 20)
+            XCTAssertEqual(result, .completed)
+            if result != .completed {
+                XCTFail("Gesture completion timeout\n\(String(app.debugDescription.prefix(16384)))")
+            }
         }
         var actionSequence = 0
         func selectControl(_ id: String) -> Bool {
