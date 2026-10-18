@@ -110,3 +110,11 @@ the separate no-busy condition and original 20-second bound. Timeout diagnostics
 are bounded to 16 KiB. No product, native or inference behavior changes.
 Both complete workflows must execute again on the remediation SHA; the first
 candidate's successful jobs cannot substitute for final-SHA results.
+
+Remediation `51b0fb18a784f070818de133828431e303721864` passed the changed
+cancel waiter, but shells 39087018810 rejected a later Geometry category tap:
+the relative-coordinate event returned, yet all 18 readiness polls and captured
+hierarchy retained Tone/Color (zero expected Geometry/crop matches). Replace only
+this fully visible first-category event with XCTest's resolved element hit point.
+There is still one tap, the same 20-second semantic readiness requirement, no
+retry or late-success override. This observed failure is not counted as PASS.

@@ -82,7 +82,14 @@ final class ShellUITests: XCTestCase {
                 XCTFail("Tool target is off screen: \(id)\n\(String(app.debugDescription.prefix(16384)))"); return false
             }
             print("PXUI action=\(sequence) id=\(id) stage=tap start_s=\(ProcessInfo.processInfo.systemUptime)")
-            button.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.25)).tap()
+            if id == "Geometry" {
+                // The first category is fully visible. Use XCTest's resolved
+                // hit point after cancellation changes the editor's layout;
+                // a relative coordinate event can finish without activation.
+                button.tap()
+            } else {
+                button.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.25)).tap()
+            }
             print("PXUI action=\(sequence) id=\(id) stage=tap-complete end_s=\(ProcessInfo.processInfo.systemUptime)")
             let control: NSPredicate
             switch id {
