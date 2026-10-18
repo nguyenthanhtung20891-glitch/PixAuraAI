@@ -1,5 +1,25 @@
 # Quality gates and promotion policy
 
+## Phase 5 Step 8 — closure authority
+
+Committed candidate status: PENDING_EXACT_SHA. Steps 1–7 COMPLETE / FULL PASS;
+Step 8 authorized for closure/certification only at
+`b46b30c26af0790d0715bc48d24093b83290b8fe`.
+Phase 5 becomes CLOSED / COMPLETE / FULL PASS only after BOTH complete workflows
+succeed on the final Step 8 SHA. The observed engineering receipt and final
+delivery resolve status and Step 8 identity; no baseline or pending job suffices.
+[Closure report](docs/reports/phase-5-closure.md),
+[Step 8 report](docs/reports/phase-5-step-8.md), and
+[candidate manifest](docs/reports/phase-5-closure-v1.json) record the finite scope.
+CPU release trust VALIDATED; Vulkan and Metal release trust UNKNOWN. All three
+accepted software suites PASS, retained again on the closure SHA. No provider is
+CERTIFIED. Production model UNRESOLVED. DH-APPLE-METAL-01 DEFERRED, NOT WAIVED,
+NOT SATISFIED; no physical Apple inference certification. Schema 3/profile unchanged;
+no weights, external runtime, AI UX or Editing Agent. Phase 6 NOT STARTED.
+STOP after Phase 5 closure; no Step 9+. This supersedes historical scope below.
+
+<!-- historical-authority -->
+
 ## Phase 5 Step 7 current authorization
 
 Step 6 COMPLETE / FULL PASS at `5592cd839c2607379c6cb8c02a4b42a44e80311d`,

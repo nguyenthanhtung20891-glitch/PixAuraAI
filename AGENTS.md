@@ -185,36 +185,25 @@ Accepted historical ADRs are superseded, not rewritten.
 
 ## 6. Current authorized scope
 
-Current scope:
+**Phase 5 Step 8 — Phase 5 closure only**, authorized at
+`b46b30c26af0790d0715bc48d24093b83290b8fe`.
+Steps 1–7 COMPLETE / FULL PASS. Committed closure candidate status PENDING_EXACT_SHA until
+both complete final-SHA workflows succeed and an observed engineering receipt
+records the final Step 8 SHA/results. Only then is Phase 5 CLOSED / COMPLETE /
+FULL PASS. See docs/reports/phase-5-closure.md and phase-5-step-8.md.
 
-**Phase 2 Step 3 — durable persistence and immutable asset storage**
-
-Authorized work includes:
-
-- SQLite project/document/history persistence;
-- immutable verified asset storage;
-- crash recovery;
-- persistence portability;
-- C/C++ and platform boundary integration;
-- Step 3 CI remediation;
-- Step 3 validation and documentation.
-
-Do not begin Phase 2 Step 4.
-
-Do not implement during Step 3:
-
-- image decoding;
-- pixel buffers;
-- rendering;
-- adjustment kernels;
-- GPU processing;
-- masks;
-- AI inference;
-- generative editing;
-- production editing UI.
+Autonomous work is limited to closure audit, documentation/consistency checks,
+retained regression/certification, exact-SHA CI remediation and A-class blockers.
+No product capability or new architecture. No trust promotion, operator/model
+expansion, runtime/dependency, persistence, AI UX or Editing Agent work.
+CPU release trust VALIDATED; Vulkan/Metal release trust UNKNOWN; no provider
+CERTIFIED. Software suites PASS remains separate from release trust.
+Production model UNRESOLVED. Profile and Schema 3 unchanged. No weights.
+DH-APPLE-METAL-01 DEFERRED, NOT WAIVED, NOT SATISFIED at its frozen later gates.
+Phase 6 NOT STARTED. No Step 9+. STOP after Phase 5 closure.
+User authorization in a later session is required for any new Phase/Step.
 
 ---
-
 ## 7. Core product invariants
 
 - Original images are immutable.

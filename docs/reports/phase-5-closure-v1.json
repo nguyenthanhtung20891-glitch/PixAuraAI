@@ -1,0 +1,313 @@
+{
+  "version": 1,
+  "phase": 5,
+  "scope": "Phase 5 Step 8 closure only",
+  "record_kind": "CLOSURE_CANDIDATE",
+  "runtime_authority": false,
+  "status": "PENDING_EXACT_SHA",
+  "certified_status": "CLOSED / COMPLETE / FULL PASS",
+  "final_sha": "FINAL_WORKFLOW_HEAD_SHA",
+  "baseline": "b46b30c26af0790d0715bc48d24093b83290b8fe",
+  "phase6": "NOT STARTED",
+  "production_model": "UNRESOLVED",
+  "schema3": "UNCHANGED",
+  "weights": "NONE",
+  "external_runtime": "NONE",
+  "ai_ux": "NONE",
+  "editing_agent": "NONE",
+  "profile": {
+    "id": "pixaura.onnx.reference-segmentation.v1",
+    "onnx_ir": 9,
+    "default_opset": 13,
+    "node_count": 1,
+    "operator": "Conv",
+    "kernel": [
+      1,
+      1
+    ],
+    "attributes": 0,
+    "bias": false,
+    "weights": "RGB quarter increments in [0,1] summing to one",
+    "type": "F32",
+    "layout": "NCHW",
+    "normalization": "FROZEN",
+    "output": "binary foreground probability",
+    "threshold": "foreground >= 0.5",
+    "parity": "abs(accelerator - CPU) <= 4e-38 + 3e-7 * abs(CPU)",
+    "threshold_band": "Step 7 unchanged; classification may differ inside closed CPU tolerance band"
+  },
+  "providers": [
+    {
+      "id": "cpu.reference.v1",
+      "version": 1,
+      "release_trust": "VALIDATED",
+      "release_trust_value": 1,
+      "accepted_software_suite": "PASS",
+      "accepted_sha": "b46b30c26af0790d0715bc48d24093b83290b8fe",
+      "closure_software_suite": "PENDING_EXACT_SHA",
+      "physical": "NOT CLAIMED"
+    },
+    {
+      "id": "android.vulkan.v1",
+      "version": 1,
+      "release_trust": "UNKNOWN",
+      "release_trust_value": 0,
+      "accepted_software_suite": "PASS",
+      "accepted_sha": "b46b30c26af0790d0715bc48d24093b83290b8fe",
+      "closure_software_suite": "PENDING_EXACT_SHA",
+      "physical_inference": "NOT OBSERVED",
+      "evidence_class": "emulator software/integration; historical exposure supporting only"
+    },
+    {
+      "id": "apple.metal.v1",
+      "version": 1,
+      "release_trust": "UNKNOWN",
+      "release_trust_value": 0,
+      "accepted_software_suite": "PASS",
+      "accepted_sha": "b46b30c26af0790d0715bc48d24093b83290b8fe",
+      "closure_software_suite": "PENDING_EXACT_SHA",
+      "physical_inference": "NOT OBSERVED",
+      "evidence_class": "hosted macOS/iOS Simulator software/integration only"
+    }
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "name": "Model Package & Manifest Contract",
+      "status": "COMPLETE / FULL PASS",
+      "final_sha": "8d5a30338c97a05e987ecf1324b86a2afb795356",
+      "contract": "model-package-v1",
+      "foundation_run": "38491704459",
+      "shells_run": "38491704500",
+      "evidence": "both complete same-SHA workflows SUCCESS; accepted historical evidence"
+    },
+    {
+      "step": 2,
+      "name": "Provider Abstraction & CPU Reference Provider",
+      "status": "COMPLETE / FULL PASS",
+      "final_sha": "58202caf1fd86215abe4650b208b2134cdca9b58",
+      "contract": "inference-provider-v1",
+      "foundation_run": "38605609607",
+      "shells_run": "38605609516",
+      "evidence": "both complete same-SHA workflows SUCCESS; accepted historical evidence"
+    },
+    {
+      "step": 3,
+      "name": "Android Local Inference Provider",
+      "status": "COMPLETE / FULL PASS",
+      "final_sha": "bf31eb33d5b5027236d71cf56da4c648d6b56255",
+      "contract": "android-inference-provider-v1",
+      "foundation_run": "38685139496",
+      "shells_run": "38685139454",
+      "evidence": "both complete same-SHA workflows SUCCESS; accepted historical evidence"
+    },
+    {
+      "step": 4,
+      "name": "Apple Local Inference Provider",
+      "status": "COMPLETE / FULL PASS",
+      "final_sha": "a3ad7e7a61030992d933b3ca68572f83604dd5a9",
+      "contract": "apple-inference-provider-v1",
+      "foundation_run": "38730904780",
+      "shells_run": "38730904823",
+      "evidence": "both complete same-SHA workflows SUCCESS; accepted historical evidence"
+    },
+    {
+      "step": 5,
+      "name": "Compact Segmentation Evaluation",
+      "status": "COMPLETE / FULL PASS",
+      "final_sha": "59d846967fffef7e735597f6b65301841659336f",
+      "contract": "segmentation-evaluation-v1",
+      "foundation_run": "38999701451",
+      "shells_run": "38999701458",
+      "evidence": "both complete same-SHA workflows SUCCESS; accepted historical evidence"
+    },
+    {
+      "step": 6,
+      "name": "Capability-Aware Admission & Fallback",
+      "status": "COMPLETE / FULL PASS",
+      "final_sha": "5592cd839c2607379c6cb8c02a4b42a44e80311d",
+      "contract": "inference-admission-v1",
+      "foundation_run": "39015611339",
+      "shells_run": "39015611451",
+      "evidence": "both complete same-SHA workflows SUCCESS; accepted historical evidence"
+    },
+    {
+      "step": 7,
+      "name": "Provider Parity & Security Certification",
+      "status": "COMPLETE / FULL PASS",
+      "final_sha": "b46b30c26af0790d0715bc48d24093b83290b8fe",
+      "contract": "inference-provider-certification-v1",
+      "foundation_run": "39038860025",
+      "shells_run": "39038860056",
+      "evidence": "both complete same-SHA workflows SUCCESS; accepted historical evidence"
+    },
+    {
+      "step": 8,
+      "name": "Phase 5 Closure",
+      "status": "PENDING_EXACT_SHA",
+      "final_sha": "FINAL_WORKFLOW_HEAD_SHA",
+      "contract": "phase-5-closure-v1",
+      "foundation_run": null,
+      "shells_run": null,
+      "evidence": "requires fresh both complete same-SHA workflows SUCCESS"
+    }
+  ],
+  "contracts": [
+    {
+      "id": "model-package-v1",
+      "version": 1,
+      "path": "docs/contracts/model-package-v1.md",
+      "sha256_lf": "b9e11f4826f38f91efc265650bc2457305f752acca90028f2bfe5bd6358ebccf"
+    },
+    {
+      "id": "inference-provider-v1",
+      "version": 1,
+      "path": "docs/contracts/inference-provider-v1.md",
+      "sha256_lf": "cfaa13a83c8bef551e95f0dd682f773febb6ebda4a4619289c2973ccbfd5ffbe"
+    },
+    {
+      "id": "cpu-reference-provider-v1",
+      "version": 1,
+      "path": "docs/contracts/cpu-reference-provider-v1.md",
+      "sha256_lf": "9d018fd5f94be2f6980f4a48ef61efe358931a14cbbd20e5c22ad9925f605b3e"
+    },
+    {
+      "id": "android-inference-provider-v1",
+      "version": 1,
+      "path": "docs/contracts/android-inference-provider-v1.md",
+      "sha256_lf": "23627cbc184b85bcda79b1e330a4ef86708d6c10c55c6e9e1e72b42755309197"
+    },
+    {
+      "id": "apple-inference-provider-v1",
+      "version": 1,
+      "path": "docs/contracts/apple-inference-provider-v1.md",
+      "sha256_lf": "2f6ab5a1c39d1d821f646fc2ca7e937a019fee89dd0e539c53020017978650d8"
+    },
+    {
+      "id": "segmentation-evaluation-v1",
+      "version": 1,
+      "path": "docs/contracts/segmentation-evaluation-v1.md",
+      "sha256_lf": "afdf85b1119dd723881523831f406cc0ff3dbbb922a506dd30065815a7eaf96a"
+    },
+    {
+      "id": "inference-admission-v1",
+      "version": 1,
+      "path": "docs/contracts/inference-admission-v1.md",
+      "sha256_lf": "d29ccd6923583748c3923abcb69999d907d451e72da1a10ffd4f31c332b2e0ca"
+    },
+    {
+      "id": "inference-provider-certification-v1",
+      "version": 1,
+      "path": "docs/contracts/inference-provider-certification-v1.md",
+      "sha256_lf": "437bbf9d00e737f440e3804912ca753471251812058c0184f42bdf1319b771a2"
+    }
+  ],
+  "resource_bounds": {
+    "context_control_bytes": 131072,
+    "context_min_bytes": 131072,
+    "context_max_bytes": 268435456,
+    "max_handles": 32,
+    "max_dimension": 1024,
+    "tensor_max_elements": 4194304,
+    "tensor_max_bytes": 16777216,
+    "reference_max_pixels": 1048576,
+    "reference_input_max_bytes": 12582912,
+    "reference_output_max_bytes": 4194304,
+    "reference_prepared_control_bytes": 4096,
+    "cpu_backend_transient_bytes": 0,
+    "admission_control_bytes": 8192,
+    "phase4_safety_room_bytes": 917504,
+    "phase4_total_control_safety_bytes": 1048576,
+    "vulkan_transient_bytes": 1638400,
+    "metal_transient_bytes": 1114112,
+    "gpu_tile_max_pixels": 16384,
+    "onnx_payload_max_bytes": 4096,
+    "onnx_max_fields": 128,
+    "onnx_max_nesting": 7,
+    "manifest_max_bytes": 65536,
+    "signature_bytes": 80,
+    "max_payload_files": 8,
+    "max_directory_entries": 10,
+    "payload_max_bytes": 67108864,
+    "package_payload_total_max_bytes": 134217728,
+    "package_data_max_bytes": 134283344,
+    "verification_control_bytes": 65536
+  },
+  "admission": {
+    "priority": {
+      "android": [
+        "android.vulkan.v1",
+        "cpu.reference.v1"
+      ],
+      "apple": [
+        "apple.metal.v1",
+        "cpu.reference.v1"
+      ],
+      "portable": [
+        "cpu.reference.v1"
+      ]
+    },
+    "automatic_release_selection": "cpu.reference.v1",
+    "fallback": "PRE-EXECUTION ONLY",
+    "post_start_cpu_replay": false,
+    "busy": "REJECT; NO UNBOUNDED QUEUE",
+    "capability_authority": "Phase 4 unchanged",
+    "recovery_observations": 3,
+    "stale_epoch": "REJECT / RELEASE / RE-ADMIT",
+    "persisted": false
+  },
+  "u2netp": [
+    "AUDITED",
+    "UNSUPPORTED BY CURRENT PROFILE",
+    "UNAPPROVED",
+    "UNINCORPORATED",
+    "CHECKPOINT RIGHTS UNRESOLVED"
+  ],
+  "deferred_gate": {
+    "id": "DH-APPLE-METAL-01",
+    "status": "DEFERRED",
+    "waived": false,
+    "satisfied": false,
+    "required_before": [
+      "Phase 11 hardening acceptance",
+      "Phase 12 Beta readiness completion",
+      "production release",
+      "physical Apple GPU certification claim"
+    ]
+  },
+  "deferred_B": [
+    "production segmentation model selection",
+    "broader operator/runtime architecture only if later approved",
+    "production artifact provenance/license and checkpoint rights",
+    "accelerator release-trust promotion policy",
+    "physical Apple Metal certification",
+    "later physical inference certification required by release policy"
+  ],
+  "optional_C": [
+    "additional physical measurements",
+    "optional tuning/research"
+  ],
+  "required_workflows": {
+    "foundation": {
+      "name": "Foundation boundaries",
+      "jobs": [
+        "workflow-lint",
+        "portable (ubuntu-24.04)",
+        "portable (windows-2025)",
+        "apple-boundary",
+        "sanitizer",
+        "android-boundary (arm64-v8a)",
+        "android-boundary (armeabi-v7a)"
+      ]
+    },
+    "shells": {
+      "name": "Native application shells",
+      "jobs": [
+        "source",
+        "android-app",
+        "ios-app"
+      ]
+    }
+  },
+  "certification_rule": "Only a receipt from completed SUCCESS jobs on the final Step 8 HEAD resolves pending fields; historical SHA results cannot close Step 8"
+}
