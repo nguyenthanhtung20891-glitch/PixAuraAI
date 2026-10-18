@@ -1,5 +1,28 @@
 # Quality gates and promotion policy
 
+## Phase 6 Step 1 — current authority
+
+Phase 5 CLOSED / COMPLETE / FULL PASS at
+`a66bbb0a303b707d48590df37cbd369148fba6a8`: Foundation 39087829531 SUCCESS
+7/7 and Native application shells 39087829537 SUCCESS 3/3.
+Phase 6 Step 1 AUTHORIZED / IN PROGRESS; exact-SHA certification pending.
+[Editing Agent core v1](docs/contracts/editing-agent-core-v1.md),
+[Step 1 report](docs/reports/phase-6-step-1.md) and
+[frozen eight-step roadmap](docs/plans/phase-6-roadmap.md) govern current work.
+Human approval remains authoritative. Proposals never mutate document/history;
+reuse native document/manual semantics. Intent, plan and execution stay distinct.
+Step 1 stages bounded operations only; no plan schema, planner, approval issuer,
+execution bridge, AI UX or new runtime. Both complete final-SHA workflows,
+agent security/side-effect/approval-bypass tests, retained Phase 0–5/manual gates,
+Windows/Linux/Apple/Android ARM ABIs, active ASan/UBSan, workflow lint and diff
+check are required. A: current boundary/evidence; B: later authorized steps;
+C: optional research. No architecture conflict or new ADR.
+Production model UNRESOLVED; Schema 3/profile unchanged; no weights/runtime.
+CPU release VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED,
+NOT WAIVED, NOT SATISFIED. Step 2 NOT STARTED. Phase 7 NOT STARTED.
+No Step 9+. STOP after Phase 6 Step 1. Historical authority below is retained.
+
+
 ## Phase 5 Step 8 — closure authority
 
 Committed candidate status: PENDING_EXACT_SHA. Steps 1–7 COMPLETE / FULL PASS;

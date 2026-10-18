@@ -1,4 +1,5 @@
 #include "pixaura/document.h"
+#include "pixaura/agent.h"
 #include "document.hpp"
 #include "manual_tools.hpp"
 #include "preset.hpp"
@@ -29,10 +30,16 @@ struct GestureEntry {
         if (raster && ticket.generation) (void)pixaura_preview_cancel(raster, &ticket);
     }
 };
+struct AgentEntry {
+    uint64_t base_serial;
+    String canonical;
+    int32_t terminal = 0;
+};
 struct Registry {
     std::mutex mutex;
     std::map<uint64_t, Snapshot> snapshots;
     std::map<uint64_t, GestureEntry> gestures;
+    std::map<uint64_t, AgentEntry> agents;
     uint64_t next = 1;
 };
 struct Header { uint64_t tag; Registry* registry; uint8_t identity[32]; };
@@ -97,7 +104,7 @@ Snapshot acquire(const Header& header, const pixaura_document_handle* handle) {
 }
 pixaura_document_handle insert_locked(const Header& header, Snapshot snapshot) {
     auto& registry = *header.registry;
-    require(registry.snapshots.size() + registry.gestures.size() < max_handles && registry.next != UINT64_MAX, PIXAURA_DOCUMENT_RESOURCE_LIMIT);
+    require(registry.snapshots.size() + registry.gestures.size() + registry.agents.size() < max_handles && registry.next != UINT64_MAX, PIXAURA_DOCUMENT_RESOURCE_LIMIT);
     const auto serial = registry.next;
     registry.snapshots.emplace(serial, std::move(snapshot)); ++registry.next;
     pixaura_document_handle result{}; result.api_version = 1; result.struct_size = sizeof(result); result.serial = serial;
@@ -249,7 +256,7 @@ static int32_t manual_begin(uint32_t version, pixaura_document_context* context,
         }
         for (const auto& entry : h.registry->gestures)
             require(!entry.second.controller->active(), PIXAURA_INVALID_ARGUMENT);
-        require(h.registry->snapshots.size() + h.registry->gestures.size() < max_handles &&
+        require(h.registry->snapshots.size() + h.registry->gestures.size() + h.registry->agents.size() < max_handles &&
             h.registry->next != UINT64_MAX, PIXAURA_DOCUMENT_RESOURCE_LIMIT);
         auto gesture = manual_result(pixaura::manual::Gesture::begin(snapshot,
             input_view(gesture_id, gesture_bytes, 32), tool, replace));
@@ -404,3 +411,4 @@ extern "C" int32_t pixaura_preset_propose(uint32_t version,pixaura_document_cont
         auto result=pixaura::preset::propose(prior,now,recipe_view,bindings_view,revision_view);auto proposal=unwrap(std::move(result));const bool mutation=proposal!=now;
         const auto handle=mutation?insert_locked(h,std::move(proposal)):*current;*output=handle;*changed=mutation?1u:0u;return PIXAURA_OK;});
 }
+#include "agent_boundary.hpp"

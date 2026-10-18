@@ -27,7 +27,10 @@ export function auditClosure(){
     assert.equal(plan.contracts.length,8);
     for(const contract of plan.contracts){assert.equal(contract.version,1);assert.equal(crypto.createHash('sha256').update(read(contract.path)).digest('hex'),contract.sha256_lf,`${contract.path}: frozen contract drift`);}
     for(const file of ['AGENTS.md','ROADMAP.md','QUALITY_GATES.md','ARCHITECTURE.md','DECISIONS.md','docs/plans/phase-5-roadmap.md','docs/reports/phase-5-closure.md','docs/reports/phase-5-step-8.md']){
-        const text=read(file),current=file==='AGENTS.md'?text.split('## 6. Current authorized scope')[1].split('## 7.')[0]:text.split('<!-- historical-authority -->')[0];
+        // Phase 6 authorization preserves the accepted Phase 5 block as history.
+        // Audit that exact block, rather than requiring Phase 6 to stay unstarted forever.
+        const text=read(file),current=file==='AGENTS.md'?text.split('<!-- phase5-closure-history -->')[1].split('## 7.')[0]:
+            (text.includes('## Phase 5 Step 8')?text.slice(text.indexOf('## Phase 5 Step 8')):text).split('<!-- historical-authority -->')[0];
         for(const marker of ['PENDING_EXACT_SHA','Phase 6 NOT STARTED','Production model UNRESOLVED','DH-APPLE-METAL-01','DEFERRED'])assert.ok(current.includes(marker),`${file}: missing ${marker}`);
         assert.ok(!/^Phase 5 (?:— )?CLOSED \/ COMPLETE \/ FULL PASS\.?$/m.test(current),`${file}: premature unconditional closure`);
     }
@@ -86,7 +89,7 @@ export function readSnapshot(file){
 
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
     const plan=auditClosure();
-    if(process.argv[2]==='--check')console.log('Phase 5 closure consistency PASS; effective status PENDING_EXACT_SHA until observed receipt');
+    if(process.argv[2]==='--check')console.log('Historical Phase 5 closure inventory consistency PASS; current authorization is tracked separately');
     else{
         assert.equal(process.argv[2],'--certify');assert.equal(process.argv.length,6);
         const head=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();

@@ -4,7 +4,8 @@ import fs from 'node:fs';
 const read = p => fs.readFileSync(new URL(`../${p}`, import.meta.url), 'utf8');
 test('geometry manual integration reuses shared history and preview boundaries', () => {
   const api = read('packages/core/src/document_api.cpp');
-  assert.match(api, /snapshots.size\(\) \+ registry.gestures.size\(\) < max_handles/);
+  assert.match(api, /snapshots.size\(\) \+ registry.gestures.size\(\) \+ registry.agents.size\(\) < max_handles/);
+  assert.match(api, /max_handles = 64/);
   assert.match(api, /descriptor->category == "geometry"/);
   assert.match(api, /trial->commit\(snapshot/);
   const preview = read('packages/core/src/manual_geometry_preview.cpp');
