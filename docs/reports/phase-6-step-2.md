@@ -71,3 +71,13 @@ report marker wording, corrected before full rerun. A local sanitizer test filte
 was misquoted by the shell; separate filters executed and passed. No check was
 disabled or loosened. Final full retained native/platform/sanitizer results must
 still be observed on the final commit before Step 2 closes.
+
+## CI provisioning retry
+
+Candidate `db30dc5e25cd39c918708b6e7ad2c8a1bca86ee5`, Foundation 39106320127:
+armeabi-v7a job 117612820196 failed BEFORE configure/compilation while SDK Manager
+installed the pinned NDK 28.2.13676358: `Error on ZipFile unknown archive`.
+The same run's arm64-v8a job installed that revision and passed. No source,
+toolchain pin, security check or ABI gate is changed to address this transient
+provisioning failure. This report-only retry commit requests fresh complete
+workflows on a new SHA; no result from this failed candidate certifies Step 2.
