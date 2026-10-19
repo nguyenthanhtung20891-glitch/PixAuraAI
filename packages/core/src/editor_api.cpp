@@ -1,16 +1,21 @@
 #include "pixaura/editor.h"
+#include "pixaura/agent_execution.h"
+#include "pixaura/agent_tools.h"
+#include "pixaura/agent.h"
+#include "pixaura/geometry.h"
 #include "storage.hpp"
 #include "storage_files.hpp"
 #include "sha256.hpp"
 #include "manual_tools.hpp"
+#include "evaluation.hpp"
 #include <array>
 #include <algorithm>
 #include <cstring>
 #include <filesystem>
 #include <mutex>
+#include <map>
 #include <new>
 #ifdef PIXAURA_CERTIFICATION_TESTING
-#include "evaluation.hpp"
 namespace pixaura::preview { void test_observer(pixaura_decode_context*,evaluation::Observer,void*); }
 #endif
 
@@ -43,6 +48,21 @@ struct Reader:storage::Reader {
     }
 };
 struct Service {
+    struct Approval {
+        pixaura_agent_proposal lease{};
+        String canonical,digest;
+        uint64_t base_serial=0;
+        uint32_t state=0; // 0 live, 1 revoked, 2 consumed
+    };
+    std::map<uint64_t,Approval> approvals;
+    String document_identity;
+    std::mutex agent_publication;
+    uint64_t agent_epoch=1;
+    pixaura_decode_handle agent_cancel{};
+#ifdef PIXAURA_CERTIFICATION_TESTING
+    void (*agent_checkpoint)(uint32_t,void*)=nullptr;
+    void* agent_checkpoint_state=nullptr;
+#endif
 #ifdef PIXAURA_CERTIFICATION_TESTING
     struct TestObserver { void (*callback)(uint32_t,void*)=nullptr;void* state=nullptr; } test_observer;
 #endif
@@ -139,6 +159,7 @@ static int32_t open_editor(uint32_t version,pixaura_editor_context* context,
     pixaura_execution_strategy initial_strategy{};
     if(profile){require(observation&&strategy);check(pixaura_policy_configure(1,&s->raster,profile,observation,&initial_strategy));}
     id=s->fresh();check(pixaura_document_context_init(1,&s->document,sizeof(s->document),byte_pointer(id),32,nullptr));
+    s->document_identity=id;
     const auto session=s->fresh();storage::Asset asset;storage::AssetStore assets(path);
     if(import_bytes){
         require(reader&&import_bytes<=dl.encoded_bytes,8);
@@ -273,3 +294,5 @@ extern "C" int32_t pixaura_editor_stop(pixaura_editor_context* c){return attempt
     if(!s.stopped){s.clear();s.stopped=true;check(pixaura_preview_stop(&s.raster));}});}
 extern "C" int32_t pixaura_editor_destroy(pixaura_editor_context* c){return attempt([&]{auto& s=owner(c);require(s.stopped,13);delete &s;
     *c={};c->api_version=1;c->struct_size=sizeof(*c);});}
+
+#include "agent_execution_boundary.hpp"

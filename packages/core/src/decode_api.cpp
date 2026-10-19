@@ -166,7 +166,12 @@ int32_t pixaura_working_evaluate_cancel(pixaura_decode_context* c,const pixaura_
     const auto stack=evaluation::parse(text(request,bytes,65536));
     room(*h.registry,evaluation::reservation(e.working.metadata.width,e.working.metadata.height,stack,*l)+1048576);
     evaluation::checkpoint(cancel.get(),evaluation::Checkpoint::allocation);
-    Entry result;result.source=e.source;result.working=evaluation::evaluate(e.working,stack,*l,cancel.get());
+    Entry result;result.source=e.source;
+#ifdef PIXAURA_CERTIFICATION_TESTING
+    result.working=evaluation::evaluate(e.working,stack,*l,cancel.get(),h.registry->observer,h.registry->observer_state);
+#else
+    result.working=evaluation::evaluate(e.working,stack,*l,cancel.get());
+#endif
     // Publication and signal share this lock: whichever commits first wins.
     std::lock_guard<std::mutex> guard(h.registry->cancellation_mutex);
     evaluation::checkpoint(cancel.get(),evaluation::Checkpoint::publication);
