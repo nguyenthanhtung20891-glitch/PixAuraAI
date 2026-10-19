@@ -1,6 +1,10 @@
 # Phase 6 Step 5 — plan validation, human approval and execution bridge
 
-Step 5 AUTHORIZED / IN PROGRESS; implementation and certification are not yet closed.
+Step 5 COMPLETE / FULL PASS.
+Implementation certification SHA: `266a1b6f9a9e2ca50c86b11387bedafeab236d87`.
+Foundation 39200707896 SUCCESS 7/7; Native application shells 39200707963 SUCCESS 3/3.
+The closure documentation commit has its own final SHA and requires both complete
+workflows independently; its observed receipt and final delivery record that evidence.
 Baseline `7fbde1668be48da347db084037f3ff12e5624445`, clean at audit.
 Step 4 closure Foundation 39194577029 SUCCESS 7/7; Native shells 39194577014
 SUCCESS 3/3. Step 6 NOT STARTED. Phase 7 NOT STARTED.
@@ -63,16 +67,23 @@ PASS, Windows source 113/113 PASS and Linux source 155/155 PASS with zero skips.
 Final affected approval/execution, independent C ABI and normal-object isolation
 tests: 3/3 PASS on Windows, Linux and active ASan/UBSan. Full sanitizer suite
 49/49 PASS; negative probes confirm actual ASan/UBSan instrumentation (exits
-86/87), with halt-on-error and no suppressions. Final workflow/platform
-certification remains unobserved.
+86/87), with halt-on-error and no suppressions. Exact-SHA implementation workflows both completed SUCCESS as recorded above.
 An initial full sanitizer run had a loader failure (shared library briefly too
 short during a concurrent local relink), not a sanitizer finding. The complete
 suite was rebuilt and passed 49/49 without concurrent relinking; that initial
 attempt does not count as PASS.
-Full retained local native/source/sanitizer and final-SHA platform workflows are
-required; results below are recorded only after observation. No unexecuted check
-is PASS. Windows, Linux, Apple native, Android both ARM ABIs, app gates, source
-consistency, active ASan/UBSan, workflow lint and diff check remain required.
+Both complete implementation workflows above PASS: Windows/Linux/Apple native,
+Android arm64-v8a and armeabi-v7a, Android debug/release/JVM/lint/instrumentation,
+Swift macOS/iOS Simulator, iOS app/UI, all retained Phase 0–5/Steps 1–4/manual
+gates, active ASan/UBSan, release isolation, source consistency and workflow lint.
+Apple results are hosted/simulator software evidence only, not physical certification.
+Local git diff --check PASS. No gate was skipped, loosened or substituted.
+
+Observed implementation counts: Windows native 46/46, Linux native 47/47,
+Apple native 47/47, ASan/UBSan 49/49, complete source 155/155. New execution
+corpus: 1039 assertions and zero failures on Windows/Linux/ASan; Apple native
+execution test PASS. Swift macOS and iOS Simulator each 32/32, Android emulator
+31/31, iOS app 7/7 and UI 2/2 PASS. Both Android ARM ABI jobs PASS.
 
 Native certification covers repo-owned single/crop-rotate/tone/detail/eight-action
 plans, exact digest/bytes, unchanged source, one revision, order, undo/redo/branch,
@@ -92,3 +103,14 @@ Registry v1 unchanged. Schema 3 and Phase 5 unchanged. Manual editing unchanged.
 Production model UNRESOLVED. No NLP/model, cloud/network, external runtime, weights
 or AI UX. DH-APPLE-METAL-01 DEFERRED, NOT WAIVED, NOT SATISFIED.
 Step 6 NOT STARTED. Phase 7 NOT STARTED. STOP AFTER STEP 5.
+
+## Closure authority
+
+Current authority and the eight-step roadmap agree: Steps 1–5 COMPLETE / FULL PASS;
+Steps 6–8 NOT STARTED; Phase 7 NOT STARTED. Source consistency checks enforce
+that state and require observed implementation SHA/workflow evidence on closure.
+Checks scope the current Phase 6 Step 5 section and reject conflicting status
+lines; unrelated historical Phase 5 Step 5 authorization cannot mask closure.
+This closure-only documentation commit independently runs both complete workflows
+on its own SHA; no implementation result substitutes for its certification.
+No runtime/product semantics change in the closure commit. STOP AFTER STEP 5.

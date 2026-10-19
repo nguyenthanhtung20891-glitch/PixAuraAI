@@ -1,6 +1,6 @@
 # Editing approval and execution v1
 
-Phase 6 Step 5. Additive C family 1 in `pixaura/agent_execution.h`. Plan v1,
+FROZEN Phase 6 Step 5. Additive C family 1 in `pixaura/agent_execution.h`. Plan v1,
 Intent v1, Structured Intent v1, Registry v1 and all editing semantics are unchanged.
 
 ## Authority

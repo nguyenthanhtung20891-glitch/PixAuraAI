@@ -14,7 +14,11 @@ its new commit requires independent certification by both complete workflows.
 Step 4 COMPLETE / FULL PASS at closure SHA
 `7fbde1668be48da347db084037f3ff12e5624445`:
 Foundation 39194577029 SUCCESS 7/7; Native application shells 39194577014 SUCCESS 3/3.
-Step 5 AUTHORIZED / IN PROGRESS; implementation and certification are not yet closed.
+Step 5 COMPLETE / FULL PASS.
+Implementation certification SHA: `266a1b6f9a9e2ca50c86b11387bedafeab236d87`.
+Foundation 39200707896 SUCCESS 7/7; Native application shells 39200707963 SUCCESS 3/3.
+The closure documentation commit has its own final SHA and requires both complete
+workflows independently; its observed receipt and final delivery record that evidence.
 [Approval/execution v1](../contracts/editing-approval-execution-v1.md) and
 [Step 5 report](../reports/phase-6-step-5.md) govern trusted human application
 approval, exact canonical Plan v1 binding, single-use ephemeral approvals and the
@@ -34,7 +38,7 @@ Phase 7 NOT STARTED. No Step 9+. STOP after Step 5. Historical authority follows
 | 2 | Versioned Intent & Editing Plan Schema | COMPLETE / FULL PASS |
 | 3 | Tool Capability Registry & Agent Tool Binding | COMPLETE / FULL PASS |
 | 4 | Deterministic Reference Planner | COMPLETE / FULL PASS |
-| 5 | Plan Validation, Approval & Execution Bridge | AUTHORIZED / IN PROGRESS |
+| 5 | Plan Validation, Approval & Execution Bridge | COMPLETE / FULL PASS |
 | 6 | Candidate Lifecycle, Cancellation & Stale Protection | NOT STARTED |
 | 7 | Cross-Platform Agent Integration & Security Certification | NOT STARTED |
 | 8 | Phase 6 Closure | NOT STARTED |

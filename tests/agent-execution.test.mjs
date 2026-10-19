@@ -5,9 +5,10 @@ const read=p=>fs.readFileSync(p,'utf8').replaceAll('\r\n','\n');
 test('Step 5 current authority and closure status agree across tracked sources',()=>{
  const files=['AGENTS.md','ARCHITECTURE.md','DECISIONS.md','QUALITY_GATES.md','ROADMAP.md','docs/plans/phase-6-roadmap.md','docs/reports/phase-6-step-5.md'];
  const states=files.map(p=>{
-  const s=read(p),at=s.indexOf('Step 5 AUTHORIZED / IN PROGRESS')>=0?'AUTHORIZED / IN PROGRESS':'COMPLETE / FULL PASS';
+  const s=read(p);
   const current=s.includes('## Phase 6 Step 5')?s.slice(s.indexOf('## Phase 6 Step 5')).split('## Phase 6 Step 4')[0]:s;
-  assert.ok(current.includes(`Step 5 ${at}`),p);
+  const states=[...current.matchAll(/^Step 5 (AUTHORIZED \/ IN PROGRESS|COMPLETE \/ FULL PASS)[.;]/gm)];
+  assert.equal(states.length,1,p+': require one explicit current Step 5 status');const at=states[0][1];
   for(const m of ['Step 6 NOT STARTED','Phase 7 NOT STARTED','Production model UNRESOLVED','DH-APPLE-METAL-01','NOT WAIVED','NOT SATISFIED'])assert.ok(current.includes(m),p+': '+m);
   if(at==='COMPLETE / FULL PASS'){
    assert.match(current,/Implementation certification SHA: `([a-f0-9]{40})`/);
