@@ -51,3 +51,11 @@ test('Step 6 current authority cannot close with stale or missing certification 
  assert.equal(rows[5][2],states[0]);assert.deepEqual(rows.slice(6).map(m=>m[2]),['NOT STARTED','NOT STARTED']);
  assert.ok(read('docs/contracts/editing-candidate-lifecycle-v1.md').includes('No queue, transfer, rebinding or resurrection'));
 });
+
+test('Android debug storage and core certification flags agree without release authority',()=>{
+ const s=read('platforms/android/native/CMakeLists.txt');const guarded=s.match(/if\(PIXAURA_CERTIFICATION_TESTING\)([\s\S]*?)endif\(\)/)[1];
+ assert.ok(guarded.includes('target_compile_definitions(pixaura_core PRIVATE PIXAURA_CERTIFICATION_TESTING'));
+ assert.ok(guarded.includes('target_compile_definitions(pixaura_storage PRIVATE PIXAURA_CERTIFICATION_TESTING)'));
+ assert.equal(s.split('target_compile_definitions(pixaura_storage PRIVATE PIXAURA_CERTIFICATION_TESTING)').length,2);
+ const app=read('platforms/android/app/build.gradle.kts');assert.match(app,/release[^\n]*PIXAURA_CERTIFICATION_TESTING=OFF/);
+});

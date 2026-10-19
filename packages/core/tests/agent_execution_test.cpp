@@ -197,13 +197,13 @@ int main(int argc,char** argv){CHECK(argc==2);const auto parent=std::filesystem:
   Owner life(parent,++serial);auto seed=life.plan(exposure());auto seed_approval=life.approve(seed);
   CHECK(life.execute(seed,&seed_approval)==0);life.release(seed_approval);
   if(scenario==2)CHECK(pixaura_editor_action(&life.c,2)==0);
-  auto plan=life.plan(exposure());auto approved=life.approve(plan);auto second=life.approve(plan);
+  auto plan=life.plan(exposure());auto approved=life.approve(plan);auto competing_approval=life.approve(plan);
   const auto initial=life.document();CHECK(life.durable()==initial);Hook h{&life,2,false};h.wait=true;
   CHECK(pixaura_test_agent_execution_checkpoint(&life.c,checkpoint,&h)==0);
   int outcome=-1;std::thread work([&]{outcome=life.execute(plan,&approved);});
   while(!h.entered.load())std::this_thread::yield();
   uint32_t state=99,active=99;CHECK(pixaura_test_agent_candidate_state(&life.c,&state,&active)==0&&state==2&&active==1);
-  CHECK(life.document()==initial);CHECK(life.execute(plan,&second)==8);
+  CHECK(life.document()==initial);CHECK(life.execute(plan,&competing_approval)==8);
   if(scenario==0){
    const int32_t value=200;CHECK(pixaura_editor_select(&life.c,4)==0);
    CHECK(pixaura_editor_update(&life.c,&value,1)==0);CHECK(pixaura_editor_action(&life.c,1)==0);
@@ -225,8 +225,8 @@ int main(int argc,char** argv){CHECK(argc==2);const auto parent=std::filesystem:
   if(scenario!=4){
    CHECK(pixaura_test_agent_execution_checkpoint(&life.c,nullptr,nullptr)==0);
    CHECK(life.execute(plan,&approved)==(scenario==5?3:15));
-   if(scenario==5){CHECK(life.execute(plan,&second)==9);}
-   if(scenario!=5){life.release(approved);}life.release(second);
+   if(scenario==5){CHECK(life.execute(plan,&competing_approval)==9);}
+   if(scenario!=5){life.release(approved);}life.release(competing_approval);
    if(scenario==6)CHECK(pixaura_editor_action(&life.c,0)==0);
    // Nonsticky recovery: fresh human approval, no implicit replan/reapproval.
    auto fresh=life.plan(exposure());auto fresh_approval=life.approve(fresh);

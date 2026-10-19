@@ -87,3 +87,18 @@ native filesystem must independently PASS all 47 retained tests before closure.
 
 Final focused Linux execution/C ABI/production-object scan 3/3 PASS,
 1471 assertions and zero failures. Final focused source checks 7/7 PASS.
+
+## Exact-SHA CI remediation
+
+Initial implementation b4baf2fa0ad6618b75267ccc03352e36e7431df4 is not certification.
+Foundation 39250793603 Windows compilation rejected a shadowed test local under
+MSVC C4456 /WX. Renamed only that local. Native shells 39250793480 Android debug
+linked the core's test-only storage hook without the storage target's matching
+certification define (Android host tests are OFF). Added the same define inside
+the existing Android debug-only certification guard; release remains OFF.
+A source regression check freezes that shared guard. No warning suppression,
+release hook, operation or lifecycle semantic change. New SHA needs both complete
+workflows; no old-SHA results substitute.
+
+Remediation verification: local Android arm64 debug full native build/link PASS;
+Windows focused native 3/3 and source checks 8/8 PASS. Release flag remains OFF.
