@@ -4,7 +4,11 @@
 
 Step 3 COMPLETE / FULL PASS at `fa6462e2bc1c0a88b30a46e69a9d982f8d843fe4`:
 Foundation 39131908247 SUCCESS 7/7; Native application shells 39131908300 SUCCESS 3/3.
-Step 4 AUTHORIZED / IN PROGRESS; exact-SHA certification pending.
+Step 4 COMPLETE / FULL PASS. Certified implementation SHA:
+`7c00b9193c649fb2f7addf2dc6cd6a558a84dee5`.
+Foundation 39136505109 SUCCESS 7/7; Native application shells 39136505094 SUCCESS 3/3.
+This closure-only documentation correction preserves that implementation evidence;
+its new commit requires independent certification by both complete workflows.
 Approved Option B: separate [Structured Intent v1](docs/contracts/editing-structured-intent-v1.md)
 and [deterministic reference planner v1](docs/contracts/editing-reference-planner-v1.md).
 Eleven explicit one-to-one goal/tool mappings; exact existing parameter validation,

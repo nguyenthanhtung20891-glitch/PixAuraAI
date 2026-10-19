@@ -3,6 +3,15 @@ const read=p=>fs.readFileSync(p,'utf8').replaceAll('\r\n','\n');
 const f=JSON.parse(read('tests/fixtures/reference-planner-v1.json'));
 const sort=v=>Array.isArray(v)?v.map(sort):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,sort(v[k])])):v;
 const canon=v=>JSON.stringify(sort(v))+'\n';const hash=s=>crypto.createHash('sha256').update(s).digest('hex');
+test('Step 4 closure authority records observed implementation certification consistently',()=>{
+ for(const path of ['AGENTS.md','ARCHITECTURE.md','DECISIONS.md','ROADMAP.md','QUALITY_GATES.md','docs/plans/phase-6-roadmap.md','docs/reports/phase-6-step-4.md']){
+  const current=read(path).split('## Phase 6 Step 3')[0];
+  for(const expected of ['Step 4 COMPLETE / FULL PASS','7c00b9193c649fb2f7addf2dc6cd6a558a84dee5','39136505109 SUCCESS 7/7','39136505094 SUCCESS 3/3','closure-only','Step 5 NOT STARTED','Phase 7 NOT STARTED'])assert.ok(current.includes(expected),path+': '+expected);
+  assert.doesNotMatch(current,/Step 4 AUTHORIZED \/ IN PROGRESS|PENDING_EXACT_SHA|certification candidate|exact-SHA certification pending/);
+ }
+ const rows=[...read('docs/plans/phase-6-roadmap.md').matchAll(/^\| (\d+) \| [^|]+ \| ([^|]+) \|$/gm)];
+ assert.deepEqual(rows.map(m=>[+m[1],m[2]]),[1,2,3,4,5,6,7,8].map(n=>[n,n<=4?'COMPLETE / FULL PASS':'NOT STARTED']));
+});
 test('independent structured intent to plan goldens and exact embedded bytes',()=>{
  assert.equal(f.cases.length,39);assert.equal(f.negative.length,42);assert.equal(f.mappings.length,11);
  const tools=JSON.parse(read('tests/fixtures/agent-tools-v1.json')).tools;

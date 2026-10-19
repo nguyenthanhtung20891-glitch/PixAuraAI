@@ -2,7 +2,11 @@
 
 Baseline `fa6462e2bc1c0a88b30a46e69a9d982f8d843fe4`, clean at audit. Step 3
 COMPLETE / FULL PASS: Foundation 39131908247 SUCCESS 7/7; Native application shells
-39131908300 SUCCESS 3/3. Step 4 AUTHORIZED / IN PROGRESS through exact-SHA gates.
+39131908300 SUCCESS 3/3. Step 4 COMPLETE / FULL PASS. Certified implementation SHA:
+`7c00b9193c649fb2f7addf2dc6cd6a558a84dee5`.
+Foundation 39136505109 SUCCESS 7/7; Native application shells 39136505094 SUCCESS 3/3.
+This closure-only documentation correction preserves that implementation evidence;
+its new commit requires independent certification by both complete workflows.
 Step 5 NOT STARTED. Phase 7 NOT STARTED. No Step 9+.
 
 ## Architecture decision and audit
@@ -63,13 +67,18 @@ size overflow are unreachable by fixed construction and bounds; explicit final
 checks remain. Unknown registry/tool tuples and denied exposure fail through
 shared authority, not fallback or semantic substitution.
 
-PENDING_EXACT_SHA until BOTH full final-SHA workflows succeed, including all
-Windows/Linux/Apple/Android and retained Phase 0–5/Steps 1–3/manual gates,
-active ASan/UBSan, source/canonical/security tests, production-object isolation,
-workflow lint and git diff --check. Observed final SHA/run results and counts are
-recorded in the bounded engineering receipt and final delivery after execution.
-No unexecuted check is PASS. Apple hosted/simulator software evidence is not
-physical certification.
+Observed implementation certification at `7c00b9193c649fb2f7addf2dc6cd6a558a84dee5`:
+Foundation boundaries 39136505109 SUCCESS 7/7 jobs; Native application shells
+39136505094 SUCCESS 3/3 jobs, both on that exact implementation SHA.
+Windows native 43/43, Linux native 44/44 and Apple native 44/44 PASS.
+Active ASan/UBSan 46/46 PASS, with negative instrumentation probes exiting 86/87
+and no suppressions. Source suite 152/152 PASS, zero skips. Planner 921836
+assertions, zero failures; retained Steps 1–3: 259/319633/655017 assertions,
+zero failures. Android arm64-v8a and armeabi-v7a, debug/release/JVM/lint and
+31 instrumentation tests PASS. Swift macOS and iOS Simulator each 32 tests PASS;
+iOS app 7 and UI 2 tests PASS. Retained Phase 0–5/manual gates, release isolation
+and workflow lint PASS. Apple hosted/simulator software evidence is not physical
+certification.
 
 A: current structured parser, deterministic reference mapping, security and retained
 certification. B: Step 5 approval/execution, Step 6 lifecycle, Step 7 integration,
@@ -89,10 +98,20 @@ PASS, zero skips; full retained Linux native suite 44/44 PASS. Retained Steps 1�
 manual and Phase 0–5 gates in those suites PASS. Final planner corpus under active
 ASan/UBSan: 921836 assertions, zero failures. Actual instrumentation confirmed by
 both negative probes (ASan exit 86; UBSan exit 87); no suppression. Full retained
-local sanitizer suite is still running and remains pending until observed.
+local sanitizer suite completed 46/46 PASS.
 Strict Clang diagnostics with explicit misleading-indentation warnings PASS;
-GCC/MSVC and Apple/Android full certification remain final-SHA CI evidence.
+GCC/MSVC and Apple/Android full certification PASS in the observed workflows above.
 Normal production-object scans, workflow lint and git diff --check PASS.
-No validation was removed or loosened. Observed full final-SHA workflow results,
-platform counts and final Step 4 identity are recorded after execution in the
-engineering receipt and delivery; this commit is a certification candidate.
+No validation was removed or loosened.
+
+## Closure-state remediation
+
+The subsequent A-class audit found stale tracked closure wording despite successful
+implementation certification. This correction updates current authority to Step 4
+COMPLETE / FULL PASS and records the observed implementation evidence above.
+Historical authorizations remain historical. Only documentation and a source
+consistency regression check change; no product/runtime semantics change.
+The closure-only commit has a separate SHA and requires both complete workflows
+on that new SHA. Its run IDs/results are recorded in the observed engineering
+receipt and final delivery; implementation workflow results do not certify it.
+Step 5 NOT STARTED. Phase 7 NOT STARTED. All frozen constraints remain unchanged.
