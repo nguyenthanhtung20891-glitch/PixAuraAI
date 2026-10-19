@@ -18,6 +18,11 @@
 extern "C" int32_t pixaura_test_editor_document(pixaura_editor_context*,uint8_t*,uint64_t,uint64_t*);
 extern "C" int32_t pixaura_test_agent_execution_checkpoint(pixaura_editor_context*,void (*)(uint32_t,void*),void*);
 extern "C" int32_t pixaura_test_editor_observe(pixaura_editor_context*,void (*)(uint32_t,void*),void*);
+extern "C" int32_t pixaura_test_agent_candidate_state(pixaura_editor_context*,uint32_t*,uint32_t*);
+extern "C" void pixaura_test_agent_storage_failure();
+extern "C" int32_t pixaura_test_agent_epoch_exhaust(pixaura_editor_context*);
+extern "C" int32_t pixaura_test_agent_durable(pixaura_editor_context*,uint8_t*,uint64_t,uint64_t*);
+extern "C" int32_t pixaura_test_agent_external_session(pixaura_editor_context*);
 static std::atomic<unsigned> checks{0};
 #define CHECK(x) do{++checks;if(!(x)){std::fprintf(stderr,"agent execution %d %s\n",__LINE__,#x);std::abort();}}while(false)
 static const uint8_t* b(const std::string& s){return reinterpret_cast<const uint8_t*>(s.data());}
@@ -36,6 +41,8 @@ struct Owner {
   CHECK((policy?pixaura_editor_open_policy(1,&c,b(path),path.size(),reinterpret_cast<const uint8_t*>(id),32,reader,&at,sizeof(decode_png),&profile,&observation,&strategy):pixaura_editor_open(1,&c,b(path),path.size(),reinterpret_cast<const uint8_t*>(id),32,reader,&at,sizeof(decode_png)))==0);}
  ~Owner(){CHECK(pixaura_editor_stop(&c)==0);CHECK(pixaura_editor_destroy(&c)==0);}
  std::string document(){uint64_t n=0;CHECK(pixaura_test_editor_document(&c,nullptr,0,&n)==0);std::string s(static_cast<std::size_t>(n),' ');CHECK(pixaura_test_editor_document(&c,reinterpret_cast<uint8_t*>(s.data()),n,&n)==0);return s;}
+ std::string durable(){uint64_t n=0;CHECK(pixaura_test_agent_durable(&c,nullptr,0,&n)==0);std::string s(static_cast<std::size_t>(n),' ');
+  CHECK(pixaura_test_agent_durable(&c,reinterpret_cast<uint8_t*>(s.data()),n,&n)==0);return s;}
  std::string binding(){uint64_t n=0;CHECK(pixaura_editor_agent_binding(1,&c,nullptr,0,&n)==11);std::string s(static_cast<std::size_t>(n),' ');CHECK(pixaura_editor_agent_binding(1,&c,reinterpret_cast<uint8_t*>(s.data()),n,&n)==0);s.pop_back();return s;}
  std::string plan(std::string fixture){const auto begin=fixture.find("\"binding\":")+10;const auto end=fixture.find('}',begin)+1;fixture.replace(begin,end-begin,binding());return fixture;}
  pixaura_agent_approval approve(const std::string& p){pixaura_agent_approval a{};const auto r=request();CHECK(pixaura_editor_agent_approve(1,&c,&r,b(p),p.size(),&a)==0);return a;}
@@ -183,5 +190,76 @@ int main(int argc,char** argv){CHECK(argc==2);const auto parent=std::filesystem:
  int independent1=-1,independent2=-1;
  std::thread independent_a([&]{independent1=o.execute(p,&a);});std::thread independent_b([&]{independent2=other.execute(other_plan,&other_approval);});independent_a.join();independent_b.join();
  CHECK(independent1==0&&independent2==0);o.release(a);other.release(other_approval);
+
+ // Step 6: private READY-stage work yields owner authority to manual edits,
+ // undo/redo ABA, cancellation, release and stop. No sleep-based race assertions.
+ for(unsigned scenario=0;scenario<7;++scenario){
+  Owner life(parent,++serial);auto seed=life.plan(exposure());auto seed_approval=life.approve(seed);
+  CHECK(life.execute(seed,&seed_approval)==0);life.release(seed_approval);
+  if(scenario==2)CHECK(pixaura_editor_action(&life.c,2)==0);
+  auto plan=life.plan(exposure());auto approved=life.approve(plan);auto second=life.approve(plan);
+  const auto initial=life.document();CHECK(life.durable()==initial);Hook h{&life,2,false};h.wait=true;
+  CHECK(pixaura_test_agent_execution_checkpoint(&life.c,checkpoint,&h)==0);
+  int outcome=-1;std::thread work([&]{outcome=life.execute(plan,&approved);});
+  while(!h.entered.load())std::this_thread::yield();
+  uint32_t state=99,active=99;CHECK(pixaura_test_agent_candidate_state(&life.c,&state,&active)==0&&state==2&&active==1);
+  CHECK(life.document()==initial);CHECK(life.execute(plan,&second)==8);
+  if(scenario==0){
+   const int32_t value=200;CHECK(pixaura_editor_select(&life.c,4)==0);
+   CHECK(pixaura_editor_update(&life.c,&value,1)==0);CHECK(pixaura_editor_action(&life.c,1)==0);
+  }else if(scenario==1){CHECK(pixaura_editor_action(&life.c,2)==0);CHECK(pixaura_editor_action(&life.c,3)==0);
+  }else if(scenario==2){CHECK(pixaura_editor_action(&life.c,3)==0);
+  }else if(scenario==3){CHECK(pixaura_editor_agent_cancel(1,&life.c)==0);
+  }else if(scenario==4){CHECK(pixaura_editor_stop(&life.c)==0);
+  }else if(scenario==5){life.release(approved);
+  }else {CHECK(pixaura_editor_select(&life.c,4)==0);}
+  const auto winner=scenario==4?initial:life.document();h.resume=true;work.join();
+  CHECK(outcome==(scenario<=2||scenario==6?9:scenario<=4?13:0));
+  CHECK(pixaura_test_agent_candidate_state(&life.c,&state,&active)==0&&active==0);
+  CHECK(state==(scenario<=2||scenario==6?6u:scenario<=4?5u:4u));
+  if(scenario!=5&&scenario!=4)CHECK(life.document()==winner);
+  if(scenario!=5){const auto disk=life.durable();if(disk!=winner){
+   std::size_t delta=0;while(delta<disk.size()&&delta<winner.size()&&disk[delta]==winner[delta])++delta;
+   std::fprintf(stderr,"durable scenario=%u offset=%zu disk=%zu live=%zu disk-tail=%.96s live-tail=%.96s\n",scenario,delta,disk.size(),winner.size(),disk.c_str()+delta,winner.c_str()+delta);
+  }CHECK(disk==winner);}
+  if(scenario!=4){
+   CHECK(pixaura_test_agent_execution_checkpoint(&life.c,nullptr,nullptr)==0);
+   CHECK(life.execute(plan,&approved)==(scenario==5?3:15));
+   if(scenario==5){CHECK(life.execute(plan,&second)==9);}
+   if(scenario!=5){life.release(approved);}life.release(second);
+   if(scenario==6)CHECK(pixaura_editor_action(&life.c,0)==0);
+   // Nonsticky recovery: fresh human approval, no implicit replan/reapproval.
+   auto fresh=life.plan(exposure());auto fresh_approval=life.approve(fresh);
+   CHECK(life.execute(fresh,&fresh_approval)==0);life.release(fresh_approval);
+   const auto published=life.document();CHECK(pixaura_editor_agent_cancel(1,&life.c)==0);
+   CHECK(life.document()==published);
+   CHECK(pixaura_test_agent_candidate_state(&life.c,&state,&active)==0&&state==4&&active==0);
+  }
+ }
+ // Independent authoritative session acquisition wins repository CAS even when
+ // this service's local live serial has not changed. Never publish stale work.
+ {Owner life(parent,++serial);auto plan=life.plan(exposure());auto approved=life.approve(plan);
+  Hook h{&life,2,false};h.wait=true;CHECK(pixaura_test_agent_execution_checkpoint(&life.c,checkpoint,&h)==0);
+  int outcome=-1;std::thread work([&]{outcome=life.execute(plan,&approved);});
+  while(!h.entered.load())std::this_thread::yield();
+  CHECK(pixaura_test_agent_external_session(&life.c)==0);
+  const auto authority=life.durable();h.resume=true;work.join();
+  CHECK(outcome==9&&life.durable()==authority);
+  uint32_t state=99,active=99;CHECK(pixaura_test_agent_candidate_state(&life.c,&state,&active)==0&&state==6&&active==0);
+  CHECK(life.execute(plan,&approved)==15);life.release(approved);
+ }
+ // Transaction failure occurs after SQL changes and before COMMIT: rollback
+ // preserves live state, and consumed authority cannot replay the failed plan.
+ {Owner life(parent,++serial);auto plan=life.plan(exposure());auto approved=life.approve(plan);
+  const auto initial=life.document();pixaura_test_agent_storage_failure();
+  CHECK(life.execute(plan,&approved)==12&&life.document()==initial);CHECK(life.durable()==initial);
+  CHECK(life.execute(plan,&approved)==15);life.release(approved);
+  auto fresh=life.approve(plan);CHECK(life.execute(plan,&fresh)==0);life.release(fresh);
+ }
+ {Owner life(parent,++serial);auto plan=life.plan(exposure());auto approved=life.approve(plan);
+  const auto initial=life.document();CHECK(pixaura_test_agent_epoch_exhaust(&life.c)==0);
+  CHECK(life.execute(plan,&approved)==8);CHECK(pixaura_editor_agent_cancel(1,&life.c)==8);
+  CHECK(life.document()==initial&&life.durable()==initial);life.release(approved);
+ }
  std::printf("agent execution: %u assertions, zero failures\n",checks.load());
 }

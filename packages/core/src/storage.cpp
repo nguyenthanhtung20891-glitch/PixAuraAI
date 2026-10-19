@@ -10,6 +10,10 @@
 #include <cstring>
 #include <limits>
 #include <cstdlib>
+#ifdef PIXAURA_CERTIFICATION_TESTING
+static thread_local bool agent_transaction_failure=false;
+namespace pixaura::storage { void agent_fail_transaction(){agent_transaction_failure=true;} }
+#endif
 namespace pixaura::storage {
 #ifdef PIXAURA_STORAGE_TESTING
 thread_local int migration_sqlite_error=SQLITE_OK;
@@ -178,7 +182,11 @@ Saved Repository::create(const document::ImageDocument& doc) {
 Saved Repository::apply(std::string_view command,uint64_t expected_epoch) {
     std::lock_guard<std::mutex> lock(mutex_);impl_->admit_write();Transaction tx(impl_->db,true);auto prior=impl_->load();require(prior.epoch==expected_epoch,9);require(prior.epoch<document::max_generation,8);
     auto next=unwrap(document::transition(*prior.snapshot,command));impl_->append(*next,prior.snapshot->operations().size(),prior.snapshot->revisions().size());impl_->redo(*next);
-    Statement q(impl_->db,"UPDATE documents SET current=?,generation=?,epoch=epoch+1 WHERE epoch=?");q.text(1,next->current().text());q.number(2,next->session().generation);q.number(3,expected_epoch);q.done();require(sqlite3_changes(impl_->db)==1,9);fault(Point::in_transaction);tx.commit();return impl_->after_commit(expected_epoch+1);
+    Statement q(impl_->db,"UPDATE documents SET current=?,generation=?,epoch=epoch+1 WHERE epoch=?");q.text(1,next->current().text());q.number(2,next->session().generation);q.number(3,expected_epoch);q.done();require(sqlite3_changes(impl_->db)==1,9);fault(Point::in_transaction);
+#ifdef PIXAURA_CERTIFICATION_TESTING
+    if(agent_transaction_failure){agent_transaction_failure=false;throw document::Failure{12};}
+#endif
+    tx.commit();return impl_->after_commit(expected_epoch+1);
 }
 bool Repository::checkpoint(){std::lock_guard<std::mutex> lock(mutex_);return impl_->checkpoint_locked();}
 void Repository::migrate(uint32_t expected,uint32_t target) {

@@ -129,7 +129,7 @@ extern "C" int32_t pixaura_editor_agent_execute(uint32_t version,pixaura_editor_
     execution_ranges({{c,sizeof(*c),alignof(pixaura_editor_context)},{r,sizeof(*r),alignof(pixaura_agent_execution_request)},
         {a,a?sizeof(*a):0,alignof(pixaura_agent_approval)},{input,bytes},{out,sizeof(*out),alignof(pixaura_agent_execution_receipt)}});
     execution_request(version,r);auto& s=owner(c);
-    std::unique_lock<std::mutex> lock(s.gate,std::try_to_lock);require(lock.owns_lock(),8);s.ready();
+    std::unique_lock<std::mutex> lock(s.gate,std::try_to_lock);require(lock.owns_lock(),8);s.ready();require(!s.agent_active,8);
     uint64_t epoch=0;
     {std::lock_guard<std::mutex> fence(s.agent_publication);require(s.agent_epoch!=UINT64_MAX,8);epoch=s.agent_epoch;}
     require(a!=nullptr,15);auto& approval=execution_approval(s,a);require(approval.state==0,15);
@@ -140,13 +140,22 @@ extern "C" int32_t pixaura_editor_agent_execute(uint32_t version,pixaura_editor_
     execution_checkpoint(s,0);
     // Linearized single-use reservation precedes all deterministic execution.
     {std::lock_guard<std::mutex> fence(s.agent_publication);require(s.agent_epoch==epoch,13);approval.state=2;}
+    s.agent_active=true;s.agent_candidate=Service::AgentCandidate::created;
+    struct ActiveCleanup { Service& s; uint64_t epoch; ~ActiveCleanup(){
+        std::lock_guard<std::mutex> fence(s.agent_publication);
+        if(s.agent_candidate==Service::AgentCandidate::created||s.agent_candidate==Service::AgentCandidate::running||s.agent_candidate==Service::AgentCandidate::ready)
+            s.agent_candidate=(s.agent_epoch!=epoch||s.stopped)?Service::AgentCandidate::cancelled:Service::AgentCandidate::failed;
+        s.agent_active=false;
+    }} active_cleanup{s,epoch};
+    const auto source=s.live.serial;
+    const auto digest=approval.digest;
     auto stack=good(document::replay(*s.loaded.snapshot,s.loaded.snapshot->current()));
     document::Vector<document::Id> ids;
     for(const auto& op:stack)ids.push_back(op.id);
     for(auto& op:operations){op.id=document::Id::parse(s.fresh());ids.push_back(op.id);stack.push_back(op);}
     const auto revision=document::Id::parse(s.fresh());
     document::DetachedCandidate candidate{s.loaded.snapshot->identity(),s.loaded.snapshot->current(),s.loaded.snapshot->session(),
-        std::move(ids),std::move(operations),revision,"ai",document::Id::parse(approval.digest.substr(0,32))};
+        std::move(ids),std::move(operations),revision,"ai",document::Id::parse(digest.substr(0,32))};
     const auto projection=good(document::serialize_evaluation(stack));
     pixaura_decode_handle evaluated{};
     struct Cleanup{Service& s;pixaura_decode_handle& evaluated;~Cleanup(){
@@ -156,27 +165,74 @@ extern "C" int32_t pixaura_editor_agent_execute(uint32_t version,pixaura_editor_
     }}cleanup{s,evaluated};
     {std::lock_guard<std::mutex> fence(s.agent_publication);require(epoch==s.agent_epoch,13);
         check(pixaura_cancel_create(&s.raster,1,&s.agent_cancel));}
-    execution_checkpoint(s,1);
-    check(pixaura_working_evaluate_cancel(&s.raster,&s.original,1,byte_pointer(projection),projection.size(),&s.limits,&s.agent_cancel,&evaluated));
-    execution_checkpoint(s,2);
+    s.agent_candidate=Service::AgentCandidate::running;
+    // No borrowed approval/map/snapshot storage crosses the unlocked pixel stage.
+    // The caller quiesces all work before destroy (ADR 0009); original is immutable.
+#ifdef PIXAURA_CERTIFICATION_TESTING
+    const auto private_checkpoint=s.agent_checkpoint;
+    auto* const private_checkpoint_state=s.agent_checkpoint_state;
+    const auto checkpoint_private=[&](uint32_t point){if(private_checkpoint)private_checkpoint(point,private_checkpoint_state);};
+#else
+    const auto checkpoint_private=[](uint32_t){};
+#endif
+    lock.unlock();
+    int32_t evaluation_status=0;
+    try {
+        checkpoint_private(1);
+        evaluation_status=pixaura_working_evaluate_cancel(&s.raster,&s.original,1,byte_pointer(projection),projection.size(),&s.limits,&s.agent_cancel,&evaluated);
+        checkpoint_private(2);
+    } catch(...) {lock.lock();throw;}
+    lock.lock();
+    {std::lock_guard<std::mutex> fence(s.agent_publication);
+        if(s.stopped||epoch!=s.agent_epoch){s.agent_candidate=Service::AgentCandidate::cancelled;throw Failure{13};}}
+    if(s.live.serial!=source||s.selected||s.proposal.serial){s.agent_candidate=Service::AgentCandidate::stale;throw Failure{9};}
+    check(evaluation_status);
+    s.agent_candidate=Service::AgentCandidate::ready;
     auto next=good(document::transition(*s.loaded.snapshot,candidate));
     auto command=good(document::serialize_commit(*s.loaded.snapshot,*next));
     pixaura_document_handle proposal{};
     check(pixaura_document_apply(1,&s.document,&s.live,byte_pointer(command),command.size(),&proposal,nullptr));
     struct ProposalCleanup{Service& s;pixaura_document_handle& h;~ProposalCleanup(){if(h.serial)(void)pixaura_document_release(&s.document,&h);}}proposal_cleanup{s,proposal};
     pixaura_agent_execution_receipt result{};result.api_version=1;result.struct_size=sizeof(result);result.approval_consumed=1;
-    std::memcpy(result.plan_sha256,approval.digest.data(),64);
+    std::memcpy(result.plan_sha256,digest.data(),64);
     std::memcpy(result.source_revision,s.loaded.snapshot->current().text().data(),32);
     std::memcpy(result.resulting_revision,revision.text().data(),32);
     execution_checkpoint(s,3);
     // Cancellation and durable publication share this lock: one authority wins.
-    std::lock_guard<std::mutex> fence(s.agent_publication);require(epoch==s.agent_epoch,13);
+    std::lock_guard<std::mutex> fence(s.agent_publication);
+    if(epoch!=s.agent_epoch){s.agent_candidate=Service::AgentCandidate::cancelled;throw Failure{13};}
     s.pending_command.swap(command);s.pending_snapshot=std::move(next);s.proposal=proposal;proposal={};
-    try{s.accept();}catch(...){if(s.proposal.serial)(void)pixaura_document_release(&s.document,&s.proposal);
+    try{s.accept();}catch(const Failure& e){
+        if(e.code==9)s.agent_candidate=Service::AgentCandidate::stale;
+        if(s.proposal.serial)(void)pixaura_document_release(&s.document,&s.proposal);
+        s.proposal={};s.pending_snapshot.reset();s.pending_command.clear();throw;
+    }catch(...){if(s.proposal.serial)(void)pixaura_document_release(&s.document,&s.proposal);
         s.proposal={};s.pending_snapshot.reset();s.pending_command.clear();throw;}
+    s.agent_candidate=Service::AgentCandidate::published;
     *out=result;
 });}
 #ifdef PIXAURA_CERTIFICATION_TESTING
+namespace pixaura::storage { void agent_fail_transaction(); }
+extern "C" PIXAURA_API int32_t pixaura_test_agent_durable(pixaura_editor_context* c,uint8_t* out,uint64_t capacity,uint64_t* required){return attempt([&]{
+    auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);require(required&&(!capacity||out));
+    storage::Repository repository(s.root);const auto loaded=repository.read();
+    const auto canonical=good(document::serialize(*loaded.snapshot));
+    *required=canonical.size();if(!out)return;require(capacity>=canonical.size(),11);
+    std::memcpy(out,canonical.data(),canonical.size());
+});}
+extern "C" PIXAURA_API int32_t pixaura_test_agent_external_session(pixaura_editor_context* c){return attempt([&]{
+    auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);storage::Repository repository(s.root);
+    (void)repository.open_session(String(32,'e'));
+});}
+extern "C" PIXAURA_API void pixaura_test_agent_storage_failure(){pixaura::storage::agent_fail_transaction();}
+extern "C" PIXAURA_API int32_t pixaura_test_agent_epoch_exhaust(pixaura_editor_context* c){return attempt([&]{
+    auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);require(!s.agent_active,8);
+    std::lock_guard<std::mutex> fence(s.agent_publication);s.agent_epoch=UINT64_MAX;
+});}
+extern "C" PIXAURA_API int32_t pixaura_test_agent_candidate_state(pixaura_editor_context* c,uint32_t* state,uint32_t* active){return attempt([&]{
+    auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);require(state&&active);
+    *state=static_cast<uint32_t>(s.agent_candidate);*active=s.agent_active?1u:0u;
+});}
 extern "C" PIXAURA_API int32_t pixaura_test_agent_execution_checkpoint(pixaura_editor_context* c,void (*callback)(uint32_t,void*),void* state){return attempt([&]{
     auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);s.agent_checkpoint=callback;s.agent_checkpoint_state=state;
 });}

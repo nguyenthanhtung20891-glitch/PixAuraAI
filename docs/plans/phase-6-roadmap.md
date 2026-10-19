@@ -1,5 +1,23 @@
 # Phase 6 — frozen eight-step roadmap
 
+## Phase 6 Step 6 - current authority
+
+Step 5 COMPLETE / FULL PASS at `80d9fb05b7ceb1f6dbb464fe371070e236a33bad`:
+Foundation 39202326671 SUCCESS 7/7; Native application shells 39202326788 SUCCESS 3/3.
+Step 6 AUTHORIZED / IN PROGRESS. Exact-SHA certification pending.
+Candidate lifecycle v1 governs one private execution per service, source-generation
+recheck, cancellation/publication fencing and stop -> join -> destroy.
+Approval authority and consumption remain frozen Step 5 semantics.
+Full retained Phase 0-5 and Steps 1-5, manual, lifecycle/race/failure, native hosts,
+Android both ABIs/apps, Apple hosted/simulator apps, active ASan/UBSan,
+release/test isolation, workflow lint and diff checks required.
+Intent v1, Structured Intent v1, Plan v1, Registry v1, Schema 3 and Phase 5 unchanged.
+Production model UNRESOLVED. No NLP/model, external runtime, weights or AI UX.
+DH-APPLE-METAL-01 DEFERRED, NOT WAIVED, NOT SATISFIED.
+Step 7 NOT STARTED. Phase 7 NOT STARTED. No Step 9+. STOP after Step 6.
+Historical authority follows.
+
+
 Phase 5 CLOSED / COMPLETE / FULL PASS at
 `a66bbb0a303b707d48590df37cbd369148fba6a8`:
 Foundation 39087829531 SUCCESS 7/7; Native application shells 39087829537 SUCCESS 3/3.
@@ -39,7 +57,7 @@ Phase 7 NOT STARTED. No Step 9+. STOP after Step 5. Historical authority follows
 | 3 | Tool Capability Registry & Agent Tool Binding | COMPLETE / FULL PASS |
 | 4 | Deterministic Reference Planner | COMPLETE / FULL PASS |
 | 5 | Plan Validation, Approval & Execution Bridge | COMPLETE / FULL PASS |
-| 6 | Candidate Lifecycle, Cancellation & Stale Protection | NOT STARTED |
+| 6 | Candidate Lifecycle, Cancellation & Stale Protection | AUTHORIZED / IN PROGRESS |
 | 7 | Cross-Platform Agent Integration & Security Certification | NOT STARTED |
 | 8 | Phase 6 Closure | NOT STARTED |
 

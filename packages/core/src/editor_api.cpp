@@ -58,6 +58,9 @@ struct Service {
     String document_identity;
     std::mutex agent_publication;
     uint64_t agent_epoch=1;
+    enum class AgentCandidate { idle, created, running, ready, published, cancelled, stale, failed };
+    AgentCandidate agent_candidate=AgentCandidate::idle;
+    bool agent_active=false;
     pixaura_decode_handle agent_cancel{};
 #ifdef PIXAURA_CERTIFICATION_TESTING
     void (*agent_checkpoint)(uint32_t,void*)=nullptr;
@@ -291,7 +294,12 @@ extern "C" int32_t pixaura_editor_render(pixaura_editor_context* c,const pixaura
     *out_width=metadata.width;*out_height=metadata.height;
 });}
 extern "C" int32_t pixaura_editor_stop(pixaura_editor_context* c){return attempt([&]{auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);
-    if(!s.stopped){s.clear();s.stopped=true;check(pixaura_preview_stop(&s.raster));}});}
+    if(!s.stopped){
+        // Stop wins owner authority before an unlocked private candidate can publish.
+        {std::lock_guard<std::mutex> fence(s.agent_publication);
+            if(s.agent_epoch!=UINT64_MAX)++s.agent_epoch;
+            if(s.agent_cancel.serial)check(pixaura_cancel_signal(&s.raster,&s.agent_cancel));}
+        s.clear();s.stopped=true;check(pixaura_preview_stop(&s.raster));}});}
 extern "C" int32_t pixaura_editor_destroy(pixaura_editor_context* c){return attempt([&]{auto& s=owner(c);require(s.stopped,13);delete &s;
     *c={};c->api_version=1;c->struct_size=sizeof(*c);});}
 

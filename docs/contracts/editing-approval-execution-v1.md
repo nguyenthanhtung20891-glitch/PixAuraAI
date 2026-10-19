@@ -87,9 +87,12 @@ history, history labels, execution callback, planner call or post-start replay.
 
 Execution uses try-lock admission: BUSY maps to existing RESOURCE=8 without an
 internal queue. Approval, revocation, release, manual edits and execution admission
-serialize under the existing owner mutex, so exactly one concurrent authority
-wins. Once execution wins admission, revocation/release wait and cannot invalidate
-borrowed state. If they win first, execution rejects. Context destruction remains
+serialize admission/publication under the existing owner mutex, so exactly one
+concurrent authority wins. Once execution wins admission, revocation/release cannot
+reverse consumption or invalidate its private copied state. If they win first,
+execution rejects. Step 6 [candidate lifecycle](editing-candidate-lifecycle-v1.md)
+clarifies private evaluation outside the owner mutex and source recheck before
+publication; approval authority and consumption are unchanged. Context destruction remains
 exclusive stop -> join all calls (including cancel) -> destroy under ADR 0009.
 
 Cancellation is nonsticky for future execution, using a bounded nonwrapping epoch

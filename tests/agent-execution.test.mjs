@@ -20,7 +20,8 @@ test('Step 5 current authority and closure status agree across tracked sources',
  assert.equal(new Set(states).size,1,'current authorities disagree');
  const rows=[...read('docs/plans/phase-6-roadmap.md').matchAll(/^\| (\d+) \| [^|]+ \| ([^|]+) \|$/gm)];
  assert.deepEqual(rows.map(m=>+m[1]),[1,2,3,4,5,6,7,8]);assert.deepEqual(rows.slice(0,4).map(m=>m[2]),Array(4).fill('COMPLETE / FULL PASS'));
- assert.equal(rows[4][2],states[0]);assert.deepEqual(rows.slice(5).map(m=>m[2]),Array(3).fill('NOT STARTED'));
+ assert.equal(rows[4][2],states[0]);assert.deepEqual(rows.slice(6).map(m=>m[2]),Array(2).fill('NOT STARTED'));
+ assert.ok(['AUTHORIZED / IN PROGRESS','COMPLETE / FULL PASS'].includes(rows[5][2]));
 });
 test('execution bridge reuses trusted validation and existing atomic history authority',()=>{
  const s=read('packages/core/src/agent_execution_boundary.hpp');
@@ -29,4 +30,24 @@ test('execution bridge reuses trusted validation and existing atomic history aut
  assert.ok(read('packages/core/src/editor_api.cpp').includes('#include "agent_execution_boundary.hpp"'));
  assert.ok(read('scripts/check-model-release.mjs').includes('pixaura_test_agent_execution_checkpoint'));
  for(const target of ['agent_execution_test','agent_execution_c_consumer','agent_execution_release_surface'])assert.ok(read('CMakeLists.txt').includes(`NAME ${target}`));
+});
+
+
+test('Step 6 current authority cannot close with stale or missing certification evidence',()=>{
+ const files=['AGENTS.md','ARCHITECTURE.md','DECISIONS.md','QUALITY_GATES.md','ROADMAP.md','docs/plans/phase-6-roadmap.md','docs/reports/phase-6-step-6.md'];
+ const states=files.map(p=>{
+  const s=read(p);const current=s.slice(s.indexOf('## Phase 6 Step 6')).split('## Phase 6 Step 5')[0];
+  const state=[...current.matchAll(/^Step 6 (AUTHORIZED \/ IN PROGRESS|COMPLETE \/ FULL PASS)[.;]/gm)];
+  assert.equal(state.length,1,p);const at=state[0][1];
+  for(const m of ['Step 7 NOT STARTED','Phase 7 NOT STARTED','Production model UNRESOLVED','Schema 3','DH-APPLE-METAL-01','NOT WAIVED','NOT SATISFIED'])assert.ok(current.includes(m),p+': '+m);
+  if(at==='COMPLETE / FULL PASS'){
+   assert.match(current,/Implementation certification SHA: `[a-f0-9]{40}`/);
+   assert.match(current,/Foundation \d+ SUCCESS 7\/7/);assert.match(current,/Native application shells \d+ SUCCESS 3\/3/);
+   assert.doesNotMatch(current,/PENDING_EXACT_SHA|certification pending|IN PROGRESS/);
+  }return at;
+ });
+ assert.equal(new Set(states).size,1);
+ const rows=[...read('docs/plans/phase-6-roadmap.md').matchAll(/^\| (\d+) \| [^|]+ \| ([^|]+) \|$/gm)];
+ assert.equal(rows[5][2],states[0]);assert.deepEqual(rows.slice(6).map(m=>m[2]),['NOT STARTED','NOT STARTED']);
+ assert.ok(read('docs/contracts/editing-candidate-lifecycle-v1.md').includes('No queue, transfer, rebinding or resurrection'));
 });
