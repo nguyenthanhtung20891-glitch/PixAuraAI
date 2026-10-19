@@ -4,7 +4,11 @@
 
 Step 5 COMPLETE / FULL PASS at `80d9fb05b7ceb1f6dbb464fe371070e236a33bad`:
 Foundation 39202326671 SUCCESS 7/7; Native application shells 39202326788 SUCCESS 3/3.
-Step 6 AUTHORIZED / IN PROGRESS. Exact-SHA certification pending.
+Step 6 COMPLETE / FULL PASS.
+Implementation certification SHA: `4e1c729ed1036756b4a337885e2c8c82d02f5f39`.
+Foundation 39251731223 SUCCESS 7/7; Native application shells 39251731280 SUCCESS 3/3.
+The closure documentation commit requires its own two complete exact-SHA workflows;
+its observed engineering receipt and final delivery record that separate evidence.
 Candidate lifecycle v1 governs one private execution per service, source-generation
 recheck, cancellation/publication fencing and stop -> join -> destroy.
 Approval authority and consumption remain frozen Step 5 semantics.

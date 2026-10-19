@@ -4,7 +4,11 @@
 
 Step 5 COMPLETE / FULL PASS at `80d9fb05b7ceb1f6dbb464fe371070e236a33bad`:
 Foundation 39202326671 SUCCESS 7/7; Native application shells 39202326788 SUCCESS 3/3.
-Step 6 AUTHORIZED / IN PROGRESS. Exact-SHA certification pending.
+Step 6 COMPLETE / FULL PASS.
+Implementation certification SHA: `4e1c729ed1036756b4a337885e2c8c82d02f5f39`.
+Foundation 39251731223 SUCCESS 7/7; Native application shells 39251731280 SUCCESS 3/3.
+The closure documentation commit requires its own two complete exact-SHA workflows;
+its observed engineering receipt and final delivery record that separate evidence.
 Candidate lifecycle v1 governs one private execution per service, source-generation
 recheck, cancellation/publication fencing and stop -> join -> destroy.
 Approval authority and consumption remain frozen Step 5 semantics.
@@ -19,7 +23,7 @@ Historical authority follows.
 
 ## Evidence
 
-Implementation and certification in progress. No unobserved gate is PASS.
+Implementation certification is observed COMPLETE / FULL PASS on the SHA above.
 ## Audit and implementation
 
 Audited Step 5 bridge, native Service ownership, DetachedCandidate transition,
@@ -34,7 +38,7 @@ candidate, then uses existing repository CAS and cancellation publication fence.
 No approval-map references survive the unlocked stage. Consumed approval release
 cannot invalidate private copied identity. BUSY never transfers approval or queues.
 
-## Observed local evidence (certification still pending)
+## Observed local evidence and implementation certification
 
 Full Windows native 46/46 PASS. Focused final native execution/C ABI/normal release
 object scan 3/3 PASS; execution corpus 1471 assertions, zero failures.
@@ -102,3 +106,29 @@ workflows; no old-SHA results substitute.
 
 Remediation verification: local Android arm64 debug full native build/link PASS;
 Windows focused native 3/3 and source checks 8/8 PASS. Release flag remains OFF.
+
+## Observed implementation certification
+
+Both complete workflows above passed on 4e1c729ed1036756b4a337885e2c8c82d02f5f39, every required job SUCCESS.
+Linux native 47/47 and active ASan/UBSan 49/49 PASS; both ran all 1471 lifecycle
+assertions without failure. ASan/UBSan probes confirmed instrumentation (86/87),
+no suppressions. Full retained source 157/157 PASS, zero skips. Windows native,
+Apple native, Swift macOS/iOS Simulator, both Android ARM ABIs, debug/release, JVM,
+lint, emulator instrumentation and iOS app/UI retained gates all PASS.
+Apple evidence remains hosted/simulator software evidence, never physical.
+Actual local Android core and storage artifacts with certification OFF also pass
+the production hook/anchor scan. No preliminary failed SHA substitutes for this
+certification. The closure-only commit has independent exact-SHA certification.
+
+A findings resolved: lifecycle fences, test SQLite ownership, MSVC shadowing and
+Android debug-only certification linkage. B Step 7/8 deferred; C not undertaken.
+No architecture blockers. Approval authority/consumption, Intent v1, Structured
+Intent v1, Plan v1, Registry v1, Schema 3 and Phase 5 semantics unchanged.
+Production model UNRESOLVED; no NLP/model, external runtime, weights or AI UX.
+DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+Step 7 NOT STARTED. Phase 7 NOT STARTED. STOP after Step 6.
+
+Observed implementation platform counts: Windows native 46/46; Linux native
+47/47; Apple native 47/47; Swift macOS 32/32; iOS Simulator 32/32;
+Android emulator instrumentation 31/31; iOS app 7/7 and UI 2/2.
+Both Android ARM ABI boundaries, debug/release/JVM/lint and release isolation PASS.
