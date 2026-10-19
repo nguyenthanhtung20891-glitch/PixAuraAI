@@ -130,16 +130,16 @@ extern "C" int32_t pixaura_editor_agent_execute(uint32_t version,pixaura_editor_
         {a,a?sizeof(*a):0,alignof(pixaura_agent_approval)},{input,bytes},{out,sizeof(*out),alignof(pixaura_agent_execution_receipt)}});
     execution_request(version,r);auto& s=owner(c);
     std::unique_lock<std::mutex> lock(s.gate,std::try_to_lock);require(lock.owns_lock(),8);s.ready();
-    require(a!=nullptr,15);auto& approval=execution_approval(s,a);require(approval.state==0,15);
-    require(approval.base_serial==s.live.serial,9);
-    auto operations=execution_plan(s,input,bytes);
-    require(approval.canonical==std::string_view(reinterpret_cast<const char*>(input),static_cast<std::size_t>(bytes)),15);
     uint64_t epoch=0;
     {std::lock_guard<std::mutex> fence(s.agent_publication);require(s.agent_epoch!=UINT64_MAX,8);epoch=s.agent_epoch;}
+    require(a!=nullptr,15);auto& approval=execution_approval(s,a);require(approval.state==0,15);
+    require(approval.base_serial==s.live.serial,9);
+    execution_checkpoint(s,4);
+    auto operations=execution_plan(s,input,bytes);
+    require(approval.canonical==std::string_view(reinterpret_cast<const char*>(input),static_cast<std::size_t>(bytes)),15);
     execution_checkpoint(s,0);
-    {std::lock_guard<std::mutex> fence(s.agent_publication);require(s.agent_epoch==epoch,13);}
     // Linearized single-use reservation precedes all deterministic execution.
-    approval.state=2;
+    {std::lock_guard<std::mutex> fence(s.agent_publication);require(s.agent_epoch==epoch,13);approval.state=2;}
     auto stack=good(document::replay(*s.loaded.snapshot,s.loaded.snapshot->current()));
     document::Vector<document::Id> ids;
     for(const auto& op:stack)ids.push_back(op.id);

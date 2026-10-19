@@ -23,6 +23,7 @@ static std::atomic<unsigned> checks{0};
 static const uint8_t* b(const std::string& s){return reinterpret_cast<const uint8_t*>(s.data());}
 static int64_t reader(void* p,uint8_t* out,uint64_t n){auto& at=*static_cast<std::size_t*>(p);n=std::min<uint64_t>(n,sizeof(decode_png)-at);std::memcpy(out,decode_png+at,static_cast<std::size_t>(n));at+=static_cast<std::size_t>(n);return static_cast<int64_t>(n);}
 static pixaura_agent_execution_request request(){return {1,sizeof(pixaura_agent_execution_request),1,0,{0,0,0,0}};}
+static std::string replace(std::string s,const std::string& from,const std::string& to){const auto at=s.find(from);CHECK(at!=std::string::npos);s.replace(at,from.size(),to);return s;}
 struct Owner {
  pixaura_editor_context c{};std::filesystem::path root;
  Owner(const std::filesystem::path& parent,unsigned serial,bool policy=true){char id[33];std::snprintf(id,sizeof(id),"%032x",serial);root=parent/(std::string("agent-execution-")+id);CHECK(std::filesystem::create_directory(root));
@@ -40,7 +41,8 @@ struct Owner {
  pixaura_agent_approval approve(const std::string& p){pixaura_agent_approval a{};const auto r=request();CHECK(pixaura_editor_agent_approve(1,&c,&r,b(p),p.size(),&a)==0);return a;}
  int execute(const std::string& p,const pixaura_agent_approval* a,pixaura_agent_execution_receipt* receipt=nullptr){const auto r=request();pixaura_agent_execution_receipt out;std::memset(&out,0xa5,sizeof(out));const auto sentinel=out;
   const auto code=pixaura_editor_agent_execute(1,&c,&r,a,b(p),p.size(),receipt?receipt:&out);
-  if(code&&!receipt)CHECK(std::memcmp(&out,&sentinel,sizeof(out))==0);return code;}
+  if(code&&!receipt){CHECK(std::memcmp(&out,&sentinel,sizeof(out))==0);}
+  return code;}
  void release(const pixaura_agent_approval& a){CHECK(pixaura_editor_agent_release(1,&c,&a)==0);}
 };
 static std::string exposure(){return std::string("{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":100},\"tool_id\":\"pixaura.exposure\"}],\"binding\":{},\"plan_version\":1}\n");}
@@ -105,6 +107,12 @@ int main(int argc,char** argv){CHECK(argc==2);const auto parent=std::filesystem:
  bad=request();bad.pre_cancel=1;CHECK(pixaura_editor_agent_approve(1,&o.c,&bad,b(p),p.size(),&sentinel)==13);
  bad=request();bad.struct_size=0;CHECK(pixaura_editor_agent_approve(1,&o.c,&bad,b(p),p.size(),&sentinel)==1);
  for(const auto& invalid:{std::string(),std::string(8193,'x'),std::string("{\"approved\":true}\n"),std::string("{}\n"),p+"x"})CHECK(pixaura_editor_agent_approve(1,&o.c,&r,b(invalid),invalid.size(),&sentinel)!=0);
+ for(const auto& invalid:{replace(p,"pixaura.exposure","pixaura.unlisted"),replace(p,"\"operation_version\":1","\"operation_version\":2"),
+     replace(p,"\"parameter_version\":1","\"parameter_version\":2"),replace(p,"100}","5001}"),replace(p,"milli_ev","unknown"),
+     replace(p,"{\"milli_ev\":100}","{}"),replace(p,"100}","true}"),replace(p,"{\"milli_ev\":100}","{\"milli_ev\":100,\"milli_ev\":100}"),
+     replace(p,"\"plan_version\":1","\"approved\":true,\"plan_version\":1"),replace(p,"100}","9223372036854775808}")}){
+  CHECK(pixaura_editor_agent_approve(1,&o.c,&r,b(invalid),invalid.size(),&sentinel)!=0);
+ }
  uint64_t required=123;std::array<uint8_t,8192> out{};CHECK(pixaura_editor_agent_validate(1,&o.c,&r,b(p),p.size(),out.data(),1,&required)==11&&required==p.size());
  CHECK(pixaura_editor_agent_validate(1,&o.c,&r,b(p),p.size(),out.data(),out.size(),&required)==0);CHECK(std::memcmp(out.data(),p.data(),p.size())==0);
  CHECK(pixaura_editor_agent_validate(1,&o.c,&r,b(p),p.size(),const_cast<uint8_t*>(b(p)),p.size(),&required)==1);
@@ -130,14 +138,20 @@ int main(int argc,char** argv){CHECK(argc==2);const auto parent=std::filesystem:
  for(const auto& f:pixaura::agent_schema_fixtures::cases){if(f.kind==2&&f.status!=0){const auto invalid=o.plan(f.input);CHECK(pixaura_editor_agent_approve(1,&o.c,&r,b(invalid),invalid.size(),&sentinel)!=0);}}
  // Cancellation at admission, submitted work and pre-publication. Later fault
  // after private full-stack evaluation must leave history byte-identical.
- for(uint32_t point=0;point<4;++point){a=o.approve(p);Hook h{&o,point,false};CHECK(pixaura_test_agent_execution_checkpoint(&o.c,checkpoint,&h)==0);
+ for(uint32_t point:{4u,0u,1u,2u,3u}){a=o.approve(p);Hook h{&o,point,false};CHECK(pixaura_test_agent_execution_checkpoint(&o.c,checkpoint,&h)==0);
   CHECK(o.execute(p,&a)==13);CHECK(o.document()==before);CHECK(pixaura_test_agent_execution_checkpoint(&o.c,nullptr,nullptr)==0);
-  if(point==0)CHECK(o.execute(p,&a)==0);else CHECK(o.execute(p,&a)==15);
-  o.release(a);if(point==0){CHECK(pixaura_editor_action(&o.c,2)==0);p=o.plan(exposure());before=o.document();}
+  if(point==0||point==4)CHECK(o.execute(p,&a)==0);else CHECK(o.execute(p,&a)==15);
+  o.release(a);if(point==0||point==4){CHECK(pixaura_editor_action(&o.c,2)==0);p=o.plan(exposure());before=o.document();}
  }
  a=o.approve(p);Hook failure{&o,2,true};CHECK(pixaura_test_agent_execution_checkpoint(&o.c,checkpoint,&failure)==0);CHECK(o.execute(p,&a)==7);CHECK(o.document()==before);CHECK(o.execute(p,&a)==15);o.release(a);CHECK(pixaura_test_agent_execution_checkpoint(&o.c,nullptr,nullptr)==0);
  a=o.approve(p);Hook oom{&o,1,false};oom.allocation=true;CHECK(pixaura_test_agent_execution_checkpoint(&o.c,checkpoint,&oom)==0);
  CHECK(o.execute(p,&a)==8&&o.document()==before);CHECK(o.execute(p,&a)==15);o.release(a);CHECK(pixaura_test_agent_execution_checkpoint(&o.c,nullptr,nullptr)==0);
+ // More failures than the unchanged 64-handle ceiling prove temporary raster /
+ // cancellation ownership is released, not merely reclaimed at context teardown.
+ for(unsigned repeat=0;repeat<72;++repeat){a=o.approve(p);Hook h{&o,2,true};
+  CHECK(pixaura_test_agent_execution_checkpoint(&o.c,checkpoint,&h)==0);CHECK(o.execute(p,&a)==7);
+  o.release(a);CHECK(pixaura_test_agent_execution_checkpoint(&o.c,nullptr,nullptr)==0);
+ }CHECK(o.document()==before);
  for(const auto& f:pixaura::agent_schema_fixtures::cases){if(f.kind!=2||f.status!=0)continue;auto multi=o.plan(f.canonical);
   if(multi.find("\"action_index\":1")==std::string::npos)continue;
   a=o.approve(multi);unsigned count=0;CHECK(pixaura_test_editor_observe(&o.c,later_action_failure,&count)==0);
@@ -156,7 +170,8 @@ int main(int argc,char** argv){CHECK(argc==2);const auto parent=std::filesystem:
   int executed=-1,terminal=-1;std::atomic<bool> terminal_started{false};
   std::thread executing([&]{executed=o.execute(p,&a);});while(!h.entered.load())std::this_thread::yield();
   std::thread revoking([&]{terminal_started=true;terminal=release?pixaura_editor_agent_release(1,&o.c,&a):pixaura_editor_agent_revoke(1,&o.c,&a);});
-  while(!terminal_started.load())std::this_thread::yield();h.resume=true;executing.join();revoking.join();CHECK(executed==0&&terminal==0);
+  while(!terminal_started.load()){std::this_thread::yield();}
+  h.resume=true;executing.join();revoking.join();CHECK(executed==0&&terminal==0);
   CHECK(pixaura_test_agent_execution_checkpoint(&o.c,nullptr,nullptr)==0);
   CHECK(o.execute(p,&a)==(release?3:15));if(!release)o.release(a);
  }

@@ -1,6 +1,7 @@
 #ifndef PIXAURA_AGENT_EXECUTION_H
 #define PIXAURA_AGENT_EXECUTION_H
 #include "editor.h"
+#include "agent.h"
 #ifdef __cplusplus
 extern "C" {
 #endif

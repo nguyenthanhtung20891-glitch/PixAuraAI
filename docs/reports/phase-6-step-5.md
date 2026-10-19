@@ -37,6 +37,14 @@ Consumption is single-use: prevalidation/pre-cancel/stale/admission cancellation
 does not consume. Once execution starts, approval is permanently consumed even
 if allocation, evaluator, cancellation or persistence later fails. No retry,
 fallback recipe, implicit reapproval or modified-plan execution.
+Review tightened admission: capture the cancellation epoch before validation and
+reserve consumption under the same cancellation fence. Cancellation during
+validation cannot be missed, and cancellation versus consumption has one winner.
+A deterministic pre-validation checkpoint verifies rejection without consumption.
+The first implementation workflow exposed GCC test indentation diagnostics,
+MSVC default-C static-assert syntax and missing C++ UBSan runtime linkage for the
+independent C consumer. Explicit braces, portable compile-time layout checks and
+the existing C-consumer C++ linker pattern fix those issues without suppressions.
 
 The existing editor Service owns live state and serializes mutation. Private
 full-stack evaluation uses the same cancellable geometry/tone/detail engine,
@@ -53,12 +61,14 @@ Focused Linux approval/execution tests and actual release-object scans PASS.
 Observed local retained gates: Windows native 46/46 PASS, Linux native 47/47
 PASS, Windows source 113/113 PASS and Linux source 155/155 PASS with zero skips.
 Final affected approval/execution, independent C ABI and normal-object isolation
-tests: 3/3 PASS on Windows, Linux and active ASan/UBSan. Full sanitizer suite is
-still running; final workflow/platform certification remains unobserved.
+tests: 3/3 PASS on Windows, Linux and active ASan/UBSan. Full sanitizer suite
+49/49 PASS; negative probes confirm actual ASan/UBSan instrumentation (exits
+86/87), with halt-on-error and no suppressions. Final workflow/platform
+certification remains unobserved.
 An initial full sanitizer run had a loader failure (shared library briefly too
 short during a concurrent local relink), not a sanitizer finding. The complete
-suite is rebuilt and rerun without concurrent relinking; that initial attempt
-does not count as PASS.
+suite was rebuilt and passed 49/49 without concurrent relinking; that initial
+attempt does not count as PASS.
 Full retained local native/source/sanitizer and final-SHA platform workflows are
 required; results below are recorded only after observation. No unexecuted check
 is PASS. Windows, Linux, Apple native, Android both ARM ABIs, app gates, source
