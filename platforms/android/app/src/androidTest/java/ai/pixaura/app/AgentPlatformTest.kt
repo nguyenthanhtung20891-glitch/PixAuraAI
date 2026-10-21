@@ -118,7 +118,7 @@ class AgentPlatformTest {
                 val closer = if (mode == 4) Thread { editor.close() }.also { it.start() } else null
                 if (mode == 4) {
                     val until = System.nanoTime() + TimeUnit.SECONDS.toNanos(10)
-                    while (System.nanoTime() < until) { try { editor.state() } catch (_: EditorFailure) { break }; Thread.sleep(1) }
+                    while (System.nanoTime() < until) { try { editor.agentBinding() } catch (e: EditorFailure) { assertEquals(13, e.status); break }; Thread.sleep(1) }
                 }
                 assertEquals(0, hooks.control(editor, 2))
                 assertTrue(done.await(10, TimeUnit.SECONDS)); worker.join(); closer?.join(10000)

@@ -71,8 +71,11 @@ No local Android device is attached; runtime instrumentation requires CI.
 The first active ASan/UBSan full run passed 48/49 but the exhaustive editor
 allocation-failure sweep hit its unchanged 600-second timeout while other builds
 were running on Windows-mounted storage. Logs show progress through boundary 2,
-allocation index 2560; no sanitizer report or deadlock evidence. A controlled
-focused rerun is required before treating this gate as PASS. No timeout, sanitizer,
+allocation index 2560; no sanitizer report or deadlock evidence. The controlled
+focused rerun passed 6/6: 1548 Agent assertions, 3740 recovered allocation failures,
+50042 editor checks and both active sanitizer negative probes. The unchanged
+editor test completed in 260.25 seconds. Implementation Foundation 39607400257
+also independently passed the full 49/49 sanitizer suite. No timeout, sanitizer,
 test or production semantics have been weakened to conceal the failure.
 
 This report does not count unexecuted checks as PASS. Implementation and closure commits each
@@ -82,6 +85,15 @@ physical Apple GPU certification. Historical Android physical Vulkan evidence is
 scope-specific supporting evidence, not new Agent/inference physical certification.
 
 ## Findings and scope
+
+The initial implementation `986cbed8af23edb5e505421e192fa2a24f9a9930`
+passed Foundation 39607400257 (7/7). Native shells 39607400052 exposed one
+instrumentation-test defect: its shutdown poll called the retained manual
+`state()` API, whose closed-owner contract uses IllegalStateException, while
+catching Agent EditorFailure. The exact stack identifies ManualEditor.kt:59.
+The test now polls `agentBinding()` and asserts its explicit stopped status 13.
+Manual/API/runtime semantics are unchanged. The old failed SHA is not reused
+as certification; the remediation SHA requires both complete workflows again.
 
 A: expose existing authority safely, close/join Agent calls, deterministic platform
 race/authority tests, status parity, release isolation and exact-SHA certification.
