@@ -9,5 +9,6 @@ int main(void){
     pixaura_agent_execution_receipt out={0};
     if(pixaura_editor_agent_execute(1,NULL,&r,NULL,NULL,0,&out)!=1)return 1;
     if(pixaura_editor_agent_cancel(2,NULL)!=2)return 2;
+    if(pixaura_editor_agent_plan(2,NULL,NULL,NULL,0,NULL,0,NULL)!=2)return 3;
     return out.api_version!=0;
 }

@@ -3,6 +3,7 @@ package ai.pixaura.bridge
 import android.graphics.Bitmap
 import java.io.InputStream
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.util.UUID
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -29,6 +30,9 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     private val storage = ByteBuffer.allocateDirect(nativeStorageSize())
     private var closed = false
     private var active = 0
+    private var agentCalls = 0
+    private var stopped = false
+    private var destroyed = false
     private var displayed: Bitmap? = null
     private var committed: Bitmap? = null
     private var requestedGeneration = 0L
@@ -98,13 +102,84 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     }
     internal fun hasRequestedPreview(): Boolean = gate.withLock { !closed && requestedGeneration != 0L }
     fun isRequested(request: Request): Boolean = gate.withLock { !closed && request.owner == identity && request.generation == requestedGeneration }
-    override fun close() = gate.withLock {
-        if (!closed) {
-            closed = true; checked(nativeStop(storage), "Close")
-            while (active != 0) idle.awaitUninterruptibly()
-            checked(nativeDestroy(storage), "Close")
+    /** Immutable untrusted proposal bytes; the core revalidates at every authority gate. */
+    class AgentPlan internal constructor(bytes: ByteArray) {
+        private val canonical = bytes.copyOf()
+        fun canonicalBytes(): ByteArray = canonical.copyOf()
+    }
+    class AgentApproval internal constructor(internal val owner: ManualEditor) : AutoCloseable {
+        internal val token: ByteBuffer = ByteBuffer.allocateDirect(56)
+        internal var owned = false
+        override fun close() = owner.releaseAgentApproval(this)
+    }
+    class AgentReceipt internal constructor() {
+        internal val buffer: ByteBuffer = ByteBuffer.allocateDirect(144)
+        private fun text(offset: Int, length: Int): String {
+            val bytes = ByteArray(length); val copy = buffer.duplicate(); copy.position(offset); copy.get(bytes)
+            return String(bytes, Charsets.US_ASCII)
+        }
+        val planSHA256: String get() = text(16, 64)
+        val sourceRevision: String get() = text(80, 32)
+        val resultingRevision: String get() = text(112, 32)
+    }
+    private fun agentBytes(mode: Int, input: ByteArray?): ByteArray = gate.withLock {
+        checked(if (closed) 13 else 0, "Agent")
+        val output = ByteBuffer.allocateDirect(8200).order(ByteOrder.nativeOrder())
+        checked(nativeAgentBytes(storage, mode, input, output), "Agent")
+        val length = output.getLong(0)
+        checked(if (length in 1..8192) 0 else 14, "Agent output")
+        ByteArray(length.toInt()).also { output.position(8); output.get(it) }
+    }
+    fun agentBinding(): ByteArray = agentBytes(1, null)
+    fun referenceAgentPlan(canonicalStructuredIntent: ByteArray): AgentPlan =
+        AgentPlan(agentBytes(3, canonicalStructuredIntent))
+    fun validateAgentPlan(canonicalPlan: ByteArray): AgentPlan = AgentPlan(agentBytes(2, canonicalPlan))
+    /** Trusted application boundary: invoke ONLY for explicit human confirmation.
+     * Never give an editor/approval capability to planner or model code. */
+    fun approveAgentPlanFromHuman(plan: AgentPlan): AgentApproval = gate.withLock {
+        checked(if (closed) 13 else 0, "Agent approval")
+        val approval = AgentApproval(this)
+        checked(nativeAgentApprove(storage, plan.canonicalBytes(), approval.token), "Agent approval")
+        approval.owned = true; approval
+    }
+    fun revokeAgentApproval(approval: AgentApproval) = gate.withLock {
+        checked(if (closed) 13 else nativeAgentTerminal(storage, approval.token, false), "Agent revocation")
+    }
+    private fun releaseAgentApproval(approval: AgentApproval) = gate.withLock {
+        if (approval.owned) {
+            if (!closed) checked(nativeAgentTerminal(storage, approval.token, true), "Agent release")
+            approval.owned = false
         }
     }
+    fun executeAgentPlan(plan: AgentPlan, approval: AgentApproval? = null): AgentReceipt {
+        // Allocate transport output before native publication; no JNI allocation
+        // or Java callback is needed after the core commits.
+        val result = AgentReceipt()
+        val bytes = plan.canonicalBytes()
+        gate.withLock {
+            checked(if (closed) 13 else if (agentCalls >= 8) 8 else 0, "Agent execution")
+            agentCalls++
+        }
+        try {
+            checked(nativeAgentExecute(storage, bytes, approval?.token, result.buffer), "Agent execution")
+            gate.withLock { requestedGeneration = 0 }
+            return result
+        } finally { gate.withLock { agentCalls--; idle.signalAll() } }
+    }
+    fun cancelAgentExecution() = gate.withLock {
+        checked(if (closed) 13 else nativeAgentCancel(storage), "Agent cancellation")
+    }
+    override fun close() = gate.withLock {
+        closed = true
+        if (!stopped) { checked(nativeStop(storage), "Close"); stopped = true }
+        while (active != 0 || agentCalls != 0) idle.awaitUninterruptibly()
+        if (!destroyed) { checked(nativeDestroy(storage), "Close"); destroyed = true }
+    }
+    private external fun nativeAgentBytes(storage: ByteBuffer, mode: Int, input: ByteArray?, output: ByteBuffer): Int
+    private external fun nativeAgentApprove(storage: ByteBuffer, plan: ByteArray, approval: ByteBuffer): Int
+    private external fun nativeAgentTerminal(storage: ByteBuffer, approval: ByteBuffer, release: Boolean): Int
+    private external fun nativeAgentExecute(storage: ByteBuffer, plan: ByteArray, approval: ByteBuffer?, receipt: ByteBuffer): Int
+    private external fun nativeAgentCancel(storage: ByteBuffer): Int
     private external fun nativeStorageSize(): Int
     private external fun nativeRequestSize(): Int
     private external fun nativeGeneration(request: ByteBuffer): Long

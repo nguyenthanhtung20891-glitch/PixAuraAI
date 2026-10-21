@@ -8,6 +8,8 @@ for(const file of process.argv.slice(2)){
         assert.equal(b.includes(marker),false,`${file}: test trust/certification surface in production object`);
     for(const marker of ['pixaura_test_agent_durable','pixaura_test_agent_external_session','pixaura_test_agent_epoch_exhaust','agent_fail_transaction','pixaura_test_agent_storage_failure','agent_transaction_failure','pixaura_test_agent_candidate_state','pixaura_test_agent_execution_checkpoint','agent_checkpoint_state','provider_security_certification','certification_output_fault','cpu_execution_calls','PXSEC','pixaura_agent_schema_test_','Agent schema v1 goldens','agent_tools_golden','pixaura.test.only','Agent tools v1 registry=11 exact','reference_planner_fixtures','Reference planner v1 goldens='])
         assert.equal(b.includes(Buffer.from(marker)),false,`${file}: Step 7 test surface in production object`);
+    for(const marker of ['pixaura_test_agent_platform_control','AgentPlatformHooks_nativeControl','platform_checkpoint'])
+        assert.equal(b.includes(Buffer.from(marker)),false,`${file}: platform certification hook in release`);
     console.log(`Model production trust isolation PASS: ${b.length} bytes`);
 }
 assert.ok(process.argv.length>2,'No production object inspected');

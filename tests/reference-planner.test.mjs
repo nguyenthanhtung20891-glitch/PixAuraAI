@@ -12,7 +12,8 @@ test('Step 4 closure authority records observed implementation certification con
  }
  const rows=[...read('docs/plans/phase-6-roadmap.md').matchAll(/^\| (\d+) \| [^|]+ \| ([^|]+) \|$/gm)];
  assert.deepEqual(rows.slice(0,4).map(m=>m[2]),Array(4).fill('COMPLETE / FULL PASS'));
- assert.deepEqual(rows.slice(6).map(m=>m[2]),Array(2).fill('NOT STARTED'));
+ assert.equal(rows[7][2],'NOT STARTED');
+ assert.ok(['NOT STARTED','AUTHORIZED / IN PROGRESS','COMPLETE / FULL PASS'].includes(rows[6][2]));
  assert.ok(['AUTHORIZED / IN PROGRESS','COMPLETE / FULL PASS'].includes(rows[5][2]));
  assert.ok(['NOT STARTED','AUTHORIZED / IN PROGRESS','COMPLETE / FULL PASS'].includes(rows[4][2])); // later Step 5 authorization preserves Step 4 certification
 });

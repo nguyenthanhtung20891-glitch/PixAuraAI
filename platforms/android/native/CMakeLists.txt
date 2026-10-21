@@ -19,7 +19,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/exposure_spirv.h"
     COMMAND "${PIXAURA_GLSLC}" --target-env=vulkan1.0 -O0 "${CMAKE_CURRENT_SOURCE_DIR}/exposure.comp" -o "${CMAKE_CURRENT_BINARY_DIR}/exposure.spv"
     COMMAND "${CMAKE_COMMAND}" "-DINPUT=${CMAKE_CURRENT_BINARY_DIR}/exposure.spv" "-DOUTPUT=${CMAKE_CURRENT_BINARY_DIR}/exposure_spirv.h" -P "${CMAKE_CURRENT_SOURCE_DIR}/../../../scripts/embed-spirv.cmake"
     DEPENDS exposure.comp ../../../scripts/embed-spirv.cmake VERBATIM)
-add_library(pixaura_bridge SHARED bridge.cpp editor_bridge.cpp asset_publication_bridge.cpp capability_bridge.cpp gpu_vulkan.cpp "${CMAKE_CURRENT_BINARY_DIR}/exposure_spirv.h")
+add_library(pixaura_bridge SHARED bridge.cpp editor_bridge.cpp agent_bridge.cpp asset_publication_bridge.cpp capability_bridge.cpp gpu_vulkan.cpp "${CMAKE_CURRENT_BINARY_DIR}/exposure_spirv.h")
 if(PIXAURA_CERTIFICATION_TESTING)
     target_sources(pixaura_bridge PRIVATE cross_tier_certification_bridge.cpp ../../../packages/core/tests/certification/certification.cpp)
     target_compile_definitions(pixaura_bridge PRIVATE PIXAURA_CERTIFICATION_TESTING)

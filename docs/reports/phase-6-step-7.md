@@ -1,0 +1,91 @@
+# Phase 6 Step 7 - cross-platform Agent integration and security certification
+
+## Phase 6 Step 7 - current authority
+
+Step 6 COMPLETE / FULL PASS at closure SHA
+`0251b485f844d70b496a525eb6541aea384ce51f`:
+Foundation 39283971353 SUCCESS 7/7; Native application shells 39283971479 SUCCESS 3/3.
+Step 7 AUTHORIZED / IN PROGRESS.
+Agent platform integration/security v1 governs thin Android JNI and Swift/C
+adapters over the existing native Agent/editor authority. Explicit trusted human
+approval, exact plan binding, single-use consumption, private candidates, source
+serial/epoch CAS, cancellation/publication fencing and stop -> join -> destroy
+remain unchanged. No platform validation, tool math, history or approval authority.
+Both complete implementation-SHA workflows then both complete closure-SHA workflows
+are required; no old-SHA substitution. Full retained Phase 0-5 and Steps 1-6,
+manual, platform/security/lifecycle/race, Windows/Linux/Apple/Android, active
+ASan/UBSan, release isolation, workflow lint and source/diff checks required.
+Intent v1, Structured Intent v1, Plan v1, Registry v1, Schema 3 and Phase 5 unchanged.
+Production model UNRESOLVED. CPU release VALIDATED; Vulkan/Metal UNKNOWN.
+No NLP/model, external runtime, weights, network or AI UX.
+DH-APPLE-METAL-01 DEFERRED, NOT WAIVED, NOT SATISFIED.
+Step 8 NOT STARTED. Phase 7 NOT STARTED. No Step 9+. STOP after Step 7.
+Historical authority follows.
+
+## Baseline and audit
+
+Clean main and origin/main verified at the Step 6 closure SHA above before edits.
+Audited Steps 1-6, native document/manual editing, candidate/publication locks,
+canonical parsing, Phase 4 policy, Phase 5 separation and ADR 0009 ownership.
+Existing approval/execution C ABI is reused. One additive planner delegate is
+needed because platform owners correctly hide the internal document/live handle.
+It delegates to existing reference planner with trusted service context under its
+owner lock; no second serializer, validator, planner or editing implementation.
+
+## Integration and security
+
+Android owns fixed direct transport storage, copied immutable plan bytes and
+typed approval/receipt wrappers. JNI checks exact capacities/alignment, bounded
+array lengths and enums before calling native authority. All JNI C++ exceptions
+are translated. No Java allocation/callback is required after native publication.
+Swift owns native context storage and typed approval objects; Data is value-owned.
+Both keep execution outside lifecycle locks, count in-flight Agent calls and join
+them alongside preview calls before destroy. Concurrent close callers all wait.
+There are no native callbacks retaining platform state. Explicit human approval
+is a trusted host capability, not a sandbox against malicious native application
+code; never hand an editor/approval issuer to a planner/model.
+
+Native status values remain authoritative, including 15 NOT_APPROVED, 8 RESOURCE,
+9 STALE and 13 CANCELLED/stopped. Unknown nonzero statuses remain failures.
+Platform adapters do not retry, reapprove, replan or publish history independently.
+One core candidate, no queue; transport admission bounded at eight calls per owner
+and native approval limit eight within existing combined handle ceilings.
+
+Debug-only fixed checkpoint rendezvous exercises real owner/JNI/C execution races
+without timing-dependent pixel workloads or retained platform callbacks. Native
+test entrypoints and Swift debug wrappers are absent from production; Android
+control owner exists only in instrumentation sources. Existing production object
+scans are extended for this surface. Existing native failure/rollback, source ABA,
+repository CAS, publication and handle corpora remain retained.
+
+## Certification evidence
+
+Observed local gates: Windows native 46/46; focused Agent/C consumer/release scan
+3/3 after adding the fixed checkpoint corpus; Windows retained source 117/117;
+Linux full source 159/159 and native 47/47. Android arm64-v8a and armeabi-v7a
+native builds PASS. Actual production core/storage/JNI libraries for both ARM
+ABIs PASS the expanded binary test-surface scan. Gradle debug/release application,
+both JVM suites, debug/release lint and instrumentation APK build PASS (151 tasks).
+No local Android device is attached; runtime instrumentation requires CI.
+
+The first active ASan/UBSan full run passed 48/49 but the exhaustive editor
+allocation-failure sweep hit its unchanged 600-second timeout while other builds
+were running on Windows-mounted storage. Logs show progress through boundary 2,
+allocation index 2560; no sanitizer report or deadlock evidence. A controlled
+focused rerun is required before treating this gate as PASS. No timeout, sanitizer,
+test or production semantics have been weakened to conceal the failure.
+
+This report does not count unexecuted checks as PASS. Implementation and closure commits each
+require independent complete Foundation (7 jobs) and Native shells (3 jobs) runs.
+Apple hosted macOS/iOS Simulator execution is software evidence only, never
+physical Apple GPU certification. Historical Android physical Vulkan evidence is
+scope-specific supporting evidence, not new Agent/inference physical certification.
+
+## Findings and scope
+
+A: expose existing authority safely, close/join Agent calls, deterministic platform
+race/authority tests, status parity, release isolation and exact-SHA certification.
+B: Phase 6 Step 8 closure and later Phase 7 product integration remain deferred.
+C: optional UX/model research and extra physical measurements remain deferred.
+No new tool, schema, registry, approval/candidate semantics or provider trust.
+U2NETP remains unresolved/unapproved/unincorporated. No model/runtime/weights/UI.

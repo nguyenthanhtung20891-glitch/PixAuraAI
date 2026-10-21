@@ -2,6 +2,7 @@
 #define PIXAURA_AGENT_EXECUTION_H
 #include "editor.h"
 #include "agent.h"
+#include "reference_planner.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -23,6 +24,10 @@ typedef struct pixaura_agent_execution_receipt {
 } pixaura_agent_execution_receipt;
 /* Inspect live authoritative binding for a future canonical Plan v1. */
 PIXAURA_API int32_t pixaura_editor_agent_binding(uint32_t,pixaura_editor_context*,uint8_t*,uint64_t,uint64_t*);
+/* Existing deterministic reference planner, using the editor's trusted live
+ * context. Canonical structured intent in; ordinary unapproved Plan v1 out.
+ * No internal document pointer, approval or editing authority is exposed. */
+PIXAURA_API int32_t pixaura_editor_agent_plan(uint32_t,pixaura_editor_context*,const pixaura_reference_planner_request*,const uint8_t*,uint64_t,uint8_t*,uint64_t,uint64_t*);
 /* Validate+bind only; copies exact canonical bytes for review, never approves. */
 PIXAURA_API int32_t pixaura_editor_agent_validate(uint32_t,pixaura_editor_context*,const pixaura_agent_execution_request*,const uint8_t*,uint64_t,uint8_t*,uint64_t,uint64_t*);
 /* Explicit human application confirmation. Validation is always repeated. */

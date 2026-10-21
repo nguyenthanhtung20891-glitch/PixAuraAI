@@ -2,6 +2,10 @@ import Foundation
 import CoreGraphics
 import Darwin
 import CPixAuraCore
+#if DEBUG
+@_silgen_name("pixaura_test_agent_platform_control")
+private func agentPlatformControl(_ context: UnsafeMutablePointer<pixaura_editor_context>, _ command: UInt32, _ point: UInt32) -> Int32
+#endif
 
 public struct ManualParameter: Decodable {
     public let name: String, unit: String
@@ -42,7 +46,8 @@ public struct ManualEditorFailure: Error, LocalizedError {
         switch status {
         case 7: meaning = "Invalid parameter"
         case 3, 9: meaning = "Stale edit; reopen the committed project"
-        case 8, 15: meaning = "Resource/admission failure"
+        case 8: meaning = "Resource/admission failure"
+        case 15: meaning = "Human approval required"
         case 5, 16: meaning = "Tool or image capability unavailable"
         default: meaning = "\(boundary) failure"
         }
@@ -90,7 +95,7 @@ public final class ManualEditor {
     private let gate = NSRecursiveLock()
     private let idle = NSCondition()
     private let identity = UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
-    private var closed = false, renders = 0
+    private var closed = false, destroyed = false, renders = 0, agentCalls = 0
     private var displayed: CGImage?, committed: CGImage?
     private var requestedGeneration: UInt64 = 0
     public private(set) var tools: [ManualTool] = []
@@ -214,15 +219,103 @@ public final class ManualEditor {
         gate.lock(); defer { gate.unlock() }
         return !closed && request.identity == identity && request.native.ticket.generation == requestedGeneration
     }
+    public struct AgentPlan {
+        public let canonicalBytes: Data
+        fileprivate init(_ bytes: Data) { canonicalBytes = bytes }
+    }
+    public final class AgentApproval {
+        fileprivate let owner: ManualEditor
+        fileprivate var token = pixaura_agent_approval()
+        fileprivate var owned = false
+        fileprivate init(_ owner: ManualEditor) { self.owner = owner }
+        public func close() { owner.releaseAgentApproval(self) }
+        deinit { close() }
+    }
+    public struct AgentReceipt {
+        public let planSHA256: String, sourceRevision: String, resultingRevision: String
+    }
+    private func agentRequest() -> pixaura_agent_execution_request {
+        var request = pixaura_agent_execution_request()
+        request.api_version = 1; request.struct_size = UInt32(MemoryLayout.size(ofValue: request)); request.registry_version = 1
+        return request
+    }
+    private func agentBytes(_ mode: Int, _ input: Data = Data()) throws -> Data {
+        gate.lock(); defer { gate.unlock() }; try checked(closed ? 13 : 0, "Agent")
+        var output = Data(count: 8192), size: UInt64 = 0, request = agentRequest()
+        let status = output.withUnsafeMutableBytes { out in input.withUnsafeBytes { bytes in
+            let source = bytes.bindMemory(to: UInt8.self).baseAddress
+            let destination = out.bindMemory(to: UInt8.self).baseAddress
+            if mode == 1 { return pixaura_editor_agent_binding(1, context, destination, 8192, &size) }
+            if mode == 2 { return pixaura_editor_agent_validate(1, context, &request, source, UInt64(bytes.count), destination, 8192, &size) }
+            var planner = pixaura_reference_planner_request()
+            planner.api_version = 1; planner.struct_size = UInt32(MemoryLayout.size(ofValue: planner))
+            planner.planner_version = 1; planner.registry_version = 1
+            return pixaura_editor_agent_plan(1, context, &planner, source, UInt64(bytes.count), destination, 8192, &size)
+        } }
+        try checked(status, "Agent"); try checked(size > 0 && size <= 8192 ? 0 : 14, "Agent")
+        output.count = Int(size); return output
+    }
+    public func agentBinding() throws -> Data { try agentBytes(1) }
+    public func referenceAgentPlan(_ canonicalStructuredIntent: Data) throws -> AgentPlan { AgentPlan(try agentBytes(3, canonicalStructuredIntent)) }
+    public func validateAgentPlan(_ canonicalPlan: Data) throws -> AgentPlan { AgentPlan(try agentBytes(2, canonicalPlan)) }
+    /// Trusted application confirmation only. Never invoked by planning/validation.
+    public func approveAgentPlanFromHuman(_ plan: AgentPlan) throws -> AgentApproval {
+        gate.lock(); defer { gate.unlock() }; try checked(closed ? 13 : 0, "Agent approval")
+        let approval = AgentApproval(self); var request = agentRequest()
+        try checked(plan.canonicalBytes.withUnsafeBytes {
+            pixaura_editor_agent_approve(1, context, &request, $0.bindMemory(to: UInt8.self).baseAddress, UInt64($0.count), &approval.token)
+        }, "Agent approval")
+        approval.owned = true; return approval
+    }
+    public func revokeAgentApproval(_ approval: AgentApproval) throws {
+        gate.lock(); defer { gate.unlock() }
+        try checked(closed ? 13 : pixaura_editor_agent_revoke(1, context, &approval.token), "Agent revocation")
+    }
+    private func releaseAgentApproval(_ approval: AgentApproval) {
+        gate.lock(); defer { gate.unlock() }
+        if approval.owned {
+            if !closed { _ = pixaura_editor_agent_release(1, context, &approval.token) }
+            approval.owned = false
+        }
+    }
+    public func executeAgentPlan(_ plan: AgentPlan, approval: AgentApproval? = nil) throws -> AgentReceipt {
+        gate.lock()
+        if closed { gate.unlock(); throw ManualEditorFailure(status: 13, boundary: "Agent execution") }
+        idle.lock()
+        if agentCalls >= 8 { idle.unlock(); gate.unlock(); throw ManualEditorFailure(status: 8, boundary: "Agent execution") }
+        agentCalls += 1; idle.unlock(); gate.unlock()
+        defer { idle.lock(); agentCalls -= 1; idle.broadcast(); idle.unlock() }
+        var request = agentRequest(), receipt = pixaura_agent_execution_receipt()
+        let status = plan.canonicalBytes.withUnsafeBytes { bytes -> Int32 in
+            if let approval {
+                // Immutable after approval; release/revoke never writes the token.
+                var token = approval.token
+                return pixaura_editor_agent_execute(1, context, &request, &token, bytes.bindMemory(to: UInt8.self).baseAddress, UInt64(bytes.count), &receipt)
+            }
+            return pixaura_editor_agent_execute(1, context, &request, nil, bytes.bindMemory(to: UInt8.self).baseAddress, UInt64(bytes.count), &receipt)
+        }
+        try checked(status, "Agent execution")
+        gate.lock(); requestedGeneration = 0; gate.unlock()
+        func text<T>(_ value: T) -> String { withUnsafeBytes(of: value) { String(decoding: $0, as: UTF8.self) } }
+        return AgentReceipt(planSHA256: text(receipt.plan_sha256), sourceRevision: text(receipt.source_revision), resultingRevision: text(receipt.resulting_revision))
+    }
+    public func cancelAgentExecution() throws {
+        gate.lock(); defer { gate.unlock() }
+        try checked(closed ? 13 : pixaura_editor_agent_cancel(1, context), "Agent cancellation")
+    }
+#if DEBUG
+    func agentTestControl(_ command: UInt32, _ point: UInt32 = 0) -> Int32 {
+        gate.lock(); defer { gate.unlock() }
+        return destroyed ? -1 : agentPlatformControl(context, command, point)
+    }
+#endif
     public func close() {
         gate.lock()
-        if !closed {
-            closed = true; _ = pixaura_editor_stop(context)
-            gate.unlock()
-            idle.lock(); while renders != 0 { idle.wait() }; idle.unlock()
-            gate.lock()
-            _ = pixaura_editor_destroy(context)
-        }
+        if !closed { closed = true; _ = pixaura_editor_stop(context) }
+        gate.unlock()
+        idle.lock(); while renders != 0 || agentCalls != 0 { idle.wait() }; idle.unlock()
+        gate.lock()
+        if !destroyed { _ = pixaura_editor_destroy(context); destroyed = true }
         gate.unlock()
     }
     deinit { close() }

@@ -86,6 +86,14 @@ extern "C" int32_t pixaura_editor_agent_binding(uint32_t version,pixaura_editor_
     auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);s.ready();
     execution_copy(good(document::agent_schema_binding(*s.loaded.snapshot,s.document_identity)),out,capacity,required);
 });}
+extern "C" int32_t pixaura_editor_agent_plan(uint32_t version,pixaura_editor_context* c,const pixaura_reference_planner_request* r,
+    const uint8_t* input,uint64_t bytes,uint8_t* out,uint64_t capacity,uint64_t* required){return attempt([&]{
+    require(version==1,2);
+    execution_ranges({{c,sizeof(*c),alignof(pixaura_editor_context)},{r,sizeof(*r),alignof(pixaura_reference_planner_request)},
+        {input,bytes},{out,capacity},{required,sizeof(*required),alignof(uint64_t)}});
+    auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);s.ready();
+    check(pixaura_reference_planner_plan(version,&s.document,&s.live,r,input,bytes,out,capacity,required));
+});}
 extern "C" int32_t pixaura_editor_agent_validate(uint32_t version,pixaura_editor_context* c,const pixaura_agent_execution_request* r,
     const uint8_t* input,uint64_t bytes,uint8_t* out,uint64_t capacity,uint64_t* required){return attempt([&]{
     execution_ranges({{c,sizeof(*c),alignof(pixaura_editor_context)},{r,sizeof(*r),alignof(pixaura_agent_execution_request)},
@@ -236,4 +244,28 @@ extern "C" PIXAURA_API int32_t pixaura_test_agent_candidate_state(pixaura_editor
 extern "C" PIXAURA_API int32_t pixaura_test_agent_execution_checkpoint(pixaura_editor_context* c,void (*callback)(uint32_t,void*),void* state){return attempt([&]{
     auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);s.agent_checkpoint=callback;s.agent_checkpoint_state=state;
 });}
+// Fixed debug-only rendezvous. No platform callback or retained platform pointer.
+// Owner must keep the service alive through resume and join, as for execution.
+static void platform_checkpoint(uint32_t point,void* raw){
+    auto& s=*static_cast<Service*>(raw);
+    if(s.platform_point.load()!=point)return;
+    s.platform_reached.store(point);
+    const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(30);
+    while(!s.platform_resume.load()){
+        if(std::chrono::steady_clock::now()>deadline)throw Failure{14};
+        std::this_thread::yield();
+    }
+}
+extern "C" PIXAURA_API int32_t pixaura_test_agent_platform_control(pixaura_editor_context* c,uint32_t command,uint32_t point){
+    if(command==0)return attempt([&]{auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);
+        require(!s.agent_active,8);require(point>=1&&point<=3);
+        s.platform_point=point;s.platform_reached=0;s.platform_resume=0;
+        s.agent_checkpoint=platform_checkpoint;s.agent_checkpoint_state=&s;
+    });
+    try{auto& s=owner(c);
+        if(command==1)return s.platform_reached.load()?1:0;
+        if(command==2){s.platform_resume=1;return 0;}
+        return -1;
+    }catch(...){return -1;}
+}
 #endif

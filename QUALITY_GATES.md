@@ -1,5 +1,28 @@
 # Quality gates and promotion policy
 
+## Phase 6 Step 7 - current authority
+
+Step 6 COMPLETE / FULL PASS at closure SHA
+`0251b485f844d70b496a525eb6541aea384ce51f`:
+Foundation 39283971353 SUCCESS 7/7; Native application shells 39283971479 SUCCESS 3/3.
+Step 7 AUTHORIZED / IN PROGRESS.
+Agent platform integration/security v1 governs thin Android JNI and Swift/C
+adapters over the existing native Agent/editor authority. Explicit trusted human
+approval, exact plan binding, single-use consumption, private candidates, source
+serial/epoch CAS, cancellation/publication fencing and stop -> join -> destroy
+remain unchanged. No platform validation, tool math, history or approval authority.
+Both complete implementation-SHA workflows then both complete closure-SHA workflows
+are required; no old-SHA substitution. Full retained Phase 0-5 and Steps 1-6,
+manual, platform/security/lifecycle/race, Windows/Linux/Apple/Android, active
+ASan/UBSan, release isolation, workflow lint and source/diff checks required.
+Intent v1, Structured Intent v1, Plan v1, Registry v1, Schema 3 and Phase 5 unchanged.
+Production model UNRESOLVED. CPU release VALIDATED; Vulkan/Metal UNKNOWN.
+No NLP/model, external runtime, weights, network or AI UX.
+DH-APPLE-METAL-01 DEFERRED, NOT WAIVED, NOT SATISFIED.
+Step 8 NOT STARTED. Phase 7 NOT STARTED. No Step 9+. STOP after Step 7.
+Historical authority follows.
+
+
 ## Phase 6 Step 6 - current authority
 
 Step 5 COMPLETE / FULL PASS at `80d9fb05b7ceb1f6dbb464fe371070e236a33bad`:

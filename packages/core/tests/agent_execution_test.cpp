@@ -23,6 +23,7 @@ extern "C" void pixaura_test_agent_storage_failure();
 extern "C" int32_t pixaura_test_agent_epoch_exhaust(pixaura_editor_context*);
 extern "C" int32_t pixaura_test_agent_durable(pixaura_editor_context*,uint8_t*,uint64_t,uint64_t*);
 extern "C" int32_t pixaura_test_agent_external_session(pixaura_editor_context*);
+extern "C" int32_t pixaura_test_agent_platform_control(pixaura_editor_context*,uint32_t,uint32_t);
 static std::atomic<unsigned> checks{0};
 #define CHECK(x) do{++checks;if(!(x)){std::fprintf(stderr,"agent execution %d %s\n",__LINE__,#x);std::abort();}}while(false)
 static const uint8_t* b(const std::string& s){return reinterpret_cast<const uint8_t*>(s.data());}
@@ -69,6 +70,33 @@ int main(int argc,char** argv){CHECK(argc==2);const auto parent=std::filesystem:
  // Repo-owned Step 2 full canonical plans cover single, geometry, tone, detail,
  // repeated tools and eight actions. Bind only the live trusted native envelope.
  unsigned serial=70000;
+ for(uint32_t point:{1u,3u}){Owner o(parent,++serial);const auto before=o.document();const auto p=o.plan(exposure());auto a=o.approve(p);
+  CHECK(pixaura_test_agent_platform_control(&o.c,0,point)==0);std::atomic<int> result{-1};
+  std::thread worker([&]{result=o.execute(p,&a);});
+  const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(10);
+  while(pixaura_test_agent_platform_control(&o.c,1,0)==0&&std::chrono::steady_clock::now()<deadline)std::this_thread::yield();
+  CHECK(pixaura_test_agent_platform_control(&o.c,1,0)==1);
+  CHECK(pixaura_editor_agent_cancel(1,&o.c)==0);
+  CHECK(pixaura_test_agent_platform_control(&o.c,2,0)==0);worker.join();
+  CHECK(result==13);CHECK(o.document()==before);CHECK(o.execute(p,&a)==15);o.release(a);
+ }
+ {Owner o(parent,++serial);const auto before=o.document();
+  const auto input=std::string("{\"binding\":")+o.binding()+",\"goal_id\":\"adjust.exposure\",\"parameters\":{\"milli_ev\":100},\"structured_intent_version\":1}\n";
+  pixaura_reference_planner_request r{1,sizeof(r),1,1,0,{0,0,0}};
+  std::array<uint8_t,8192> out{};uint64_t n=0;
+  CHECK(pixaura_editor_agent_plan(1,&o.c,&r,b(input),input.size(),nullptr,0,&n)==11);
+  CHECK(n==o.plan(exposure()).size());
+  CHECK(pixaura_editor_agent_plan(1,&o.c,&r,b(input),input.size(),out.data(),out.size(),&n)==0);
+  CHECK(std::string(reinterpret_cast<char*>(out.data()),static_cast<std::size_t>(n))==o.plan(exposure()));
+  CHECK(o.execute(o.plan(exposure()),nullptr)==15);CHECK(o.document()==before);
+  CHECK(pixaura_editor_agent_plan(2,&o.c,&r,b(input),input.size(),out.data(),out.size(),&n)==2);
+  r.registry_version=2;CHECK(pixaura_editor_agent_plan(1,&o.c,&r,b(input),input.size(),out.data(),out.size(),&n)==2);r.registry_version=1;
+  CHECK(pixaura_editor_agent_plan(1,&o.c,&r,b(input),input.size(),const_cast<uint8_t*>(b(input)),input.size(),&n)==1);
+  CHECK(pixaura_editor_agent_plan(1,&o.c,nullptr,b(input),input.size(),out.data(),out.size(),&n)==1);
+  const auto wrong=replace(input,"adjust.exposure","adjust.unlisted");
+  CHECK(pixaura_editor_agent_plan(1,&o.c,&r,b(wrong),wrong.size(),out.data(),out.size(),&n)==5);
+  CHECK(o.document()==before);
+ }
  for(const auto& f:pixaura::agent_schema_fixtures::cases){
   if(f.kind!=2||f.status!=0)continue;
   Owner o(parent,++serial);const auto before=o.document();const auto p=o.plan(f.canonical);

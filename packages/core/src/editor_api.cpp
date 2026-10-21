@@ -16,6 +16,11 @@
 #include <map>
 #include <new>
 #ifdef PIXAURA_CERTIFICATION_TESTING
+#include <atomic>
+#include <chrono>
+#include <thread>
+#endif
+#ifdef PIXAURA_CERTIFICATION_TESTING
 namespace pixaura::preview { void test_observer(pixaura_decode_context*,evaluation::Observer,void*); }
 #endif
 
@@ -65,6 +70,7 @@ struct Service {
 #ifdef PIXAURA_CERTIFICATION_TESTING
     void (*agent_checkpoint)(uint32_t,void*)=nullptr;
     void* agent_checkpoint_state=nullptr;
+    std::atomic<uint32_t> platform_point{0},platform_reached{0},platform_resume{0};
 #endif
 #ifdef PIXAURA_CERTIFICATION_TESTING
     struct TestObserver { void (*callback)(uint32_t,void*)=nullptr;void* state=nullptr; } test_observer;
