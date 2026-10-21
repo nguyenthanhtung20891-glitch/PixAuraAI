@@ -1,5 +1,10 @@
 # Phase 6 Step 2 — intent and editing plan schemas
 
+> Historical Step 2 engineering report. Accepted final closure evidence and current
+> integrated Phase 6 status are recorded in [Phase 6 closure](phase-6-closure.md).
+> Pending/future-step language below describes the original report time only.
+
+
 Baseline `f07016da62556b0634fde8ed081b1361b8c9eb57`, clean at audit. Step 1
 COMPLETE / FULL PASS: Foundation 39104299393 SUCCESS 7/7; shells 39104299376
 SUCCESS 3/3. Step 2 AUTHORIZED / IN PROGRESS through exact-SHA certification.

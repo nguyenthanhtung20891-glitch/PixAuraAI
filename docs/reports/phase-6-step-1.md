@@ -1,5 +1,10 @@
 # Phase 6 Step 1 — Editing Agent core and safety boundary
 
+> Historical Step 1 engineering report. Accepted final closure evidence and current
+> integrated Phase 6 status are recorded in [Phase 6 closure](phase-6-closure.md).
+> Pending/future-step language below describes the original report time only.
+
+
 Baseline `a66bbb0a303b707d48590df37cbd369148fba6a8`, clean at audit.
 Phase 5 CLOSED / COMPLETE / FULL PASS, accepted with Foundation 39087829531
 SUCCESS 7/7 and shells 39087829537 SUCCESS 3/3. Step 1 AUTHORIZED / IN PROGRESS;

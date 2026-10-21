@@ -1,5 +1,10 @@
 # Phase 6 Step 5 — plan validation, human approval and execution bridge
 
+> Historical Step 5 engineering report. Accepted final closure evidence and current
+> integrated Phase 6 status are recorded in [Phase 6 closure](phase-6-closure.md).
+> Pending/future-step language below describes the original report time only.
+
+
 Step 5 COMPLETE / FULL PASS.
 Implementation certification SHA: `266a1b6f9a9e2ca50c86b11387bedafeab236d87`.
 Foundation 39200707896 SUCCESS 7/7; Native application shells 39200707963 SUCCESS 3/3.

@@ -1,5 +1,10 @@
 # Phase 6 Step 6 - candidate lifecycle, cancellation and stale protection
 
+> Historical Step 6 engineering report. Accepted final closure evidence and current
+> integrated Phase 6 status are recorded in [Phase 6 closure](phase-6-closure.md).
+> Pending/future-step language below describes the original report time only.
+
+
 ## Phase 6 Step 6 - current authority
 
 Step 5 COMPLETE / FULL PASS at `80d9fb05b7ceb1f6dbb464fe371070e236a33bad`:

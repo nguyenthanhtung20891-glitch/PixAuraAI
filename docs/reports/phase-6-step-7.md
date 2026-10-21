@@ -1,5 +1,10 @@
 # Phase 6 Step 7 - cross-platform Agent integration and security certification
 
+> Historical Step 7 engineering report. Accepted final closure evidence and current
+> integrated Phase 6 status are recorded in [Phase 6 closure](phase-6-closure.md).
+> Pending/future-step language below describes the original report time only.
+
+
 ## Phase 6 Step 7 - current authority
 
 Step 6 COMPLETE / FULL PASS at closure SHA

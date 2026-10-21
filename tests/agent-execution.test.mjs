@@ -1,7 +1,26 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import crypto from 'node:crypto';
 const read=p=>fs.readFileSync(p,'utf8').replaceAll('\r\n','\n');
+
+test('Phase 6 closure current authority, eight-step state and frozen contracts agree',()=>{
+ const paths=['AGENTS.md','ARCHITECTURE.md','DECISIONS.md','QUALITY_GATES.md','ROADMAP.md','docs/plans/phase-6-roadmap.md'];
+ const states=paths.map(p=>{
+  const current=read(p).split('## Phase 6 Step 8 - current authority')[1]?.split('Historical step authority follows')[0];
+  assert.ok(current,p);const m=current.match(/^Step 8 (AUTHORIZED \/ IN PROGRESS|COMPLETE \/ FULL PASS)\./m);assert.ok(m,p);
+  for(const marker of ['Phase 7 NOT STARTED','Production model UNRESOLVED','Schema 3','DH-APPLE-METAL-01','NOT WAIVED','NOT SATISFIED','39613164583 SUCCESS 7/7','39613164251 SUCCESS 3/3'])assert.ok(current.includes(marker),p+': '+marker);
+  return m[1];
+ });
+ assert.equal(new Set(states).size,1);
+ const rows=[...read('docs/plans/phase-6-roadmap.md').matchAll(/^\| (\d+) \| [^|]+ \| ([^|]+) \|$/gm)];
+ assert.deepEqual(rows.map(m=>+m[1]),[1,2,3,4,5,6,7,8]);assert.deepEqual(rows.slice(0,7).map(m=>m[2]),Array(7).fill('COMPLETE / FULL PASS'));assert.equal(rows[7][2],states[0]);
+ const inventory=JSON.parse(read('docs/reports/phase-6-closure-v1.json'));assert.equal(inventory.runtime_authority,false);assert.equal(inventory.contracts.length,8);
+ for(const c of inventory.contracts)assert.equal(crypto.createHash('sha256').update(read(c.path)).digest('hex'),c.sha256_lf,c.path+': frozen contract drift');
+ const report=read('docs/reports/phase-6-closure.md');assert.ok(report.includes('Step 8 '+states[0]));
+ for(const marker of ['stop → join ALL calls → destroy','No provider CERTIFIED','UNINCORPORATED','Source serial','epoch CAS','Phase 7','only after that observation'])assert.ok(report.includes(marker),marker);
+ if(states[0]==='COMPLETE / FULL PASS')for(const p of paths)assert.ok(read(p).split('Historical step authority follows')[0].includes('Phase 6 CLOSED / COMPLETE / FULL PASS'));
+});
 test('Step 5 current authority and closure status agree across tracked sources',()=>{
  const files=['AGENTS.md','ARCHITECTURE.md','DECISIONS.md','QUALITY_GATES.md','ROADMAP.md','docs/plans/phase-6-roadmap.md','docs/reports/phase-6-step-5.md'];
  const states=files.map(p=>{
@@ -20,7 +39,7 @@ test('Step 5 current authority and closure status agree across tracked sources',
  assert.equal(new Set(states).size,1,'current authorities disagree');
  const rows=[...read('docs/plans/phase-6-roadmap.md').matchAll(/^\| (\d+) \| [^|]+ \| ([^|]+) \|$/gm)];
  assert.deepEqual(rows.map(m=>+m[1]),[1,2,3,4,5,6,7,8]);assert.deepEqual(rows.slice(0,4).map(m=>m[2]),Array(4).fill('COMPLETE / FULL PASS'));
- assert.equal(rows[4][2],states[0]);assert.equal(rows[7][2],'NOT STARTED');
+ assert.equal(rows[4][2],states[0]);assert.ok(['NOT STARTED','AUTHORIZED / IN PROGRESS','COMPLETE / FULL PASS'].includes(rows[7][2])); // Step 8 current authority is checked separately
  assert.ok(['NOT STARTED','AUTHORIZED / IN PROGRESS','COMPLETE / FULL PASS'].includes(rows[6][2]));
  assert.ok(['AUTHORIZED / IN PROGRESS','COMPLETE / FULL PASS'].includes(rows[5][2]));
 });
@@ -50,7 +69,7 @@ test('Step 6 current authority cannot close with stale or missing certification 
  });
  assert.equal(new Set(states).size,1);
  const rows=[...read('docs/plans/phase-6-roadmap.md').matchAll(/^\| (\d+) \| [^|]+ \| ([^|]+) \|$/gm)];
- assert.equal(rows[5][2],states[0]);assert.equal(rows[7][2],'NOT STARTED');
+ assert.equal(rows[5][2],states[0]);assert.ok(['NOT STARTED','AUTHORIZED / IN PROGRESS','COMPLETE / FULL PASS'].includes(rows[7][2])); // Step 8 current authority is checked separately
  assert.ok(['NOT STARTED','AUTHORIZED / IN PROGRESS','COMPLETE / FULL PASS'].includes(rows[6][2]));
  assert.ok(read('docs/contracts/editing-candidate-lifecycle-v1.md').includes('No queue, transfer, rebinding or resurrection'));
 });

@@ -1,5 +1,10 @@
 ﻿# Phase 6 Step 3 — tool capability registry and agent binding
 
+> Historical Step 3 engineering report. Accepted final closure evidence and current
+> integrated Phase 6 status are recorded in [Phase 6 closure](phase-6-closure.md).
+> Pending/future-step language below describes the original report time only.
+
+
 Baseline `578958979f2fc4b5fea4b53dfc3ecfee7aafe34f`, clean at audit. Step 2
 COMPLETE / FULL PASS: Foundation 39106599021 SUCCESS 7/7 and Native application
 shells 39106599002 SUCCESS 3/3. Step 3 AUTHORIZED / IN PROGRESS through final-SHA

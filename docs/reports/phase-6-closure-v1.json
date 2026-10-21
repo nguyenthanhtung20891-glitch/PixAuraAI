@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "phase": 6,
+  "runtime_authority": false,
+  "baseline": "2f5a42138d1a7270a37b8a52dc95061070195853",
+  "contracts": [
+    {
+      "path": "docs/contracts/editing-agent-core-v1.md",
+      "sha256_lf": "23a2afdfa1a92d97598a5f24837c3f1a278cc771064ae4cc0c7589fdae7eef96"
+    },
+    {
+      "path": "docs/contracts/editing-intent-plan-v1.md",
+      "sha256_lf": "d77a7eee4de9c0e5c2ae4d245b9aad614221a9f642e451b4e2b35a854df21dc8"
+    },
+    {
+      "path": "docs/contracts/editing-tool-registry-v1.md",
+      "sha256_lf": "dd4f8a008227b2a6303bf0703fc91f3c356dbaef94a982f54d010a532329477b"
+    },
+    {
+      "path": "docs/contracts/editing-structured-intent-v1.md",
+      "sha256_lf": "743b644786bb54572f9086c2a4b4c0845404abace8904696c0363b0c708f3ea9"
+    },
+    {
+      "path": "docs/contracts/editing-reference-planner-v1.md",
+      "sha256_lf": "6180abd1a669f31072fa0666be9bdcfe4405dd3746c0dfcbc42aa26af716354b"
+    },
+    {
+      "path": "docs/contracts/editing-approval-execution-v1.md",
+      "sha256_lf": "2ca9cd069ba88807a8d10eaf8573ff16d3d7c0443431951e574ae2ecb02de288"
+    },
+    {
+      "path": "docs/contracts/editing-candidate-lifecycle-v1.md",
+      "sha256_lf": "5f15c4b2d46c497ff213cf2b369ad710302361f9e86ca0302ad932876ecf439a"
+    },
+    {
+      "path": "docs/contracts/agent-platform-integration-security-v1.md",
+      "sha256_lf": "df0ddfbce1e3bdf9c4619f28c18f326543eae264c3dd82ed5b41d7fbba47ce35"
+    }
+  ]
+}

@@ -1,5 +1,10 @@
 ﻿# Phase 6 Step 4 — structured intent and deterministic reference planner
 
+> Historical Step 4 engineering report. Accepted final closure evidence and current
+> integrated Phase 6 status are recorded in [Phase 6 closure](phase-6-closure.md).
+> Pending/future-step language below describes the original report time only.
+
+
 Baseline `fa6462e2bc1c0a88b30a46e69a9d982f8d843fe4`, clean at audit. Step 3
 COMPLETE / FULL PASS: Foundation 39131908247 SUCCESS 7/7; Native application shells
 39131908300 SUCCESS 3/3. Step 4 COMPLETE / FULL PASS. Certified implementation SHA:

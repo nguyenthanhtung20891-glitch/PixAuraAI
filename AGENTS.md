@@ -1,5 +1,27 @@
 # PixAuraAI Autonomous Engineering Contract
 
+## Phase 6 Step 8 - current authority
+
+Step 8 AUTHORIZED / IN PROGRESS.
+Phase 6 closure certification pending. Phase 7 NOT STARTED.
+Certified starting baseline: `2f5a42138d1a7270a37b8a52dc95061070195853`.
+Step 7 closure: Foundation 39613164583 SUCCESS 7/7;
+Native application shells 39613164251 SUCCESS 3/3, both completed on that SHA.
+Steps 1-7 COMPLETE / FULL PASS. Closure audit and source-consistency correction
+only; no production implementation change. The Phase 6 closure report governs
+current integrated status; older step-local authority/status wording below is
+historical and does not authorize future work. Frozen contracts remain unchanged.
+Intent v1, Structured Intent v1, Plan v1, Registry v1, human approval, candidate
+lifecycle, platform security, Schema 3, revision/history and Phase 5 unchanged.
+Production model UNRESOLVED. CPU release VALIDATED; Vulkan/Metal UNKNOWN.
+No NLP/model, external runtime, weights, network/cloud AI or AI UX.
+DH-APPLE-METAL-01 DEFERRED, NOT WAIVED, NOT SATISFIED.
+Both complete exact-SHA workflows are required for audit and final closure;
+no old-SHA substitution. Phase 7 NOT STARTED. No Step 9+. STOP after Step 8.
+
+Historical step authority follows; read its status at its original freeze time.
+
+
 ## Phase 6 Step 7 - current authority
 
 Step 6 COMPLETE / FULL PASS at closure SHA
