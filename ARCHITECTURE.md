@@ -5,16 +5,19 @@
 Step 6 COMPLETE / FULL PASS at closure SHA
 `0251b485f844d70b496a525eb6541aea384ce51f`:
 Foundation 39283971353 SUCCESS 7/7; Native application shells 39283971479 SUCCESS 3/3.
-Step 7 AUTHORIZED / IN PROGRESS.
+Step 7 COMPLETE / FULL PASS.
+Implementation certification SHA: `31d7b574c9e68335cbac7bd8f1472f07810b7a57`.
+Foundation 39609614182 SUCCESS 7/7; Native application shells 39609614238 SUCCESS 3/3.
+This closure-only documentation commit requires independent complete closure-SHA
+Foundation and Native shells workflows; the observed final engineering receipt
+and final delivery record that distinct evidence. No old-SHA substitution.
 Agent platform integration/security v1 governs thin Android JNI and Swift/C
-adapters over the existing native Agent/editor authority. Explicit trusted human
-approval, exact plan binding, single-use consumption, private candidates, source
-serial/epoch CAS, cancellation/publication fencing and stop -> join -> destroy
-remain unchanged. No platform validation, tool math, history or approval authority.
-Both complete implementation-SHA workflows then both complete closure-SHA workflows
-are required; no old-SHA substitution. Full retained Phase 0-5 and Steps 1-6,
-manual, platform/security/lifecycle/race, Windows/Linux/Apple/Android, active
-ASan/UBSan, release isolation, workflow lint and source/diff checks required.
+adapters over existing native Agent/editor authority. Explicit human approval,
+exact plan binding, single-use consumption, private candidates, source serial/
+epoch CAS, cancellation/publication fencing and stop -> join -> destroy retained.
+Full retained Phase 0-5 and Steps 1-6, manual/platform/security/race gates,
+Windows/Linux/Apple/Android, active ASan/UBSan, release isolation, workflow lint
+and source/diff checks PASS on the implementation SHA above.
 Intent v1, Structured Intent v1, Plan v1, Registry v1, Schema 3 and Phase 5 unchanged.
 Production model UNRESOLVED. CPU release VALIDATED; Vulkan/Metal UNKNOWN.
 No NLP/model, external runtime, weights, network or AI UX.

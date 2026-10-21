@@ -5,16 +5,19 @@
 Step 6 COMPLETE / FULL PASS at closure SHA
 `0251b485f844d70b496a525eb6541aea384ce51f`:
 Foundation 39283971353 SUCCESS 7/7; Native application shells 39283971479 SUCCESS 3/3.
-Step 7 AUTHORIZED / IN PROGRESS.
+Step 7 COMPLETE / FULL PASS.
+Implementation certification SHA: `31d7b574c9e68335cbac7bd8f1472f07810b7a57`.
+Foundation 39609614182 SUCCESS 7/7; Native application shells 39609614238 SUCCESS 3/3.
+This closure-only documentation commit requires independent complete closure-SHA
+Foundation and Native shells workflows; the observed final engineering receipt
+and final delivery record that distinct evidence. No old-SHA substitution.
 Agent platform integration/security v1 governs thin Android JNI and Swift/C
-adapters over the existing native Agent/editor authority. Explicit trusted human
-approval, exact plan binding, single-use consumption, private candidates, source
-serial/epoch CAS, cancellation/publication fencing and stop -> join -> destroy
-remain unchanged. No platform validation, tool math, history or approval authority.
-Both complete implementation-SHA workflows then both complete closure-SHA workflows
-are required; no old-SHA substitution. Full retained Phase 0-5 and Steps 1-6,
-manual, platform/security/lifecycle/race, Windows/Linux/Apple/Android, active
-ASan/UBSan, release isolation, workflow lint and source/diff checks required.
+adapters over existing native Agent/editor authority. Explicit human approval,
+exact plan binding, single-use consumption, private candidates, source serial/
+epoch CAS, cancellation/publication fencing and stop -> join -> destroy retained.
+Full retained Phase 0-5 and Steps 1-6, manual/platform/security/race gates,
+Windows/Linux/Apple/Android, active ASan/UBSan, release isolation, workflow lint
+and source/diff checks PASS on the implementation SHA above.
 Intent v1, Structured Intent v1, Plan v1, Registry v1, Schema 3 and Phase 5 unchanged.
 Production model UNRESOLVED. CPU release VALIDATED; Vulkan/Metal UNKNOWN.
 No NLP/model, external runtime, weights, network or AI UX.
@@ -101,3 +104,45 @@ B: Phase 6 Step 8 closure and later Phase 7 product integration remain deferred.
 C: optional UX/model research and extra physical measurements remain deferred.
 No new tool, schema, registry, approval/candidate semantics or provider trust.
 U2NETP remains unresolved/unapproved/unincorporated. No model/runtime/weights/UI.
+
+## Observed implementation workflows
+
+Implementation SHA: `31d7b574c9e68335cbac7bd8f1472f07810b7a57`.
+[Foundation 39609614182](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/39609614182) SUCCESS 7/7.
+[Native application shells 39609614238](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/39609614238) SUCCESS 3/3.
+
+| Workflow | Required job | Result | Job ID |
+| --- | --- | --- | --- |
+| Foundation | android-boundary (arm64-v8a) | SUCCESS | 119254718792 |
+| Foundation | apple-boundary | SUCCESS | 119254719120 |
+| Foundation | workflow-lint | SUCCESS | 119254719138 |
+| Foundation | android-boundary (armeabi-v7a) | SUCCESS | 119254719216 |
+| Foundation | portable (windows-2025) | SUCCESS | 119254719231 |
+| Foundation | sanitizer | SUCCESS | 119254719276 |
+| Foundation | portable (ubuntu-24.04) | SUCCESS | 119254719429 |
+| Native shells | source | SUCCESS | 119254718840 |
+| Native shells | android-app | SUCCESS | 119254719320 |
+| Native shells | ios-app | SUCCESS | 119254719321 |
+
+Observed retained/platform results: Windows native 46/46; Linux and Apple native
+47/47 each; active ASan/UBSan 49/49; Agent native corpus 1548 assertions; Swift
+macOS 35/35 and iOS Simulator 35/35; Android emulator instrumentation 35/35 with
+zero failures/errors/skips. Both Android ARM ABIs, debug/release apps, JVM suites,
+lint, iOS app/UI and production release scans PASS. Source 117 Windows/159 Linux;
+workflow lint and diff checks PASS. Hosted/simulator Apple results are software
+evidence only; no physical Apple certification.
+
+The only public ABI addition is pixaura_editor_agent_plan: delegate existing
+planner through the trusted editor-owned document/live context without exposing
+internal pointers. Existing ABI structures and Steps 1-6 semantics are unchanged.
+Changed files cover the C header/delegate and debug checkpoints; Kotlin/JNI and
+Swift owners; native C/C++/Swift/instrumentation/security corpora; binary scanner;
+the Step 7 contract/report and seven current-authority documents. No app UI,
+provider, registry, operation, Schema 3 or dependency change.
+
+A findings resolved: minimal existing-authority delegate, typed platform
+transport, fail-closed status handling, quiescent close, deterministic native
+platform checkpoints, security/lifecycle/ABA/approval replay tests and release
+object isolation. No architecture blocker. B/C items remain deferred as above.
+This documentation closure has its own final SHA and must independently pass both
+complete workflows before final delivery can claim final closure certification.
