@@ -2,6 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 const read = p => fs.readFileSync(p, 'utf8');
+
+test('iOS tool UI harness uses resolved element hits and retains semantic postconditions', () => {
+  const ui = read('platforms/ios/PixAuraAIUITests/ShellUITests.swift');
+  const selection = ui.slice(ui.indexOf('func selectControl'), ui.indexOf('tap("Open Manual editor")'));
+  assert.ok(selection.includes('button.tap()'));
+  assert.doesNotMatch(selection, /button\.frame|windows\.firstMatch\.frame|coordinate\(withNormalizedOffset/);
+  for (const marker of ['selected-and-control', 'enabled == true', 'selected == true', '"Apply", "Cancel"', 'count: id.hasPrefix("pixaura.") ? 4 : 2', 'timeout: 20']) assert.ok(selection.includes(marker), marker);
+  for (const marker of ['field("x_ppm", "600000")', 'tap("Cancel"); terminalGesture(); revisions(2)', 'tap("Undo")', 'tap("Redo")', 'app.terminate()']) assert.ok(ui.includes(marker), marker);
+});
 test('manual screens consume descriptor metadata, never duplicate native tool contracts', () => {
   const kotlin = read('platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorScreen.kt');
   const swift = read('platforms/ios/PixAuraAI/ManualEditorScreen.swift');

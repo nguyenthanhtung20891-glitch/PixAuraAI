@@ -74,22 +74,14 @@ final class ShellUITests: XCTestCase {
             }
             guard waitForMatches(buttonPredicate(selected: false), count: 1, stage: "actionable") else { return false }
             let button = app.buttons[id].firstMatch
-            // Keep the reviewed upper-quarter target above scrollbars. Existence,
-            // a visible event target and semantic readiness are distinct checks.
-            let frame = button.frame
-            let target = CGPoint(x: frame.minX + frame.width * 0.25, y: frame.minY + frame.height * 0.25)
-            guard app.windows.firstMatch.frame.contains(target) else {
-                XCTFail("Tool target is off screen: \(id)\n\(String(app.debugDescription.prefix(16384)))"); return false
-            }
             print("PXUI action=\(sequence) id=\(id) stage=tap start_s=\(ProcessInfo.processInfo.systemUptime)")
-            if id == "Geometry" {
-                // The first category is fully visible. Use XCTest's resolved
-                // hit point after cancellation changes the editor's layout;
-                // a relative coordinate event can finish without activation.
-                button.tap()
-            } else {
-                button.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.25)).tap()
-            }
+            // Let XCTest resolve a hittable point and scroll the specific button
+            // into view, as tap(_:) already does. A separate frame/window query
+            // after the readiness predicate triggered AX snapshot retries after
+            // crop cancellation (39621695967), before any tap was attempted.
+            // The postcondition below still proves actual semantic activation;
+            // existence or a coordinate event alone cannot satisfy this helper.
+            button.tap()
             print("PXUI action=\(sequence) id=\(id) stage=tap-complete end_s=\(ProcessInfo.processInfo.systemUptime)")
             let control: NSPredicate
             switch id {

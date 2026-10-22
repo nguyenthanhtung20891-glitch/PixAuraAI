@@ -104,6 +104,11 @@ synthetic trust and failure/checkpoint hooks. No test authority enters release.
 
 ## Certification evidence and findings
 
+The original audit SHA's iOS UI gate failed; Phase 6 remains unclosed.
+[Certification remediation](phase-6-step-8-remediation.md) records the exact
+test-harness failure, minimal correction and sanitizer reporting investigation.
+Only a newly certified remediation SHA may proceed to later closure review.
+
 Step 8 local and exact-SHA evidence will be recorded only after execution.
 The complete retained quality system remains mandatory: Phase 0–5 and Steps 1–7,
 manual/native/security, Windows/Linux/Apple, Android both ABIs/apps/JVM/lint/
