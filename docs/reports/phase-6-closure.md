@@ -1,6 +1,9 @@
 # Phase 6 closure — Editing Agent foundation
 
-Step 8 AUTHORIZED / IN PROGRESS. Closure certification pending.
+Step 8 COMPLETE / FULL PASS. Phase 6 CLOSED / COMPLETE / FULL PASS.
+Prepared closure authority: effective only after both complete workflows on the
+final closure commit and every required job report completed/SUCCESS. Until then:
+FINAL CLOSURE CERTIFICATION PENDING. No unresolved A correctness/security finding.
 Phase 7 NOT STARTED. This report is engineering evidence, never runtime authority.
 
 ## Purpose and audit method
@@ -30,7 +33,7 @@ status. Prior reports and authority sections are explicitly historical.
 | 5 | Approval and execution | 80d9fb05b7ceb1f6dbb464fe371070e236a33bad | 39202326671 / 39202326788 | COMPLETE / FULL PASS |
 | 6 | Candidate lifecycle | 0251b485f844d70b496a525eb6541aea384ce51f | 39283971353 / 39283971479 | COMPLETE / FULL PASS |
 | 7 | Platform/security integration | 2f5a42138d1a7270a37b8a52dc95061070195853 | 39613164583 / 39613164251 | COMPLETE / FULL PASS |
-| 8 | Phase 6 closure | Resolved by final exact-SHA receipt | Fresh full workflows required | AUTHORIZED / IN PROGRESS |
+| 8 | Phase 6 closure | Resolved by final exact-SHA receipt | Independent final-SHA workflows, resolved in receipt | COMPLETE / FULL PASS |
 
 Each accepted historical row has Foundation SUCCESS 7/7 and Native application
 shells SUCCESS 3/3. These histories do not certify Step 8 changes.
@@ -104,22 +107,50 @@ synthetic trust and failure/checkpoint hooks. No test authority enters release.
 
 ## Certification evidence and findings
 
-The original audit SHA's iOS UI gate failed; Phase 6 remains unclosed.
-[Certification remediation](phase-6-step-8-remediation.md) records the exact
-test-harness failure, minimal correction and sanitizer reporting investigation.
-Only a newly certified remediation SHA may proceed to later closure review.
+Audit SHA: `8ad0da87420e54d8a9e896aa6d3c536bc88db51c`.
+It did not achieve complete certification: Native shells 39621695967 failed its
+retained manual-editor UI test. The enabled Detail readiness predicate succeeded,
+then a separate button.frame lookup stalled in XCTest accessibility snapshot
+resolution before the category tap. This was a test-harness observer/event-targeting
+failure; no Agent/runtime failure was established. The minimal correction uses
+XCTest's element tap/scroll/hit-point resolution, retaining every selected-control,
+active-gesture, invalid-crop, cancellation, history, lifecycle and reopen assertion.
+The internal Apple accessibility stall cause is not established; it is not called
+"flaky" or hidden by retries/timeouts. See the [remediation report](phase-6-step-8-remediation.md).
 
-Step 8 local and exact-SHA evidence will be recorded only after execution.
-The complete retained quality system remains mandatory: Phase 0–5 and Steps 1–7,
-manual/native/security, Windows/Linux/Apple, Android both ABIs/apps/JVM/lint/
-instrumentation, Swift macOS/Simulator, iOS app/UI, active ASan/UBSan negative
-instrumentation probes, release scanning, workflow lint and source/diff checks.
+The original Foundation sanitizer job's queued/null metadata contradicted complete
+49/49 logs, active ASan/UBSan probes, successful upload and normal runner cleanup.
+Its job/check-run state subsequently became completed/SUCCESS. This was an external
+GitHub reporting inconsistency; its internal backend cause is not observable.
+No sanitizer, coverage or workflow change was justified. Successful logs alone
+were never accepted as completed certification.
+
+Certified remediation SHA: `6c8a493961e98636732c7bc8b7186cf4d8cb952a` (parent audit SHA).
+[Foundation 39700953972](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/39700953972)
+completed SUCCESS, 7/7 jobs completed/SUCCESS, attempt 1.
+[Native application shells 39700953955](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/39700953955)
+completed SUCCESS, 3/3 jobs completed/SUCCESS, attempt 1. Principal Architect
+independently verified that exact SHA and authorized this final closure.
+
+Observed remediation evidence: Windows native 46/46, Linux and Apple native 47/47
+each; source 119/119 Windows and 161/161 Linux; active ASan/UBSan 49/49 with
+negative instrumentation probes exiting 86/87; Agent corpus 1548 assertions.
+Android both ARM ABIs, debug/release/JVM/lint and emulator instrumentation 35/35
+PASS. Swift macOS and Simulator 35/35 each, iOS app 7/7 and UI 2/2 PASS. The formerly
+failing Detail action completed tap and selected/control verification, and the
+entire manual history/background/reopen sequence passed. Production object/app
+release scans, retained Phase 0-5 and Steps 1-7, workflow lint and source/diff gates
+PASS. No tests weakened/skipped/optionalized; no rerun-until-green.
 Hosted Apple and simulator evidence is software only, never physical certification.
 
-A: historical pending status lacked clear current closure authority; corrected by
-historical labels, this consolidated evidence record and current source-consistency
-checks. No production defect or architecture conflict found. A remains open only
-until audit and final closure exact-SHA certification complete.
+Final closure is documentation/authority only, with its OWN independent complete
+Foundation 7/7 and Native shells 3/3 required. Remediation results above do not
+certify it. The actual final SHA/run IDs are resolved in the observed final receipt
+and delivery only after execution; no future SHA is invented in this report.
+
+A findings resolved: historical/current authority ambiguity and retained UI harness
+snapshot failure. No unresolved A finding, production defect or architecture
+blocker. The final exact-SHA certification remains a mandatory closure condition.
 
 B: Phase 7 product UX, actual model integration, free-form interpretation,
 production model provenance/rights, accelerator trust-promotion policy and required
@@ -137,8 +168,12 @@ later release gates. Historical Android Vulkan evidence remains scope-specific
 supporting evidence, not Phase 5/6 inference physical certification.
 
 Intent v1, Structured Intent v1, Plan v1, Registry v1, approval authority,
-candidate lifecycle, Step 7 platform security, Schema 3, revision/history and
-Phase 4/5 authority unchanged. No NLP/model, external runtime, weights,
+candidate lifecycle, cancellation/stale protection and publication fencing, Step 7
+platform security, Schema 3, revision/history/undo/redo and manual editing
+architecture unchanged. Deterministic Reference Planner semantics, exact approval
+binding/single-use consumption, ADR 0009 stop → join → destroy ownership and
+Phase 4/5 capability/provider trust unchanged. No contract version bump or
+architecture reinterpretation. No NLP/model, external runtime, weights,
 network/cloud AI or AI UX. Ephemeral candidates/approvals do not survive restart;
 crash guarantees remain existing repository transaction guarantees only.
 Phase 7 may rely on the validated proposal/approval/execution foundation but is

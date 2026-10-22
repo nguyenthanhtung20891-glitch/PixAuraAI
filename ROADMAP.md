@@ -2,22 +2,36 @@
 
 ## Phase 6 Step 8 - current authority
 
-Step 8 AUTHORIZED / IN PROGRESS.
-Phase 6 closure certification pending. Phase 7 NOT STARTED.
-Certified starting baseline: `2f5a42138d1a7270a37b8a52dc95061070195853`.
-Step 7 closure: Foundation 39613164583 SUCCESS 7/7;
-Native application shells 39613164251 SUCCESS 3/3, both completed on that SHA.
-Steps 1-7 COMPLETE / FULL PASS. Closure audit and source-consistency correction
-only; no production implementation change. The Phase 6 closure report governs
-current integrated status; older step-local authority/status wording below is
-historical and does not authorize future work. Frozen contracts remain unchanged.
-Intent v1, Structured Intent v1, Plan v1, Registry v1, human approval, candidate
-lifecycle, platform security, Schema 3, revision/history and Phase 5 unchanged.
+Step 8 COMPLETE / FULL PASS.
+Phase 6 CLOSED / COMPLETE / FULL PASS.
+Steps 1-8 COMPLETE / FULL PASS. Phase 7 NOT STARTED and NOT AUTHORIZED.
+This prepared closure authority takes effect only after BOTH complete workflows
+on this final documentation commit independently report completed/SUCCESS and
+every required job succeeds. Until then: FINAL CLOSURE CERTIFICATION PENDING.
+The observed final engineering receipt and delivery resolve the actual final SHA
+and run IDs without a self-referential commit or old-SHA substitution.
+
+Certified starting remediation: `6c8a493961e98636732c7bc8b7186cf4d8cb952a`.
+Foundation 39700953972 SUCCESS 7/7; Native application shells 39700953955 SUCCESS
+3/3, completed on that SHA, attempt 1. Step 7 certified closure remains
+`2f5a42138d1a7270a37b8a52dc95061070195853`:
+Foundation 39613164583 SUCCESS 7/7; Native application shells
+39613164251 SUCCESS 3/3. Audit SHA `8ad0da87420e54d8a9e896aa6d3c536bc88db51c`
+is historical evidence, not final closure certification.
+
+The Phase 6 closure report governs integrated authority. No unresolved A finding;
+the retained iOS UI harness correction is independently certified. Final closure
+changes documentation only: no production code, ABI, test or workflow behavior.
+Intent v1, Structured Intent v1, Plan v1, Registry v1, deterministic reference
+planner, human approval/binding/single-use consumption, candidate lifecycle,
+cancellation/stale/publication fencing, platform security, Schema 3, manual and
+revision/history/undo/redo architecture, ADR 0009 stop -> join -> destroy and
+Phase 4/5 capability/provider trust remain unchanged. No version bump.
 Production model UNRESOLVED. CPU release VALIDATED; Vulkan/Metal UNKNOWN.
+U2NETP remains audited, unsupported, unapproved, unincorporated; rights unresolved.
 No NLP/model, external runtime, weights, network/cloud AI or AI UX.
 DH-APPLE-METAL-01 DEFERRED, NOT WAIVED, NOT SATISFIED.
-Both complete exact-SHA workflows are required for audit and final closure;
-no old-SHA substitution. Phase 7 NOT STARTED. No Step 9+. STOP after Step 8.
+Hosted Apple/simulator evidence is software only. No Step 9+. STOP after Step 8.
 
 Historical step authority follows; read its status at its original freeze time.
 
