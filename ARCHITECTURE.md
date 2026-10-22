@@ -6,7 +6,15 @@
 Phase 6 CLOSED / COMPLETE / FULL PASS at `523ffcad47bddd4c13a2615a76f211a6bd38efe2`.
 Foundation 39724919418 SUCCESS 7/7; Native application shells 39724919325 SUCCESS
 3/3, completed exact SHA, attempt 1. Phase 7 AUTHORIZED / IN PROGRESS.
-Step 1 AUTHORIZED / IN PROGRESS. Exact-SHA certification pending.
+Step 1 COMPLETE / FULL PASS.
+Implementation certification SHA: `648a66de49e1e5bf428697ced28812a0a597bff8`.
+Foundation 39766049277 SUCCESS 7/7; Native application shells 39766049069 SUCCESS
+3/3, both completed on that exact SHA, attempt 1, every required job SUCCESS.
+This Step 1 closure-only documentation commit requires independent complete
+closure-SHA Foundation and Native shells certification again. Until that
+observation: FINAL STEP 1 CLOSURE CERTIFICATION PENDING. The observed engineering
+receipt/final delivery resolve its actual final SHA/run IDs without self-reference;
+no old-SHA substitution and no unobserved job is PASS.
 Phase 7 official purpose: AI-ASSISTED MVP. Only Step 1 is authorized.
 MANUAL / AI ASSIST / AI AUTO-EDIT are first-class modes; auto means proposal/
 planning, NEVER approval. AI MAY PROPOSE; AI MAY NOT APPROVE ITSELF or silently

@@ -3,7 +3,15 @@
 ## Phase 7 Step 1 - current authority
 
 Phase 6 CLOSED / COMPLETE / FULL PASS. Phase 7 AUTHORIZED / IN PROGRESS.
-Step 1 AUTHORIZED / IN PROGRESS. Exact-SHA certification pending.
+Step 1 COMPLETE / FULL PASS.
+Implementation certification SHA: `648a66de49e1e5bf428697ced28812a0a597bff8`.
+Foundation 39766049277 SUCCESS 7/7; Native application shells 39766049069 SUCCESS
+3/3, both completed on that exact SHA, attempt 1, every required job SUCCESS.
+This Step 1 closure-only documentation commit requires independent complete
+closure-SHA Foundation and Native shells certification again. Until that
+observation: FINAL STEP 1 CLOSURE CERTIFICATION PENDING. The observed engineering
+receipt/final delivery resolve its actual final SHA/run IDs without self-reference;
+no old-SHA substitution and no unobserved job is PASS.
 Phase 7 Steps 2-8 NOT STARTED. Phase 8 NOT STARTED.
 
 ## Purpose and certified baseline
@@ -105,9 +113,9 @@ Schema 3, Phase 6 contract, provider trust or workflow behavior change.
 Governance checks validate documentation/authority/state-table consistency, not
 invented runtime behavior. Complete retained Phase 0-6/manual/native/platform/
 security/sanitizer/release-isolation/source/workflow gates remain mandatory.
-Both complete implementation-SHA workflows and then both complete separate
-closure-SHA workflows must report every required job completed/SUCCESS. Step 1
-remains in progress until observed certification; no old-SHA substitution.
+Both complete implementation-SHA workflows above are observed SUCCESS; no pending
+job counted as PASS. The separate closure-SHA must independently repeat both full
+workflows before final delivery claims COMPLETE / FULL PASS. No old-SHA substitution.
 Pre-push Windows-applicable retained source checks 122/122 PASS, zero skips;
 workflow lint and git diff --check PASS. These are governance/source observations,
 not execution of an unimplemented Phase 7 runtime. Hosted/native/app/sanitizer
@@ -115,3 +123,25 @@ evidence requires the full new exact-SHA workflows, with no retained gate reduce
 Exact implementation/closure SHA, run IDs/attempts/job results are recorded after
 observation in the engineering receipt/final delivery, avoiding self-reference.
 STOP after Step 1. Do not implement Step 2. Phase 8 NOT STARTED.
+
+## Observed implementation certification
+
+Implementation `648a66de49e1e5bf428697ced28812a0a597bff8`:
+[Foundation 39766049277](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/39766049277)
+completed/SUCCESS 7/7 and
+[Native application shells 39766049069](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/39766049069)
+completed/SUCCESS 3/3, each exact SHA, attempt 1, all required jobs individually
+completed/SUCCESS. Windows native 46/46; Linux and Apple native 47/47; retained
+source 122/122 Windows and 164/164 Linux, zero skips. Active ASan/UBSan 49/49,
+negative probes 86/87, Agent corpus 1548 assertions. Android both ARM ABIs,
+debug/release/JVM/lint and instrumentation 35/35; Swift macOS/Simulator 35/35 each;
+iOS app 7/7 and UI 2/2 PASS. Release/test isolation, workflow lint, manual/history/
+undo/redo and all retained Phase 0-6 gates PASS. Hosted/simulator evidence remains
+software only. No tests weakened/skipped/optionalized and no rerun-until-green.
+
+No unresolved A finding or architecture blocker. This closes the normative
+contract/governance step, not a runtime assistance feature. Contract body and
+governance tests are unchanged in the separate closure commit; only the five root
+authority documents, Phase 7 roadmap and this report receive status/evidence
+updates. Phase 7 remains AUTHORIZED / IN PROGRESS with Steps 2-8 NOT STARTED.
+Phase 8 NOT STARTED. Stop after Step 1.
