@@ -1,5 +1,37 @@
 # Delivery roadmap
 
+<!-- phase7-current-authority -->
+## Phase 7 Step 1 - current authority
+
+Phase 6 CLOSED / COMPLETE / FULL PASS at `523ffcad47bddd4c13a2615a76f211a6bd38efe2`.
+Foundation 39724919418 SUCCESS 7/7; Native application shells 39724919325 SUCCESS
+3/3, completed exact SHA, attempt 1. Phase 7 AUTHORIZED / IN PROGRESS.
+Step 1 AUTHORIZED / IN PROGRESS. Exact-SHA certification pending.
+Phase 7 official purpose: AI-ASSISTED MVP. Only Step 1 is authorized.
+MANUAL / AI ASSIST / AI AUTO-EDIT are first-class modes; auto means proposal/
+planning, NEVER approval. AI MAY PROPOSE; AI MAY NOT APPROVE ITSELF or silently
+commit. Interaction state is separate from document and native authority.
+Assistance Provider -> UNTRUSTED Assistance Proposal -> existing validation/
+Plan v1/Registry v1 -> review -> explicit HUMAN approval -> existing private
+candidate/execution -> one ordinary revision/shared history. Manual works without AI.
+Step 1 freezes contract/state-machine/governance only. Step 2 owns the future
+provider/proposal envelope; no schema or runtime implementation is added here.
+Existing Phase 6 contracts, Schema 3, tools, approval/lifecycle and Phase 4/5
+capability/provider trust unchanged. Production model UNRESOLVED; selection
+deferred to Phase 7 Step 7. CPU VALIDATED; Vulkan/Metal UNKNOWN.
+No model/runtime/weights/NLP/cloud/network AI/AI UX added. Local-first; ephemeral
+AI interaction only. DH-APPLE-METAL-01 DEFERRED, NOT WAIVED, NOT SATISFIED.
+Phase 7 Steps 2-8 NOT STARTED. Phase 8 FULL REVIEW EXPERIENCE NOT STARTED.
+No Step 9. Both full implementation-SHA and closure-SHA workflows required,
+every job completed/SUCCESS. STOP after Step 1. Do not implement Step 2.
+See docs/contracts/ai-assisted-mvp-v1.md, docs/plans/phase-7-roadmap.md and
+docs/reports/phase-7-step-1.md (repository-relative authority paths).
+<!-- phase7-history -->
+
+Historical Phase 6 and earlier authority follows. Its phase-relative future/status
+language describes its original freeze time and does not override Phase 7 authority.
+
+
 ## Phase 6 Step 8 - current authority
 
 Step 8 COMPLETE / FULL PASS.
@@ -461,6 +493,12 @@ Current authorization: Phase 2 Step 5 orientation/color normalization and initia
 Current authorized boundary: Phase 2 Step 3, durable SQLite persistence and immutable verified asset storage under the frozen Step 1/2 contracts. Do not begin Step 4 automatically. The user attests both Step 2 workflows green on approved revision `f78ba096872249bf80ff1e4ee9e51a0a4ecfb6ef`; this is user-attested completion, not a locally observed Apple/MSVC run. Phases are dependencies, not permission to skip validation. Each milestone performs the workflow in AGENTS.md and publishes evidence under docs/reports. No commit/push is authorized.
 
 Current status: the user reports Phase 0 and Phase 1 fully passed GitHub Actions, including Android emulator JNI/Compose and iOS build/test, and explicitly authorizes Phase 2 Step 1. This final completion is user-attested; no final passing run URL was supplied at this authorization. Historical [Phase 0](docs/reports/phase-0.md) and [Phase 1](docs/reports/phase-1.md) reports retain their earlier observations. Step 1 was subsequently reviewed and approved, and Step 2 plus ADR 0009 were explicitly authorized. Historical contract evidence is in the [Step 1 report](docs/reports/phase-2-step-1.md); native foundation delivery/evidence is in the [Step 2 report](docs/reports/phase-2-step-2.md).
+
+## Historical overall phase overview
+
+The original Phase 7 feature sketch below is historical, not current scope or
+implementation authorization. The official AI-ASSISTED MVP eight-step plan in
+[phase-7-roadmap](docs/plans/phase-7-roadmap.md) governs. Phase 8 remains NOT STARTED.
 
 | Phase | Deliverable | Measurable exit |
 | --- | --- | --- |

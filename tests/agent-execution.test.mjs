@@ -4,6 +4,38 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 const read=p=>fs.readFileSync(p,'utf8').replaceAll('\r\n','\n');
 
+test('Phase 7 Step 1 authority agrees without reopening Phase 6 or authorizing later steps',()=>{
+ const roots=['AGENTS.md','ARCHITECTURE.md','DECISIONS.md','QUALITY_GATES.md','ROADMAP.md'];
+ const files=[...roots,'docs/plans/phase-7-roadmap.md','docs/reports/phase-7-step-1.md'];
+ const states=files.map(p=>{
+  const s=read(p),current=roots.includes(p)?s.split('<!-- phase7-current-authority -->')[1]?.split('<!-- phase7-history -->')[0]:s;
+  assert.ok(current,p);const m=current.match(/^Step 1 (AUTHORIZED \/ IN PROGRESS|COMPLETE \/ FULL PASS)\./m);assert.ok(m,p);
+  for(const marker of ['Phase 6 CLOSED / COMPLETE / FULL PASS','Phase 7 AUTHORIZED / IN PROGRESS','Phase 7 Steps 2-8 NOT STARTED','Phase 8','NOT STARTED','Production model UNRESOLVED','DH-APPLE-METAL-01','NOT WAIVED','NOT SATISFIED'])assert.ok(current.includes(marker),p+': '+marker);
+  return m[1];
+ });assert.equal(new Set(states).size,1);
+ const rows=[...read('docs/plans/phase-7-roadmap.md').matchAll(/^\| (\d+) \| ([^|]+) \| ([^|]+) \|$/gm)];
+ assert.deepEqual(rows.map(m=>+m[1]),[1,2,3,4,5,6,7,8]);assert.equal(rows[0][3],states[0]);assert.deepEqual(rows.slice(1).map(m=>m[3]),Array(7).fill('NOT STARTED'));
+ assert.deepEqual(rows.map(m=>m[2]),['AI-Assisted MVP Contract & Interaction State Machine','Assistance Provider & Proposal Envelope v1','Manual + AI Assist Experience Foundation','AI Auto-Edit Proposal Flow','Plan Review & Explicit Approval UX','Cross-Platform Lifecycle & Interaction Integration','Production Intelligence Admission & MVP Provider','Phase 7 Closure']);
+});
+
+test('MVP contract has finite mode/state and transition documentation with explicit authority guards',()=>{
+ const s=read('docs/contracts/ai-assisted-mvp-v1.md');
+ const modes=[...s.matchAll(/^\| (MODE_[A-Z]+) \|/gm)].map(m=>m[1]);assert.deepEqual(modes,['MODE_MANUAL','MODE_ASSIST','MODE_AUTO']);
+ const states=[...s.matchAll(/^\| ([A-Z_]+) \| [^|]+ \|$/gm)].map(m=>m[1]);
+ assert.deepEqual(states,['IDLE','REQUESTING','PROPOSAL_AVAILABLE','REVIEWING','APPROVAL_REQUIRED','EXECUTING','COMPLETED','REJECTED','CANCELLED','STALE','FAILED']);
+ const rows=[...s.matchAll(/^\| ([A-Z_, ]+) \| ([a-z_]+) \| ([A-Z_]+) \| ([^|]+) \|$/gm)];assert.equal(rows.length,20);
+ const keys=new Set();for(const [,from,event,to,guard] of rows){assert.ok(states.includes(to));assert.ok(guard.trim().length>20);for(const state of from.split(', ')){assert.ok(states.includes(state));const key=state+'/'+event;assert.ok(!keys.has(key));keys.add(key);}}
+ const admission=rows.filter(m=>m[3]==='EXECUTING'&&m[1]!=='EXECUTING');assert.equal(admission.length,1);assert.equal(admission[0][1],'APPROVAL_REQUIRED');assert.equal(admission[0][2],'human_apply_admitted');assert.ok(admission[0][4].includes('native execution admission consumes'));
+ const completed=rows.filter(m=>m[3]==='COMPLETED');assert.equal(completed.length,1);assert.equal(completed[0][2],'native_published_receipt');
+ for(const marker of ['Advice grants no mutation','not new ABI enum values','never an automatic loop','No model/runtime/weights','Schema 3 unchanged','stop -> join ALL calls -> destroy','Step 2 owns Assistance Provider & Proposal Envelope v1','unlisted'])assert.ok(s.toLowerCase().includes(marker.toLowerCase()),marker);
+});
+
+test('MVP provider/privacy/deferred boundaries preserve frozen trust and minimum future review scope',()=>{
+ const s=read('docs/contracts/ai-assisted-mvp-v1.md');
+ for(const marker of ['UNTRUSTED Assistance Proposal','provider NEVER receives an approval issuer','Free-form Intent v1 remains non-interpreted','No provider CERTIFIED','cpu.reference.v1 VALIDATED','android.vulkan.v1 UNKNOWN','apple.metal.v1 UNKNOWN','Production model UNRESOLVED','No persistence','NO network requirement','checkpoint rights unresolved','Phase 8 FULL REVIEW EXPERIENCE remains NOT STARTED'])assert.ok(s.includes(marker),marker);
+ for(const category of ['A authority bypass','B forged/malformed output','C stale proposal','D approval confusion/replay','E mode-switch leakage','F platform mismatch','G owner lifetime','H cancel/publish race','I resource exhaustion','J test-hook leakage','K privacy exposure'])assert.ok(s.includes('| '+category+' |'));
+});
+
 test('Phase 6 closure current authority, eight-step state and frozen contracts agree',()=>{
  const paths=['AGENTS.md','ARCHITECTURE.md','DECISIONS.md','QUALITY_GATES.md','ROADMAP.md','docs/plans/phase-6-roadmap.md'];
  const states=paths.map(p=>{
