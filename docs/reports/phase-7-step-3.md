@@ -197,3 +197,18 @@ checks; the target now declares `c_std_11`, retaining every size/offset assertio
 No production semantics, sanitizer settings, tests or warnings are weakened.
 Native shells 40030343582 belongs only to that initial SHA; any results cannot
 certify the remediation SHA. No rerun of either failed run is used.
+
+Initial Android instrumentation completed 38 tests, 37 PASS / 1 FAIL / 0 skipped.
+Its XML stack identifies `AssistExperienceTest.kt:75`, returning from Undo/Redo:
+the helper tapped the off-screen AI Assist mode chip without scrolling, so the
+advice panel did not exist. The helper now uses semantic `performScrollTo()`
+before the tap and observes actual Assist mode, preserving every downstream
+history/navigation/recreation assertion. This is a test harness correction,
+not a product semantic change or retry. The other two new Assist tests passed.
+
+Portability remediation SHA e530477ea33a1f2026ee77734b9f0b1a84013e04:
+Foundation 40031104087 completed SUCCESS, all 7 jobs individually SUCCESS.
+Native shells 40031104157 retained the same Android off-screen tap failure;
+this SHA is NOT fully certified. Initial-SHA iOS app/UI job 120676763706
+(run 40030343582) completed SUCCESS. These are historical diagnostic evidence,
+not certification for the subsequent semantic-scroll correction.

@@ -43,7 +43,8 @@ class AssistExperienceTest {
         file.delete()
     }
     private fun goal() {
-        compose.onNodeWithTag("mode-assist").performClick()
+        compose.onNodeWithTag("mode-assist").performScrollTo().performClick()
+        waitFor { model.assistance.value.enabled }
         waitFor { model.assistance.value.choices.size == 11 }
         compose.onNodeWithTag("assist-goal").performScrollTo().performClick()
         compose.onNodeWithTag("assist-goal-pixaura.exposure").performScrollTo().performClick()
