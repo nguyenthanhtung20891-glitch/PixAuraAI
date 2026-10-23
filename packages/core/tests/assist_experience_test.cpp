@@ -65,7 +65,9 @@ int main(int argc,char** argv){CHECK(argc==2);const auto root=std::filesystem::u
   std::thread request([&]{status=o.request(0,packet);});wait(o);
   pixaura_assist_advice duplicate{};CHECK(o.request(0,duplicate)==8);
   if(event==0)CHECK(pixaura_editor_assist_cancel(1,&o.c)==0);
-  if(event==1)o.manual();if(event==2)CHECK(pixaura_editor_action(&o.c,2)==0);if(event==3)CHECK(pixaura_editor_action(&o.c,3)==0);
+  if(event==1)o.manual();
+  if(event==2)CHECK(pixaura_editor_action(&o.c,2)==0);
+  if(event==3)CHECK(pixaura_editor_action(&o.c,3)==0);
   if(event==4)CHECK(pixaura_editor_stop(&o.c)==0);
   CHECK(pixaura_test_assist_control(&o.c,2,0)==0);request.join();
   CHECK(status==(event==5?0:event==0||event==4?13:9));

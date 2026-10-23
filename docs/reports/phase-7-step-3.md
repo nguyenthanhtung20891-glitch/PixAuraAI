@@ -182,3 +182,18 @@ negative probes confirmed instrumentation with required exits 86 (ASan) and 87
 (UBSan). Final independent advice request goldens: 535 checks, eleven tools,
 twelve deterministic race orderings. No unresolved A finding in local review.
 No tests weakened, skipped or made optional; no rerun-until-green.
+
+## Implementation certification remediation
+
+Initial implementation `31a33e739476e0d53f54199fcbbf1d7ca6333fdf` is NOT
+certified. Foundation 40030343544 found two deterministic test-build defects:
+GCC's warnings-as-errors rejected adjacent same-line `if` statements in the new
+race test; separated statements preserve every assertion. Clang's C linker did
+not supply C++ UBSan vptr runtime symbols for the C consumer linked to the C++
+core (`__ubsan_vptr_type_cache`, `__ubsan_handle_dynamic_type_cache_miss`).
+The consumer still compiles as C, now links with CXX like retained C consumers.
+The Windows MSVC job also required explicit C11 for its `_Static_assert` layout
+checks; the target now declares `c_std_11`, retaining every size/offset assertion.
+No production semantics, sanitizer settings, tests or warnings are weakened.
+Native shells 40030343582 belongs only to that initial SHA; any results cannot
+certify the remediation SHA. No rerun of either failed run is used.
