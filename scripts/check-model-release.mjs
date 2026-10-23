@@ -10,6 +10,8 @@ for(const file of process.argv.slice(2)){
         assert.equal(b.includes(Buffer.from(marker)),false,`${file}: Step 7 test surface in production object`);
     for(const marker of ['pixaura_test_agent_platform_control','AgentPlatformHooks_nativeControl','platform_checkpoint'])
         assert.equal(b.includes(Buffer.from(marker)),false,`${file}: platform certification hook in release`);
+    for(const marker of ['Assistance v1 checks=','assistance.allocation','no_approval_or_candidate_API','assistance_checkpoint'])
+        assert.equal(b.includes(Buffer.from(marker)),false,`${file}: assistance certification fixture in release`);
     console.log(`Model production trust isolation PASS: ${b.length} bytes`);
 }
 assert.ok(process.argv.length>2,'No production object inspected');

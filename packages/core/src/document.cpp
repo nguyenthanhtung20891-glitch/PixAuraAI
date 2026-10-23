@@ -2,6 +2,7 @@
 #include "tone.hpp"
 #include "detail.hpp"
 #include "structured_goals.hpp"
+#include "assistance.hpp"
 #include "pixaura/document.h"
 
 #include <algorithm>
@@ -33,7 +34,7 @@ struct Json {
     explicit Json(Object value) : data(std::move(value)) {}
     explicit Json(Array value) : data(std::move(value)) {}
 };
-enum class Shape { Manifest, Source, Metadata, Operation, Parameters, Revision, Command, Evaluation, Preset, Bindings, AgentIntent, AgentPlan, AgentBinding, AgentAction, StructuredIntent, Scalar };
+enum class Shape { Manifest, Source, Metadata, Operation, Parameters, Revision, Command, Evaluation, Preset, Bindings, AgentIntent, AgentPlan, AgentBinding, AgentAction, StructuredIntent, Assistance, AssistancePayload, Scalar };
 const std::set<String>& allowed(Shape shape) {
     // Immutable registry data only; no global mutable state.
     static const std::set<String> manifest{"schema_version", "project_id", "document_id", "source", "operations", "revisions", "current_revision_id", "redo"};
@@ -51,6 +52,8 @@ const std::set<String>& allowed(Shape shape) {
     static const std::set<String> agent_binding{"context_id","document_id","generation","project_id","revision_id","session_id","source_sha256"};
     static const std::set<String> agent_action{"action_index","tool_id","operation_version","parameter_version","parameters"};
     static const std::set<String> structured_intent{"binding","goal_id","parameters","structured_intent_version"};
+    static const std::set<String> assistance{"binding","envelope_version","kind","payload","proposal_id","provider_id","provider_version","registry_version"};
+    static const std::set<String> assistance_payload{"binding","goal_id","parameters","structured_intent_version","actions","plan_version"};
     switch (shape) {
         case Shape::Manifest: return manifest;
         case Shape::Source: return source;
@@ -67,6 +70,8 @@ const std::set<String>& allowed(Shape shape) {
         case Shape::AgentBinding: return agent_binding;
         case Shape::AgentAction: return agent_action;
         case Shape::StructuredIntent: return structured_intent;
+        case Shape::Assistance: return assistance;
+        case Shape::AssistancePayload: return assistance_payload;
         default: fail();
     }
 }
@@ -173,6 +178,7 @@ class Parser {
                 Shape child = Shape::Scalar; Shape item = Shape::Scalar; std::size_t bound = 0;
                 if (key == "source") child = Shape::Source;
                 else if (key == "binding") child = Shape::AgentBinding;
+                else if (shape == Shape::Assistance && key == "payload") child = Shape::AssistancePayload;
                 else if (key == "actions") { bound = 8; item = Shape::AgentAction; }
                 else if (key == "metadata") child = Shape::Metadata;
                 else if (key == "parameters") child = Shape::Parameters;
@@ -685,3 +691,4 @@ Result<Vector<Id>> parse_preset_bindings(std::string_view input) {
 }
 
 }
+#include "assistance_codec.inc"

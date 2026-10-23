@@ -3,6 +3,9 @@
 #include "pixaura/document.h"
 #include "pixaura/manual.h"
 #include "../src/document.hpp"
+#include "../src/assistance.hpp"
+#include "agent_schema_fixtures.hpp"
+#include "reference_planner_fixtures.hpp"
 #include <atomic>
 #include <chrono>
 #include <cstdio>
@@ -113,6 +116,26 @@ int main(int argc, char** argv) {
     CHECK(argc == 2); std::ifstream file(argv[1], std::ios::binary);
     const std::string golden((std::istreambuf_iterator<char>(file)), {}); CHECK(!golden.empty());
     const auto* input = reinterpret_cast<const uint8_t*>(golden.data());
+    {
+        using namespace pixaura;
+        auto snapshot=document::deserialize(agent_schema_fixtures::document,"00000000000000000000000000000500");CHECK(snapshot.code==0);
+        assistance::Request request;request.kind=assistance::Kind::StructuredIntent;request.proposal_id="allocation.1";
+        request.binding=document::agent_schema_binding(*snapshot.value,"000000000000000000000000000000a1").value;
+        request.payload=reference_planner_fixtures::cases[0].input;
+        const auto envelope=assistance::encode(request,assistance::reference_id);CHECK(envelope.code==0);
+        CHECK(assistance::validate(envelope.value.value(),*snapshot.value,"000000000000000000000000000000a1",assistance::reference_id).code==0);
+        assistance::ReferenceProvider provider;
+        for(int path=0;path<3;++path)for(int64_t n=0;n<10000;++n){
+            progress("assistance.allocation",path,n);fail_after=n;
+            int status;
+            if(path==0){auto result=assistance::encode(request,assistance::reference_id);status=result.code;}
+            else if(path==1){auto result=assistance::validate(envelope.value.value(),*snapshot.value,"000000000000000000000000000000a1",assistance::reference_id);status=result.code;}
+            else {auto result=provider.request(request);status=result.code;}
+            fail_after=-1;
+            if(status==0){CHECK(n>0);break;}
+            CHECK(status==8 && n<9999);
+        }
+    }
     pixaura_document_context context{};
     progress("context.init.injected", -1, 0);
     fail_after = 0;

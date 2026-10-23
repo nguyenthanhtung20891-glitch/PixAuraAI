@@ -14,8 +14,34 @@ test('Phase 7 Step 1 authority agrees without reopening Phase 6 or authorizing l
   return m[1];
  });assert.equal(new Set(states).size,1);
  const rows=[...read('docs/plans/phase-7-roadmap.md').matchAll(/^\| (\d+) \| ([^|]+) \| ([^|]+) \|$/gm)];
- assert.deepEqual(rows.map(m=>+m[1]),[1,2,3,4,5,6,7,8]);assert.equal(rows[0][3],states[0]);assert.deepEqual(rows.slice(1).map(m=>m[3]),Array(7).fill('NOT STARTED'));
+ assert.deepEqual(rows.map(m=>+m[1]),[1,2,3,4,5,6,7,8]);assert.equal(rows[0][3],states[0]);assert.ok(['NOT STARTED','AUTHORIZED / IN PROGRESS','COMPLETE / FULL PASS'].includes(rows[1][3]));assert.deepEqual(rows.slice(2).map(m=>m[3]),Array(6).fill('NOT STARTED')); // Step 2 authority is checked separately; Step 1 remains historical.
  assert.deepEqual(rows.map(m=>m[2]),['AI-Assisted MVP Contract & Interaction State Machine','Assistance Provider & Proposal Envelope v1','Manual + AI Assist Experience Foundation','AI Auto-Edit Proposal Flow','Plan Review & Explicit Approval UX','Cross-Platform Lifecycle & Interaction Integration','Production Intelligence Admission & MVP Provider','Phase 7 Closure']);
+});
+
+test('Phase 7 Step 2 authority and native non-executing provider boundary agree',()=>{
+ const paths=['AGENTS.md','ARCHITECTURE.md','DECISIONS.md','QUALITY_GATES.md','ROADMAP.md','docs/plans/phase-7-roadmap.md','docs/reports/phase-7-step-2.md'];
+ const states=paths.map(p=>{
+  const s=read(p).split('<!-- phase7-step2-current-authority -->')[1]?.split('<!-- phase7-step2-history -->')[0];assert.ok(s,p);
+  const state=s.match(/^Step 2 (AUTHORIZED \/ IN PROGRESS|COMPLETE \/ FULL PASS)\./m);assert.ok(state,p);
+  for(const marker of ['Phase 6 CLOSED / COMPLETE / FULL PASS','Step 1 COMPLETE / FULL PASS','Phase 7 Steps 3-8 NOT STARTED','Phase 8 NOT STARTED','Production model UNRESOLVED','CPU VALIDATED','Vulkan/Metal UNKNOWN','NOT WAIVED','NOT SATISFIED'])assert.ok(s.includes(marker),p+': '+marker);
+  if(state[1]==='COMPLETE / FULL PASS'){
+   assert.match(s,/Implementation certification SHA: `[a-f0-9]{40}`/);
+   assert.match(s,/Foundation \d+ SUCCESS 7\/7/);assert.match(s,/Native application shells \d+ SUCCESS 3\/3/);
+   assert.ok(!s.includes('Exact-SHA certification pending'));
+  }
+  return state[1];
+ });assert.equal(new Set(states).size,1);
+ const roadmap=read('docs/plans/phase-7-roadmap.md');assert.ok(roadmap.includes('| 2 | Assistance Provider & Proposal Envelope v1 | '+states[0]+' |'));
+ const header=read('packages/core/src/assistance.hpp');
+ for(const marker of ['manual::find','manual::agent_exposable','try_to_lock','epoch!=epoch_','stopped_=true','class Provider','class ReferenceProvider','envelope_limit=12288'])assert.ok(header.includes(marker),marker);
+ for(const denied of ['editor.h','agent_execution.h','pixaura_editor_','pixaura_agent_approve','std::thread','getenv(','dlopen(','system('])assert.ok(!header.includes(denied),denied);
+ const codec=read('packages/core/src/assistance_codec.inc');for(const marker of ['Parser','Writer','check_agent_binding','plan_structured_intent','canonical_agent_schema','result.value.envelope==input'])assert.ok(codec.includes(marker),marker);
+ assert.ok(read('CMakeLists.txt').includes('NAME assistance_test'));
+ assert.ok(read('scripts/check-model-release.mjs').includes('Assistance v1 checks='));
+ assert.ok(read('scripts/check-model-release.mjs').includes('assistance_checkpoint'));
+ assert.equal((read('CMakeLists.txt').match(/PIXAURA_ASSISTANCE_TESTING/g)||[]).length,1);
+ assert.ok(!read('packages/core/Package.swift').includes('PIXAURA_ASSISTANCE_TESTING'));
+ const contract=read('docs/contracts/assistance-provider-proposal-v1.md');for(const marker of ['12288','8192','2048','512','1..64','ADVICE','STRUCTURED_INTENT','PLAN_CANDIDATE','stop -> join ALL calls -> destroy','No new public C ABI','No clamping','Schema 3 change'])assert.ok(contract.includes(marker),marker);
 });
 
 test('MVP contract has finite mode/state and transition documentation with explicit authority guards',()=>{

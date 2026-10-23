@@ -1,5 +1,32 @@
 # System architecture
 
+<!-- phase7-step2-current-authority -->
+## Phase 7 Step 2 - current authority
+
+Phase 6 CLOSED / COMPLETE / FULL PASS. Phase 7 AUTHORIZED / IN PROGRESS.
+Step 1 COMPLETE / FULL PASS at `3640d94e473bddd792a12541a45b6bb36ff8cd50`.
+Foundation 39768943832 SUCCESS 7/7; Native application shells 39768943890 SUCCESS
+3/3, exact SHA, completed, attempt 1.
+Step 2 AUTHORIZED / IN PROGRESS. Exact-SHA certification pending.
+Assistance Provider & Proposal Envelope v1: internal shared-native, bounded,
+canonical, ephemeral and UNTRUSTED. Existing native planner/Plan/Registry
+validation only; no approval issuer, candidate, execution or history authority.
+No new public ABI. Intent v1, Structured Intent v1, Plan v1, Registry v1,
+reference planner, approval/candidate, three-mode interaction, Schema 3 and
+Phase 5 unchanged. Production model UNRESOLVED. CPU VALIDATED; Vulkan/Metal UNKNOWN.
+No model/runtime/weights/NLP/cloud/network AI/AI UX. Local-first.
+DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+Phase 7 Steps 3-8 NOT STARTED. Phase 8 NOT STARTED. No Step 9.
+Full retained source/native/platform, active ASan/UBSan, release isolation,
+workflow lint and diff checks required. Both complete exact implementation-SHA
+and separate closure-SHA workflows required; every job completed/SUCCESS.
+STOP after Step 2. Do not implement Step 3.
+See docs/contracts/assistance-provider-proposal-v1.md and docs/reports/phase-7-step-2.md.
+<!-- phase7-step2-history -->
+
+The following Step 1 authority is historical at its certified freeze time.
+
+
 <!-- phase7-current-authority -->
 ## Phase 7 Step 1 - current authority
 

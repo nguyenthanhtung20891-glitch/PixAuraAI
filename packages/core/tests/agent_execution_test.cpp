@@ -1,5 +1,6 @@
 #include "pixaura/agent_execution.h"
 #include "../src/document.hpp"
+#include "../src/assistance.hpp"
 #include "../src/sha256.hpp"
 #include "agent_schema_fixtures.hpp"
 #include "../../../tests/fixtures/decode/fixtures.h"
@@ -100,6 +101,21 @@ int main(int argc,char** argv){CHECK(argc==2);const auto parent=std::filesystem:
  for(const auto& f:pixaura::agent_schema_fixtures::cases){
   if(f.kind!=2||f.status!=0)continue;
   Owner o(parent,++serial);const auto before=o.document();const auto p=o.plan(f.canonical);
+  {
+   // Actual editor-produced binding -> untrusted provider -> existing trusted
+   // validation -> the SAME Plan. It still cannot execute without HUMAN approval.
+   using namespace pixaura;
+   assistance::ReferenceProvider provider;assistance::Request proposal;
+   proposal.kind=assistance::Kind::PlanCandidate;proposal.proposal_id="execution.integration";
+   proposal.binding=o.binding()+"\n";proposal.payload=p;
+   const auto field_text=[&](const char* key){const auto needle=std::string("\"")+key+"\":\"";const auto at=proposal.binding.find(needle);CHECK(at!=std::string::npos);return proposal.binding.substr(at+needle.size(),32);};
+   const auto snapshot=document::deserialize(before,field_text("session_id"));CHECK(snapshot.code==0);
+   const auto envelope=provider.request(proposal);CHECK(envelope.code==0);
+   const auto valid=assistance::validate(envelope.value.value(),*snapshot.value,field_text("context_id"),assistance::reference_id);
+   CHECK(valid.code==0 && valid.value->plan==p);CHECK(o.document()==before);
+   CHECK(o.execute(valid.value->plan,nullptr)==15);CHECK(o.document()==before);
+   provider.stop();
+  }
   CHECK(o.execute(p,nullptr)==15);CHECK(o.document()==before);
   const auto a=o.approve(p);CHECK(o.document()==before);
   pixaura_agent_execution_receipt receipt{};CHECK(o.execute(p,&a,&receipt)==0);
