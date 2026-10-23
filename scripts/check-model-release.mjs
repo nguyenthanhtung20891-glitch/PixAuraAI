@@ -12,6 +12,8 @@ for(const file of process.argv.slice(2)){
         assert.equal(b.includes(Buffer.from(marker)),false,`${file}: platform certification hook in release`);
     for(const marker of ['Assistance v1 checks=','assistance.allocation','no_approval_or_candidate_API','assistance_checkpoint'])
         assert.equal(b.includes(Buffer.from(marker)),false,`${file}: assistance certification fixture in release`);
+    for(const marker of ['pixaura_test_assist_control','AssistTestHooks_nativeControl','assist_test_point','assist_test_fault','assist-test-failure','assist-test-pause'])
+        assert.equal(b.includes(Buffer.from(marker)),false,`${file}: AI Assist test surface in release`);
     console.log(`Model production trust isolation PASS: ${b.length} bytes`);
 }
 assert.ok(process.argv.length>2,'No production object inspected');

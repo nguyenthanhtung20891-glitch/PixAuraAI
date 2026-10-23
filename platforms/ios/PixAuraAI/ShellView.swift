@@ -34,8 +34,8 @@ struct ShellView: View {
                         Text(model.probe)
                         switch destination {
                         case .editor:
-                            if model.state.mode == .manual { ManualEditorScreen(capabilities: capabilities) }
-                            else { Text("\(model.state.mode.rawValue) session · Editing tools arrive in a later phase.") }
+                            if model.state.mode != .ai { ManualEditorScreen(capabilities: capabilities, assistInitially: model.state.mode == .assisted) }
+                            else { Text("AI Auto-Edit is not available yet. Choose Manual or AI Assist from Home.") }
                         case .projects:
                             Text("Your projects will appear here.")
                         case .settings:

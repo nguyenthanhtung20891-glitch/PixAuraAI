@@ -31,6 +31,7 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     private var closed = false
     private var active = 0
     private var agentCalls = 0
+    private var assistCalls = 0
     private var stopped = false
     private var destroyed = false
     private var displayed: Bitmap? = null
@@ -169,10 +170,37 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     fun cancelAgentExecution() = gate.withLock {
         checked(if (closed) 13 else nativeAgentCancel(storage), "Agent cancellation")
     }
+    class AssistChoice internal constructor(val index: Int, val toolIndex: Int, val values: List<Int>)
+    class AssistAdvice internal constructor(internal val owner: ManualEditor, internal val packet: ByteBuffer, val choice: AssistChoice)
+    private fun assistChoice(packet: ByteBuffer): AssistChoice {
+        val data = packet.duplicate().order(ByteOrder.nativeOrder())
+        val count = data.getInt(16)
+        checked(if (data.getInt(0) == 1 && data.getInt(4) == nativeAssistSize() && count in 1..4) 0 else 14, "Advice")
+        return AssistChoice(data.getInt(8), data.getInt(12), List(count) { data.getInt(24 + it * 4) })
+    }
+    fun adviceChoices(): List<AssistChoice> = gate.withLock {
+        checked(if (closed) 13 else 0, "Advice")
+        val count = nativeAssistCount(); checked(if (count in 1..11) 0 else 14, "Advice")
+        List(count) { index -> val packet = ByteBuffer.allocateDirect(nativeAssistSize())
+            checked(nativeAssistChoice(index, packet), "Advice"); assistChoice(packet) }
+    }
+    fun requestAdvice(index: Int): AssistAdvice {
+        val packet = ByteBuffer.allocateDirect(nativeAssistSize())
+        gate.withLock { checked(if (closed) 13 else if (assistCalls != 0) 8 else 0, "Advice"); assistCalls++ }
+        try {
+            checked(nativeAssistRequest(storage, index, packet), "Advice")
+            return AssistAdvice(this, packet.asReadOnlyBuffer(), assistChoice(packet))
+        } finally { gate.withLock { assistCalls--; idle.signalAll() } }
+    }
+    fun inspectAdvice(advice: AssistAdvice): AssistChoice = gate.withLock {
+        checked(if (closed) 13 else if (advice.owner !== this) 9 else nativeAssistCurrent(storage, advice.packet), "Advice")
+        advice.choice
+    }
+    fun cancelAdvice() = gate.withLock { checked(if (closed) 13 else nativeAssistCancel(storage), "Advice") }
     override fun close() = gate.withLock {
         closed = true
         if (!stopped) { checked(nativeStop(storage), "Close"); stopped = true }
-        while (active != 0 || agentCalls != 0) idle.awaitUninterruptibly()
+        while (active != 0 || agentCalls != 0 || assistCalls != 0) idle.awaitUninterruptibly()
         if (!destroyed) { checked(nativeDestroy(storage), "Close"); destroyed = true }
     }
     private external fun nativeAgentBytes(storage: ByteBuffer, mode: Int, input: ByteArray?, output: ByteBuffer): Int
@@ -180,6 +208,12 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     private external fun nativeAgentTerminal(storage: ByteBuffer, approval: ByteBuffer, release: Boolean): Int
     private external fun nativeAgentExecute(storage: ByteBuffer, plan: ByteArray, approval: ByteBuffer?, receipt: ByteBuffer): Int
     private external fun nativeAgentCancel(storage: ByteBuffer): Int
+    private external fun nativeAssistSize(): Int
+    private external fun nativeAssistCount(): Int
+    private external fun nativeAssistChoice(index: Int, output: ByteBuffer): Int
+    private external fun nativeAssistRequest(storage: ByteBuffer, index: Int, output: ByteBuffer): Int
+    private external fun nativeAssistCurrent(storage: ByteBuffer, advice: ByteBuffer): Int
+    private external fun nativeAssistCancel(storage: ByteBuffer): Int
     private external fun nativeStorageSize(): Int
     private external fun nativeRequestSize(): Int
     private external fun nativeGeneration(request: ByteBuffer): Long

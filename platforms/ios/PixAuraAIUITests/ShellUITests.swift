@@ -1,6 +1,83 @@
 import XCTest
 
 final class ShellUITests: XCTestCase {
+    func testAssistCancellationAndModeDepartureSuppressLateAdvice() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--reset-shell-navigation", "--editor-test-image", "--assist-test-pause"]
+        app.launch()
+        func tap(_ id: String) {
+            let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
+            let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
+            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }
+            query.firstMatch.tap()
+        }
+        tap("Open Manual editor")
+        XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
+        tap("mode-assist"); tap("assist-goal"); tap("assist-goal-pixaura.exposure")
+        tap("assist-request"); tap("assist-cancel")
+        XCTAssertTrue(app.staticTexts["assist-cancelled"].waitForExistence(timeout: 20))
+        XCTAssertFalse(app.buttons["assist-use"].exists)
+        tap("assist-request"); tap("mode-manual")
+        XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
+        XCTAssertFalse(app.buttons["assist-use"].exists)
+        tap("mode-assist")
+        XCTAssertFalse(app.buttons["assist-use"].exists)
+        tap("mode-manual"); tap("Tone/Color"); tap("pixaura.exposure")
+        app.sliders["manual-slider"].adjust(toNormalizedSliderPosition: 0.6)
+        tap("Apply")
+        XCTAssertTrue(app.staticTexts["Committed revisions: 2"].waitForExistence(timeout: 20))
+    }
+    func testAssistAdviceDismissNavigationAndExplicitManualApply() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]
+        app.launch()
+        func tap(_ id: String) {
+            let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
+            let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
+            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }
+            query.firstMatch.tap()
+        }
+        func revisions(_ n: Int) {
+            XCTAssertTrue(app.staticTexts["Committed revisions: \(n)"].waitForExistence(timeout: 20))
+        }
+        tap("Open Manual editor"); revisions(1)
+        XCTAssertFalse(app.buttons["mode-auto"].isEnabled)
+        tap("mode-assist"); tap("assist-goal"); tap("assist-goal-pixaura.exposure")
+        tap("assist-request"); tap("assist-dismiss"); revisions(1)
+        XCTAssertTrue(app.staticTexts["assist-dismissed"].exists)
+        tap("assist-request"); tap("assist-use"); revisions(1)
+        XCTAssertTrue(app.staticTexts["assist-notice"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.staticTexts["Exposure: 0.0 EV"].waitForExistence(timeout: 20))
+        let slider = app.sliders["manual-slider"]
+        XCTAssertTrue(slider.waitForExistence(timeout: 20))
+        slider.adjust(toNormalizedSliderPosition: 0.6)
+        tap("Apply"); revisions(2)
+        tap("Undo"); revisions(2); tap("Redo"); revisions(2)
+        tap("mode-assist"); tap("assist-request"); tap("assist-dismiss"); revisions(2)
+        tap("mode-manual")
+        XCTAssertFalse(app.buttons["assist-use"].exists)
+        tap("pixaura.exposure"); tap("Cancel"); revisions(2)
+    }
+    func testAssistProviderFailureStillAllowsManualEditing() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--reset-shell-navigation", "--editor-test-image", "--assist-test-failure"]
+        app.launch()
+        func tap(_ id: String) {
+            let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
+            let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
+            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }
+            query.firstMatch.tap()
+        }
+        tap("Open Manual editor")
+        XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
+        tap("mode-assist"); tap("assist-goal"); tap("assist-goal-pixaura.brightness"); tap("assist-request")
+        XCTAssertTrue(app.staticTexts["assist-error"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
+        tap("mode-manual"); tap("Tone/Color"); tap("pixaura.exposure")
+        app.sliders["manual-slider"].adjust(toNormalizedSliderPosition: 0.6)
+        tap("Apply")
+        XCTAssertTrue(app.staticTexts["Committed revisions: 2"].waitForExistence(timeout: 20))
+    }
     func testManualEditorGestureHistoryCancelBackgroundAndReopen() {
         let app = XCUIApplication()
         app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]

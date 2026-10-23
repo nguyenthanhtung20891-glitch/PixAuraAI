@@ -3,6 +3,16 @@ import Combine
 import CoreGraphics
 import PixAuraCore
 
+enum AssistStatus { case idle, requesting, proposalAvailable, failed, stale, cancelled, rejected }
+struct AssistUiState {
+    var enabled = false, inFlight = false
+    var status: AssistStatus = .idle
+    var choices: [ManualEditor.AssistChoice] = []
+    var selected = -1
+    var advice: ManualEditor.AssistAdvice?
+    var error: String?, notice: String?
+}
+
 /// Application work lanes only. Core owns descriptors/gesture/history; queues
 /// retain one latest integer payload and one latest preview, never slider tasks.
 private final class EditorWorker {
@@ -49,6 +59,9 @@ private final class EditorWorker {
     }
     let commands = DispatchQueue(label: "ai.pixaura.editor.commands", qos: .userInitiated)
     private let rendering = DispatchQueue(label: "ai.pixaura.editor.preview", qos: .userInitiated)
+    private let advising = DispatchQueue(label: "ai.pixaura.editor.advice", qos: .userInitiated)
+    private var assistWorking = false
+    private var cancellingAdvice = false
     private let lock = NSLock()
     private var owner: ManualEditor?
     private var latestValues: (String, [Int32], UInt64)?
@@ -102,7 +115,64 @@ private final class EditorWorker {
         try owner?.action(action)
         if action != 4 { try preview() }
     }
-    func close() { clearPending(); owner?.close(); owner = nil }
+    func close() {
+        clearPending()
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--assist-test-pause") {
+            try? owner?.cancelAdvice(); _ = owner?.adviceTestControl(2)
+        }
+        #endif
+        owner?.close(); owner = nil
+    }
+    #if DEBUG
+    func adviceFixtureFailure() { _ = owner?.adviceTestControl(3, 2) }
+    #endif
+    func cancelAdvice() {
+        lock.lock()
+        if cancellingAdvice { lock.unlock(); return }
+        cancellingAdvice = true; lock.unlock()
+        commands.async {
+            try? self.owner?.cancelAdvice()
+            #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("--assist-test-pause") { _ = self.owner?.adviceTestControl(2) }
+            #endif
+            self.lock.lock(); self.cancellingAdvice = false; self.lock.unlock()
+        }
+    }
+    func adviceChoices(_ completion: @escaping @MainActor ([ManualEditor.AssistChoice]) -> Void) {
+        commands.async { let values = (try? self.owner?.adviceChoices()) ?? []; DispatchQueue.main.async { completion(values) } }
+    }
+    func requestAdvice(_ index: Int, completion: @escaping @MainActor (Result<ManualEditor.AssistAdvice, Error>) -> Void) {
+        lock.lock()
+        if assistWorking { lock.unlock(); DispatchQueue.main.async { completion(.failure(ManualEditorFailure(status: 8, boundary: "Advice"))) }; return }
+        assistWorking = true; lock.unlock()
+        commands.async {
+            guard let editor = self.owner else {
+                self.lock.lock(); self.assistWorking = false; self.lock.unlock()
+                DispatchQueue.main.async { completion(.failure(ManualEditorFailure(status: 13, boundary: "Advice"))) }; return
+            }
+            #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("--assist-test-pause") { _ = editor.adviceTestControl(0, 0) }
+            #endif
+            self.advising.async {
+                let result = Result { try editor.requestAdvice(index) }
+                self.commands.async {
+                    let checked: Result<ManualEditor.AssistAdvice, Error> = Result {
+                        guard self.owner === editor else { throw ManualEditorFailure(status: 9, boundary: "Advice") }
+                        let advice = try result.get(); try editor.inspectAdvice(advice); return advice
+                    }
+                    self.lock.lock(); self.assistWorking = false; self.lock.unlock()
+                    DispatchQueue.main.async { completion(checked) }
+                }
+            }
+        }
+    }
+    func useAdvice(_ advice: ManualEditor.AssistAdvice) throws {
+        guard let owner else { throw ManualEditorFailure(status: 13, boundary: "Advice") }
+        let choice = try owner.inspectAdvice(advice)
+        // Existing manual-tool navigation only; no values, preview or Apply.
+        try owner.select(choice.toolIndex); try owner.cancelAdvice()
+    }
     func update(_ values: [Int32], editID: String, epoch: UInt64) {
         lock.lock(); latestValues = (editID, values, epoch)
         let schedule = !updating; updating = true; lock.unlock()
@@ -167,6 +237,9 @@ final class ManualEditorModel: ObservableObject {
     @Published private(set) var busy = false
     @Published private(set) var error: String?
     @Published private(set) var previewLoading = false
+    @Published private(set) var assistance = AssistUiState()
+    private var assistEpoch: UInt64 = 0
+    private var loadingChoices = false
     private let worker: EditorWorker
     private var editor: ManualEditor?
     private var epoch: UInt64 = 0
@@ -178,6 +251,7 @@ final class ManualEditorModel: ObservableObject {
             self.core = state; self.image = image
             self.busy = false; self.error = error
             if self.core?.active != true || error != nil { self.previewLoading = false }
+            if self.assistance.enabled && self.assistance.choices.isEmpty { self.loadAdviceChoices() }
         }
         worker.candidate = { [weak self] editor, candidate in
             guard let self, self.editor === editor else { return }
@@ -191,14 +265,81 @@ final class ManualEditorModel: ObservableObject {
         }
     }
     private func send(_ work: @escaping (EditorWorker) throws -> Void) { epoch += 1; busy = true; error = nil; worker.send(epoch, work) }
+    private func nextAssistEpoch() -> UInt64? {
+        guard assistEpoch != UInt64.max else { assistance.status = .failed; assistance.advice = nil; assistance.error = "Advice session ended. Manual editing is available."; return nil }
+        assistEpoch += 1; return assistEpoch
+    }
+    private func invalidateAdvice(_ reason: AssistStatus = .stale) {
+        _ = nextAssistEpoch()
+        let hadWork = assistance.advice != nil || assistance.inFlight
+        assistance.advice = nil; assistance.error = nil; assistance.notice = nil
+        assistance.status = assistance.enabled && hadWork ? reason : .idle
+        if hadWork { worker.cancelAdvice() }
+    }
+    func setAssistMode(_ enabled: Bool) {
+        invalidateAdvice(.cancelled); assistance.enabled = enabled; assistance.status = .idle
+        if enabled { loadAdviceChoices() }
+    }
+    private func loadAdviceChoices() {
+        guard !loadingChoices, assistance.choices.isEmpty, editor != nil else { return }
+        loadingChoices = true
+        worker.adviceChoices { [weak self] values in
+            guard let self else { return }; self.loadingChoices = false
+            guard self.assistance.enabled, self.editor != nil else { return }
+            self.assistance.choices = values
+            if values.isEmpty && self.assistance.enabled { self.assistance.status = .failed; self.assistance.error = "Advice is unavailable. Manual editing is available." }
+        }
+    }
+    func chooseAdvice(_ index: Int) {
+        guard !assistance.inFlight else { return }; invalidateAdvice(); assistance.selected = index; assistance.status = .idle
+    }
+    private func adviceFailure(_ failure: Error) {
+        switch (failure as? ManualEditorFailure)?.status {
+        case 3, 9: assistance.status = .stale; assistance.error = "This advice has expired. Request new guidance for the current image."
+        case 13: assistance.status = .cancelled; assistance.error = "Advice cancelled or stopped. Manual editing is available."
+        case 8: assistance.status = .failed; assistance.error = "Advice is busy or resources are limited. You can keep editing manually."
+        default: assistance.status = .failed; assistance.error = "Advice could not be validated. You can keep editing manually."
+        }
+        assistance.advice = nil
+    }
+    func requestAdvice() {
+        guard assistance.enabled, !assistance.inFlight, assistance.choices.indices.contains(assistance.selected), let stamp = nextAssistEpoch() else { return }
+        let choice = assistance.choices[assistance.selected]
+        assistance.inFlight = true; assistance.status = .requesting; assistance.advice = nil; assistance.error = nil; assistance.notice = nil
+        worker.requestAdvice(choice.index) { [weak self] result in
+            guard let self else { return }; self.assistance.inFlight = false
+            guard self.assistEpoch == stamp, self.assistance.enabled else { return }
+            switch result {
+            case .success(let advice): self.assistance.advice = advice; self.assistance.status = .proposalAvailable
+            case .failure(let failure): self.adviceFailure(failure)
+            }
+        }
+    }
+    func cancelAdvice() { invalidateAdvice(.cancelled); assistance.status = assistance.enabled ? .cancelled : .idle }
+    func dismissAdvice() { invalidateAdvice(.rejected); assistance.status = assistance.enabled ? .rejected : .idle }
+    func useSuggestion() {
+        guard let advice = assistance.advice, let stamp = nextAssistEpoch() else { return }
+        send { worker in
+            do {
+                try worker.useAdvice(advice)
+                DispatchQueue.main.async { [weak self] in
+                    guard let self, self.assistEpoch == stamp else { return }
+                    self.assistance.enabled = false; self.assistance.status = .idle; self.assistance.advice = nil
+                    self.assistance.notice = "Manual tool opened. Set your preferred value, then choose Apply."
+                }
+            } catch {
+                DispatchQueue.main.async { [weak self] in guard let self, self.assistEpoch == stamp else { return }; self.adviceFailure(error) }
+            }
+        }
+    }
     func reopen() { send { try $0.reopen() } }
-    func recover() { send { $0.close(); try $0.reopen() } }
-    func importImage(_ input: URL) { send { try $0.importImage(input) } }
-    func select(_ index: Int) { send { try $0.select(index) } }
-    func update(_ values: [Int32]) { guard let core else { return }; epoch += 1; previewLoading = true; worker.update(values, editID: core.editID, epoch: epoch) }
-    func action(_ action: UInt32) { send { try $0.action(action) } }
-    func interrupt() { send { try $0.action(4) } }
-    func close() { send { $0.close() } }
+    func recover() { invalidateAdvice(); send { $0.close(); try $0.reopen() } }
+    func importImage(_ input: URL) { invalidateAdvice(); send { try $0.importImage(input) } }
+    func select(_ index: Int) { invalidateAdvice(); send { try $0.select(index) } }
+    func update(_ values: [Int32]) { invalidateAdvice(); guard let core else { return }; epoch += 1; previewLoading = true; worker.update(values, editID: core.editID, epoch: epoch) }
+    func action(_ action: UInt32) { invalidateAdvice(); send { try $0.action(action) } }
+    func interrupt() { invalidateAdvice(.cancelled); send { try $0.action(4) } }
+    func close() { setAssistMode(false); send { $0.close() } }
     func retryPreview() { previewLoading = true; send { try $0.retry() } }
     func pickerFailure(_ failure: Error) { error = failure.localizedDescription }
     #if DEBUG
@@ -211,6 +352,7 @@ final class ManualEditorModel: ObservableObject {
             let fixture = Data(base64Encoded: "iVBORw0KGgoAAAANSUhEUgAAAAIAAAADCAYAAAC56t6BAAAAHElEQVR4nGP4z8DwHwwZGP6DAQMjE/N/Fla2BgCpRQuLxbxPlAAAAABJRU5ErkJggg==")!
             try fixture.write(to: url); defer { try? FileManager.default.removeItem(at: url) }
             try worker.importImage(url)
+            if ProcessInfo.processInfo.arguments.contains("--assist-test-failure") { worker.adviceFixtureFailure() }
         }
     }
     #endif

@@ -3,6 +3,7 @@
 #include "detail.hpp"
 #include "structured_goals.hpp"
 #include "assistance.hpp"
+#include "assist_experience.hpp"
 #include "pixaura/document.h"
 
 #include <algorithm>
@@ -692,3 +693,4 @@ Result<Vector<Id>> parse_preset_bindings(std::string_view input) {
 
 }
 #include "assistance_codec.inc"
+#include "assist_request_codec.hpp"

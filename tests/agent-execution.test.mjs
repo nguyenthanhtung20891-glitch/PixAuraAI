@@ -4,6 +4,29 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 const read=p=>fs.readFileSync(p,'utf8').replaceAll('\r\n','\n');
 
+test('Phase 7 Step 3 current authority, manual-only navigation, and release isolation agree',()=>{
+ const paths=['AGENTS.md','ARCHITECTURE.md','DECISIONS.md','QUALITY_GATES.md','ROADMAP.md','docs/plans/phase-7-roadmap.md','docs/reports/phase-7-step-3.md'];
+ const states=paths.map(p=>{
+  const current=read(p).split('<!-- phase7-step3-current-authority -->')[1]?.split('<!-- phase7-step3-history -->')[0];assert.ok(current,p);
+  const state=current.match(/^Step 3 (AUTHORIZED \/ IN PROGRESS|COMPLETE \/ FULL PASS)\./m);assert.ok(state,p);
+  for(const marker of ['Phase 6 CLOSED / COMPLETE / FULL PASS','Step 1 COMPLETE / FULL PASS','Step 2 COMPLETE / FULL PASS','Phase 7 Steps 4-8 NOT STARTED','Phase 8 NOT STARTED','Production model UNRESOLVED','CPU VALIDATED','Vulkan/Metal UNKNOWN','Schema 3','NOT WAIVED','NOT SATISFIED'])assert.ok(current.includes(marker),p+marker);
+  if(state[1]==='COMPLETE / FULL PASS'){assert.match(current,/Implementation certification SHA: `[a-f0-9]{40}`/);assert.match(current,/Foundation \d+ SUCCESS 7\/7/);assert.match(current,/Native application shells \d+ SUCCESS 3\/3/);assert.ok(!current.includes('Exact-SHA certification pending'))}
+  return state[1];
+ });assert.equal(new Set(states).size,1);
+ assert.ok(read('docs/plans/phase-7-roadmap.md').includes('| 3 | Manual + AI Assist Experience Foundation | '+states[0]+' |'));
+ const contract=read('docs/contracts/ai-assist-experience-v1.md');assert.ok(contract.includes('navigation-only, NOT Apply'));assert.ok(contract.includes('stop, joins all render/Agent/advice calls'));
+ for(const [path,start,end] of [
+  ['platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt','fun useSuggestion()','private fun command'],
+  ['platforms/ios/PixAuraAI/ManualEditorModel.swift','func useAdvice(','func update(']]) {
+  const body=read(path).split(start)[1]?.split(end)[0];assert.ok(body,path);assert.ok(body.includes('.inspectAdvice(')&&body.includes('.select('),path);
+  assert.doesNotMatch(body,/\.(?:update|action|executeAgentPlan|approveAgentPlanFromHuman|render)\(/,path);
+ }
+ const boundary=read('packages/core/src/assist_experience_boundary.hpp');
+ assert.doesNotMatch(boundary,/pixaura_editor_agent_(?:execute|approve)|\.accept\(|commit_candidate\(/);
+ for(const marker of ['pixaura_test_assist_control','AssistTestHooks_nativeControl','assist-test-failure','assist-test-pause'])assert.ok(read('scripts/check-model-release.mjs').includes(marker));
+ for(const path of ['platforms/android/app/src/main/java/ai/pixaura/app/AssistPanel.kt','platforms/ios/PixAuraAI/ManualEditorScreen.swift'])for(const id of ['assist-request','assist-goal','assist-use','assist-dismiss','assist-error','assist-cancel'])assert.ok(read(path).includes(id),path+id);
+});
+
 test('Phase 7 Step 1 authority agrees without reopening Phase 6 or authorizing later steps',()=>{
  const roots=['AGENTS.md','ARCHITECTURE.md','DECISIONS.md','QUALITY_GATES.md','ROADMAP.md'];
  const files=[...roots,'docs/plans/phase-7-roadmap.md','docs/reports/phase-7-step-1.md'];
@@ -14,7 +37,7 @@ test('Phase 7 Step 1 authority agrees without reopening Phase 6 or authorizing l
   return m[1];
  });assert.equal(new Set(states).size,1);
  const rows=[...read('docs/plans/phase-7-roadmap.md').matchAll(/^\| (\d+) \| ([^|]+) \| ([^|]+) \|$/gm)];
- assert.deepEqual(rows.map(m=>+m[1]),[1,2,3,4,5,6,7,8]);assert.equal(rows[0][3],states[0]);assert.ok(['NOT STARTED','AUTHORIZED / IN PROGRESS','COMPLETE / FULL PASS'].includes(rows[1][3]));assert.deepEqual(rows.slice(2).map(m=>m[3]),Array(6).fill('NOT STARTED')); // Step 2 authority is checked separately; Step 1 remains historical.
+ assert.deepEqual(rows.map(m=>+m[1]),[1,2,3,4,5,6,7,8]);assert.equal(rows[0][3],states[0]);for(const row of rows.slice(1,3))assert.ok(['NOT STARTED','AUTHORIZED / IN PROGRESS','COMPLETE / FULL PASS'].includes(row[3]));assert.deepEqual(rows.slice(3).map(m=>m[3]),Array(5).fill('NOT STARTED')); // Later authorized steps are checked separately; Step 1 remains historical.
  assert.deepEqual(rows.map(m=>m[2]),['AI-Assisted MVP Contract & Interaction State Machine','Assistance Provider & Proposal Envelope v1','Manual + AI Assist Experience Foundation','AI Auto-Edit Proposal Flow','Plan Review & Explicit Approval UX','Cross-Platform Lifecycle & Interaction Integration','Production Intelligence Admission & MVP Provider','Phase 7 Closure']);
 });
 
@@ -168,8 +191,8 @@ test('platform Agent adapters preserve native authority, bounded transport and q
   for(const forbidden of ['milli_ev','pixaura.exposure','plan_version','structured_intent_version','"approved"','Thread {','Task.detached'])assert.ok(!s.includes(forbidden),forbidden);
  }
  for(const marker of ['pixaura_editor_agent_plan','pixaura_editor_agent_validate','pixaura_editor_agent_approve','pixaura_editor_agent_execute','GetDirectBufferCapacity','alignof(T)','8192','catch(...)'])assert.ok(jni.includes(marker));
- assert.ok(kotlin.includes('while (active != 0 || agentCalls != 0)'));
- assert.ok(swift.includes('while renders != 0 || agentCalls != 0'));
+ assert.ok(kotlin.includes('while (active != 0 || agentCalls != 0 || assistCalls != 0)'));
+ assert.ok(swift.includes('while renders != 0 || agentCalls != 0 || assistCalls != 0'));
  assert.ok(!kotlin.includes('agentTestControl'));
  assert.ok(swift.includes('#if DEBUG'));
  assert.ok(read('scripts/check-model-release.mjs').includes('pixaura_test_agent_platform_control'));

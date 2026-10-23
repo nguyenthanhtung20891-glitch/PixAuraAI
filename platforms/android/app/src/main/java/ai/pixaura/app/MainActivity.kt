@@ -61,8 +61,8 @@ class MainActivity : ComponentActivity() {
                                 Button(onClick = { model.navigate(Destination.Projects) }) { Text("Open Projects") }
                                 Button(onClick = { model.navigate(Destination.Settings) }) { Text("Open Settings") }
                             }
-                            Destination.Editor -> if (state.mode == EditMode.Manual) ManualEditorScreen(editor)
-                                else Text("${state.mode.name} session · Editing tools arrive in a later phase.")
+                            Destination.Editor -> if (state.mode != EditMode.AI) ManualEditorScreen(editor, state.mode == EditMode.Assisted)
+                                else Text("AI Auto-Edit is not available yet. Choose Manual or AI Assist from Home.")
                             Destination.Projects -> Text("Your projects will appear here.")
                             Destination.Settings -> Text("Offline by default. No account, analytics or photo access requested.")
                         }

@@ -1,5 +1,36 @@
 # Delivery roadmap
 
+<!-- phase7-step3-current-authority -->
+## Phase 7 Step 3 - current authority
+
+Phase 6 CLOSED / COMPLETE / FULL PASS. Phase 7 AUTHORIZED / IN PROGRESS.
+Step 1 COMPLETE / FULL PASS. Step 2 COMPLETE / FULL PASS.
+Certified Step 2 closure: `0d73ffc3ec1fa1ac5e1032a4f8f47a2c69e1b990`.
+Foundation 39956128221 SUCCESS 7/7; Native application shells 39956128320 SUCCESS
+3/3, completed exact SHA, attempt 1, every required job individually SUCCESS.
+Step 3 AUTHORIZED / IN PROGRESS.
+Exact-SHA certification pending; no unobserved job is PASS.
+Manual + AI Assist Experience v1: one manual editor/history, validated ADVICE only.
+Use suggestion navigates to the existing manual tool at its ordinary default;
+it does NOT Apply, prefill, create approval/candidate, execute or commit.
+Explicit user manual controls and Apply remain authoritative. AI AUTO-EDIT disabled.
+Narrow checked advice-only C/JNI/Swift adapters; no new execution authority.
+Frozen Intent/Structured Intent/Plan/Registry/Envelope/Provider/reference planner,
+approval/candidate, three-mode contract, Schema 3 and Phase 5 unchanged.
+Production model UNRESOLVED. CPU VALIDATED; Vulkan/Metal UNKNOWN.
+No model/runtime/weights/NLP/cloud/network AI. Local-first, ephemeral advice.
+DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+Phase 7 Steps 4-8 NOT STARTED. Phase 8 NOT STARTED. No Step 9.
+Full retained source/native/platform, active ASan/UBSan, release isolation,
+workflow lint and diff gates required. Both complete exact implementation-SHA
+and separate closure-SHA workflows required; every job completed/SUCCESS.
+STOP after Step 3. Do not implement Step 4.
+See docs/contracts/ai-assist-experience-v1.md and docs/reports/phase-7-step-3.md.
+<!-- phase7-step3-history -->
+
+Earlier authority below is historical at its certified freeze time.
+
+
 <!-- phase7-step2-current-authority -->
 ## Phase 7 Step 2 - current authority
 

@@ -17,12 +17,19 @@ import java.util.UUID
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.atomic.AtomicLong
 import java.io.InputStream
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 data class EditorUiState(val tools: List<ManualTool> = emptyList(), val core: ManualState? = null,
     val image: Bitmap? = null, val busy: Boolean = false, val previewLoading: Boolean = false, val error: String? = null)
+enum class AssistStatus { IDLE, REQUESTING, PROPOSAL_AVAILABLE, FAILED, STALE, CANCELLED, REJECTED }
+data class AssistUiState(val enabled: Boolean = false, val status: AssistStatus = AssistStatus.IDLE,
+    val choices: List<ManualEditor.AssistChoice> = emptyList(), val selected: Int = -1,
+    val advice: ManualEditor.AssistAdvice? = null, val inFlight: Boolean = false,
+    val error: String? = null, val notice: String? = null)
 
 /** Two fixed lanes, one coalesced input and one coalesced preview request.
  * Native lifecycle/history is authoritative; no platform operation/history model.
@@ -30,7 +37,14 @@ data class EditorUiState(val tools: List<ManualTool> = emptyList(), val core: Ma
 class ManualEditorModel(application: Application) : AndroidViewModel(application) {
     private val commands = Executors.newSingleThreadExecutor()
     private val rendering = Executors.newSingleThreadExecutor()
-    private var owner: ManualEditor? = null
+    private val advising = Executors.newSingleThreadExecutor()
+    @Volatile private var owner: ManualEditor? = null
+    private val assistMutable = MutableStateFlow(AssistUiState())
+    val assistance = assistMutable.asStateFlow()
+    private val assistEpoch = AtomicLong(0)
+    private val assistActive = AtomicBoolean(false)
+    private val loadingChoices = AtomicBoolean(false)
+    private val cancellingAdvice = AtomicBoolean(false)
     private val pendingValues = AtomicReference<Pair<String, List<Int>>?>(null)
     private val updating = AtomicBoolean(false)
     private val pendingPreview = AtomicReference<Pair<ManualEditor, ManualEditor.Request>?>(null)
@@ -106,6 +120,91 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         val editor = owner
         mutable.value = mutable.value.copy(tools = editor?.tools ?: emptyList(), core = editor?.state(),
             image = editor?.displayedBitmap(), busy = false, error = error)
+        if (assistMutable.value.enabled && assistMutable.value.choices.isEmpty()) loadAdviceChoices()
+    }
+    private fun nextAssistEpoch(): Long? {
+        while (true) { val previous = assistEpoch.get()
+            if (previous == Long.MAX_VALUE) { assistMutable.update { it.copy(status = AssistStatus.FAILED, error = "Advice session ended. Manual editing is available.", advice = null) }; return null }
+            if (assistEpoch.compareAndSet(previous, previous + 1)) return previous + 1
+        }
+    }
+    private fun cancelNativeAdvice() {
+        if (disposed.get() || !cancellingAdvice.compareAndSet(false, true)) return
+        commands.execute { try { owner?.cancelAdvice() } catch (_: Throwable) { /* Manual remains independent. */ }
+            finally { cancellingAdvice.set(false) } }
+    }
+    private fun invalidateAdvice(reason: AssistStatus = AssistStatus.STALE) {
+        nextAssistEpoch()
+        val hadWork = assistMutable.value.advice != null || assistActive.get()
+        assistMutable.update { it.copy(advice = null, status = if (it.enabled && hadWork) reason else AssistStatus.IDLE, error = null, notice = null) }
+        if (hadWork) cancelNativeAdvice()
+    }
+    fun setAssistMode(enabled: Boolean) {
+        invalidateAdvice(AssistStatus.CANCELLED)
+        assistMutable.update { it.copy(enabled = enabled, status = AssistStatus.IDLE, advice = null, error = null, notice = null) }
+        if (enabled) loadAdviceChoices()
+    }
+    private fun loadAdviceChoices() {
+        if (disposed.get() || assistMutable.value.choices.isNotEmpty() || !loadingChoices.compareAndSet(false, true)) return
+        commands.execute {
+            try { owner?.adviceChoices()?.let { choices -> if (!disposed.get()) assistMutable.update { it.copy(choices = choices) } } }
+            catch (_: Throwable) { if (!disposed.get() && assistMutable.value.enabled) assistMutable.update { it.copy(status = AssistStatus.FAILED, error = "Advice is unavailable. Manual editing is available.") } }
+            finally { loadingChoices.set(false) }
+        }
+    }
+    fun chooseAdvice(index: Int) {
+        if (assistMutable.value.inFlight) return
+        invalidateAdvice(); assistMutable.update { it.copy(selected = index, status = AssistStatus.IDLE) }
+    }
+    private fun adviceFailure(failure: Throwable): Pair<AssistStatus, String> = when ((failure as? EditorFailure)?.status) {
+        3, 9 -> AssistStatus.STALE to "This advice has expired. Request new guidance for the current image."
+        13 -> AssistStatus.CANCELLED to "Advice cancelled or stopped. Manual editing is available."
+        8 -> AssistStatus.FAILED to "Advice is busy or resources are limited. You can keep editing manually."
+        else -> AssistStatus.FAILED to "Advice could not be validated. You can keep editing manually."
+    }
+    fun requestAdvice() {
+        val ui = assistMutable.value
+        if (disposed.get() || !ui.enabled || ui.selected !in ui.choices.indices || !assistActive.compareAndSet(false, true)) return
+        val editor = owner
+        val epoch = nextAssistEpoch()
+        if (editor == null || epoch == null) { assistActive.set(false); return }
+        assistMutable.update { it.copy(status = AssistStatus.REQUESTING, advice = null, error = null, notice = null, inFlight = true) }
+        advising.execute {
+            try {
+                val advice = editor.requestAdvice(ui.choices[ui.selected].index)
+                if (!disposed.get()) commands.execute {
+                    if (!disposed.get() && owner === editor && assistEpoch.get() == epoch && assistMutable.value.enabled) {
+                        try { editor.inspectAdvice(advice); assistMutable.update { it.copy(status = AssistStatus.PROPOSAL_AVAILABLE, advice = advice, error = null) } }
+                        catch (failure: Throwable) { val error = adviceFailure(failure); assistMutable.update { it.copy(status = error.first, error = error.second, advice = null) } }
+                    }
+                }
+            } catch (failure: Throwable) {
+                if (!disposed.get()) commands.execute {
+                    if (!disposed.get() && owner === editor && assistEpoch.get() == epoch && assistMutable.value.enabled) {
+                        val error = adviceFailure(failure); assistMutable.update { it.copy(status = error.first, error = error.second, advice = null) }
+                    }
+                }
+            } finally { assistActive.set(false); assistMutable.update { it.copy(inFlight = false) } }
+        }
+    }
+    fun cancelAdvice() { invalidateAdvice(AssistStatus.CANCELLED); assistMutable.update { it.copy(status = if (it.enabled) AssistStatus.CANCELLED else AssistStatus.IDLE) } }
+    fun dismissAdvice() { invalidateAdvice(AssistStatus.REJECTED); assistMutable.update { it.copy(status = if (it.enabled) AssistStatus.REJECTED else AssistStatus.IDLE) } }
+    fun useSuggestion() {
+        val advice = assistMutable.value.advice ?: return
+        val epoch = nextAssistEpoch() ?: return
+        command {
+            if (!disposed.get() && assistEpoch.get() == epoch) {
+                try {
+                    val editor = owner ?: throw EditorFailure(13, "Advice")
+                    val choice = editor.inspectAdvice(advice)
+                    // Navigation only. No update, preview, Apply or Agent execution.
+                    editor.select(choice.toolIndex); editor.cancelAdvice()
+                    if (!disposed.get() && assistEpoch.get() == epoch) assistMutable.update { it.copy(enabled = false, status = AssistStatus.IDLE, advice = null,
+                        notice = "Manual tool opened. Set your preferred value, then choose Apply.") }
+                } catch (failure: Throwable) { val error = adviceFailure(failure)
+                    if (!disposed.get() && assistEpoch.get() == epoch) assistMutable.update { it.copy(status = error.first, error = error.second, advice = null) } }
+            }
+        }
     }
     private fun command(block: () -> Unit) {
         if (disposed.get()) return
@@ -121,14 +220,14 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
             }
         }
     }
-    fun reopenProject() = command { pendingValues.set(null); pendingPreview.set(null); owner?.close(); owner = null
+    fun reopenProject() { invalidateAdvice(); command { pendingValues.set(null); pendingPreview.set(null); owner?.close(); owner = null
         val name = preferences.getString("project", null)
         if (name != null && name.matches(Regex("[0-9a-f-]{36}"))) { owner = configured(File(root(), name).canonicalPath); preview() }
-    }
+    } }
     /** Picker source is copied in a bounded stream to app-private staging, then
      * immutable AssetStore ingestion verifies it. The original URI is untouched.
      */
-    fun importImage(uri: Uri) = command {
+    fun importImage(uri: Uri) { invalidateAdvice(); command {
         val staging = File.createTempFile("import-", ".bin", app.cacheDir)
         try {
             val limit = CoreProbe().nativeImportLimit()
@@ -141,8 +240,8 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
             }
             importFileOnWorker(staging)
         } finally { staging.delete() }
-    }
-    internal fun importFile(file: File) = command { importFileOnWorker(file) }
+    } }
+    internal fun importFile(file: File) { invalidateAdvice(); command { importFileOnWorker(file) } }
     private fun importFileOnWorker(file: File) {
         pendingPreview.set(null); pendingValues.set(null)
         val name = UUID.randomUUID().toString(); val directory = File(root(), name).apply { check(mkdir()) }
@@ -150,8 +249,9 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         owner?.close(); owner = replacement
         preferences.edit { putString("project", name) }; preview()
     }
-    fun select(index: Int) = command { pendingValues.set(null); owner?.select(index); pendingPreview.set(null); mutable.value = mutable.value.copy(previewLoading = false) }
+    fun select(index: Int) { invalidateAdvice(); command { pendingValues.set(null); owner?.select(index); pendingPreview.set(null); mutable.value = mutable.value.copy(previewLoading = false) } }
     fun update(values: List<Int>) {
+        invalidateAdvice()
         if (disposed.get()) return
         val edit = mutable.value.core?.editId ?: return
         pendingValues.set(edit to values)
@@ -169,16 +269,16 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
             finally { updating.set(false); if (pendingValues.get() != null) drainValues() }
         }
     }
-    fun action(action: Int) = command {
+    fun action(action: Int) { invalidateAdvice(); command {
         applyPendingCapability()
         val finalValues = pendingValues.getAndSet(null)
         if (action == 1 && finalValues != null) owner?.update(finalValues.second, finalValues.first)
         pendingPreview.set(null); owner?.action(action); preview()
-    }
+    } }
     fun retryPreview() = command { val editor = owner ?: return@command
         val core = editor.state(); if (core.active && !core.approvalPending) editor.update(core.values); preview() }
-    fun interrupt() = command { pendingValues.set(null); pendingPreview.set(null); owner?.action(4); mutable.value = mutable.value.copy(previewLoading = false) }
-    fun closeEditor() = command { pendingValues.set(null); pendingPreview.set(null); owner?.close(); owner = null; mutable.value = mutable.value.copy(previewLoading = false) }
+    fun interrupt() { invalidateAdvice(AssistStatus.CANCELLED); command { pendingValues.set(null); pendingPreview.set(null); owner?.action(4); mutable.value = mutable.value.copy(previewLoading = false) } }
+    fun closeEditor() { setAssistMode(false); command { pendingValues.set(null); pendingPreview.set(null); owner?.close(); owner = null; mutable.value = mutable.value.copy(previewLoading = false) } }
     private fun preview() {
         val editor = owner ?: return
         applyPendingCapability()
@@ -210,9 +310,10 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         }
     }
     override fun onCleared() {
+        nextAssistEpoch()
         disposed.set(true)
         pendingValues.set(null); pendingPreview.set(null)
         commands.execute { capabilitySubscription?.close(); capabilitySubscription = null
-            pendingCapability.set(null); owner?.close(); owner = null; rendering.shutdown(); commands.shutdown() }
+            pendingCapability.set(null); owner?.close(); owner = null; rendering.shutdown(); advising.shutdown(); commands.shutdown() }
     }
 }

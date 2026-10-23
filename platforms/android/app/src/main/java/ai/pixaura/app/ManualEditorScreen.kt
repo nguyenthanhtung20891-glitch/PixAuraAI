@@ -14,26 +14,36 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
-fun ManualEditorScreen(model: ManualEditorModel) {
+fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = false) {
     val ui by model.state.collectAsStateWithLifecycle()
+    val assist by model.assistance.collectAsStateWithLifecycle()
     var category by remember { mutableStateOf("geometry") }
     var formatError by remember { mutableStateOf<String?>(null) }
     val lifecycle = LocalLifecycleOwner.current
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) model.importImage(uri)
     }
-    LaunchedEffect(model) { model.openLast() }
+    LaunchedEffect(model, assistInitially) { model.setAssistMode(assistInitially); model.openLast() }
+    LaunchedEffect(ui.core?.selected) { ui.tools.firstOrNull { it.index == ui.core?.selected }?.let { category = it.category } }
     DisposableEffect(lifecycle, model) {
         val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_STOP) model.interrupt() }
         lifecycle.lifecycle.addObserver(observer)
         onDispose { lifecycle.lifecycle.removeObserver(observer); model.closeEditor() }
     }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(Modifier.horizontalScroll(rememberScrollState()).testTag("mode-selector"), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(selected = !assist.enabled, onClick = { model.setAssistMode(false) }, label = { Text("Manual") }, modifier = Modifier.testTag("mode-manual"))
+            FilterChip(selected = assist.enabled, onClick = { model.setAssistMode(true) }, label = { Text("AI Assist") }, modifier = Modifier.testTag("mode-assist"))
+            FilterChip(selected = false, enabled = false, onClick = {}, label = { Text("AI Auto-Edit") }, modifier = Modifier.testTag("mode-auto").semantics { contentDescription = "AI Auto-Edit unavailable" })
+        }
+        if (assist.enabled) AssistPanel(model, ui, assist)
+        assist.notice?.let { Text(it, Modifier.testTag("assist-notice").semantics { liveRegion = LiveRegionMode.Polite }) }
         Button(onClick = { picker.launch(arrayOf("image/jpeg", "image/png")) }, enabled = !ui.busy) { Text("Open JPEG or PNG") }
         Box(Modifier.fillMaxWidth().height(180.dp).semantics { contentDescription = "Image preview" }) {
             ui.image?.let { Image(it.asImageBitmap(), "Current manual preview", Modifier.fillMaxSize(), contentScale = ContentScale.Fit) }

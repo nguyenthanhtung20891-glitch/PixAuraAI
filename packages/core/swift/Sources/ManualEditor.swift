@@ -5,6 +5,8 @@ import CPixAuraCore
 #if DEBUG
 @_silgen_name("pixaura_test_agent_platform_control")
 private func agentPlatformControl(_ context: UnsafeMutablePointer<pixaura_editor_context>, _ command: UInt32, _ point: UInt32) -> Int32
+@_silgen_name("pixaura_test_assist_control")
+private func assistTestControl(_ context: UnsafeMutablePointer<pixaura_editor_context>, _ command: UInt32, _ point: UInt32) -> Int32
 #endif
 
 public struct ManualParameter: Decodable {
@@ -41,6 +43,7 @@ public struct ManualEditorState: Decodable {
 }
 public struct ManualEditorFailure: Error, LocalizedError {
     public let status: Int32, boundary: String
+    public init(status: Int32, boundary: String) { self.status = status; self.boundary = boundary }
     public var errorDescription: String? {
         let meaning: String
         switch status {
@@ -95,7 +98,7 @@ public final class ManualEditor {
     private let gate = NSRecursiveLock()
     private let idle = NSCondition()
     private let identity = UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
-    private var closed = false, destroyed = false, renders = 0, agentCalls = 0
+    private var closed = false, destroyed = false, renders = 0, agentCalls = 0, assistCalls = 0
     private var displayed: CGImage?, committed: CGImage?
     private var requestedGeneration: UInt64 = 0
     public private(set) var tools: [ManualTool] = []
@@ -303,7 +306,49 @@ public final class ManualEditor {
         gate.lock(); defer { gate.unlock() }
         try checked(closed ? 13 : pixaura_editor_agent_cancel(1, context), "Agent cancellation")
     }
+    public struct AssistChoice {
+        public let index: Int, toolIndex: Int, values: [Int32]
+    }
+    public struct AssistAdvice {
+        fileprivate let owner: String, packet: pixaura_assist_advice
+        public let choice: AssistChoice
+    }
+    private func assistChoice(_ value: pixaura_assist_advice) throws -> AssistChoice {
+        try checked(value.api_version == 1 && value.struct_size == UInt32(MemoryLayout<pixaura_assist_advice>.size) && value.parameter_count > 0 && value.parameter_count <= 4 ? 0 : 14, "Advice")
+        let values = [value.values.0, value.values.1, value.values.2, value.values.3]
+        return AssistChoice(index: Int(value.choice_index), toolIndex: Int(value.tool_index), values: Array(values.prefix(Int(value.parameter_count))))
+    }
+    public func adviceChoices() throws -> [AssistChoice] {
+        gate.lock(); defer { gate.unlock() }; try checked(closed ? 13 : 0, "Advice")
+        return try (0..<Int(PIXAURA_ASSIST_CHOICES)).map { index in
+            var value = pixaura_assist_advice(); try checked(pixaura_assist_choice(1, UInt32(index), &value), "Advice")
+            return try assistChoice(value)
+        }
+    }
+    public func requestAdvice(_ index: Int) throws -> AssistAdvice {
+        guard let index = UInt32(exactly: index) else { throw ManualEditorFailure(status: 1, boundary: "Advice") }
+        gate.lock(); idle.lock()
+        if closed || assistCalls != 0 { let code: Int32 = closed ? 13 : 8; idle.unlock(); gate.unlock(); throw ManualEditorFailure(status: code, boundary: "Advice") }
+        assistCalls += 1; idle.unlock(); gate.unlock()
+        defer { idle.lock(); assistCalls -= 1; idle.broadcast(); idle.unlock() }
+        var request = pixaura_assist_request(); request.api_version = 1; request.struct_size = UInt32(MemoryLayout.size(ofValue: request)); request.choice_index = index
+        var value = pixaura_assist_advice()
+        try checked(pixaura_editor_assist_request(1, context, &request, &value), "Advice")
+        return AssistAdvice(owner: identity, packet: value, choice: try assistChoice(value))
+    }
+    @discardableResult public func inspectAdvice(_ advice: AssistAdvice) throws -> AssistChoice {
+        gate.lock(); defer { gate.unlock() }
+        var value = advice.packet
+        try checked(closed ? 13 : advice.owner != identity ? 9 : pixaura_editor_assist_current(1, context, &value), "Advice")
+        return advice.choice
+    }
+    public func cancelAdvice() throws {
+        gate.lock(); defer { gate.unlock() }; try checked(closed ? 13 : pixaura_editor_assist_cancel(1, context), "Advice")
+    }
 #if DEBUG
+    public func adviceTestControl(_ command: UInt32, _ value: UInt32 = 0) -> Int32 {
+        gate.lock(); defer { gate.unlock() }; return destroyed ? -1 : assistTestControl(context, command, value)
+    }
     func agentTestControl(_ command: UInt32, _ point: UInt32 = 0) -> Int32 {
         gate.lock(); defer { gate.unlock() }
         return destroyed ? -1 : agentPlatformControl(context, command, point)
@@ -313,7 +358,7 @@ public final class ManualEditor {
         gate.lock()
         if !closed { closed = true; _ = pixaura_editor_stop(context) }
         gate.unlock()
-        idle.lock(); while renders != 0 || agentCalls != 0 { idle.wait() }; idle.unlock()
+        idle.lock(); while renders != 0 || agentCalls != 0 || assistCalls != 0 { idle.wait() }; idle.unlock()
         gate.lock()
         if !destroyed { _ = pixaura_editor_destroy(context); destroyed = true }
         gate.unlock()

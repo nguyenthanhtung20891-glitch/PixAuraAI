@@ -7,6 +7,7 @@
 #include "storage_files.hpp"
 #include "sha256.hpp"
 #include "manual_tools.hpp"
+#include "assist_experience.hpp"
 #include "evaluation.hpp"
 #include <array>
 #include <algorithm>
@@ -53,6 +54,14 @@ struct Reader:storage::Reader {
     }
 };
 struct Service {
+    std::unique_ptr<assistance::ReferenceProvider> assist_provider;
+    uint64_t assist_sequence=0,assist_repository_epoch=0;
+    bool assist_active=false,assist_ready=false,assist_unavailable=false;
+    pixaura_assist_advice assist_advice{};
+#ifdef PIXAURA_CERTIFICATION_TESTING
+    std::atomic<uint32_t> assist_test_point{UINT32_MAX},assist_test_reached{0},assist_test_resume{0};
+    uint32_t assist_test_fault=0;
+#endif
     struct Approval {
         pixaura_agent_proposal lease{};
         String canonical,digest;
@@ -94,6 +103,15 @@ struct Service {
     ~Service(){if(document.api_version)(void)pixaura_document_context_destroy(&document);
         if(raster.api_version){(void)pixaura_preview_stop(&raster);(void)pixaura_decode_context_destroy(&raster);}}
     void ready(){require(!stopped,13);}
+    // Ephemeral advice only. Provider failure must never disable manual work,
+    // and this nonthrowing invalidation cannot change durable commit outcomes.
+    void invalidate_advice(bool stop=false) noexcept {
+        assist_ready=false;
+        if(!assist_provider)return;
+        if(assist_sequence!=UINT64_MAX)++assist_sequence;else stop=true;
+        try { if(stop)assist_provider->stop();else assist_provider->cancel(); }
+        catch(...) { assist_unavailable=true; }
+    }
     void clear(){check(pixaura_manual_interrupt(&document));gesture={};selected=nullptr;
         if(proposal.serial){check(pixaura_document_release(&document,&proposal));proposal={};}
         pending_snapshot.reset();pending_command.clear();}
@@ -110,6 +128,7 @@ struct Service {
         // Saved reports checkpoint failure separately; a durable write is success.
         const auto saved=repository->apply(pending_command,loaded.epoch);
         const auto prior=live;live=proposal;proposal={};loaded.snapshot=std::move(pending_snapshot);loaded.epoch=saved.epoch;
+        invalidate_advice();
         (void)pixaura_document_release(&document,&prior);
         pending_command.clear();selected=nullptr;
         if(gesture.serial){(void)pixaura_manual_release(&document,&gesture);}
@@ -222,12 +241,14 @@ extern "C" int32_t pixaura_editor_open_policy(uint32_t version,pixaura_editor_co
 }
 extern "C" int32_t pixaura_editor_select(pixaura_editor_context* c,uint32_t index){return attempt([&]{
     auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);s.ready();require(index<manual::registry().size(),5);
+    s.invalidate_advice();
     s.clear();const auto& d=manual::registry()[index];const auto id=s.fresh();
     check(pixaura_manual_edit_begin(1,&s.document,&s.live,byte_pointer(id),32,byte_pointer(d.tool_id),d.tool_id.size(),nullptr,0,&s.raster,&s.original,&s.gesture));
     s.selected=&d;for(std::size_t i=0;i<d.parameter_count;++i)s.values[i]=d.parameters[i].neutral;
 });}
 extern "C" int32_t pixaura_editor_update(pixaura_editor_context* c,const int32_t* values,uint32_t count){return attempt([&]{
     auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);s.ready();require(s.selected&&!s.proposal.serial,13);
+    s.invalidate_advice();
     const auto& d=*s.selected;require(values&&count==d.parameter_count,7);
     // Construct exact integer envelope; only the shared parser validates values.
     String parameters="{";for(uint32_t i=0;i<count;++i){if(i)parameters+=',';parameters+='"';parameters+=d.parameters[i].name;
@@ -242,6 +263,7 @@ extern "C" int32_t pixaura_editor_update(pixaura_editor_context* c,const int32_t
 });}
 extern "C" int32_t pixaura_editor_action(pixaura_editor_context* c,uint32_t action){return attempt([&]{
     auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);s.ready();require(action<=4);
+    s.invalidate_advice();
     if(action==0||action==4){s.clear();s.approved_preview();return;}
     if(action==1){require(s.selected,13);
         if(!s.proposal.serial){const auto revision=s.fresh();uint32_t changed=0;
@@ -301,6 +323,7 @@ extern "C" int32_t pixaura_editor_render(pixaura_editor_context* c,const pixaura
 });}
 extern "C" int32_t pixaura_editor_stop(pixaura_editor_context* c){return attempt([&]{auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);
     if(!s.stopped){
+        s.invalidate_advice(true);
         // Stop wins owner authority before an unlocked private candidate can publish.
         {std::lock_guard<std::mutex> fence(s.agent_publication);
             if(s.agent_epoch!=UINT64_MAX)++s.agent_epoch;
@@ -310,3 +333,4 @@ extern "C" int32_t pixaura_editor_destroy(pixaura_editor_context* c){return atte
     *c={};c->api_version=1;c->struct_size=sizeof(*c);});}
 
 #include "agent_execution_boundary.hpp"
+#include "assist_experience_boundary.hpp"

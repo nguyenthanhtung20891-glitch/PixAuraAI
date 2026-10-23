@@ -5,7 +5,8 @@ const read = p => fs.readFileSync(p, 'utf8');
 
 test('iOS tool UI harness uses resolved element hits and retains semantic postconditions', () => {
   const ui = read('platforms/ios/PixAuraAIUITests/ShellUITests.swift');
-  const selection = ui.slice(ui.indexOf('func selectControl'), ui.indexOf('tap("Open Manual editor")'));
+  const start = ui.indexOf('func selectControl');
+  const selection = ui.slice(start, ui.indexOf('tap("Open Manual editor")', start));
   assert.ok(selection.includes('button.tap()'));
   assert.doesNotMatch(selection, /button\.frame|windows\.firstMatch\.frame|coordinate\(withNormalizedOffset/);
   for (const marker of ['selected-and-control', 'enabled == true', 'selected == true', '"Apply", "Cancel"', 'count: id.hasPrefix("pixaura.") ? 4 : 2', 'timeout: 20']) assert.ok(selection.includes(marker), marker);

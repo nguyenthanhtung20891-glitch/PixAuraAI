@@ -1,5 +1,6 @@
 #include <jni.h>
 #include "pixaura/editor.h"
+#include "pixaura/assist.h"
 #include <cstring>
 #include <vector>
 #include <algorithm>
@@ -12,6 +13,30 @@ int64_t read(void* raw,uint8_t* output,uint64_t capacity){auto& r=*static_cast<I
     if(r.env->ExceptionCheck()){r.env->ExceptionClear();return -1;}if(n==-1)return 0;if(n<=0||static_cast<uint64_t>(n)>capacity)return -1;
     r.env->GetByteArrayRegion(r.buffer,0,n,reinterpret_cast<jbyte*>(output));return r.env->ExceptionCheck()?-1:n;}
 }
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeAssistSize(JNIEnv*,jobject){return sizeof(pixaura_assist_advice);}
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeAssistCount(JNIEnv*,jobject){return PIXAURA_ASSIST_CHOICES;}
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeAssistChoice(JNIEnv* env,jobject,jint index,jobject result){
+    auto* out=storage<pixaura_assist_advice>(env,result);return out&&index>=0?pixaura_assist_choice(1,static_cast<uint32_t>(index),out):1;
+}
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeAssistRequest(JNIEnv* env,jobject,jobject buffer,jint index,jobject result){
+    auto* c=storage<pixaura_editor_context>(env,buffer);auto* out=storage<pixaura_assist_advice>(env,result);
+    if(!c||!out||index<0)return 1;
+    const pixaura_assist_request request{1,sizeof(pixaura_assist_request),static_cast<uint32_t>(index),0};
+    return pixaura_editor_assist_request(1,c,&request,out);
+}
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeAssistCurrent(JNIEnv* env,jobject,jobject buffer,jobject result){
+    auto* c=storage<pixaura_editor_context>(env,buffer);auto* out=storage<pixaura_assist_advice>(env,result);
+    return c&&out?pixaura_editor_assist_current(1,c,out):1;
+}
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeAssistCancel(JNIEnv* env,jobject,jobject buffer){
+    auto* c=storage<pixaura_editor_context>(env,buffer);return c?pixaura_editor_assist_cancel(1,c):1;
+}
+#ifdef PIXAURA_CERTIFICATION_TESTING
+extern "C" int32_t pixaura_test_assist_control(pixaura_editor_context*,uint32_t,uint32_t);
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_app_AssistTestHooks_nativeControl(JNIEnv* env,jobject,jobject buffer,jint command,jint value){
+    auto* c=storage<pixaura_editor_context>(env,buffer);return c?pixaura_test_assist_control(c,static_cast<uint32_t>(command),static_cast<uint32_t>(value)):1;
+}
+#endif
 namespace {
 bool words(JNIEnv* env,jlongArray input,jlong* output,jsize count){
     if(!input||env->GetArrayLength(input)!=count)return false;
