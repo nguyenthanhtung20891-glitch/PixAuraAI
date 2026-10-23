@@ -7,7 +7,16 @@ Phase 6 CLOSED / COMPLETE / FULL PASS. Phase 7 AUTHORIZED / IN PROGRESS.
 Step 1 COMPLETE / FULL PASS at `3640d94e473bddd792a12541a45b6bb36ff8cd50`.
 Foundation 39768943832 SUCCESS 7/7; Native application shells 39768943890 SUCCESS
 3/3, exact SHA, completed, attempt 1.
-Step 2 AUTHORIZED / IN PROGRESS. Exact-SHA certification pending.
+Step 2 COMPLETE / FULL PASS.
+Implementation certification SHA: `88b9678fc9863aed188b9aa91a5519f25d67906b`.
+Foundation 39952711136 SUCCESS 7/7.
+Native application shells 39952711123 SUCCESS 3/3.
+Both completed exact SHA, attempt 1; every required job individually SUCCESS.
+This separate documentation-only closure commit requires independent full
+closure-SHA certification by both workflows. Until that observed completion:
+FINAL STEP 2 CLOSURE CERTIFICATION PENDING. The final engineering receipt/delivery
+records its distinct SHA and workflow evidence without self-reference or old-SHA
+substitution. No unobserved job is PASS.
 Assistance Provider & Proposal Envelope v1: internal shared-native, bounded,
 canonical, ephemeral and UNTRUSTED. Existing native planner/Plan/Registry
 validation only; no approval issuer, candidate, execution or history authority.
@@ -46,7 +55,7 @@ Phase 7 Steps 2-8 NOT STARTED. Phase 8 NOT STARTED.
 | Step | Scope | Status |
 | --- | --- | --- |
 | 1 | AI-Assisted MVP Contract & Interaction State Machine | COMPLETE / FULL PASS |
-| 2 | Assistance Provider & Proposal Envelope v1 | AUTHORIZED / IN PROGRESS |
+| 2 | Assistance Provider & Proposal Envelope v1 | COMPLETE / FULL PASS |
 | 3 | Manual + AI Assist Experience Foundation | NOT STARTED |
 | 4 | AI Auto-Edit Proposal Flow | NOT STARTED |
 | 5 | Plan Review & Explicit Approval UX | NOT STARTED |

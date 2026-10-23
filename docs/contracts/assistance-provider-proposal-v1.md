@@ -1,6 +1,6 @@
 # Assistance Provider & Proposal Envelope v1
 
-Status: implementation certification pending. Contract version 1.
+Status: FROZEN. Contract version 1.
 Phase 7 Step 2 only. Step 1 three-mode interaction contract remains frozen.
 
 ## Authority and scope
