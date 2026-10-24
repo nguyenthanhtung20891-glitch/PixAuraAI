@@ -8,8 +8,16 @@ Step 1 COMPLETE / FULL PASS. Step 2 COMPLETE / FULL PASS. Step 3 COMPLETE / FULL
 Certified Step 3 closure: `43b2e36f294e4f0d518742b3923027551ec34c1a`.
 Foundation 40056249044 SUCCESS 7/7; Native application shells 40056248966 SUCCESS
 3/3, completed exact SHA, attempt 1, every required job individually SUCCESS.
-Step 4 AUTHORIZED / IN PROGRESS.
-Exact-SHA certification pending; no unobserved job is PASS.
+Step 4 COMPLETE / FULL PASS.
+Implementation certification SHA: `bd7a967d585fc8b1a7444181fbe02e280195c851`.
+Foundation 40087228966 SUCCESS 7/7.
+Native application shells 40087228950 SUCCESS 3/3.
+Both completed exact SHA, attempt 1; every required job individually SUCCESS.
+This separate documentation-only closure commit requires independent full
+closure-SHA certification by both workflows. Until that observed completion:
+FINAL STEP 4 CLOSURE CERTIFICATION PENDING. The final engineering receipt/delivery
+records its distinct SHA and workflow evidence without self-reference or old-SHA
+substitution. No unobserved job is PASS.
 AI Auto-Edit Proposal v1: explicit request -> UNTRUSTED Envelope v1 -> existing
 Structured Intent/planner or Plan v1/Registry validation -> ephemeral REVIEW_READY.
 STOP before approval. No approval issuer, candidate, execution, commit or history

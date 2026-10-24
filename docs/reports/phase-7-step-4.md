@@ -8,8 +8,16 @@ Step 1 COMPLETE / FULL PASS. Step 2 COMPLETE / FULL PASS. Step 3 COMPLETE / FULL
 Certified Step 3 closure: `43b2e36f294e4f0d518742b3923027551ec34c1a`.
 Foundation 40056249044 SUCCESS 7/7; Native application shells 40056248966 SUCCESS
 3/3, completed exact SHA, attempt 1, every required job individually SUCCESS.
-Step 4 AUTHORIZED / IN PROGRESS.
-Exact-SHA certification pending; no unobserved job is PASS.
+Step 4 COMPLETE / FULL PASS.
+Implementation certification SHA: `bd7a967d585fc8b1a7444181fbe02e280195c851`.
+Foundation 40087228966 SUCCESS 7/7.
+Native application shells 40087228950 SUCCESS 3/3.
+Both completed exact SHA, attempt 1; every required job individually SUCCESS.
+This separate documentation-only closure commit requires independent full
+closure-SHA certification by both workflows. Until that observed completion:
+FINAL STEP 4 CLOSURE CERTIFICATION PENDING. The final engineering receipt/delivery
+records its distinct SHA and workflow evidence without self-reference or old-SHA
+substitution. No unobserved job is PASS.
 AI Auto-Edit Proposal v1: explicit request -> UNTRUSTED Envelope v1 -> existing
 Structured Intent/planner or Plan v1/Registry validation -> ephemeral REVIEW_READY.
 STOP before approval. No approval issuer, candidate, execution, commit or history
@@ -29,7 +37,7 @@ STOP after Step 4. Do not implement Step 5.
 See docs/contracts/ai-auto-edit-proposal-v1.md and docs/reports/phase-7-step-4.md.
 <!-- phase7-step4-history -->
 
-# Phase 7 Step 4 — AI Auto-Edit Proposal Flow
+# Phase 7 Step 4 ï¿½ AI Auto-Edit Proposal Flow
 
 ## Purpose and baseline
 
@@ -100,9 +108,10 @@ C: optional presentation refinement. Steps 5-8 and Phase 8 NOT STARTED.
 
 ## Changed files and certification
 
-Implementation is uncommitted. Exact changed-file inventory and observed retained
-validation will be finalized before commit. Exact implementation-SHA and separate
-closure-SHA workflow certification are pending. No unobserved job is PASS.
+The implementation is certified as recorded below. The exact aggregate changed-file
+inventory follows. This separate closure documentation commit requires its own
+complete exact-SHA workflows; final receipt/delivery records that distinct evidence.
+No implementation-SHA result certifies the newer closure SHA.
 
 
 ## Observed local evidence before implementation commit
@@ -209,3 +218,41 @@ certified by AgentPlatformTests. Assertions remain exact, including canonical
 Plan equality and NOT_APPROVED=15. No production code, frozen contract, workflow
 or timeout changes are needed. A new remediation SHA requires both full workflows;
 the failed SHA is not rerun or used as certification.
+
+## Certified implementation and prepared documentation closure
+
+Certified implementation/remediation SHA:
+`bd7a967d585fc8b1a7444181fbe02e280195c851`.
+
+| Workflow | Run | Attempt | Exact-SHA result | Required jobs |
+| --- | --- | --- | --- | --- |
+| Foundation boundaries | 40087228966 | 1 | completed / SUCCESS | 7/7 completed / SUCCESS |
+| Native application shells | 40087228950 | 1 | completed / SUCCESS | 3/3 completed / SUCCESS |
+
+Every required job was inspected individually. Foundation: Windows, Linux,
+workflow lint, active sanitizer, Apple boundary and both Android ARM ABIs SUCCESS.
+Shells: source, Android application and iOS application SUCCESS. Both roll-ups
+are completed/SUCCESS; no queued or unobserved conclusion is substituted.
+
+Observed exact-SHA evidence: Windows native 51/51; Linux and Apple native 52/52;
+ASan/UBSan 54/54 including active negative probes; Auto corpus 1,245 checks,
+11 canonical goldens repeated three times and 18 race orderings plus exhausted
+serial cancellation. Swift macOS 40/40 and iOS Simulator 40/40; iOS app 7/7 and
+UI 7/7, including both new Auto tests and retained Manual/Assist/undo/history UI.
+Android full emulator instrumentation 40/40, zero skipped/failed, retained
+build/release/JVM/lint and both ARM ABI gates SUCCESS. Release object/binary
+isolation checks passed; the iOS release scan also passed. These are hosted and
+software-emulator results, not physical GPU certification or provider promotion.
+
+The Apple fixture defect is resolved without changing production code or weakening
+assertions. The native exhausted-serial issue was repaired before implementation
+certification. No unresolved A finding remains. B: Step 5 approval/review UX,
+later production intelligence admission and deferred physical hardware gates.
+C: optional presentation refinement. No Step 5 work was begun.
+
+This separate closure commit changes only the seven current-authority Markdown
+files. It requires its own complete Foundation and Native shells workflows.
+FINAL STEP 4 CLOSURE CERTIFICATION PENDING until both exact closure-SHA workflows
+and every required job complete successfully. The final engineering receipt and
+delivery identify that distinct SHA/run evidence without embedding a nonexistent
+self-referential SHA or borrowing this implementation's certification.
