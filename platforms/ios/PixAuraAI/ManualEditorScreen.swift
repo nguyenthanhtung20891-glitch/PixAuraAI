@@ -7,8 +7,10 @@ import UIKit
 struct ManualEditorScreen: View {
     @StateObject private var model: ManualEditorModel
     private let assistInitially: Bool
-    init(capabilities: AppleCapabilityOwner, assistInitially: Bool = false) {
+    private let autoInitially: Bool
+    init(capabilities: AppleCapabilityOwner, assistInitially: Bool = false, autoInitially: Bool = false) {
         self.assistInitially = assistInitially
+        self.autoInitially = autoInitially
         _model = StateObject(wrappedValue: ManualEditorModel(capabilities: capabilities))
     }
     @Environment(\.scenePhase) private var scenePhase
@@ -82,20 +84,70 @@ struct ManualEditorScreen: View {
             }.frame(maxWidth: .infinity, alignment: .leading)
         }.accessibilityIdentifier("assist-panel")
     }
+    private var autoPanel: some View {
+        let state = model.autoProposal
+        let choice = state.choices.first { $0.index == state.selected }
+        let tool = choice.flatMap { model.tools.indices.contains($0.toolIndex) ? model.tools[$0.toolIndex] : nil }
+        return GroupBox {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("AI Auto-Edit").font(.headline)
+                Text("Prepare a proposal only. Local reference planning does not analyze your image. Nothing is applied.").font(.caption)
+                Menu {
+                    ForEach(state.choices, id: \.index) { option in
+                        if model.tools.indices.contains(option.toolIndex) {
+                            let descriptor = model.tools[option.toolIndex]
+                            Button("\(descriptor.name): \(adviceSetting(descriptor, option.values))") { model.chooseAuto(option.index) }
+                                .accessibilityIdentifier("auto-goal-\(descriptor.toolID)")
+                        }
+                    }
+                } label: { Text(tool?.name ?? "Choose adjustment") }
+                    .disabled(state.inFlight || state.choices.isEmpty).accessibilityIdentifier("auto-goal")
+                if let tool, let choice { Text("Request: \(tool.name) — \(adviceSetting(tool, choice.values))").accessibilityIdentifier("auto-choice-value") }
+                if model.core?.active == true { Text("Finish or cancel your manual adjustment before requesting a proposal.") }
+                Button("Prepare proposal") { model.requestAuto() }
+                    .disabled(model.core == nil || model.core?.active == true || model.busy || state.inFlight || tool == nil).accessibilityIdentifier("auto-request")
+                if state.status == .requesting || state.status == .proposalReceived || state.status == .validating {
+                    ProgressView("Requesting and validating proposal…").accessibilityIdentifier("auto-loading")
+                    Button("Cancel proposal") { model.cancelAuto() }.accessibilityIdentifier("auto-cancel")
+                }
+                if let proposal = state.proposal {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Proposal ready").font(.headline)
+                        Text("\(proposal.actions.count) planned action(s). Not approved. Nothing has been applied.")
+                        ForEach(proposal.actions, id: \.index) { action in
+                            if model.tools.indices.contains(action.toolIndex) {
+                                let descriptor = model.tools[action.toolIndex]
+                                Text("\(action.index + 1). \(descriptor.name): \(adviceSetting(descriptor, action.values))")
+                            }
+                        }
+                        Text("Review and approval controls are not available yet.").font(.caption)
+                        Button("Dismiss proposal") { model.dismissAuto() }.accessibilityIdentifier("auto-dismiss")
+                    }.accessibilityElement(children: .contain).accessibilityIdentifier("auto-ready")
+                }
+                if state.status == .rejected { Text("Proposal dismissed. Nothing was applied.").accessibilityIdentifier("auto-rejected") }
+                if state.status == .cancelled { Text("Proposal cancelled. Nothing was applied.").accessibilityIdentifier("auto-cancelled") }
+                if state.status == .stale { Text("Proposal expired after an editing change.").accessibilityIdentifier("auto-stale") }
+                if let error = state.error { Text(error).accessibilityIdentifier("auto-error") }
+            }.frame(maxWidth: .infinity, alignment: .leading)
+        }.accessibilityIdentifier("auto-panel")
+    }
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             ScrollView(.horizontal) {
                 HStack {
-                    Button("Manual") { model.setAssistMode(false) }.accessibilityIdentifier("mode-manual")
-                        .tint(model.assistance.enabled ? Color.secondary : Color.accentColor)
-                        .accessibilityAddTraits(model.assistance.enabled ? [] : .isSelected)
+                    Button("Manual") { model.setAutoMode(false); model.setAssistMode(false) }.accessibilityIdentifier("mode-manual")
+                        .tint(model.assistance.enabled || model.autoProposal.enabled ? Color.secondary : Color.accentColor)
+                        .accessibilityAddTraits(model.assistance.enabled || model.autoProposal.enabled ? [] : .isSelected)
                     Button("AI Assist") { model.setAssistMode(true) }.accessibilityIdentifier("mode-assist")
                         .tint(model.assistance.enabled ? Color.accentColor : Color.secondary)
                         .accessibilityAddTraits(model.assistance.enabled ? .isSelected : [])
-                    Button("AI Auto-Edit") { }.disabled(true).accessibilityLabel("AI Auto-Edit unavailable").accessibilityIdentifier("mode-auto")
+                    Button("AI Auto-Edit") { model.setAutoMode(true) }.accessibilityIdentifier("mode-auto")
+                        .tint(model.autoProposal.enabled ? Color.accentColor : Color.secondary)
+                        .accessibilityAddTraits(model.autoProposal.enabled ? .isSelected : [])
                 }
             }.accessibilityIdentifier("mode-selector")
             if model.assistance.enabled { assistPanel }
+            if model.autoProposal.enabled { autoPanel }
             if let notice = model.assistance.notice { Text(notice).accessibilityIdentifier("assist-notice") }
             Button("Open JPEG or PNG") { picking = true }.disabled(model.busy)
             Group {
@@ -105,6 +157,7 @@ struct ManualEditorScreen: View {
             }.frame(maxWidth: .infinity).frame(height: 180).accessibilityIdentifier("manual-preview")
             if model.busy { Text("Loading or saving…").accessibilityLabel("Editor busy") }
             if model.previewLoading { Text("Rendering preview; changes are not saved until Apply").accessibilityIdentifier("preview-loading") }
+            if !model.autoProposal.enabled {
             ScrollView(.horizontal) {
                 HStack {
                     ForEach(categories, id: \.0) { key, label in
@@ -174,6 +227,8 @@ struct ManualEditorScreen: View {
             if let error = formatError ?? model.error { Text(error).accessibilityIdentifier("editor-error") }
             if model.error?.hasPrefix("Preview failure") == true { Button("Retry preview") { model.retryPreview() } }
             if model.error?.contains("Stale edit") == true { Button("Reopen committed project") { model.recover() } }
+            }
+            if model.autoProposal.enabled, let core = model.core { Text("Committed revisions: \(core.revisionCount)").accessibilityIdentifier("revision-count") }
         }
         .buttonStyle(.bordered)
         .fileImporter(isPresented: $picking, allowedContentTypes: [.jpeg, .png]) { result in
@@ -181,7 +236,8 @@ struct ManualEditorScreen: View {
             if case .failure(let error) = result { model.pickerFailure(error) }
         }
         .onAppear {
-            model.setAssistMode(assistInitially)
+            model.setAutoMode(autoInitially)
+            if !autoInitially { model.setAssistMode(assistInitially) }
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("--editor-test-image") { model.testImage(); return }
             #endif

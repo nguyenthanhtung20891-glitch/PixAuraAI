@@ -1,6 +1,46 @@
 import XCTest
 
 final class ShellUITests: XCTestCase {
+    func testAutoProposalIsReadOnlyAndModeAbandonmentDoesNotRestoreIt() {
+        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
+        func tap(_ id: String) {
+            let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
+            let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
+            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+        }
+        tap("Open Manual editor"); XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
+        tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request")
+        tap("auto-dismiss"); XCTAssertTrue(app.staticTexts["auto-rejected"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
+        tap("auto-request"); XCTAssertTrue(app.buttons["auto-dismiss"].waitForExistence(timeout: 20))
+        for id in ["Apply", "Approve", "Execute", "Run Plan", "Commit"] { XCTAssertFalse(app.buttons[id].exists, id) }
+        tap("mode-manual"); tap("mode-auto"); XCTAssertFalse(app.buttons["auto-dismiss"].exists)
+        tap("mode-manual"); tap("Tone/Color"); tap("pixaura.exposure")
+        app.sliders["manual-slider"].adjust(toNormalizedSliderPosition: 0.6); tap("Apply")
+        XCTAssertTrue(app.staticTexts["Committed revisions: 2"].waitForExistence(timeout: 20))
+        tap("mode-auto"); tap("auto-request"); tap("auto-dismiss")
+        XCTAssertTrue(app.staticTexts["Committed revisions: 2"].exists)
+        tap("mode-assist"); XCTAssertTrue(app.buttons["assist-request"].waitForExistence(timeout: 20))
+    }
+    func testAutoCancellationAndProviderFailureLeaveManualAvailable() {
+        for flag in ["--auto-test-pause", "--auto-test-failure"] {
+            let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image", flag]; app.launch()
+            func tap(_ id: String) {
+                let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
+                let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
+                guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+            }
+            tap("Open Manual editor"); XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
+            tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request")
+            if flag == "--auto-test-pause" {
+                tap("auto-cancel"); XCTAssertTrue(app.staticTexts["auto-cancelled"].waitForExistence(timeout: 20))
+                tap("auto-request"); tap("mode-manual"); tap("mode-auto"); XCTAssertFalse(app.buttons["auto-dismiss"].exists)
+            } else { XCTAssertTrue(app.staticTexts["auto-error"].waitForExistence(timeout: 20)) }
+            tap("mode-manual"); tap("Tone/Color"); tap("pixaura.exposure")
+            app.sliders["manual-slider"].adjust(toNormalizedSliderPosition: 0.6); tap("Apply")
+            XCTAssertTrue(app.staticTexts["Committed revisions: 2"].waitForExistence(timeout: 20)); app.terminate()
+        }
+    }
     func testAssistCancellationAndModeDepartureSuppressLateAdvice() {
         let app = XCUIApplication()
         app.launchArguments = ["--reset-shell-navigation", "--editor-test-image", "--assist-test-pause"]
@@ -41,7 +81,7 @@ final class ShellUITests: XCTestCase {
             XCTAssertTrue(app.staticTexts["Committed revisions: \(n)"].waitForExistence(timeout: 20))
         }
         tap("Open Manual editor"); revisions(1)
-        XCTAssertFalse(app.buttons["mode-auto"].isEnabled)
+        XCTAssertTrue(app.buttons["mode-auto"].isEnabled) // Step 4 proposal-only entry, not approval.
         tap("mode-assist"); tap("assist-goal"); tap("assist-goal-pixaura.exposure")
         tap("assist-request"); tap("assist-dismiss"); revisions(1)
         XCTAssertTrue(app.staticTexts["assist-dismissed"].exists)

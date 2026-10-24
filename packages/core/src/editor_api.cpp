@@ -58,6 +58,14 @@ struct Service {
     uint64_t assist_sequence=0,assist_repository_epoch=0;
     bool assist_active=false,assist_ready=false,assist_unavailable=false;
     pixaura_assist_advice assist_advice{};
+    uint64_t auto_sequence=0,auto_repository_epoch=0;
+    bool auto_active=false,auto_ready=false,auto_cancelled=false;
+    String auto_plan;
+    pixaura_auto_proposal auto_proposal{};
+#ifdef PIXAURA_CERTIFICATION_TESTING
+    std::atomic<uint32_t> auto_test_point{UINT32_MAX},auto_test_reached{0},auto_test_resume{0};
+    uint32_t auto_test_fault=0;
+#endif
 #ifdef PIXAURA_CERTIFICATION_TESTING
     std::atomic<uint32_t> assist_test_point{UINT32_MAX},assist_test_reached{0},assist_test_resume{0};
     uint32_t assist_test_fault=0;
@@ -103,9 +111,15 @@ struct Service {
     ~Service(){if(document.api_version)(void)pixaura_document_context_destroy(&document);
         if(raster.api_version){(void)pixaura_preview_stop(&raster);(void)pixaura_decode_context_destroy(&raster);}}
     void ready(){require(!stopped,13);}
+    void invalidate_auto() noexcept {
+        auto_cancelled=true;auto_ready=false;auto_plan.clear();
+        if(auto_sequence!=UINT64_MAX)++auto_sequence;
+        if(auto_active&&assist_provider){try{assist_provider->cancel();}catch(...){assist_unavailable=true;}}
+    }
     // Ephemeral advice only. Provider failure must never disable manual work,
     // and this nonthrowing invalidation cannot change durable commit outcomes.
     void invalidate_advice(bool stop=false) noexcept {
+        invalidate_auto();
         assist_ready=false;
         if(!assist_provider)return;
         if(assist_sequence!=UINT64_MAX)++assist_sequence;else stop=true;
@@ -334,3 +348,4 @@ extern "C" int32_t pixaura_editor_destroy(pixaura_editor_context* c){return atte
 
 #include "agent_execution_boundary.hpp"
 #include "assist_experience_boundary.hpp"
+#include "auto_proposal_boundary.hpp"

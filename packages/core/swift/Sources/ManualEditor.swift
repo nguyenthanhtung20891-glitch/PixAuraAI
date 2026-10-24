@@ -7,6 +7,8 @@ import CPixAuraCore
 private func agentPlatformControl(_ context: UnsafeMutablePointer<pixaura_editor_context>, _ command: UInt32, _ point: UInt32) -> Int32
 @_silgen_name("pixaura_test_assist_control")
 private func assistTestControl(_ context: UnsafeMutablePointer<pixaura_editor_context>, _ command: UInt32, _ point: UInt32) -> Int32
+@_silgen_name("pixaura_test_auto_control")
+private func PixAuraCoreAutoControl(_ context: UnsafeMutablePointer<pixaura_editor_context>, _ command: UInt32, _ point: UInt32) -> Int32
 #endif
 
 public struct ManualParameter: Decodable {
@@ -345,7 +347,45 @@ public final class ManualEditor {
     public func cancelAdvice() throws {
         gate.lock(); defer { gate.unlock() }; try checked(closed ? 13 : pixaura_editor_assist_cancel(1, context), "Advice")
     }
+    public struct AutoProposal {
+        fileprivate let owner: String, packet: pixaura_auto_proposal
+        public let actions: [AssistChoice], proposalID: String, providerID: String
+    }
+    public func requestAuto(_ index: Int) throws -> AutoProposal {
+        guard let index = UInt32(exactly: index) else { throw ManualEditorFailure(status: 1, boundary: "Auto proposal") }
+        gate.lock(); idle.lock()
+        if closed || assistCalls != 0 { let code: Int32 = closed ? 13 : 8; idle.unlock(); gate.unlock(); throw ManualEditorFailure(status: code, boundary: "Auto proposal") }
+        assistCalls += 1; idle.unlock(); gate.unlock()
+        defer { idle.lock(); assistCalls -= 1; idle.broadcast(); idle.unlock() }
+        var request = pixaura_auto_request(); request.api_version = 1; request.struct_size = UInt32(MemoryLayout.size(ofValue: request)); request.choice_index = index; request.kind = 2
+        var value = pixaura_auto_proposal()
+        try checked(pixaura_editor_auto_request(1, context, &request, nil, 0, &value), "Auto proposal")
+        try checked(value.api_version == 1 && value.struct_size == 328 && value.action_count > 0 && value.action_count <= 8 ? 0 : 14, "Auto proposal")
+        let actions: [AssistChoice] = try withUnsafeBytes(of: value.actions) { raw in
+            try raw.bindMemory(to: pixaura_auto_action.self).prefix(Int(value.action_count)).enumerated().map { i, action in
+                try checked(action.parameter_count > 0 && action.parameter_count <= 4 ? 0 : 14, "Auto proposal")
+                return AssistChoice(index: i, toolIndex: Int(action.tool_index), values: Array([action.values.0, action.values.1, action.values.2, action.values.3].prefix(Int(action.parameter_count))))
+            }
+        }
+        func id<T>(_ bytes: T) -> String { withUnsafeBytes(of: bytes) { String(decoding: $0.prefix { $0 != 0 }, as: UTF8.self) } }
+        return AutoProposal(owner: identity, packet: value, actions: actions, proposalID: id(value.proposal_id), providerID: id(value.provider_id))
+    }
+    public func inspectAuto(_ proposal: AutoProposal) throws -> Data {
+        gate.lock(); defer { gate.unlock() }
+        try checked(closed ? 13 : proposal.owner != identity ? 9 : 0, "Auto proposal")
+        var value = proposal.packet, required: UInt64 = 0
+        let query = pixaura_editor_auto_plan(1, context, &value, nil, 0, &required)
+        try checked(query == 11 ? 0 : query == 0 ? 14 : query, "Auto proposal")
+        try checked(required > 0 && required <= 8192 ? 0 : 14, "Auto proposal")
+        var bytes = Data(count: Int(required)); let capacity = required
+        let status = bytes.withUnsafeMutableBytes { pixaura_editor_auto_plan(1, context, &value, $0.bindMemory(to: UInt8.self).baseAddress, capacity, &required) }
+        try checked(status, "Auto proposal"); return bytes
+    }
+    public func cancelAuto() throws { gate.lock(); defer { gate.unlock() }; try checked(closed ? 13 : pixaura_editor_auto_cancel(1, context), "Auto proposal") }
 #if DEBUG
+    public func autoTestControl(_ command: UInt32, _ value: UInt32 = 0) -> Int32 {
+        gate.lock(); defer { gate.unlock() }; return destroyed ? -1 : PixAuraCoreAutoControl(context, command, value)
+    }
     public func adviceTestControl(_ command: UInt32, _ value: UInt32 = 0) -> Int32 {
         gate.lock(); defer { gate.unlock() }; return destroyed ? -1 : assistTestControl(context, command, value)
     }

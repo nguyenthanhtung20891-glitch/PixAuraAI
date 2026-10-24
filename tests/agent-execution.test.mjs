@@ -4,6 +4,28 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 const read=p=>fs.readFileSync(p,'utf8').replaceAll('\r\n','\n');
 
+test('Phase 7 Step 4 authority and proposal-only transport agree without Step 5',()=>{
+ const paths=['AGENTS.md','ARCHITECTURE.md','DECISIONS.md','QUALITY_GATES.md','ROADMAP.md','docs/plans/phase-7-roadmap.md','docs/reports/phase-7-step-4.md'];
+ const states=paths.map(p=>{
+  const current=read(p).split('<!-- phase7-step4-current-authority -->')[1]?.split('<!-- phase7-step4-history -->')[0];assert.ok(current,p);
+  const state=current.match(/^Step 4 (AUTHORIZED \/ IN PROGRESS|COMPLETE \/ FULL PASS)\./m);assert.ok(state,p);
+  for(const marker of ['Phase 6 CLOSED / COMPLETE / FULL PASS','Step 1 COMPLETE / FULL PASS','Step 2 COMPLETE / FULL PASS','Step 3 COMPLETE / FULL PASS','Phase 7 Steps 5-8 NOT STARTED','Phase 8 NOT STARTED','Production model UNRESOLVED','CPU VALIDATED','Vulkan/Metal UNKNOWN','Schema 3','NOT WAIVED','NOT SATISFIED'])assert.ok(current.includes(marker),p+marker);
+  if(state[1]==='COMPLETE / FULL PASS'){assert.match(current,/Implementation certification SHA: `[a-f0-9]{40}`/);assert.match(current,/Foundation \d+ SUCCESS 7\/7/);assert.match(current,/Native application shells \d+ SUCCESS 3\/3/);assert.ok(!current.includes('Exact-SHA certification pending'))}
+  return state[1];
+ });assert.equal(new Set(states).size,1);
+ assert.ok(read('docs/plans/phase-7-roadmap.md').includes('| 4 | AI Auto-Edit Proposal Flow | '+states[0]+' |'));
+ const boundary=read('packages/core/src/auto_proposal_boundary.hpp');
+ for(const marker of ['assistance::validate','auto_presentation','s.live.serial==source','s.loaded.epoch==epoch','s.auto_sequence==serial','s.auto_active&&!s.assist_active','auto_current(s,*value)'])assert.ok(boundary.includes(marker),marker);
+ assert.doesNotMatch(boundary,/pixaura_editor_agent_(?:approve|execute)|pixaura_manual_|repository->|\.accept\(|commit_candidate/);
+ for(const file of ['platforms/android/app/src/main/java/ai/pixaura/app/AutoProposalPanel.kt'])assert.doesNotMatch(read(file),/model\.(?:action|useSuggestion|select|update|execute|approve)/);
+ const header=read('packages/core/include/pixaura/auto_proposal.h');assert.equal((header.match(/PIXAURA_API int32_t/g)||[]).length,4);
+ for(const marker of ['pixaura_test_auto_control','AutoTestHooks_nativeControl','auto-test-pause','auto-test-failure'])assert.ok(read('scripts/check-model-release.mjs').includes(marker));
+ for(const marker of ['auto-ready','auto-goal','auto-request','auto-cancel','auto-dismiss','auto-error']){
+  assert.ok(read('platforms/android/app/src/main/java/ai/pixaura/app/AutoProposalPanel.kt').includes(marker));assert.ok(read('platforms/ios/PixAuraAI/ManualEditorScreen.swift').includes(marker));
+ }
+ assert.ok(read('docs/contracts/ai-auto-edit-proposal-v1.md').includes('REVIEW_READY -> STOP'));
+});
+
 test('Phase 7 Step 3 current authority, manual-only navigation, and release isolation agree',()=>{
  const paths=['AGENTS.md','ARCHITECTURE.md','DECISIONS.md','QUALITY_GATES.md','ROADMAP.md','docs/plans/phase-7-roadmap.md','docs/reports/phase-7-step-3.md'];
  const states=paths.map(p=>{
@@ -37,7 +59,7 @@ test('Phase 7 Step 1 authority agrees without reopening Phase 6 or authorizing l
   return m[1];
  });assert.equal(new Set(states).size,1);
  const rows=[...read('docs/plans/phase-7-roadmap.md').matchAll(/^\| (\d+) \| ([^|]+) \| ([^|]+) \|$/gm)];
- assert.deepEqual(rows.map(m=>+m[1]),[1,2,3,4,5,6,7,8]);assert.equal(rows[0][3],states[0]);for(const row of rows.slice(1,3))assert.ok(['NOT STARTED','AUTHORIZED / IN PROGRESS','COMPLETE / FULL PASS'].includes(row[3]));assert.deepEqual(rows.slice(3).map(m=>m[3]),Array(5).fill('NOT STARTED')); // Later authorized steps are checked separately; Step 1 remains historical.
+ assert.deepEqual(rows.map(m=>+m[1]),[1,2,3,4,5,6,7,8]);assert.equal(rows[0][3],states[0]);for(const row of rows.slice(1,4))assert.ok(['NOT STARTED','AUTHORIZED / IN PROGRESS','COMPLETE / FULL PASS'].includes(row[3]));assert.deepEqual(rows.slice(4).map(m=>m[3]),Array(4).fill('NOT STARTED')); // Later authorized steps are checked separately; Step 1 remains historical.
  assert.deepEqual(rows.map(m=>m[2]),['AI-Assisted MVP Contract & Interaction State Machine','Assistance Provider & Proposal Envelope v1','Manual + AI Assist Experience Foundation','AI Auto-Edit Proposal Flow','Plan Review & Explicit Approval UX','Cross-Platform Lifecycle & Interaction Integration','Production Intelligence Admission & MVP Provider','Phase 7 Closure']);
 });
 

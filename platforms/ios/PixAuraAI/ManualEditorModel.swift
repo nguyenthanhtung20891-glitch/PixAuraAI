@@ -4,6 +4,15 @@ import CoreGraphics
 import PixAuraCore
 
 enum AssistStatus { case idle, requesting, proposalAvailable, failed, stale, cancelled, rejected }
+enum AutoStatus { case idle, requesting, proposalReceived, validating, reviewReady, stale, cancelled, failed, rejected }
+struct AutoUiState {
+    var enabled = false, inFlight = false
+    var status: AutoStatus = .idle
+    var choices: [ManualEditor.AssistChoice] = []
+    var selected = -1
+    var proposal: ManualEditor.AutoProposal?
+    var error: String?
+}
 struct AssistUiState {
     var enabled = false, inFlight = false
     var status: AssistStatus = .idle
@@ -62,6 +71,7 @@ private final class EditorWorker {
     private let advising = DispatchQueue(label: "ai.pixaura.editor.advice", qos: .userInitiated)
     private var assistWorking = false
     private var cancellingAdvice = false
+    private var cancellingAuto = false
     private let lock = NSLock()
     private var owner: ManualEditor?
     private var latestValues: (String, [Int32], UInt64)?
@@ -118,6 +128,7 @@ private final class EditorWorker {
     func close() {
         clearPending()
         #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--auto-test-pause") { try? owner?.cancelAuto(); _ = owner?.autoTestControl(2) }
         if ProcessInfo.processInfo.arguments.contains("--assist-test-pause") {
             try? owner?.cancelAdvice(); _ = owner?.adviceTestControl(2)
         }
@@ -160,6 +171,41 @@ private final class EditorWorker {
                     let checked: Result<ManualEditor.AssistAdvice, Error> = Result {
                         guard self.owner === editor else { throw ManualEditorFailure(status: 9, boundary: "Advice") }
                         let advice = try result.get(); try editor.inspectAdvice(advice); return advice
+                    }
+                    self.lock.lock(); self.assistWorking = false; self.lock.unlock()
+                    DispatchQueue.main.async { completion(checked) }
+                }
+            }
+        }
+    }
+    func cancelAuto() {
+        lock.lock(); if cancellingAuto { lock.unlock(); return }; cancellingAuto = true; lock.unlock()
+        commands.async {
+            try? self.owner?.cancelAuto()
+            #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("--auto-test-pause") { _ = self.owner?.autoTestControl(2) }
+            #endif
+            self.lock.lock(); self.cancellingAuto = false; self.lock.unlock()
+        }
+    }
+    func requestAuto(_ index: Int, completion: @escaping @MainActor (Result<ManualEditor.AutoProposal, Error>) -> Void) {
+        lock.lock(); if assistWorking { lock.unlock(); DispatchQueue.main.async { completion(.failure(ManualEditorFailure(status: 8, boundary: "Auto proposal"))) }; return }
+        assistWorking = true; lock.unlock()
+        commands.async {
+            guard let editor = self.owner else {
+                self.lock.lock(); self.assistWorking = false; self.lock.unlock()
+                DispatchQueue.main.async { completion(.failure(ManualEditorFailure(status: 13, boundary: "Auto proposal"))) }; return
+            }
+            #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("--auto-test-pause") { _ = editor.autoTestControl(0, 2) }
+            if ProcessInfo.processInfo.arguments.contains("--auto-test-failure") { _ = editor.autoTestControl(3, 2) }
+            #endif
+            self.advising.async {
+                let result = Result { try editor.requestAuto(index) }
+                self.commands.async {
+                    let checked: Result<ManualEditor.AutoProposal, Error> = Result {
+                        guard self.owner === editor else { throw ManualEditorFailure(status: 9, boundary: "Auto proposal") }
+                        let proposal = try result.get(); _ = try editor.inspectAuto(proposal); return proposal
                     }
                     self.lock.lock(); self.assistWorking = false; self.lock.unlock()
                     DispatchQueue.main.async { completion(checked) }
@@ -238,6 +284,9 @@ final class ManualEditorModel: ObservableObject {
     @Published private(set) var error: String?
     @Published private(set) var previewLoading = false
     @Published private(set) var assistance = AssistUiState()
+    @Published private(set) var autoProposal = AutoUiState()
+    private var autoEpoch: UInt64 = 0
+    private var loadingAutoChoices = false
     private var assistEpoch: UInt64 = 0
     private var loadingChoices = false
     private let worker: EditorWorker
@@ -252,6 +301,7 @@ final class ManualEditorModel: ObservableObject {
             self.busy = false; self.error = error
             if self.core?.active != true || error != nil { self.previewLoading = false }
             if self.assistance.enabled && self.assistance.choices.isEmpty { self.loadAdviceChoices() }
+            if self.autoProposal.enabled && self.autoProposal.choices.isEmpty { self.loadAutoChoices() }
         }
         worker.candidate = { [weak self] editor, candidate in
             guard let self, self.editor === editor else { return }
@@ -270,6 +320,7 @@ final class ManualEditorModel: ObservableObject {
         assistEpoch += 1; return assistEpoch
     }
     private func invalidateAdvice(_ reason: AssistStatus = .stale) {
+        invalidateAuto()
         _ = nextAssistEpoch()
         let hadWork = assistance.advice != nil || assistance.inFlight
         assistance.advice = nil; assistance.error = nil; assistance.notice = nil
@@ -277,6 +328,7 @@ final class ManualEditorModel: ObservableObject {
         if hadWork { worker.cancelAdvice() }
     }
     func setAssistMode(_ enabled: Bool) {
+        if enabled { setAutoMode(false) }
         invalidateAdvice(.cancelled); assistance.enabled = enabled; assistance.status = .idle
         if enabled { loadAdviceChoices() }
     }
@@ -332,6 +384,59 @@ final class ManualEditorModel: ObservableObject {
             }
         }
     }
+    private func nextAutoEpoch() -> UInt64? {
+        guard autoEpoch != UInt64.max else { autoProposal.status = .failed; autoProposal.proposal = nil; autoProposal.error = "Proposal session ended. Manual editing is available."; return nil }
+        autoEpoch += 1; return autoEpoch
+    }
+    private func invalidateAuto(_ reason: AutoStatus = .stale) {
+        _ = nextAutoEpoch(); let hadWork = autoProposal.proposal != nil || autoProposal.inFlight
+        autoProposal.proposal = nil; autoProposal.error = nil
+        autoProposal.status = autoProposal.enabled && hadWork ? reason : .idle
+        if hadWork { worker.cancelAuto() }
+    }
+    func setAutoMode(_ enabled: Bool) {
+        if enabled { setAssistMode(false) }
+        invalidateAuto(.cancelled); autoProposal.enabled = enabled; autoProposal.status = .idle
+        if enabled { loadAutoChoices() }
+    }
+    private func loadAutoChoices() {
+        guard !loadingAutoChoices, autoProposal.choices.isEmpty, editor != nil else { return }; loadingAutoChoices = true
+        worker.adviceChoices { [weak self] choices in
+            guard let self else { return }; self.loadingAutoChoices = false
+            guard self.autoProposal.enabled, self.editor != nil else { return }
+            self.autoProposal.choices = choices
+            if choices.isEmpty { self.autoProposal.status = .failed; self.autoProposal.error = "Proposals unavailable. Manual editing is available." }
+        }
+    }
+    func chooseAuto(_ index: Int) {
+        guard !autoProposal.inFlight else { return }; invalidateAuto(); autoProposal.selected = index; autoProposal.status = .idle
+    }
+    private func autoFailure(_ error: Error) {
+        switch (error as? ManualEditorFailure)?.status {
+        case 3, 9: autoProposal.status = .stale; autoProposal.error = "Proposal expired after an editing change. Request a new proposal."
+        case 13: autoProposal.status = .cancelled; autoProposal.error = "Proposal cancelled or stopped. Nothing was applied."
+        case 8: autoProposal.status = .failed; autoProposal.error = "Provider busy or resources limited. Manual editing is available."
+        default: autoProposal.status = .failed; autoProposal.error = "Proposal could not be validated. Nothing was applied."
+        }
+        autoProposal.proposal = nil
+    }
+    func requestAuto() {
+        guard autoProposal.enabled, !autoProposal.inFlight, autoProposal.choices.indices.contains(autoProposal.selected), let stamp = nextAutoEpoch() else { return }
+        autoProposal.inFlight = true; autoProposal.status = .requesting; autoProposal.proposal = nil; autoProposal.error = nil
+        worker.requestAuto(autoProposal.choices[autoProposal.selected].index) { [weak self] result in
+            guard let self else { return }; self.autoProposal.inFlight = false
+            guard self.autoEpoch == stamp, self.autoProposal.enabled else { return }
+            switch result {
+            case .success(let proposal):
+                self.autoProposal.status = .proposalReceived
+                self.autoProposal.status = .validating // native current/Plan inspection completed in worker
+                self.autoProposal.proposal = proposal; self.autoProposal.status = .reviewReady
+            case .failure(let error): self.autoFailure(error)
+            }
+        }
+    }
+    func cancelAuto() { invalidateAuto(.cancelled); autoProposal.status = autoProposal.enabled ? .cancelled : .idle }
+    func dismissAuto() { invalidateAuto(.rejected); autoProposal.status = autoProposal.enabled ? .rejected : .idle }
     func reopen() { send { try $0.reopen() } }
     func recover() { invalidateAdvice(); send { $0.close(); try $0.reopen() } }
     func importImage(_ input: URL) { invalidateAdvice(); send { try $0.importImage(input) } }
@@ -339,7 +444,7 @@ final class ManualEditorModel: ObservableObject {
     func update(_ values: [Int32]) { invalidateAdvice(); guard let core else { return }; epoch += 1; previewLoading = true; worker.update(values, editID: core.editID, epoch: epoch) }
     func action(_ action: UInt32) { invalidateAdvice(); send { try $0.action(action) } }
     func interrupt() { invalidateAdvice(.cancelled); send { try $0.action(4) } }
-    func close() { setAssistMode(false); send { $0.close() } }
+    func close() { setAutoMode(false); setAssistMode(false); send { $0.close() } }
     func retryPreview() { previewLoading = true; send { try $0.retry() } }
     func pickerFailure(_ failure: Error) { error = failure.localizedDescription }
     #if DEBUG

@@ -30,6 +30,10 @@ data class AssistUiState(val enabled: Boolean = false, val status: AssistStatus 
     val choices: List<ManualEditor.AssistChoice> = emptyList(), val selected: Int = -1,
     val advice: ManualEditor.AssistAdvice? = null, val inFlight: Boolean = false,
     val error: String? = null, val notice: String? = null)
+enum class AutoStatus { IDLE, REQUESTING, PROPOSAL_RECEIVED, VALIDATING, REVIEW_READY, STALE, CANCELLED, FAILED, REJECTED }
+data class AutoUiState(val enabled: Boolean = false, val status: AutoStatus = AutoStatus.IDLE,
+    val choices: List<ManualEditor.AssistChoice> = emptyList(), val selected: Int = -1,
+    val proposal: ManualEditor.AutoProposal? = null, val inFlight: Boolean = false, val error: String? = null)
 
 /** Two fixed lanes, one coalesced input and one coalesced preview request.
  * Native lifecycle/history is authoritative; no platform operation/history model.
@@ -41,8 +45,15 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     @Volatile private var owner: ManualEditor? = null
     private val assistMutable = MutableStateFlow(AssistUiState())
     val assistance = assistMutable.asStateFlow()
+    private val autoMutable = MutableStateFlow(AutoUiState())
+    val autoProposal = autoMutable.asStateFlow()
+    private val autoEpoch = AtomicLong(0)
+    private val autoActive = AtomicBoolean(false)
+    private val autoChoicesLoading = AtomicBoolean(false)
+    private val autoCancelling = AtomicBoolean(false)
     private val assistEpoch = AtomicLong(0)
     private val assistActive = AtomicBoolean(false)
+    private val providerActive = AtomicBoolean(false)
     private val loadingChoices = AtomicBoolean(false)
     private val cancellingAdvice = AtomicBoolean(false)
     private val pendingValues = AtomicReference<Pair<String, List<Int>>?>(null)
@@ -121,6 +132,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         mutable.value = mutable.value.copy(tools = editor?.tools ?: emptyList(), core = editor?.state(),
             image = editor?.displayedBitmap(), busy = false, error = error)
         if (assistMutable.value.enabled && assistMutable.value.choices.isEmpty()) loadAdviceChoices()
+        if (autoMutable.value.enabled && autoMutable.value.choices.isEmpty()) loadAutoChoices()
     }
     private fun nextAssistEpoch(): Long? {
         while (true) { val previous = assistEpoch.get()
@@ -134,12 +146,14 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
             finally { cancellingAdvice.set(false) } }
     }
     private fun invalidateAdvice(reason: AssistStatus = AssistStatus.STALE) {
+        invalidateAuto()
         nextAssistEpoch()
         val hadWork = assistMutable.value.advice != null || assistActive.get()
         assistMutable.update { it.copy(advice = null, status = if (it.enabled && hadWork) reason else AssistStatus.IDLE, error = null, notice = null) }
         if (hadWork) cancelNativeAdvice()
     }
     fun setAssistMode(enabled: Boolean) {
+        if (enabled) setAutoMode(false)
         invalidateAdvice(AssistStatus.CANCELLED)
         assistMutable.update { it.copy(enabled = enabled, status = AssistStatus.IDLE, advice = null, error = null, notice = null) }
         if (enabled) loadAdviceChoices()
@@ -164,10 +178,14 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     }
     fun requestAdvice() {
         val ui = assistMutable.value
-        if (disposed.get() || !ui.enabled || ui.selected !in ui.choices.indices || !assistActive.compareAndSet(false, true)) return
+        if (disposed.get() || !ui.enabled || ui.selected !in ui.choices.indices || assistActive.get()) return
+        if (!providerActive.compareAndSet(false, true)) {
+            assistMutable.update { it.copy(status = AssistStatus.FAILED, error = "Provider busy. Manual editing is available.", advice = null) }; return
+        }
+        assistActive.set(true)
         val editor = owner
         val epoch = nextAssistEpoch()
-        if (editor == null || epoch == null) { assistActive.set(false); return }
+        if (editor == null || epoch == null) { assistActive.set(false); providerActive.set(false); return }
         assistMutable.update { it.copy(status = AssistStatus.REQUESTING, advice = null, error = null, notice = null, inFlight = true) }
         advising.execute {
             try {
@@ -184,7 +202,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
                         val error = adviceFailure(failure); assistMutable.update { it.copy(status = error.first, error = error.second, advice = null) }
                     }
                 }
-            } finally { assistActive.set(false); assistMutable.update { it.copy(inFlight = false) } }
+            } finally { assistActive.set(false); providerActive.set(false); assistMutable.update { it.copy(inFlight = false) } }
         }
     }
     fun cancelAdvice() { invalidateAdvice(AssistStatus.CANCELLED); assistMutable.update { it.copy(status = if (it.enabled) AssistStatus.CANCELLED else AssistStatus.IDLE) } }
@@ -206,6 +224,78 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
             }
         }
     }
+    private fun nextAutoEpoch(): Long? {
+        while (true) { val previous = autoEpoch.get()
+            if (previous == Long.MAX_VALUE) { autoMutable.update { it.copy(status = AutoStatus.FAILED, proposal = null, error = "Proposal session ended. Manual editing is available.") }; return null }
+            if (autoEpoch.compareAndSet(previous, previous + 1)) return previous + 1
+        }
+    }
+    private fun invalidateAuto(reason: AutoStatus = AutoStatus.STALE) {
+        nextAutoEpoch(); val hadWork = autoMutable.value.proposal != null || autoActive.get()
+        autoMutable.update { it.copy(proposal = null, error = null, status = if (it.enabled && hadWork) reason else AutoStatus.IDLE) }
+        if (hadWork && !disposed.get() && autoCancelling.compareAndSet(false, true)) commands.execute {
+            try { owner?.cancelAuto() } catch (_: Throwable) { /* no editing authority */ }
+            finally { autoCancelling.set(false) }
+        }
+    }
+    fun setAutoMode(enabled: Boolean) {
+        if (enabled) { setAssistMode(false) }
+        invalidateAuto(AutoStatus.CANCELLED)
+        autoMutable.update { it.copy(enabled = enabled, status = AutoStatus.IDLE, proposal = null, error = null) }
+        if (enabled) loadAutoChoices()
+    }
+    private fun loadAutoChoices() {
+        if (disposed.get() || autoMutable.value.choices.isNotEmpty() || !autoChoicesLoading.compareAndSet(false, true)) return
+        commands.execute {
+            try { owner?.adviceChoices()?.let { choices -> if (!disposed.get()) autoMutable.update { it.copy(choices = choices) } } }
+            catch (_: Throwable) { autoMutable.update { it.copy(status = AutoStatus.FAILED, error = "Proposals unavailable. Manual editing is available.") } }
+            finally { autoChoicesLoading.set(false) }
+        }
+    }
+    fun chooseAuto(index: Int) {
+        if (autoMutable.value.inFlight) return
+        invalidateAuto(); autoMutable.update { it.copy(selected = index, status = AutoStatus.IDLE) }
+    }
+    private fun autoFailure(failure: Throwable) {
+        val state = when ((failure as? EditorFailure)?.status) { 3, 9 -> AutoStatus.STALE; 13 -> AutoStatus.CANCELLED; else -> AutoStatus.FAILED }
+        val text = when ((failure as? EditorFailure)?.status) {
+            3, 9 -> "Proposal expired after an editing change. Request a new proposal."
+            13 -> "Proposal cancelled or stopped. Nothing was applied."
+            8 -> "Provider busy or resources limited. Manual editing is available."
+            else -> "Proposal could not be validated. Nothing was applied."
+        }
+        autoMutable.update { it.copy(status = state, error = text, proposal = null) }
+    }
+    fun requestAuto() {
+        val ui = autoMutable.value
+        if (disposed.get() || !ui.enabled || ui.selected !in ui.choices.indices || autoActive.get()) return
+        if (!providerActive.compareAndSet(false, true)) { autoFailure(EditorFailure(8, "Auto proposal")); return }
+        autoActive.set(true)
+        val editor = owner; val stamp = nextAutoEpoch()
+        if (editor == null || stamp == null) { autoActive.set(false); providerActive.set(false); return }
+        autoMutable.update { it.copy(status = AutoStatus.REQUESTING, proposal = null, error = null, inFlight = true) }
+        advising.execute {
+            try {
+                val proposal = editor.requestAuto(ui.choices[ui.selected].index)
+                if (!disposed.get()) commands.execute {
+                    if (!disposed.get() && owner === editor && autoEpoch.get() == stamp && autoMutable.value.enabled) {
+                        autoMutable.update { it.copy(status = AutoStatus.PROPOSAL_RECEIVED) }
+                        try {
+                            autoMutable.update { it.copy(status = AutoStatus.VALIDATING) }
+                            editor.inspectAuto(proposal) // native freshness + canonical Plan inspection only
+                            autoMutable.update { it.copy(status = AutoStatus.REVIEW_READY, proposal = proposal) }
+                        } catch (failure: Throwable) { autoFailure(failure) }
+                    }
+                }
+            } catch (failure: Throwable) {
+                if (!disposed.get()) commands.execute {
+                    if (!disposed.get() && owner === editor && autoEpoch.get() == stamp && autoMutable.value.enabled) autoFailure(failure)
+                }
+            } finally { autoActive.set(false); providerActive.set(false); autoMutable.update { it.copy(inFlight = false) } }
+        }
+    }
+    fun cancelAuto() { invalidateAuto(AutoStatus.CANCELLED); autoMutable.update { it.copy(status = if (it.enabled) AutoStatus.CANCELLED else AutoStatus.IDLE) } }
+    fun dismissAuto() { invalidateAuto(AutoStatus.REJECTED); autoMutable.update { it.copy(status = if (it.enabled) AutoStatus.REJECTED else AutoStatus.IDLE) } }
     private fun command(block: () -> Unit) {
         if (disposed.get()) return
         mutable.value = mutable.value.copy(busy = true, error = null)
@@ -278,7 +368,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     fun retryPreview() = command { val editor = owner ?: return@command
         val core = editor.state(); if (core.active && !core.approvalPending) editor.update(core.values); preview() }
     fun interrupt() { invalidateAdvice(AssistStatus.CANCELLED); command { pendingValues.set(null); pendingPreview.set(null); owner?.action(4); mutable.value = mutable.value.copy(previewLoading = false) } }
-    fun closeEditor() { setAssistMode(false); command { pendingValues.set(null); pendingPreview.set(null); owner?.close(); owner = null; mutable.value = mutable.value.copy(previewLoading = false) } }
+    fun closeEditor() { setAutoMode(false); setAssistMode(false); command { pendingValues.set(null); pendingPreview.set(null); owner?.close(); owner = null; mutable.value = mutable.value.copy(previewLoading = false) } }
     private fun preview() {
         val editor = owner ?: return
         applyPendingCapability()
@@ -310,6 +400,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         }
     }
     override fun onCleared() {
+        nextAutoEpoch()
         nextAssistEpoch()
         disposed.set(true)
         pendingValues.set(null); pendingPreview.set(null)

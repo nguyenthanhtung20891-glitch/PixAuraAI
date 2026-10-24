@@ -197,6 +197,29 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
         advice.choice
     }
     fun cancelAdvice() = gate.withLock { checked(if (closed) 13 else nativeAssistCancel(storage), "Advice") }
+    class AutoProposal internal constructor(internal val owner: ManualEditor, internal val packet: ByteBuffer,
+        val actions: List<AssistChoice>, val proposalId: String, val providerId: String)
+    fun requestAuto(index: Int): AutoProposal {
+        val packet = ByteBuffer.allocateDirect(nativeAutoSize()).order(ByteOrder.nativeOrder())
+        gate.withLock { checked(if (closed) 13 else if (assistCalls != 0) 8 else 0, "Auto proposal"); assistCalls++ }
+        try {
+            checked(nativeAutoRequest(storage, index, packet), "Auto proposal")
+            val count = packet.getInt(8)
+            checked(if (packet.getInt(0) == 1 && packet.getInt(4) == 328 && count in 1..8) 0 else 14, "Auto proposal")
+            val actions = List(count) { action -> val at = 136 + action * 24; val n = packet.getInt(at + 4)
+                checked(if (n in 1..4) 0 else 14, "Auto proposal")
+                AssistChoice(action, packet.getInt(at), List(n) { packet.getInt(at + 8 + it * 4) }) }
+            fun id(at: Int): String = ByteArray(32) { packet.get(at + it) }.takeWhile { it != 0.toByte() }.toByteArray().toString(Charsets.US_ASCII)
+            return AutoProposal(this, packet.asReadOnlyBuffer(), actions, id(72), id(104))
+        } finally { gate.withLock { assistCalls--; idle.signalAll() } }
+    }
+    fun inspectAuto(proposal: AutoProposal): ByteArray = gate.withLock {
+        checked(if (closed) 13 else if (proposal.owner !== this) 9 else 0, "Auto proposal")
+        val bytes = ByteBuffer.allocateDirect(8192); val size = nativeAutoPlan(storage, proposal.packet, bytes)
+        checked(if (size < 0) -size else if (size in 1..8192) 0 else 14, "Auto proposal")
+        ByteArray(size).also { bytes.get(it) }
+    }
+    fun cancelAuto() = gate.withLock { checked(if (closed) 13 else nativeAutoCancel(storage), "Auto proposal") }
     override fun close() = gate.withLock {
         closed = true
         if (!stopped) { checked(nativeStop(storage), "Close"); stopped = true }
@@ -209,6 +232,10 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     private external fun nativeAgentExecute(storage: ByteBuffer, plan: ByteArray, approval: ByteBuffer?, receipt: ByteBuffer): Int
     private external fun nativeAgentCancel(storage: ByteBuffer): Int
     private external fun nativeAssistSize(): Int
+    private external fun nativeAutoSize(): Int
+    private external fun nativeAutoRequest(storage: ByteBuffer, index: Int, output: ByteBuffer): Int
+    private external fun nativeAutoPlan(storage: ByteBuffer, proposal: ByteBuffer, output: ByteBuffer): Int
+    private external fun nativeAutoCancel(storage: ByteBuffer): Int
     private external fun nativeAssistCount(): Int
     private external fun nativeAssistChoice(index: Int, output: ByteBuffer): Int
     private external fun nativeAssistRequest(storage: ByteBuffer, index: Int, output: ByteBuffer): Int

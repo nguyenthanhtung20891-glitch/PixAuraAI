@@ -56,7 +56,7 @@ class AssistExperienceTest {
     private fun ready() { waitFor { model.assistance.value.status == AssistStatus.PROPOSAL_AVAILABLE } }
     @Test fun adviceDismissNavigationAndOnlyExplicitManualApplyChangesHistory() {
         open(); val revision = model.state.value.core!!.revisionId
-        compose.onNodeWithTag("mode-auto").assertIsNotEnabled()
+        compose.onNodeWithTag("mode-auto").assertIsEnabled() // Step 4 enables proposal-only mode; no execution.
         goal(); request(); ready()
         compose.onNodeWithTag("assist-recommendation").assertExists()
         assertEquals(revision, owner().state().revisionId)

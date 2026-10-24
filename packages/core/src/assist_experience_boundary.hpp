@@ -37,7 +37,7 @@ extern "C" int32_t pixaura_editor_assist_request(uint32_t version,pixaura_editor
 #endif
     {
         std::lock_guard<std::mutex> lock(s.gate);s.ready();require(!s.assist_unavailable,13);
-        require(!s.assist_active&&!s.selected&&!s.proposal.serial,8);require(s.assist_sequence!=UINT64_MAX,8);
+        require(!s.assist_active&&!s.auto_active&&!s.selected&&!s.proposal.serial,8);require(s.assist_sequence!=UINT64_MAX,8);
         if(!s.assist_provider)s.assist_provider=std::make_unique<assistance::ReferenceProvider>();
         check(assistance::check_identity(s.assist_provider->identity()));
         snapshot=s.loaded.snapshot;context_id=s.document_identity;source=s.live.serial;epoch=s.loaded.epoch;

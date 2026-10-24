@@ -3,6 +3,7 @@
 #include "assistance.hpp"
 #include "structured_goals.hpp"
 #include "pixaura/assist.h"
+#include "pixaura/auto_proposal.h"
 #include <array>
 namespace pixaura::assist_experience {
 struct Choice { uint32_t tool_index=0,count=0;std::array<int32_t,4> values{}; };
@@ -24,5 +25,6 @@ inline Choice choice(uint32_t index) {
 assistance::Outcome<assistance::Request> request(const document::ImageDocument&,std::string_view context,
     uint32_t index,const manual::Descriptor&,const Choice&,uint64_t serial);
 assistance::Outcome<Choice> presentation(const assistance::Validated&,const manual::Descriptor*,std::size_t);
+assistance::Outcome<pixaura_auto_proposal> auto_presentation(const assistance::Validated&,const manual::Descriptor*,std::size_t);
 }
 #endif

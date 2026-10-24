@@ -20,16 +20,17 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
-fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = false) {
+fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = false, autoInitially: Boolean = false) {
     val ui by model.state.collectAsStateWithLifecycle()
     val assist by model.assistance.collectAsStateWithLifecycle()
+    val auto by model.autoProposal.collectAsStateWithLifecycle()
     var category by remember { mutableStateOf("geometry") }
     var formatError by remember { mutableStateOf<String?>(null) }
     val lifecycle = LocalLifecycleOwner.current
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) model.importImage(uri)
     }
-    LaunchedEffect(model, assistInitially) { model.setAssistMode(assistInitially); model.openLast() }
+    LaunchedEffect(model, assistInitially, autoInitially) { model.setAutoMode(autoInitially); if (!autoInitially) model.setAssistMode(assistInitially); model.openLast() }
     LaunchedEffect(ui.core?.selected) { ui.tools.firstOrNull { it.index == ui.core?.selected }?.let { category = it.category } }
     DisposableEffect(lifecycle, model) {
         val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_STOP) model.interrupt() }
@@ -38,11 +39,12 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
     }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(Modifier.horizontalScroll(rememberScrollState()).testTag("mode-selector"), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilterChip(selected = !assist.enabled, onClick = { model.setAssistMode(false) }, label = { Text("Manual") }, modifier = Modifier.testTag("mode-manual"))
+            FilterChip(selected = !assist.enabled && !auto.enabled, onClick = { model.setAutoMode(false); model.setAssistMode(false) }, label = { Text("Manual") }, modifier = Modifier.testTag("mode-manual"))
             FilterChip(selected = assist.enabled, onClick = { model.setAssistMode(true) }, label = { Text("AI Assist") }, modifier = Modifier.testTag("mode-assist"))
-            FilterChip(selected = false, enabled = false, onClick = {}, label = { Text("AI Auto-Edit") }, modifier = Modifier.testTag("mode-auto").semantics { contentDescription = "AI Auto-Edit unavailable" })
+            FilterChip(selected = auto.enabled, onClick = { model.setAutoMode(true) }, label = { Text("AI Auto-Edit") }, modifier = Modifier.testTag("mode-auto"))
         }
         if (assist.enabled) AssistPanel(model, ui, assist)
+        if (auto.enabled) AutoProposalPanel(model, ui, auto)
         assist.notice?.let { Text(it, Modifier.testTag("assist-notice").semantics { liveRegion = LiveRegionMode.Polite }) }
         Button(onClick = { picker.launch(arrayOf("image/jpeg", "image/png")) }, enabled = !ui.busy) { Text("Open JPEG or PNG") }
         Box(Modifier.fillMaxWidth().height(180.dp).semantics { contentDescription = "Image preview" }) {
@@ -51,6 +53,7 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
         }
         if (ui.busy) Text("Loading or saving…", Modifier.semantics { liveRegion = LiveRegionMode.Polite })
         if (ui.previewLoading) Text("Rendering preview; changes are not saved until Apply", Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+        if (!auto.enabled) {
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             for ((key, label) in listOf("geometry" to "Geometry", "tone_color" to "Tone/Color", "detail" to "Detail", "filters_presets" to "Filters/Presets")) {
                 FilterChip(selected = category == key, enabled = !ui.busy, onClick = { formatError = null; category = key; if (ui.core?.active == true) model.action(0) }, label = { Text(label) })
@@ -106,5 +109,7 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
         (formatError ?: ui.error)?.let { Text(it, Modifier.semantics { liveRegion = LiveRegionMode.Assertive }) }
         if (ui.error?.startsWith("Preview failure") == true) Button(onClick = model::retryPreview) { Text("Retry preview") }
         if (ui.error?.contains("Stale edit") == true) Button(onClick = model::reopenProject) { Text("Reopen committed project") }
+        }
+        if (auto.enabled) ui.core?.let { Text("Committed revisions: ${it.revisionCount}") }
     }
 }

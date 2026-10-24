@@ -38,4 +38,24 @@ assistance::Outcome<Choice> presentation(const assistance::Validated& validated,
     } catch(const Failure& error){return {error.code,std::nullopt};}
       catch(const std::bad_alloc&){return {8,std::nullopt};}catch(...){return {14,std::nullopt};}
 }
+assistance::Outcome<pixaura_auto_proposal> auto_presentation(const assistance::Validated& validated,const manual::Descriptor* tools,std::size_t count) {
+    try {
+        require((validated.kind==assistance::Kind::StructuredIntent||validated.kind==assistance::Kind::PlanCandidate)&&!validated.plan.empty(),6);
+        const auto plan=Parser(validated.plan,8192).parse(Shape::AgentPlan);
+        const auto& actions=array(field(plan,"actions"));require(!actions.empty()&&actions.size()<=8,8);
+        pixaura_auto_proposal result{};result.api_version=1;result.struct_size=sizeof(result);
+        result.action_count=static_cast<uint32_t>(actions.size());result.kind=static_cast<uint32_t>(validated.kind);result.registry_version=1;
+        for(std::size_t i=0;i<actions.size();++i){
+            const auto& action=actions[i];const auto& id=text(field(action,"tool_id"));bool found=false;
+            for(std::size_t t=0;t<count;++t)if(tools[t].tool_id==id){
+                const auto& tool=tools[t];require(tool.parameter_count<=4,7);auto& out=result.actions[i];
+                out.tool_index=static_cast<uint32_t>(t);out.parameter_count=static_cast<uint32_t>(tool.parameter_count);
+                for(std::size_t p=0;p<tool.parameter_count;++p)out.values[p]=static_cast<int32_t>(integer(field(field(action,"parameters"),tool.parameters[p].name.data()),INT32_MIN,INT32_MAX,7));
+                found=true;break;
+            }
+            require(found,5);
+        }
+        return {0,result};
+    }catch(const Failure& e){return {e.code,std::nullopt};}catch(const std::bad_alloc&){return {8,std::nullopt};}catch(...){return {14,std::nullopt};}
+}
 }

@@ -1,6 +1,7 @@
 #include <jni.h>
 #include "pixaura/editor.h"
 #include "pixaura/assist.h"
+#include "pixaura/auto_proposal.h"
 #include <cstring>
 #include <vector>
 #include <algorithm>
@@ -14,6 +15,29 @@ int64_t read(void* raw,uint8_t* output,uint64_t capacity){auto& r=*static_cast<I
     r.env->GetByteArrayRegion(r.buffer,0,n,reinterpret_cast<jbyte*>(output));return r.env->ExceptionCheck()?-1:n;}
 }
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeAssistSize(JNIEnv*,jobject){return sizeof(pixaura_assist_advice);}
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeAutoSize(JNIEnv*,jobject){return sizeof(pixaura_auto_proposal);}
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeAutoRequest(JNIEnv* env,jobject,jobject buffer,jint index,jobject result){
+    auto* c=storage<pixaura_editor_context>(env,buffer);auto* out=storage<pixaura_auto_proposal>(env,result);
+    if(!c||!out||index<0)return 1;
+    const pixaura_auto_request request{1,sizeof(pixaura_auto_request),static_cast<uint32_t>(index),2};
+    return pixaura_editor_auto_request(1,c,&request,nullptr,0,out);
+}
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeAutoPlan(JNIEnv* env,jobject,jobject buffer,jobject packet,jobject output){
+    auto* c=storage<pixaura_editor_context>(env,buffer);auto* p=storage<pixaura_auto_proposal>(env,packet);
+    if(!c||!p||!output||env->GetDirectBufferCapacity(output)!=8192)return -1;
+    auto* bytes=static_cast<uint8_t*>(env->GetDirectBufferAddress(output));if(!bytes)return -1;
+    uint64_t required=0;const auto code=pixaura_editor_auto_plan(1,c,p,bytes,8192,&required);
+    return code?-code:static_cast<jint>(required);
+}
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeAutoCancel(JNIEnv* env,jobject,jobject buffer){
+    auto* c=storage<pixaura_editor_context>(env,buffer);return c?pixaura_editor_auto_cancel(1,c):1;
+}
+#ifdef PIXAURA_CERTIFICATION_TESTING
+extern "C" int32_t pixaura_test_auto_control(pixaura_editor_context*,uint32_t,uint32_t);
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_app_AutoTestHooks_nativeControl(JNIEnv* env,jobject,jobject buffer,jint command,jint value){
+    auto* c=storage<pixaura_editor_context>(env,buffer);return c?pixaura_test_auto_control(c,static_cast<uint32_t>(command),static_cast<uint32_t>(value)):1;
+}
+#endif
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeAssistCount(JNIEnv*,jobject){return PIXAURA_ASSIST_CHOICES;}
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeAssistChoice(JNIEnv* env,jobject,jint index,jobject result){
     auto* out=storage<pixaura_assist_advice>(env,result);return out&&index>=0?pixaura_assist_choice(1,static_cast<uint32_t>(index),out):1;

@@ -1,5 +1,37 @@
 # PixAuraAI Autonomous Engineering Contract
 
+<!-- phase7-step4-current-authority -->
+## Phase 7 Step 4 - current authority
+
+Phase 6 CLOSED / COMPLETE / FULL PASS. Phase 7 AUTHORIZED / IN PROGRESS.
+Step 1 COMPLETE / FULL PASS. Step 2 COMPLETE / FULL PASS. Step 3 COMPLETE / FULL PASS.
+Certified Step 3 closure: `43b2e36f294e4f0d518742b3923027551ec34c1a`.
+Foundation 40056249044 SUCCESS 7/7; Native application shells 40056248966 SUCCESS
+3/3, completed exact SHA, attempt 1, every required job individually SUCCESS.
+Step 4 AUTHORIZED / IN PROGRESS.
+Exact-SHA certification pending; no unobserved job is PASS.
+AI Auto-Edit Proposal v1: explicit request -> UNTRUSTED Envelope v1 -> existing
+Structured Intent/planner or Plan v1/Registry validation -> ephemeral REVIEW_READY.
+STOP before approval. No approval issuer, candidate, execution, commit or history
+mutation. Minimal read-only summary; no Apply/Approve control. Manual first-class;
+AI Assist unchanged, Use suggestion navigation-only. Shared-native validation;
+Android/Apple presentation only. Bounded proposal transport, no execution ABI.
+Intent/Structured Intent/Plan/Registry/Envelope/Provider/reference planner,
+approval/candidate, AI Assist Experience v1, Schema 3, shared history/manual and
+Phase 5 trust unchanged. Production model UNRESOLVED. CPU VALIDATED; Vulkan/Metal UNKNOWN.
+No model/runtime/weights/NLP/cloud/network AI. Local-first; ephemeral proposals.
+DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+Phase 7 Steps 5-8 NOT STARTED. Phase 8 NOT STARTED. No Step 9.
+Both full implementation-SHA and separate closure-SHA workflows required,
+every job completed/SUCCESS. Full retained gates, active ASan/UBSan, native and
+platform regressions, release isolation, workflow lint, source/diff checks required.
+STOP after Step 4. Do not implement Step 5.
+See docs/contracts/ai-auto-edit-proposal-v1.md and docs/reports/phase-7-step-4.md.
+<!-- phase7-step4-history -->
+
+Earlier authority below is historical at its certified freeze time.
+
+
 <!-- phase7-step3-current-authority -->
 ## Phase 7 Step 3 - current authority
 
