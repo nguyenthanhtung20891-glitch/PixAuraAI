@@ -43,6 +43,9 @@ class AssistExperienceTest {
         file.delete()
     }
     private fun goal() {
+        // Scroll the outer vertical viewport before the chip's nearest
+        // horizontal scroll ancestor. Child performScrollTo alone cannot do both.
+        compose.onNodeWithTag("mode-selector").performScrollTo()
         compose.onNodeWithTag("mode-assist").performScrollTo().performClick()
         waitFor { model.assistance.value.enabled }
         waitFor { model.assistance.value.choices.size == 11 }

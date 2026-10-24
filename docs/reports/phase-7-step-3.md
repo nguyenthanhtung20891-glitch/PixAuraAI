@@ -212,3 +212,24 @@ Native shells 40031104157 retained the same Android off-screen tap failure;
 this SHA is NOT fully certified. Initial-SHA iOS app/UI job 120676763706
 (run 40030343582) completed SUCCESS. These are historical diagnostic evidence,
 not certification for the subsequent semantic-scroll correction.
+
+The first scroll correction `92abd3c1665d748fa9ce8cbe63348693cf08cfda` exposed
+the second ancestor: Compose `ActionsKt.scrollToNode` resolves only its closest
+scrollable parent. The chip's horizontal mode row did not scroll the outer
+vertical editor viewport. Native shells 40033377348 / Android job 120686837871
+therefore failed the strengthened Assist-enabled postcondition (37/38 PASS,
+0 skipped). The installed Compose 1.10.0 bytecode and XML stack confirm the
+cause. The harness now scrolls the mode-selector row into the outer viewport
+before scrolling/tapping its chip. No runtime change, retry, timeout increase
+or assertion removal. A new SHA must independently pass both full workflows.
+
+Local Android verification of the completed nested-scroll fix: existing owned
+Android 16 / API 36.1 x86_64 AVD, WHPX, headless SwiftShader. All 38 retained
+instrumentation tests PASS (0 failures/errors/skips), 2m11s, including all three
+Assist cases and existing JNI/manual/Agent/history/lifecycle coverage. The first
+local invocation passed all Assist cases but omitted the retained GPU transport
+fixture argument (37/38); supplying its required fresh host-prepared directory
+resolved that invocation defect without changing tests. Transport evidence was
+verified exactly, archived under build, and the owned emulator shut down.
+Foundation 40033377233 on the prior scroll SHA completed SUCCESS 7/7; the
+subsequent correction still requires its own full exact-SHA certification.
