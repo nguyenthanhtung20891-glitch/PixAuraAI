@@ -101,6 +101,10 @@ public final class ManualEditor {
     private let idle = NSCondition()
     private let identity = UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
     private var closed = false, destroyed = false, renders = 0, agentCalls = 0, assistCalls = 0
+    private var applyingReview: AutoReview?
+    private var applyingApproval: AgentApproval?
+    private var cancellingReview = false
+    private var attemptedAutoSerial: UInt64?
     private var displayed: CGImage?, committed: CGImage?
     private var requestedGeneration: UInt64 = 0
     public private(set) var tools: [ManualTool] = []
@@ -246,6 +250,9 @@ public final class ManualEditor {
     }
     private func agentBytes(_ mode: Int, _ input: Data = Data()) throws -> Data {
         gate.lock(); defer { gate.unlock() }; try checked(closed ? 13 : 0, "Agent")
+        return try agentBytesLocked(mode, input)
+    }
+    private func agentBytesLocked(_ mode: Int, _ input: Data) throws -> Data {
         var output = Data(count: 8192), size: UInt64 = 0, request = agentRequest()
         let status = output.withUnsafeMutableBytes { out in input.withUnsafeBytes { bytes in
             let source = bytes.bindMemory(to: UInt8.self).baseAddress
@@ -266,11 +273,17 @@ public final class ManualEditor {
     /// Trusted application confirmation only. Never invoked by planning/validation.
     public func approveAgentPlanFromHuman(_ plan: AgentPlan) throws -> AgentApproval {
         gate.lock(); defer { gate.unlock() }; try checked(closed ? 13 : 0, "Agent approval")
-        let approval = AgentApproval(self); var request = agentRequest()
+        return try approveAgentPlanLocked(plan)
+    }
+    private func approveAgentPlanLocked(_ plan: AgentPlan) throws -> AgentApproval {
+        // Construct the owning ARC object only after native approval succeeds.
+        // A rejected call must not deinit an unowned object while this NSLock
+        // is held (its close path reacquires the same owner gate).
+        var token = pixaura_agent_approval(); var request = agentRequest()
         try checked(plan.canonicalBytes.withUnsafeBytes {
-            pixaura_editor_agent_approve(1, context, &request, $0.bindMemory(to: UInt8.self).baseAddress, UInt64($0.count), &approval.token)
+            pixaura_editor_agent_approve(1, context, &request, $0.bindMemory(to: UInt8.self).baseAddress, UInt64($0.count), &token)
         }, "Agent approval")
-        approval.owned = true; return approval
+        let approval = AgentApproval(self); approval.token = token; approval.owned = true; return approval
     }
     public func revokeAgentApproval(_ approval: AgentApproval) throws {
         gate.lock(); defer { gate.unlock() }
@@ -301,8 +314,14 @@ public final class ManualEditor {
         }
         try checked(status, "Agent execution")
         gate.lock(); requestedGeneration = 0; gate.unlock()
+        return try decodeAgentReceipt(receipt)
+    }
+    func decodeAgentReceipt(_ receipt: pixaura_agent_execution_receipt) throws -> AgentReceipt {
+        try checked(receipt.api_version == 1 && receipt.struct_size == 144 && receipt.approval_consumed == 1 && receipt.reserved == 0 ? 0 : 14, "Agent receipt")
         func text<T>(_ value: T) -> String { withUnsafeBytes(of: value) { String(decoding: $0, as: UTF8.self) } }
-        return AgentReceipt(planSHA256: text(receipt.plan_sha256), sourceRevision: text(receipt.source_revision), resultingRevision: text(receipt.resulting_revision))
+        let result = AgentReceipt(planSHA256: text(receipt.plan_sha256), sourceRevision: text(receipt.source_revision), resultingRevision: text(receipt.resulting_revision))
+        try checked([result.planSHA256, result.sourceRevision, result.resultingRevision].allSatisfy { $0.utf8.allSatisfy { (48...57).contains($0) || (97...102).contains($0) } } && result.sourceRevision != result.resultingRevision ? 0 : 14, "Agent receipt")
+        return result
     }
     public func cancelAgentExecution() throws {
         gate.lock(); defer { gate.unlock() }
@@ -330,7 +349,7 @@ public final class ManualEditor {
     public func requestAdvice(_ index: Int) throws -> AssistAdvice {
         guard let index = UInt32(exactly: index) else { throw ManualEditorFailure(status: 1, boundary: "Advice") }
         gate.lock(); idle.lock()
-        if closed || assistCalls != 0 { let code: Int32 = closed ? 13 : 8; idle.unlock(); gate.unlock(); throw ManualEditorFailure(status: code, boundary: "Advice") }
+        if closed || assistCalls != 0 || applyingReview != nil || cancellingReview { let code: Int32 = closed ? 13 : 8; idle.unlock(); gate.unlock(); throw ManualEditorFailure(status: code, boundary: "Advice") }
         assistCalls += 1; idle.unlock(); gate.unlock()
         defer { idle.lock(); assistCalls -= 1; idle.broadcast(); idle.unlock() }
         var request = pixaura_assist_request(); request.api_version = 1; request.struct_size = UInt32(MemoryLayout.size(ofValue: request)); request.choice_index = index
@@ -354,7 +373,7 @@ public final class ManualEditor {
     public func requestAuto(_ index: Int) throws -> AutoProposal {
         guard let index = UInt32(exactly: index) else { throw ManualEditorFailure(status: 1, boundary: "Auto proposal") }
         gate.lock(); idle.lock()
-        if closed || assistCalls != 0 { let code: Int32 = closed ? 13 : 8; idle.unlock(); gate.unlock(); throw ManualEditorFailure(status: code, boundary: "Auto proposal") }
+        if closed || assistCalls != 0 || applyingReview != nil || cancellingReview { let code: Int32 = closed ? 13 : 8; idle.unlock(); gate.unlock(); throw ManualEditorFailure(status: code, boundary: "Auto proposal") }
         assistCalls += 1; idle.unlock(); gate.unlock()
         defer { idle.lock(); assistCalls -= 1; idle.broadcast(); idle.unlock() }
         var request = pixaura_auto_request(); request.api_version = 1; request.struct_size = UInt32(MemoryLayout.size(ofValue: request)); request.choice_index = index; request.kind = 2
@@ -372,6 +391,9 @@ public final class ManualEditor {
     }
     public func inspectAuto(_ proposal: AutoProposal) throws -> Data {
         gate.lock(); defer { gate.unlock() }
+        return try inspectAutoLocked(proposal)
+    }
+    private func inspectAutoLocked(_ proposal: AutoProposal) throws -> Data {
         try checked(closed ? 13 : proposal.owner != identity ? 9 : 0, "Auto proposal")
         var value = proposal.packet, required: UInt64 = 0
         let query = pixaura_editor_auto_plan(1, context, &value, nil, 0, &required)
@@ -382,7 +404,70 @@ public final class ManualEditor {
         try checked(status, "Auto proposal"); return bytes
     }
     public func cancelAuto() throws { gate.lock(); defer { gate.unlock() }; try checked(closed ? 13 : pixaura_editor_auto_cancel(1, context), "Auto proposal") }
+    public final class AutoReview {
+        fileprivate let owner: String, proposal: AutoProposal, plan: AgentPlan
+        public let sourceRevision: String
+        public var canonicalBytes: Data { plan.canonicalBytes }
+        fileprivate var attempted = false, abandoned = false
+        fileprivate init(_ owner: String, _ proposal: AutoProposal, _ plan: AgentPlan, _ source: String) {
+            self.owner = owner; self.proposal = proposal; self.plan = plan; sourceRevision = source
+        }
+    }
+    public func prepareAutoReview(_ proposal: AutoProposal) throws -> AutoReview {
+        gate.lock(); defer { gate.unlock() }
+        try checked(closed ? 13 : proposal.owner != identity ? 9 : 0, "Auto review")
+        try checked(applyingReview != nil || cancellingReview ? 8 : 0, "Auto review")
+        try checked(attemptedAutoSerial == proposal.packet.request_serial ? 15 : 0, "Auto review")
+        let plan = AgentPlan(try agentBytesLocked(2, inspectAutoLocked(proposal)))
+        return AutoReview(identity, proposal, plan, try stateLocked().revisionID)
+    }
+    /// ONLY explicit review Apply may call this trusted application boundary.
+    public func applyAutoFromHuman(_ review: AutoReview, onExecuting: () -> Void = {}) throws -> AgentReceipt {
+        var approval: AgentApproval?
+        gate.lock()
+        do {
+            try checked(closed ? 13 : review.owner != identity ? 9 : review.attempted || review.abandoned ? 15 : applyingReview != nil || cancellingReview ? 8 : 0, "Auto Apply")
+            idle.lock(); let busy = assistCalls != 0; idle.unlock()
+            try checked(busy ? 8 : 0, "Auto Apply")
+            try checked(inspectAutoLocked(review.proposal) == review.plan.canonicalBytes ? 0 : 9, "Auto review")
+            try checked(agentBytesLocked(2, review.plan.canonicalBytes) == review.plan.canonicalBytes ? 0 : 9, "Auto review")
+            try checked(attemptedAutoSerial == review.proposal.packet.request_serial ? 15 : 0, "Auto Apply")
+            review.attempted = true; attemptedAutoSerial = review.proposal.packet.request_serial
+            approval = try approveAgentPlanLocked(review.plan); applyingApproval = approval
+            applyingReview = review; idle.lock(); agentCalls += 1; idle.unlock()
+        } catch { gate.unlock(); throw error }
+        gate.unlock()
+        defer {
+            approval?.close()
+            gate.lock(); applyingApproval = nil; applyingReview = nil; gate.unlock()
+            idle.lock(); agentCalls -= 1; idle.broadcast(); idle.unlock()
+        }
+        onExecuting() // transport notification only; carries no approval issuer
+        let result = try executeAgentPlan(review.plan, approval: approval)
+        try checked(result.sourceRevision == review.sourceRevision ? 0 : 14, "Auto receipt")
+        return result
+    }
+    public func cancelAutoReview(_ review: AutoReview) throws {
+        gate.lock()
+        do { try checked(closed ? 13 : review.owner != identity ? 9 : 0, "Auto cancellation") }
+        catch { gate.unlock(); throw error }
+        review.abandoned = true
+        guard applyingReview === review, !cancellingReview else { gate.unlock(); return }
+        cancellingReview = true; let approval = applyingApproval
+        idle.lock(); agentCalls += 1; idle.unlock(); gate.unlock()
+        defer {
+            gate.lock(); cancellingReview = false; gate.unlock()
+            idle.lock(); agentCalls -= 1; idle.broadcast(); idle.unlock()
+        }
+        // Do not hold the wrapper gate while native revocation waits for admission.
+        // Revoke BEFORE cancel closes the pre-execution cancellation gap.
+        if let approval { var token = approval.token; _ = pixaura_editor_agent_revoke(1, context, &token) }
+        try cancelAgentExecution()
+    }
 #if DEBUG
+    public func reviewTestControl(_ command: UInt32, _ point: UInt32 = 0) -> Int32 {
+        gate.lock(); defer { gate.unlock() }; return destroyed ? -1 : agentPlatformControl(context, command, point)
+    }
     public func autoTestControl(_ command: UInt32, _ value: UInt32 = 0) -> Int32 {
         gate.lock(); defer { gate.unlock() }; return destroyed ? -1 : PixAuraCoreAutoControl(context, command, value)
     }

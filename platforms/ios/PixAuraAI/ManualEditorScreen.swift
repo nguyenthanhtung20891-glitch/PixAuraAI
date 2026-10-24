@@ -91,7 +91,7 @@ struct ManualEditorScreen: View {
         return GroupBox {
             VStack(alignment: .leading, spacing: 8) {
                 Text("AI Auto-Edit").font(.headline)
-                Text("Prepare a proposal only. Local reference planning does not analyze your image. Nothing is applied.").font(.caption)
+                Text("Local reference planning does not analyze your image. Review exact actions, then choose Apply yourself.").font(.caption)
                 Menu {
                     ForEach(state.choices, id: \.index) { option in
                         if model.tools.indices.contains(option.toolIndex) {
@@ -112,19 +112,33 @@ struct ManualEditorScreen: View {
                 }
                 if let proposal = state.proposal {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Proposal ready").font(.headline)
-                        Text("\(proposal.actions.count) planned action(s). Not approved. Nothing has been applied.")
+                        Text(state.status == .reviewReady ? "Ready for human approval" : "Reviewed plan").font(.headline)
+                        Text("\(proposal.actions.count) planned action(s). " + (state.status == .reviewReady ? "Human approval required; proposal creation applied nothing." : "Awaiting the authoritative native publication result."))
                         ForEach(proposal.actions, id: \.index) { action in
                             if model.tools.indices.contains(action.toolIndex) {
                                 let descriptor = model.tools[action.toolIndex]
                                 Text("\(action.index + 1). \(descriptor.name): \(adviceSetting(descriptor, action.values))")
+                                Text(zip(descriptor.parameters, action.values).map { parameter, value in "\(parameter.name) = \(value) (\(parameter.unit))" }.joined(separator: "; "))
+                                    .accessibilityIdentifier("auto-exact-values-\(action.index)")
                             }
                         }
-                        Text("Review and approval controls are not available yet.").font(.caption)
-                        Button("Dismiss proposal") { model.dismissAuto() }.accessibilityIdentifier("auto-dismiss")
+                        if let review = state.review {
+                            Text("Reviewed source: \(review.sourceRevision.prefix(8)). Apply rechecks the current source.").accessibilityIdentifier("auto-source")
+                            Button("Apply reviewed plan") { model.applyAutoFromHuman(review) }
+                                .disabled(state.inFlight || state.status != .reviewReady).accessibilityIdentifier("auto-apply")
+                                .accessibilityHint("Explicit human approval for this exact reviewed plan")
+                        }
+                        Button("Reject proposal") { model.dismissAuto() }.disabled(state.inFlight).accessibilityIdentifier("auto-dismiss")
                     }.accessibilityElement(children: .contain).accessibilityIdentifier("auto-ready")
                 }
                 if state.status == .rejected { Text("Proposal dismissed. Nothing was applied.").accessibilityIdentifier("auto-rejected") }
+                if state.status == .approving || state.status == .executing {
+                    ProgressView("Approving and applying through the editing engine…").accessibilityIdentifier("auto-applying")
+                    Button("Cancel execution") { model.cancelAuto() }.disabled(state.cancelRequested).accessibilityIdentifier("auto-execution-cancel")
+                }
+                if state.status == .completed, let receipt = state.receipt {
+                    Text("Edit applied. Ordinary revision \(receipt.resultingRevision.prefix(8)). Undo is available in Manual.").accessibilityIdentifier("auto-completed")
+                }
                 if state.status == .cancelled { Text("Proposal cancelled. Nothing was applied.").accessibilityIdentifier("auto-cancelled") }
                 if state.status == .stale { Text("Proposal expired after an editing change.").accessibilityIdentifier("auto-stale") }
                 if let error = state.error { Text(error).accessibilityIdentifier("auto-error") }

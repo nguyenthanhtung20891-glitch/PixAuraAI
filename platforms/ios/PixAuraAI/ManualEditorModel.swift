@@ -4,13 +4,16 @@ import CoreGraphics
 import PixAuraCore
 
 enum AssistStatus { case idle, requesting, proposalAvailable, failed, stale, cancelled, rejected }
-enum AutoStatus { case idle, requesting, proposalReceived, validating, reviewReady, stale, cancelled, failed, rejected }
+enum AutoStatus { case idle, requesting, proposalReceived, validating, reviewReady, approving, executing, completed, stale, cancelled, failed, rejected }
 struct AutoUiState {
     var enabled = false, inFlight = false
     var status: AutoStatus = .idle
     var choices: [ManualEditor.AssistChoice] = []
     var selected = -1
     var proposal: ManualEditor.AutoProposal?
+    var review: ManualEditor.AutoReview?
+    var receipt: ManualEditor.AgentReceipt?
+    var cancelRequested = false
     var error: String?
 }
 struct AssistUiState {
@@ -72,6 +75,8 @@ private final class EditorWorker {
     private var assistWorking = false
     private var cancellingAdvice = false
     private var cancellingAuto = false
+    private var activeAutoReview: (ManualEditor, ManualEditor.AutoReview)?
+    private var latestEpoch: UInt64 = 0
     private let lock = NSLock()
     private var owner: ManualEditor?
     private var latestValues: (String, [Int32], UInt64)?
@@ -89,7 +94,7 @@ private final class EditorWorker {
         DispatchQueue.main.async { self.refresh?(epoch, editor, state, image, error) }
     }
     func send(_ epoch: UInt64, _ work: @escaping (EditorWorker) throws -> Void) {
-        commands.async { do { try work(self); self.emit(epoch) } catch { self.emit(epoch, error.localizedDescription) } }
+        commands.async { self.latestEpoch = epoch; do { try work(self); self.emit(epoch) } catch { self.emit(epoch, error.localizedDescription) } }
     }
     private func projectRoot() throws -> URL {
         let base = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
@@ -128,6 +133,7 @@ private final class EditorWorker {
     func close() {
         clearPending()
         #if DEBUG
+        if let active = activeAutoReview { try? active.0.cancelAutoReview(active.1); _ = active.0.reviewTestControl(2) }
         if ProcessInfo.processInfo.arguments.contains("--auto-test-pause") { try? owner?.cancelAuto(); _ = owner?.autoTestControl(2) }
         if ProcessInfo.processInfo.arguments.contains("--assist-test-pause") {
             try? owner?.cancelAdvice(); _ = owner?.adviceTestControl(2)
@@ -179,16 +185,51 @@ private final class EditorWorker {
         }
     }
     func cancelAuto() {
+        if autoProposal.status == .completed { return }
         lock.lock(); if cancellingAuto { lock.unlock(); return }; cancellingAuto = true; lock.unlock()
         commands.async {
+            if let active = self.activeAutoReview { try? active.0.cancelAutoReview(active.1) }
             try? self.owner?.cancelAuto()
             #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("--review-test-pause") { _ = self.owner?.reviewTestControl(2) }
             if ProcessInfo.processInfo.arguments.contains("--auto-test-pause") { _ = self.owner?.autoTestControl(2) }
             #endif
             self.lock.lock(); self.cancellingAuto = false; self.lock.unlock()
         }
     }
-    func requestAuto(_ index: Int, completion: @escaping @MainActor (Result<ManualEditor.AutoProposal, Error>) -> Void) {
+    func applyAutoFromHuman(_ review: ManualEditor.AutoReview, epoch: UInt64,
+        onExecuting: @escaping @MainActor () -> Void,
+        completion: @escaping @MainActor (Result<ManualEditor.AgentReceipt, Error>) -> Void) {
+        lock.lock()
+        if assistWorking { lock.unlock(); DispatchQueue.main.async { completion(.failure(ManualEditorFailure(status: 8, boundary: "Auto Apply"))) }; return }
+        assistWorking = true; lock.unlock()
+        commands.async {
+            self.latestEpoch = epoch
+            guard let editor = self.owner else {
+                self.lock.lock(); self.assistWorking = false; self.lock.unlock()
+                DispatchQueue.main.async { completion(.failure(ManualEditorFailure(status: 13, boundary: "Auto Apply"))) }; return
+            }
+            self.activeAutoReview = (editor, review)
+            #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("--review-test-pause") { _ = editor.reviewTestControl(0, 1) }
+            #endif
+            self.advising.async {
+                let result = Result { try editor.applyAutoFromHuman(review) {
+                    DispatchQueue.main.async { onExecuting() }
+                    #if DEBUG
+                    if ProcessInfo.processInfo.arguments.contains("--review-test-failure") { try? editor.cancelAutoReview(review) }
+                    #endif
+                } }
+                self.commands.async {
+                    self.activeAutoReview = nil
+                    if self.owner === editor { try? self.preview(); self.emit(self.latestEpoch) }
+                    self.lock.lock(); self.assistWorking = false; self.lock.unlock()
+                    DispatchQueue.main.async { completion(result) }
+                }
+            }
+        }
+    }
+    func requestAuto(_ index: Int, completion: @escaping @MainActor (Result<(ManualEditor.AutoProposal, ManualEditor.AutoReview), Error>) -> Void) {
         lock.lock(); if assistWorking { lock.unlock(); DispatchQueue.main.async { completion(.failure(ManualEditorFailure(status: 8, boundary: "Auto proposal"))) }; return }
         assistWorking = true; lock.unlock()
         commands.async {
@@ -203,9 +244,9 @@ private final class EditorWorker {
             self.advising.async {
                 let result = Result { try editor.requestAuto(index) }
                 self.commands.async {
-                    let checked: Result<ManualEditor.AutoProposal, Error> = Result {
+                    let checked: Result<(ManualEditor.AutoProposal, ManualEditor.AutoReview), Error> = Result {
                         guard self.owner === editor else { throw ManualEditorFailure(status: 9, boundary: "Auto proposal") }
-                        let proposal = try result.get(); _ = try editor.inspectAuto(proposal); return proposal
+                        let proposal = try result.get(); return (proposal, try editor.prepareAutoReview(proposal))
                     }
                     self.lock.lock(); self.assistWorking = false; self.lock.unlock()
                     DispatchQueue.main.async { completion(checked) }
@@ -390,7 +431,7 @@ final class ManualEditorModel: ObservableObject {
     }
     private func invalidateAuto(_ reason: AutoStatus = .stale) {
         _ = nextAutoEpoch(); let hadWork = autoProposal.proposal != nil || autoProposal.inFlight
-        autoProposal.proposal = nil; autoProposal.error = nil
+        autoProposal.proposal = nil; autoProposal.review = nil; autoProposal.receipt = nil; autoProposal.error = nil; autoProposal.cancelRequested = false
         autoProposal.status = autoProposal.enabled && hadWork ? reason : .idle
         if hadWork { worker.cancelAuto() }
     }
@@ -418,25 +459,57 @@ final class ManualEditorModel: ObservableObject {
         case 8: autoProposal.status = .failed; autoProposal.error = "Provider busy or resources limited. Manual editing is available."
         default: autoProposal.status = .failed; autoProposal.error = "Proposal could not be validated. Nothing was applied."
         }
-        autoProposal.proposal = nil
+        autoProposal.proposal = nil; autoProposal.review = nil
     }
     func requestAuto() {
         guard autoProposal.enabled, !autoProposal.inFlight, autoProposal.choices.indices.contains(autoProposal.selected), let stamp = nextAutoEpoch() else { return }
-        autoProposal.inFlight = true; autoProposal.status = .requesting; autoProposal.proposal = nil; autoProposal.error = nil
+        autoProposal.inFlight = true; autoProposal.status = .requesting; autoProposal.proposal = nil; autoProposal.review = nil; autoProposal.receipt = nil; autoProposal.error = nil
         worker.requestAuto(autoProposal.choices[autoProposal.selected].index) { [weak self] result in
             guard let self else { return }; self.autoProposal.inFlight = false
             guard self.autoEpoch == stamp, self.autoProposal.enabled else { return }
             switch result {
-            case .success(let proposal):
+            case .success(let (proposal, review)):
                 self.autoProposal.status = .proposalReceived
                 self.autoProposal.status = .validating // native current/Plan inspection completed in worker
-                self.autoProposal.proposal = proposal; self.autoProposal.status = .reviewReady
+                self.autoProposal.proposal = proposal; self.autoProposal.review = review; self.autoProposal.status = .reviewReady
             case .failure(let error): self.autoFailure(error)
             }
         }
     }
-    func cancelAuto() { invalidateAuto(.cancelled); autoProposal.status = autoProposal.enabled ? .cancelled : .idle }
-    func dismissAuto() { invalidateAuto(.rejected); autoProposal.status = autoProposal.enabled ? .rejected : .idle }
+    func applyAutoFromHuman(_ review: ManualEditor.AutoReview) {
+        guard autoProposal.enabled, autoProposal.status == .reviewReady, !autoProposal.inFlight, autoProposal.review === review, let stamp = nextAutoEpoch() else { return }
+        autoProposal.status = .approving; autoProposal.inFlight = true; autoProposal.error = nil; autoProposal.cancelRequested = false
+        epoch += 1
+        worker.applyAutoFromHuman(review, epoch: epoch, onExecuting: { [weak self] in
+            guard let self, self.autoEpoch == stamp, self.autoProposal.enabled else { return }; self.autoProposal.status = .executing
+        }) { [weak self] result in
+            guard let self else { return }; self.autoProposal.inFlight = false
+            guard self.autoEpoch == stamp, self.autoProposal.enabled else { return }
+            self.autoProposal.proposal = nil; self.autoProposal.review = nil
+            switch result {
+            case .success(let receipt): self.autoProposal.receipt = receipt; self.autoProposal.status = .completed; self.autoProposal.error = nil
+            case .failure(let error):
+                if self.autoProposal.cancelRequested && [13, 15].contains((error as? ManualEditorFailure)?.status ?? 14) {
+                    self.autoProposal.status = .cancelled; self.autoProposal.error = "Execution cancelled before publication."
+                } else {
+                    self.autoFailure(error)
+                    if ![3, 9, 13].contains((error as? ManualEditorFailure)?.status ?? 14) { self.autoProposal.error = "Execution did not report completion. Check history before requesting a fresh proposal." }
+                }
+            }
+        }
+    }
+    func cancelAuto() {
+        if autoProposal.status == .approving || autoProposal.status == .executing {
+            guard !autoProposal.cancelRequested else { return }; autoProposal.cancelRequested = true
+            autoProposal.error = "Cancellation requested; awaiting the native publication result."; worker.cancelAuto(); return
+        }
+        invalidateAuto(.cancelled); autoProposal.status = autoProposal.enabled ? .cancelled : .idle
+    }
+    func dismissAuto() {
+        if autoProposal.status == .completed { return }
+        if autoProposal.status == .approving || autoProposal.status == .executing { cancelAuto(); return }
+        invalidateAuto(.rejected); autoProposal.status = autoProposal.enabled ? .rejected : .idle
+    }
     func reopen() { send { try $0.reopen() } }
     func recover() { invalidateAdvice(); send { $0.close(); try $0.reopen() } }
     func importImage(_ input: URL) { invalidateAdvice(); send { try $0.importImage(input) } }

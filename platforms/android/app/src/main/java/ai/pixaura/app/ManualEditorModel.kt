@@ -30,10 +30,11 @@ data class AssistUiState(val enabled: Boolean = false, val status: AssistStatus 
     val choices: List<ManualEditor.AssistChoice> = emptyList(), val selected: Int = -1,
     val advice: ManualEditor.AssistAdvice? = null, val inFlight: Boolean = false,
     val error: String? = null, val notice: String? = null)
-enum class AutoStatus { IDLE, REQUESTING, PROPOSAL_RECEIVED, VALIDATING, REVIEW_READY, STALE, CANCELLED, FAILED, REJECTED }
+enum class AutoStatus { IDLE, REQUESTING, PROPOSAL_RECEIVED, VALIDATING, REVIEW_READY, APPROVING, EXECUTING, COMPLETED, STALE, CANCELLED, FAILED, REJECTED }
 data class AutoUiState(val enabled: Boolean = false, val status: AutoStatus = AutoStatus.IDLE,
     val choices: List<ManualEditor.AssistChoice> = emptyList(), val selected: Int = -1,
-    val proposal: ManualEditor.AutoProposal? = null, val inFlight: Boolean = false, val error: String? = null)
+    val proposal: ManualEditor.AutoProposal? = null, val inFlight: Boolean = false, val error: String? = null,
+    val review: ManualEditor.AutoReview? = null, val receipt: ManualEditor.AgentReceipt? = null, val cancelRequested: Boolean = false)
 
 /** Two fixed lanes, one coalesced input and one coalesced preview request.
  * Native lifecycle/history is authoritative; no platform operation/history model.
@@ -49,6 +50,9 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     val autoProposal = autoMutable.asStateFlow()
     private val autoEpoch = AtomicLong(0)
     private val autoActive = AtomicBoolean(false)
+    private val autoApplying = AtomicBoolean(false)
+    private val activeApplication = AtomicReference<Pair<ManualEditor, ManualEditor.AutoReview>?>(null)
+    private val cancellingApplication = AtomicBoolean(false)
     private val autoChoicesLoading = AtomicBoolean(false)
     private val autoCancelling = AtomicBoolean(false)
     private val assistEpoch = AtomicLong(0)
@@ -232,10 +236,18 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     }
     private fun invalidateAuto(reason: AutoStatus = AutoStatus.STALE) {
         nextAutoEpoch(); val hadWork = autoMutable.value.proposal != null || autoActive.get()
-        autoMutable.update { it.copy(proposal = null, error = null, status = if (it.enabled && hadWork) reason else AutoStatus.IDLE) }
+        activeApplication.get()?.let { cancelApplication(it) }
+        autoMutable.update { it.copy(proposal = null, review = null, receipt = null, error = null, cancelRequested = false, status = if (it.enabled && hadWork) reason else AutoStatus.IDLE) }
         if (hadWork && !disposed.get() && autoCancelling.compareAndSet(false, true)) commands.execute {
             try { owner?.cancelAuto() } catch (_: Throwable) { /* no editing authority */ }
             finally { autoCancelling.set(false) }
+        }
+    }
+    private fun cancelApplication(call: Pair<ManualEditor, ManualEditor.AutoReview>) {
+        if (disposed.get() || !cancellingApplication.compareAndSet(false, true)) return
+        commands.execute {
+            try { call.first.cancelAutoReview(call.second) } catch (_: Throwable) { }
+            finally { cancellingApplication.set(false) }
         }
     }
     fun setAutoMode(enabled: Boolean) {
@@ -264,7 +276,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
             8 -> "Provider busy or resources limited. Manual editing is available."
             else -> "Proposal could not be validated. Nothing was applied."
         }
-        autoMutable.update { it.copy(status = state, error = text, proposal = null) }
+        autoMutable.update { it.copy(status = state, error = text, proposal = null, review = null) }
     }
     fun requestAuto() {
         val ui = autoMutable.value
@@ -273,7 +285,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         autoActive.set(true)
         val editor = owner; val stamp = nextAutoEpoch()
         if (editor == null || stamp == null) { autoActive.set(false); providerActive.set(false); return }
-        autoMutable.update { it.copy(status = AutoStatus.REQUESTING, proposal = null, error = null, inFlight = true) }
+        autoMutable.update { it.copy(status = AutoStatus.REQUESTING, proposal = null, review = null, receipt = null, error = null, inFlight = true) }
         advising.execute {
             try {
                 val proposal = editor.requestAuto(ui.choices[ui.selected].index)
@@ -282,8 +294,8 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
                         autoMutable.update { it.copy(status = AutoStatus.PROPOSAL_RECEIVED) }
                         try {
                             autoMutable.update { it.copy(status = AutoStatus.VALIDATING) }
-                            editor.inspectAuto(proposal) // native freshness + canonical Plan inspection only
-                            autoMutable.update { it.copy(status = AutoStatus.REVIEW_READY, proposal = proposal) }
+                            val review = editor.prepareAutoReview(proposal) // native freshness + exact Phase 6 validation; no approval
+                            autoMutable.update { it.copy(status = AutoStatus.REVIEW_READY, proposal = proposal, review = review, receipt = null, cancelRequested = false) }
                         } catch (failure: Throwable) { autoFailure(failure) }
                     }
                 }
@@ -294,8 +306,50 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
             } finally { autoActive.set(false); providerActive.set(false); autoMutable.update { it.copy(inFlight = false) } }
         }
     }
-    fun cancelAuto() { invalidateAuto(AutoStatus.CANCELLED); autoMutable.update { it.copy(status = if (it.enabled) AutoStatus.CANCELLED else AutoStatus.IDLE) } }
-    fun dismissAuto() { invalidateAuto(AutoStatus.REJECTED); autoMutable.update { it.copy(status = if (it.enabled) AutoStatus.REJECTED else AutoStatus.IDLE) } }
+    fun applyAutoFromHuman(review: ManualEditor.AutoReview) {
+        val ui = autoMutable.value
+        if (disposed.get() || !ui.enabled || ui.status != AutoStatus.REVIEW_READY || ui.review !== review || ui.inFlight || !autoApplying.compareAndSet(false, true)) return
+        if (!providerActive.compareAndSet(false, true)) { autoApplying.set(false); return }
+        val editor = owner; val stamp = nextAutoEpoch()
+        if (editor == null || stamp == null) { autoApplying.set(false); providerActive.set(false); return }
+        val call = editor to review; activeApplication.set(call)
+        autoMutable.update { it.copy(status = AutoStatus.APPROVING, inFlight = true, error = null, cancelRequested = false) }
+        advising.execute {
+            val result = runCatching { editor.applyAutoFromHuman(review) {
+                if (!disposed.get() && autoEpoch.get() == stamp) autoMutable.update { it.copy(status = AutoStatus.EXECUTING) }
+            } }
+            if (!disposed.get()) commands.execute {
+                // Refresh ordinary history even when the user left Auto. Native
+                // publication may have won cancellation; never undo it implicitly.
+                if (owner === editor) { try { preview(); refresh() } catch (failure: Throwable) { refresh(message(failure)) } }
+                if (!disposed.get() && owner === editor && autoEpoch.get() == stamp && autoMutable.value.enabled) {
+                    result.fold(onSuccess = { receipt -> autoMutable.update { it.copy(status = AutoStatus.COMPLETED, receipt = receipt, proposal = null, review = null, error = null) } },
+                        onFailure = { failure ->
+                            if (autoMutable.value.cancelRequested && (failure as? EditorFailure)?.status in listOf(13, 15))
+                                autoMutable.update { it.copy(status = AutoStatus.CANCELLED, proposal = null, review = null, error = "Execution cancelled before publication.") }
+                            else {
+                                autoFailure(failure)
+                                if ((failure as? EditorFailure)?.status !in listOf(3, 9, 13)) autoMutable.update { it.copy(error = "Execution did not report completion. Check history before requesting a fresh proposal.") }
+                            }
+                        })
+                }
+                activeApplication.compareAndSet(call, null); autoApplying.set(false); providerActive.set(false)
+                autoMutable.update { it.copy(inFlight = false, review = if (it.status == AutoStatus.REVIEW_READY) it.review else null) }
+            } else { activeApplication.compareAndSet(call, null); autoApplying.set(false); providerActive.set(false) }
+        }
+    }
+    fun cancelAuto() {
+        if (autoMutable.value.status == AutoStatus.COMPLETED) return
+        val call = activeApplication.get()
+        if (call != null) {
+            if (autoMutable.value.cancelRequested) return
+            autoMutable.update { it.copy(cancelRequested = true, error = "Cancellation requested; awaiting the native publication result.") }
+            cancelApplication(call)
+            return
+        }
+        invalidateAuto(AutoStatus.CANCELLED); autoMutable.update { it.copy(status = if (it.enabled) AutoStatus.CANCELLED else AutoStatus.IDLE) }
+    }
+    fun dismissAuto() { if (autoMutable.value.status == AutoStatus.COMPLETED) return; if (autoApplying.get()) { cancelAuto(); return }; invalidateAuto(AutoStatus.REJECTED); autoMutable.update { it.copy(status = if (it.enabled) AutoStatus.REJECTED else AutoStatus.IDLE) } }
     private fun command(block: () -> Unit) {
         if (disposed.get()) return
         mutable.value = mutable.value.copy(busy = true, error = null)

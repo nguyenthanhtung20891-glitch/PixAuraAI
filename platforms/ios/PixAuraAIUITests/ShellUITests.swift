@@ -1,6 +1,46 @@
 import XCTest
 
 final class ShellUITests: XCTestCase {
+    func testReviewHumanApplyOneOrdinaryRevisionAndManualUndoRedo() {
+        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
+        func tap(_ id: String) {
+            let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
+            let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
+            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+        }
+        func revisions(_ count: Int) { XCTAssertTrue(app.staticTexts["Committed revisions: \(count)"].waitForExistence(timeout: 20)) }
+        tap("Open Manual editor"); revisions(1)
+        tap("Tone/Color"); tap("pixaura.exposure"); app.sliders["manual-slider"].adjust(toNormalizedSliderPosition: 0.55); tap("Apply"); revisions(2)
+        tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request")
+        tap("auto-dismiss"); revisions(2); tap("auto-request")
+        XCTAssertTrue(app.staticTexts["auto-exact-values-0"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.staticTexts["auto-exact-values-0"].label.contains("milli_ev = 500"))
+        XCTAssertTrue(app.staticTexts["auto-source"].exists)
+        tap("auto-apply"); XCTAssertTrue(app.staticTexts["auto-completed"].waitForExistence(timeout: 20)); revisions(3)
+        XCTAssertFalse(app.buttons["auto-apply"].exists)
+        tap("mode-manual"); tap("Undo"); tap("Redo"); revisions(3)
+        tap("pixaura.exposure"); app.sliders["manual-slider"].adjust(toNormalizedSliderPosition: 0.6); tap("Apply"); revisions(4)
+    }
+    func testReviewCancelModeDepartureAndFailurePreserveManualEditing() {
+        for flag in ["--review-test-pause", "--review-test-failure"] {
+            let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image", flag]; app.launch()
+            func tap(_ id: String) {
+                let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
+                let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
+                guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+            }
+            tap("Open Manual editor"); XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
+            tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request"); tap("auto-apply")
+            if flag == "--review-test-pause" {
+                tap("auto-execution-cancel"); XCTAssertTrue(app.staticTexts["auto-cancelled"].waitForExistence(timeout: 20))
+                tap("auto-request"); tap("auto-apply"); tap("mode-manual"); tap("mode-auto")
+                XCTAssertFalse(app.staticTexts["auto-completed"].exists); XCTAssertFalse(app.buttons["auto-apply"].exists)
+            } else { XCTAssertTrue(app.staticTexts["auto-error"].waitForExistence(timeout: 20)); XCTAssertFalse(app.staticTexts["auto-completed"].exists) }
+            XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
+            tap("mode-manual"); tap("Tone/Color"); tap("pixaura.exposure"); app.sliders["manual-slider"].adjust(toNormalizedSliderPosition: 0.6); tap("Apply")
+            XCTAssertTrue(app.staticTexts["Committed revisions: 2"].waitForExistence(timeout: 20)); app.terminate()
+        }
+    }
     func testAutoProposalIsReadOnlyAndModeAbandonmentDoesNotRestoreIt() {
         let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
         func tap(_ id: String) {

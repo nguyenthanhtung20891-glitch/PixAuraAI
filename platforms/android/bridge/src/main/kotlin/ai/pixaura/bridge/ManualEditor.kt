@@ -32,6 +32,10 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     private var active = 0
     private var agentCalls = 0
     private var assistCalls = 0
+    private var applyingReview: AutoReview? = null
+    private var applyingApproval: AgentApproval? = null
+    private var cancellingReview = false
+    private var attemptedAutoSerial: Long? = null
     private var stopped = false
     private var destroyed = false
     private var displayed: Bitmap? = null
@@ -122,6 +126,12 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
         val planSHA256: String get() = text(16, 64)
         val sourceRevision: String get() = text(80, 32)
         val resultingRevision: String get() = text(112, 32)
+        internal fun validate() {
+            val b = buffer.duplicate().order(ByteOrder.nativeOrder())
+            if (b.getInt(0) != 1 || b.getInt(4) != 144 || b.getInt(8) != 1 || b.getInt(12) != 0 ||
+                listOf(planSHA256, sourceRevision, resultingRevision).any { s -> s.any { it !in '0'..'9' && it !in 'a'..'f' } } || sourceRevision == resultingRevision)
+                throw EditorFailure(14, "Agent receipt")
+        }
     }
     private fun agentBytes(mode: Int, input: ByteArray?): ByteArray = gate.withLock {
         checked(if (closed) 13 else 0, "Agent")
@@ -163,6 +173,7 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
         }
         try {
             checked(nativeAgentExecute(storage, bytes, approval?.token, result.buffer), "Agent execution")
+            result.validate()
             gate.withLock { requestedGeneration = 0 }
             return result
         } finally { gate.withLock { agentCalls--; idle.signalAll() } }
@@ -186,7 +197,7 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     }
     fun requestAdvice(index: Int): AssistAdvice {
         val packet = ByteBuffer.allocateDirect(nativeAssistSize())
-        gate.withLock { checked(if (closed) 13 else if (assistCalls != 0) 8 else 0, "Advice"); assistCalls++ }
+        gate.withLock { checked(if (closed) 13 else if (assistCalls != 0 || applyingReview != null || cancellingReview) 8 else 0, "Advice"); assistCalls++ }
         try {
             checked(nativeAssistRequest(storage, index, packet), "Advice")
             return AssistAdvice(this, packet.asReadOnlyBuffer(), assistChoice(packet))
@@ -201,7 +212,7 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
         val actions: List<AssistChoice>, val proposalId: String, val providerId: String)
     fun requestAuto(index: Int): AutoProposal {
         val packet = ByteBuffer.allocateDirect(nativeAutoSize()).order(ByteOrder.nativeOrder())
-        gate.withLock { checked(if (closed) 13 else if (assistCalls != 0) 8 else 0, "Auto proposal"); assistCalls++ }
+        gate.withLock { checked(if (closed) 13 else if (assistCalls != 0 || applyingReview != null || cancellingReview) 8 else 0, "Auto proposal"); assistCalls++ }
         try {
             checked(nativeAutoRequest(storage, index, packet), "Auto proposal")
             val count = packet.getInt(8)
@@ -220,6 +231,58 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
         ByteArray(size).also { bytes.get(it) }
     }
     fun cancelAuto() = gate.withLock { checked(if (closed) 13 else nativeAutoCancel(storage), "Auto proposal") }
+    /** Presentation owns this immutable reviewed plan, never an approval token. */
+    class AutoReview internal constructor(internal val owner: ManualEditor, internal val proposal: AutoProposal,
+        internal val plan: AgentPlan, val sourceRevision: String) {
+        internal var attempted = false
+        internal var abandoned = false
+        fun canonicalBytes(): ByteArray = plan.canonicalBytes()
+    }
+    fun prepareAutoReview(proposal: AutoProposal): AutoReview = gate.withLock {
+        checked(if (closed) 13 else if (proposal.owner !== this) 9 else 0, "Auto review")
+        checked(if (applyingReview != null || cancellingReview) 8 else 0, "Auto review")
+        checked(if (proposal.packet.duplicate().order(ByteOrder.nativeOrder()).getLong(56) == attemptedAutoSerial) 15 else 0, "Auto review")
+        val plan = validateAgentPlan(inspectAuto(proposal))
+        AutoReview(this, proposal, plan, state().revisionId)
+    }
+    /** ONLY the explicit review Apply action may invoke this trusted boundary. */
+    fun applyAutoFromHuman(review: AutoReview, onExecuting: () -> Unit = {}): AgentReceipt {
+        val approval = gate.withLock {
+            checked(if (closed) 13 else if (review.owner !== this) 9 else if (review.attempted || review.abandoned) 15
+                else if (applyingReview != null || cancellingReview || assistCalls != 0) 8 else 0, "Auto Apply")
+            checked(if (inspectAuto(review.proposal).contentEquals(review.plan.canonicalBytes())) 0 else 9, "Auto review")
+            checked(if (validateAgentPlan(review.plan.canonicalBytes()).canonicalBytes().contentEquals(review.plan.canonicalBytes())) 0 else 9, "Auto review")
+            checked(if (attemptedAutoSerial == review.proposal.packet.duplicate().order(ByteOrder.nativeOrder()).getLong(56)) 15 else 0, "Auto Apply")
+            review.attempted = true; attemptedAutoSerial = review.proposal.packet.duplicate().order(ByteOrder.nativeOrder()).getLong(56)
+            val issued = approveAgentPlanFromHuman(review.plan); applyingApproval = issued
+            applyingReview = review; agentCalls++ // includes approval cleanup and callback; close must join all of it
+            issued
+        }
+        try {
+            onExecuting() // notification only, never an approval issuer
+            val receipt = executeAgentPlan(review.plan, approval)
+            checked(if (receipt.sourceRevision == review.sourceRevision) 0 else 14, "Auto receipt")
+            return receipt
+        } finally { gate.withLock {
+            try { approval.close() } finally {
+                applyingApproval = null; applyingReview = null; agentCalls--; idle.signalAll()
+            }
+        } }
+    }
+    fun cancelAutoReview(review: AutoReview) {
+        val approval = gate.withLock {
+            checked(if (closed) 13 else if (review.owner !== this) 9 else 0, "Auto cancellation")
+            review.abandoned = true
+            if (applyingReview !== review || cancellingReview) return
+            cancellingReview = true; agentCalls++; applyingApproval
+        }
+        try {
+            // Revoke first closes the gap before execute admission; cancel then
+            // fences an execution that already consumed approval. No retry.
+            if (approval != null) nativeAgentTerminal(storage, approval.token, false)
+            cancelAgentExecution()
+        } finally { gate.withLock { cancellingReview = false; agentCalls--; idle.signalAll() } }
+    }
     override fun close() = gate.withLock {
         closed = true
         if (!stopped) { checked(nativeStop(storage), "Close"); stopped = true }

@@ -1,5 +1,38 @@
 # Quality gates and promotion policy
 
+<!-- phase7-step5-current-authority -->
+## Phase 7 Step 5 - current authority
+
+Phase 6 CLOSED / COMPLETE / FULL PASS. Phase 7 AUTHORIZED / IN PROGRESS.
+Step 1 COMPLETE / FULL PASS. Step 2 COMPLETE / FULL PASS. Step 3 COMPLETE / FULL PASS.
+Step 4 COMPLETE / FULL PASS at `8c185389fddad8b59df202b2f7776e10a46271b0`.
+Foundation 40088844044 SUCCESS 7/7; Native application shells 40088844028 SUCCESS
+3/3, completed exact SHA, attempt 1, every required job individually SUCCESS.
+Step 5 AUTHORIZED / IN PROGRESS.
+Exact-SHA certification pending; no unobserved job is PASS.
+Explicit HUMAN Apply of the exact immutable reviewed Plan -> existing native
+approval/binding -> existing private candidate/execution -> authoritative receipt
+-> one ordinary non-destructive revision/shared history. No automatic approval.
+Provider has no approval/candidate/execution capability. Android/Apple adapt the
+same Phase 6 authority; no new C ABI, executor, history class or approval version.
+Review is ephemeral, source/context bound, one-shot; cancel revokes unused approval
+then signals existing cancellation/publication fencing. No retry/replan/reapproval.
+Manual first-class; AI Assist and navigation-only Use suggestion unchanged.
+Intent/Structured Intent/Plan/Registry/Envelope/Provider/reference planner,
+Auto Proposal v1, approval/candidate, Schema 3 and Phase 5 trust unchanged.
+Production model UNRESOLVED. CPU VALIDATED; Vulkan/Metal UNKNOWN.
+No model/runtime/weights/NLP/cloud/network AI. Local-first.
+DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+Phase 7 Steps 6-8 NOT STARTED. Phase 8 NOT STARTED. No Step 9.
+Both full implementation-SHA and separate closure-SHA workflows required,
+every required job completed/SUCCESS. Full retained source/native/platform,
+active ASan/UBSan, release isolation, workflow lint and diff gates required.
+STOP after Step 5. Do not implement Step 6.
+See docs/contracts/ai-auto-edit-review-approval-v1.md and docs/reports/phase-7-step-5.md.
+<!-- phase7-step5-history -->
+
+Earlier authority below is historical at its certified freeze time.
+
 <!-- phase7-step4-current-authority -->
 ## Phase 7 Step 4 - current authority
 
