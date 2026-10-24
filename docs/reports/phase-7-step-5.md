@@ -174,3 +174,24 @@ The added recreation test justifies repeating the complete emulator suite.
 - `ROADMAP.md`
 - `scripts/check-model-release.mjs`
 - `tests/agent-execution.test.mjs`
+
+## Initial exact-SHA certification and remediation
+
+Initial implementation 9e5cc52cbbd0a377a0ce7cebfa5799656ff355b4 is NOT certified.
+Foundation run 40113664062 / Native shells run 40113664073 were attempt 1.
+GitHub run/job inspection intermittently returned HTTP 502/504. Attempt-specific
+bounded API queries recovered job data; those are observations, not workflow
+reruns. Foundation workflow-lint was recorded cancelled, with no steps in its job
+record and annotation: "The job has exceeded the maximum execution time of 5m0s".
+No proof of a repository lint error was available; local actionlint passed. The
+workflow budget and every required gate remain unchanged.
+
+The iOS job 120930390449 had an independent deterministic app compilation error:
+ManualEditorModel.swift:188 could not find autoProposal in scope. The completion
+guard for late cancellation had been inserted into EditorWorker.cancelAuto
+instead of the MainActor ManualEditorModel.cancelAuto. Move the guard to its actual
+UI state owner. A source ownership guard now prohibits the worker from reading
+published autoProposal state and verifies completion protection in the UI model.
+No native authority, approval, candidate, data schema, ABI or test expectation
+changes. The new remediation SHA requires both complete workflows afresh; no
+successful job from the initial SHA substitutes for that certification.

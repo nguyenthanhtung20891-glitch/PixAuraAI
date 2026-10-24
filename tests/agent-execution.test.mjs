@@ -25,6 +25,9 @@ test('Phase 7 Step 5 review uses only explicit human Apply and retained native a
   assert.doesNotMatch(s,/approveAgentPlanFromHuman|pixaura_editor_agent_approve|for.*executeAgentPlan/);
  }
  for(const marker of ['reviewTestControl','review-test-pause','review-test-failure'])assert.ok(read('scripts/check-model-release.mjs').includes(marker));
+ const appleModel=read('platforms/ios/PixAuraAI/ManualEditorModel.swift').split('@MainActor\nfinal class ManualEditorModel:');assert.equal(appleModel.length,2);
+ assert.doesNotMatch(appleModel[0],/\bautoProposal\b/,'worker must not own/read published UI interaction state');
+ assert.ok(appleModel[1].includes('func cancelAuto() {\n        if autoProposal.status == .completed { return }'));
  const contract=read('docs/contracts/ai-auto-edit-review-approval-v1.md');for(const marker of ['No new public C ABI','Revoke','COMPLETED','Schema 3','Phase 8 NOT STARTED','No automatic'])assert.ok(contract.toLowerCase().includes(marker.toLowerCase()),marker);
 });
 

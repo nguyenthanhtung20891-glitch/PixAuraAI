@@ -185,7 +185,6 @@ private final class EditorWorker {
         }
     }
     func cancelAuto() {
-        if autoProposal.status == .completed { return }
         lock.lock(); if cancellingAuto { lock.unlock(); return }; cancellingAuto = true; lock.unlock()
         commands.async {
             if let active = self.activeAutoReview { try? active.0.cancelAutoReview(active.1) }
@@ -499,6 +498,7 @@ final class ManualEditorModel: ObservableObject {
         }
     }
     func cancelAuto() {
+        if autoProposal.status == .completed { return }
         if autoProposal.status == .approving || autoProposal.status == .executing {
             guard !autoProposal.cancelRequested else { return }; autoProposal.cancelRequested = true
             autoProposal.error = "Cancellation requested; awaiting the native publication result."; worker.cancelAuto(); return
