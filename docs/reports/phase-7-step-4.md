@@ -194,3 +194,18 @@ coverage on the repaired binary. Workflow lint and git diff --check PASS.
 Apple execution remains CI-only/unobserved locally. No sanitizer suppression,
 test weakening, optionalization, timeout increase or rerun-until-green was used.
 No unresolved A correctness/security finding remains; certification is pending.
+
+## Implementation certification remediation
+
+Initial implementation SHA 652b93ff19e8d5f8cea5eb13e6ddd155ef12892b is NOT
+certified. Foundation 40086584059 and shells 40086584018 both failed the new Swift
+Auto test's approval-eligibility assertions. The test opened a plain editor with
+no capability policy, then invoked existing validateAgentPlan, whose Phase 6
+execution_plan checks policy_query/admit and correctly returned INVALID_ARGUMENT=1.
+This was a test setup defect, not malformed Auto Plan output or an approval bypass.
+The proposal/no-side-effect and cancellation tests themselves passed. The fix
+uses the existing AppleCapabilityOwner(TestAppleSignals) fixture pattern already
+certified by AgentPlatformTests. Assertions remain exact, including canonical
+Plan equality and NOT_APPROVED=15. No production code, frozen contract, workflow
+or timeout changes are needed. A new remediation SHA requires both full workflows;
+the failed SHA is not rerun or used as certification.

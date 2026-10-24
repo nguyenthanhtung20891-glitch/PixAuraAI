@@ -24,7 +24,11 @@ final class AutoProposalTests: XCTestCase {
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: fixture)) as? [String: [String: Any]])
         let bytes = try XCTUnwrap(json["png"]?["bytes"] as? [UInt8])
         let input = root.appendingPathComponent("input.png"); try Data(bytes).write(to: input)
-        let editor = try ManualEditor(root: root, importing: input); defer { editor.close() }; try body(editor)
+        // The assertions below also exercise Phase 6 approval-eligibility
+        // validation, which requires the established capability/policy owner.
+        let capabilities = AppleCapabilityOwner(signals: TestAppleSignals()); defer { capabilities.close() }
+        let editor = try ManualEditor(root: root, importing: input, capability: capabilities.snapshot())
+        defer { editor.close() }; try body(editor)
     }
     private func status(_ code: Int32, _ body: () throws -> Void) {
         XCTAssertThrowsError(try body()) { XCTAssertEqual(($0 as? ManualEditorFailure)?.status, code) }
