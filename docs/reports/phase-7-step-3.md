@@ -8,8 +8,16 @@ Step 1 COMPLETE / FULL PASS. Step 2 COMPLETE / FULL PASS.
 Certified Step 2 closure: `0d73ffc3ec1fa1ac5e1032a4f8f47a2c69e1b990`.
 Foundation 39956128221 SUCCESS 7/7; Native application shells 39956128320 SUCCESS
 3/3, completed exact SHA, attempt 1, every required job individually SUCCESS.
-Step 3 AUTHORIZED / IN PROGRESS.
-Exact-SHA certification pending; no unobserved job is PASS.
+Step 3 COMPLETE / FULL PASS.
+Implementation certification SHA: `71bb02e003a92abdd3816abb378c2d3e9dc0503f`.
+Foundation 40054802528 SUCCESS 7/7.
+Native application shells 40054802514 SUCCESS 3/3.
+Both completed exact SHA, attempt 1; every required job individually SUCCESS.
+This separate documentation-only closure commit requires independent full
+closure-SHA certification by both workflows. Until that observed completion:
+FINAL STEP 3 CLOSURE CERTIFICATION PENDING. The final engineering receipt/delivery
+records its distinct SHA and workflow evidence without self-reference or old-SHA
+substitution. No unobserved job is PASS.
 Manual + AI Assist Experience v1: one manual editor/history, validated ADVICE only.
 Use suggestion navigates to the existing manual tool at its ordinary default;
 it does NOT Apply, prefill, create approval/candidate, execute or commit.
@@ -28,7 +36,7 @@ STOP after Step 3. Do not implement Step 4.
 See docs/contracts/ai-assist-experience-v1.md and docs/reports/phase-7-step-3.md.
 <!-- phase7-step3-history -->
 
-Earlier authority below is historical at its certified freeze time.
+Implementation and observed evidence follow. Earlier failed certification attempts are historical.
 
 
 ## Purpose and baseline
@@ -174,8 +182,8 @@ source: 124/124 PASS. Complete Linux source: 166/166 PASS. Android debug/release
 build, both native ARM ABIs (plus x86_64), debug/release JVM (7+7 tests), lint
 and instrumentation APK compilation PASS; no emulator execution claimed locally.
 Release scans passed all 13 stripped native libraries; workflow lint and diff
-check PASS. Linux native and active ASan/UBSan execution are recorded once complete.
-Apple execution and actual Android instrumentation remain CI-only gates.
+check PASS. Completed Linux/native and active sanitizer results follow below.
+Completed Apple and Android execution is recorded in the exact-SHA evidence below.
 
 Linux native: 50/50 PASS. Full active ASan/UBSan: 52/52 PASS, 551.09 seconds;
 negative probes confirmed instrumentation with required exits 86 (ASan) and 87
@@ -233,3 +241,56 @@ resolved that invocation defect without changing tests. Transport evidence was
 verified exactly, archived under build, and the owned emulator shut down.
 Foundation 40033377233 on the prior scroll SHA completed SUCCESS 7/7; the
 subsequent correction still requires its own full exact-SHA certification.
+
+## Observed final implementation certification
+
+Certified implementation: `71bb02e003a92abdd3816abb378c2d3e9dc0503f`.
+Both workflows completed SUCCESS on that exact SHA, attempt 1. Every required job
+was individually observed completed/SUCCESS; no skipped, pending or missing job.
+
+| Workflow | Run | Result |
+| --- | --- | --- |
+| Foundation boundaries | [40054802528](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/40054802528) | completed / SUCCESS, 7/7 |
+| Native application shells | [40054802514](https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/40054802514) | completed / SUCCESS, 3/3 |
+
+| Retained evidence | Observed result |
+| --- | --- |
+| Windows MSVC native | 49/49 PASS; release-object isolation PASS |
+| Linux native | 50/50 PASS; complete source/native/document/manual/Agent corpus retained |
+| Active ASan + UBSan | 52/52 PASS; actual-instrumentation probes exited 86/87; no suppressions |
+| Advice boundary | 535 checks, 11 independent request goldens, 12 deterministic race orderings, zero failures |
+| Apple hosted native | 50/50 PASS |
+| Swift macOS and iOS Simulator | 38/38 PASS on each |
+| Android ARM64 + ARMv7 boundaries | Both required jobs PASS |
+| Android application | Debug/release, JVM and lint PASS; emulator instrumentation 38/38, 0 failures/errors/skips |
+| iOS application | Debug/release builds PASS; 7 app tests and 5 UI tests PASS |
+| Release/test isolation | Production native-object scans, 13 local stripped Android libraries, iOS release binary PASS |
+| Workflow lint / source consistency / diff | PASS; full retained gates, no weakening or optionalization |
+
+The Android UI fix now passes on CI Android 15 and the local Android 16 emulator.
+Use suggestion remains navigation-only: validated advice opens the same manual
+controls at their normal defaults, with no document/history mutation. Only an
+explicit human value change and existing manual Apply commit a normal revision.
+Manual editing, undo/redo, failure fallback, stale/cancel/context/lifecycle fencing
+and no-approval/no-candidate guarantees passed. No unresolved A finding remains.
+No product runtime repair was required after the initial implementation; the
+certification remediations changed tests/configuration/documentation only.
+
+B: Steps 4–8, later production intelligence/model admission, and physical provider
+certification remain deferred and NOT STARTED where not previously authorized.
+C: optional copy/visual refinement and performance measurement remain future work.
+All frozen contracts, Schema 3, shared history/manual semantics and Phase 5 trust
+remain unchanged. No model/runtime/weights/NLP/cloud/network AI was added.
+Production model UNRESOLVED; CPU VALIDATED; Vulkan/Metal UNKNOWN.
+DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED. Hosted evidence is software
+only. Phase 7 Steps 4–8 NOT STARTED. Phase 8 NOT STARTED. No Step 9.
+
+## Separate closure certification
+
+This closure changes only the seven current-authority documents. It adds no
+production code, ABI, test behavior or workflow change. The new closure SHA must
+independently complete both full workflows again; the implementation runs above
+cannot certify it. Until observed completion: FINAL STEP 3 CLOSURE CERTIFICATION
+PENDING. The observed final engineering receipt and final delivery record the
+actual distinct closure SHA, run IDs, attempts and every job conclusion without
+self-reference. They are engineering evidence only, never runtime authority.

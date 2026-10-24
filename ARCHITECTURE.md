@@ -8,8 +8,16 @@ Step 1 COMPLETE / FULL PASS. Step 2 COMPLETE / FULL PASS.
 Certified Step 2 closure: `0d73ffc3ec1fa1ac5e1032a4f8f47a2c69e1b990`.
 Foundation 39956128221 SUCCESS 7/7; Native application shells 39956128320 SUCCESS
 3/3, completed exact SHA, attempt 1, every required job individually SUCCESS.
-Step 3 AUTHORIZED / IN PROGRESS.
-Exact-SHA certification pending; no unobserved job is PASS.
+Step 3 COMPLETE / FULL PASS.
+Implementation certification SHA: `71bb02e003a92abdd3816abb378c2d3e9dc0503f`.
+Foundation 40054802528 SUCCESS 7/7.
+Native application shells 40054802514 SUCCESS 3/3.
+Both completed exact SHA, attempt 1; every required job individually SUCCESS.
+This separate documentation-only closure commit requires independent full
+closure-SHA certification by both workflows. Until that observed completion:
+FINAL STEP 3 CLOSURE CERTIFICATION PENDING. The final engineering receipt/delivery
+records its distinct SHA and workflow evidence without self-reference or old-SHA
+substitution. No unobserved job is PASS.
 Manual + AI Assist Experience v1: one manual editor/history, validated ADVICE only.
 Use suggestion navigates to the existing manual tool at its ordinary default;
 it does NOT Apply, prefill, create approval/candidate, execute or commit.
