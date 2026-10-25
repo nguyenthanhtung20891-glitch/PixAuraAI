@@ -19,7 +19,10 @@ test('Phase 7 Step 6 lifecycle authority and cancellation admission remain coher
  assert.ok(k.includes('cancellingAdvice.get() || autoCancelling.get() || cancellingApplication.get()'));
  assert.ok(k.includes('admission occupied through native validation/presentation'));
  const apple=read('platforms/ios/PixAuraAI/ManualEditorModel.swift');assert.equal(apple.split('if assistWorking || cancellingAdvice || cancellingAuto').length-1,3);
- assert.ok(apple.includes('closingWorker.commands.async { closingWorker.close() }'));
+ assert.ok(apple.includes('worker.closeAfterOwnerRelease()'));
+ assert.ok(apple.includes('func closeAfterOwnerRelease()'));
+ assert.ok(apple.includes('commands.async { self.close() }'));
+ assert.doesNotMatch(apple, /@unchecked Sendable|@preconcurrency/);
  for(const p of ['platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt','platforms/ios/PixAuraAI/ManualEditorModel.swift'])assert.doesNotMatch(read(p),/SavedStateHandle|encode.*approval|put.*approval|set.*approval.*forKey/);
  const contract=read('docs/contracts/ai-interaction-lifecycle-integration-v1.md');
  for(const marker of ['MANUAL | ASSIST','ASSIST | MANUAL','MANUAL | AUTO','AUTO | MANUAL','ASSIST | AUTO','AUTO | ASSIST','stop -> join ALL','Process death','Schema 3 unchanged','Steps 7-8 NOT STARTED'])assert.ok(contract.includes(marker),marker);

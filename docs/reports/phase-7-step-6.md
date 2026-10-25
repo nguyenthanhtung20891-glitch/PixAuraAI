@@ -157,3 +157,20 @@ self-contained model-destruction test plus semantic background/navigation/restar
 - `platforms/ios/PixAuraAITests/ShellTests.swift`
 - `platforms/ios/PixAuraAIUITests/ShellUITests.swift`
 - `tests/agent-execution.test.mjs`
+
+## Initial certification failure and minimal remediation
+
+Initial implementation d0dfc55785e2d61f699cf8ca823cab68b790891e is NOT certified.
+Foundation 40187407865 and Native shells 40187407855 are attempt 1. Native shells
+failed iOS job 121151020273 at app compilation: ManualEditorModel.swift:361,
+capture of non-Sendable EditorWorker in the deinitializer's @Sendable queue closure.
+This is an adapter concurrency compilation defect, not a native authority failure.
+Move queue handoff into EditorWorker.closeAfterOwnerRelease, using its existing
+nonisolated commands.async pattern. The deinitializer only invokes that method;
+no new closure crosses its isolation context. No unchecked Sendable, suppression,
+warning weakening, teardown omission or test weakening. The model-destruction test
+is retained unchanged. New SHA requires both complete workflows afresh.
+
+On the initial SHA CI Linux native passed 52/52 (both local DrvFS failures passed),
+active sanitizers passed 54/54 with probes 86/87, Android instrumentation 46 tests
+SUCCESS, Apple boundary SUCCESS. Those results do not certify newer code.

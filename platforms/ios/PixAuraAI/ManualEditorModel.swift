@@ -130,6 +130,10 @@ private final class EditorWorker {
         try owner?.action(action)
         if action != 4 { try preview() }
     }
+    func closeAfterOwnerRelease() {
+        // Same nonisolated owner-lane scheduling as send/cancel; never join on UI.
+        commands.async { self.close() }
+    }
     func close() {
         clearPending()
         #if DEBUG
@@ -355,10 +359,9 @@ final class ManualEditorModel: ObservableObject {
         }
     }
     deinit {
-        // Observable owner destruction must fence native publication even when
-        // no SwiftUI onDisappear event is delivered. Never join on the UI lane.
-        let closingWorker = worker
-        closingWorker.commands.async { closingWorker.close() }
+        // No view callback is required. The worker owns its queue handoff;
+        // deinit does not capture non-Sendable worker state into a new closure.
+        worker.closeAfterOwnerRelease()
     }
     private func send(_ work: @escaping (EditorWorker) throws -> Void) { epoch += 1; busy = true; error = nil; worker.send(epoch, work) }
     private func nextAssistEpoch() -> UInt64? {
