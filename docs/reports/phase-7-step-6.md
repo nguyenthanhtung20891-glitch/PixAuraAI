@@ -9,8 +9,16 @@ Step 4 COMPLETE / FULL PASS. Step 5 COMPLETE / FULL PASS.
 Certified Step 5 closure: `eef23391fb18c0c9b30cefc632c7a86126e09a60`.
 Foundation 40152878375 SUCCESS 7/7; Native application shells 40152878474 SUCCESS
 3/3, completed exact SHA, attempt 1, every required job individually SUCCESS.
-Step 6 AUTHORIZED / IN PROGRESS.
-Exact-SHA certification pending; no unobserved job is PASS.
+Step 6 COMPLETE / FULL PASS.
+Implementation certification SHA: `1433a45b5b560c6834eed7328440c130686c0943`.
+Foundation 40189453335 SUCCESS 7/7.
+Native application shells 40189453294 SUCCESS 3/3.
+Both completed exact SHA, attempt 1; every required job individually SUCCESS.
+This separate documentation-only closure commit requires independent full
+closure-SHA certification by both workflows. Until observed completion:
+FINAL STEP 6 CLOSURE CERTIFICATION PENDING. The final engineering receipt/delivery
+records its distinct SHA and workflow evidence without self-reference or old-SHA
+substitution. No unobserved job is PASS.
 MANUAL / AI ASSIST / AI AUTO-EDIT share native document/source/history authority.
 All six mode transitions abandon ephemeral AI state without edits or approval.
 Explicit HUMAN Apply, exact Plan binding, single-use approval, private candidate,
@@ -101,8 +109,9 @@ locator and ordinary durable history reopen. Release scans remain mandatory.
 
 ## A/B/C and boundaries
 
-A: adapter admission ordering and cancellation isolation addressed above; validation
-is pending and no unexecuted test is PASS. No architecture blocker identified.
+A: admission, cancellation isolation, observable-owner destruction and compilation
+findings resolved. Certified implementation evidence follows; no unresolved A
+finding or architecture blocker remains.
 B: Step 7 production intelligence admission, Step 8 closure and physical hardware
 certification. C: optional presentation polish. None implemented here.
 Production model UNRESOLVED; U2NETP unapproved/unincorporated/rights unresolved.
@@ -111,12 +120,13 @@ NOT SATISFIED. No model/runtime/weights/NLP/cloud/network AI. Phase 8 NOT STARTE
 
 ## Validation and exact-SHA certification
 
-Implementation and separate closure certification pending. Full retained source,
+Implementation certification is recorded below; separate closure certification
+requires both full workflows again. The retained requirements include source,
 native Windows/Linux/Apple/Android, Android app/instrumentation, Swift/macOS and
 Simulator/iOS app/UI, active ASan/UBSan, release isolation, workflow lint and diff
 checks required. Exact changed files and observed evidence will be recorded below.
 
-## Observed local validation
+## Observed local validation (before CI)
 
 Windows native 51/51 PASS (documented Zig fallback). Windows retained source
 127/127 PASS; Linux full source 169/169 PASS, zero skipped. Android strict
@@ -186,3 +196,32 @@ small test-only ModelLifetimeProbe holding a weak property. The probe remains
 strongly owned while the observed model must deallocate; the same nil assertion
 and native closed-state/barrier assertions remain. No fake mutation, suppression,
 warning weakening or production-code change. Full new-SHA certification required.
+
+## Certified implementation and separate closure
+
+Implementation **1433a45b5b560c6834eed7328440c130686c0943** is certified:
+Foundation boundaries **40189453335**, attempt 1, completed / SUCCESS, **7/7**
+required jobs individually completed / SUCCESS. Native application shells
+**40189453294**, attempt 1, completed / SUCCESS, **3/3** required jobs individually
+completed / SUCCESS. Both have that exact head SHA. No older SHA substitutes.
+
+Retained CI native host, both Android ARM ABIs, source, workflow lint, release
+objects/binaries, Android app/JVM/lint/instrumentation, Swift/macOS/Simulator and
+iOS app/UI gates PASS. Active ASan/UBSan **54/54**, actual probes 86/87 confirmed.
+Swift/macOS and Simulator **44/44** each. iOS app tests **9/9**, UI tests **10/10**,
+zero failures. Both new model tests passed, including observable destruction with
+no view callback. The semantic background/navigation/restart UI test passed.
+Android full instrumentation **46 tests**, SUCCESS. Local DrvFS permission failures
+remain documented limitations; CI Linux storage/native and sanitizer gates pass
+on their supported filesystem. They were not weakened or skipped.
+
+No unresolved A finding. B: future Step 7 intelligence admission, Step 8 closure,
+and physical provider certification; C: optional polish. None implemented here.
+All frozen authority, Schema 3, shared Manual/history and trust remain unchanged.
+No public ABI or native production editing implementation changed.
+
+This separate closure commit changes only seven Markdown authority/report files.
+It requires both complete exact-closure-SHA workflows independently again. The
+final engineering receipt/delivery records that distinct SHA/run evidence without
+self-reference or reuse of implementation certification. Until then final closure
+certification is pending. Phase 7 Steps 7-8 and Phase 8 NOT STARTED.
