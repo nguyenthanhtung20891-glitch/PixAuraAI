@@ -9,8 +9,16 @@ Step 4 COMPLETE / FULL PASS. Step 5 COMPLETE / FULL PASS.
 Certified Step 5 closure: `eef23391fb18c0c9b30cefc632c7a86126e09a60`.
 Foundation 40152878375 SUCCESS 7/7; Native application shells 40152878474 SUCCESS
 3/3, completed exact SHA, attempt 1, every required job individually SUCCESS.
-Step 6 AUTHORIZED / IN PROGRESS.
-Exact-SHA certification pending; no unobserved job is PASS.
+Step 6 COMPLETE / FULL PASS.
+Implementation certification SHA: `8955c81cbccce3f4e10b0fea4881425f1b2b607b`.
+Foundation 40196770513 SUCCESS 7/7.
+Native application shells 40196770526 SUCCESS 3/3.
+Both completed exact SHA, attempt 1; every required job individually SUCCESS.
+This separate documentation-only closure commit requires independent full
+closure-SHA certification by both workflows. Until observed completion:
+FINAL STEP 6 CLOSURE CERTIFICATION PENDING. The final engineering receipt/delivery
+records its distinct SHA and workflow evidence without self-reference or old-SHA
+substitution. No unobserved job is PASS.
 MANUAL / AI ASSIST / AI AUTO-EDIT share native document/source/history authority.
 All six mode transitions abandon ephemeral AI state without edits or approval.
 Explicit HUMAN Apply, exact Plan binding, single-use approval, private candidate,
@@ -189,7 +197,7 @@ strongly owned while the observed model must deallocate; the same nil assertion
 and native closed-state/barrier assertions remain. No fake mutation, suppression,
 warning weakening or production-code change. Full new-SHA certification required.
 
-## Certified implementation and separate closure
+## Historical implementation certification and first closure attempt
 
 Implementation **1433a45b5b560c6834eed7328440c130686c0943** is certified:
 Foundation boundaries **40189453335**, attempt 1, completed / SUCCESS, **7/7**
@@ -241,3 +249,27 @@ failed input precondition instead of cascading. No retry, coordinate action,
 timeout increase, production change or assertion weakening. The corresponding
 source guard retains these preconditions. Current Step 6 returns IN PROGRESS;
 new implementation and separate closure SHAs require both full workflows afresh.
+
+## Final certified implementation and replacement closure
+
+Final implementation **8955c81cbccce3f4e10b0fea4881425f1b2b607b** is certified.
+Foundation boundaries **40196770513**, attempt 1, completed / SUCCESS, **7/7**
+required jobs individually completed / SUCCESS. Native application shells
+**40196770526**, attempt 1, completed / SUCCESS, **3/3** required jobs individually
+completed / SUCCESS. Both have that exact head SHA.
+
+The strengthened review/manual UI test passed (51.009 seconds); iOS app tests
+**9/9**, semantic UI tests **10/10**, zero failures. All original history counts
+remain. Active ASan/UBSan **54/54** with probes 86/87, both Android ARM ABIs,
+Android app/JVM/lint/46-test instrumentation, native hosts/Apple boundary, Swift
+macOS/Simulator, retained source/corpora and release isolation all PASS. No native
+storage or execution semantics were changed for the documented local DrvFS limit.
+No tests were weakened/skipped/optionalized. No rerun-until-green was used.
+
+No unresolved A finding remains. All earlier failed or superseded SHAs/run evidence
+above are historical only; they do not certify this implementation or its newer
+replacement closure. The replacement closure changes seven Markdown files only
+and must independently pass both full workflows again. Final observed receipt/
+delivery records that distinct SHA and exact runs without self-reference. Until
+that observation: FINAL STEP 6 CLOSURE CERTIFICATION PENDING.
+Phase 7 Steps 7-8 NOT STARTED. Phase 8 NOT STARTED. STOP after Step 6.

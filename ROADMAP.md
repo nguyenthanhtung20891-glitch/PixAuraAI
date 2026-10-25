@@ -9,8 +9,16 @@ Step 4 COMPLETE / FULL PASS. Step 5 COMPLETE / FULL PASS.
 Certified Step 5 closure: `eef23391fb18c0c9b30cefc632c7a86126e09a60`.
 Foundation 40152878375 SUCCESS 7/7; Native application shells 40152878474 SUCCESS
 3/3, completed exact SHA, attempt 1, every required job individually SUCCESS.
-Step 6 AUTHORIZED / IN PROGRESS.
-Exact-SHA certification pending; no unobserved job is PASS.
+Step 6 COMPLETE / FULL PASS.
+Implementation certification SHA: `8955c81cbccce3f4e10b0fea4881425f1b2b607b`.
+Foundation 40196770513 SUCCESS 7/7.
+Native application shells 40196770526 SUCCESS 3/3.
+Both completed exact SHA, attempt 1; every required job individually SUCCESS.
+This separate documentation-only closure commit requires independent full
+closure-SHA certification by both workflows. Until observed completion:
+FINAL STEP 6 CLOSURE CERTIFICATION PENDING. The final engineering receipt/delivery
+records its distinct SHA and workflow evidence without self-reference or old-SHA
+substitution. No unobserved job is PASS.
 MANUAL / AI ASSIST / AI AUTO-EDIT share native document/source/history authority.
 All six mode transitions abandon ephemeral AI state without edits or approval.
 Explicit HUMAN Apply, exact Plan binding, single-use approval, private candidate,
