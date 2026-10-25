@@ -23,6 +23,7 @@ test('Phase 7 Step 6 lifecycle authority and cancellation admission remain coher
  assert.ok(apple.includes('func closeAfterOwnerRelease()'));
  assert.ok(apple.includes('commands.async { self.close() }'));
  const lifetimeTest=read('platforms/ios/PixAuraAITests/ShellTests.swift');assert.ok(lifetimeTest.includes('weak var value: ManualEditorModel?'));assert.ok(lifetimeTest.includes('XCTAssertNil(released.value)'));
+ const reviewUI=read('platforms/ios/PixAuraAIUITests/ShellUITests.swift').split('func testReviewHumanApplyOneOrdinaryRevisionAndManualUndoRedo()')[1].split('func testReviewCancelModeDeparture')[0];assert.ok(reviewUI.includes('selected.count == 1'));assert.ok(reviewUI.includes('value.label != "Exposure: 0.0 EV"'));assert.equal(reviewUI.split('slider.adjust(toNormalizedSliderPosition: 0.75)').length-1,1);assert.ok(reviewUI.includes('guard changeExposure() else { return }'));
  assert.doesNotMatch(apple, /@unchecked Sendable|@preconcurrency/);
  for(const p of ['platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt','platforms/ios/PixAuraAI/ManualEditorModel.swift'])assert.doesNotMatch(read(p),/SavedStateHandle|encode.*approval|put.*approval|set.*approval.*forKey/);
  const contract=read('docs/contracts/ai-interaction-lifecycle-integration-v1.md');

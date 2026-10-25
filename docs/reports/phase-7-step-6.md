@@ -9,16 +9,8 @@ Step 4 COMPLETE / FULL PASS. Step 5 COMPLETE / FULL PASS.
 Certified Step 5 closure: `eef23391fb18c0c9b30cefc632c7a86126e09a60`.
 Foundation 40152878375 SUCCESS 7/7; Native application shells 40152878474 SUCCESS
 3/3, completed exact SHA, attempt 1, every required job individually SUCCESS.
-Step 6 COMPLETE / FULL PASS.
-Implementation certification SHA: `1433a45b5b560c6834eed7328440c130686c0943`.
-Foundation 40189453335 SUCCESS 7/7.
-Native application shells 40189453294 SUCCESS 3/3.
-Both completed exact SHA, attempt 1; every required job individually SUCCESS.
-This separate documentation-only closure commit requires independent full
-closure-SHA certification by both workflows. Until observed completion:
-FINAL STEP 6 CLOSURE CERTIFICATION PENDING. The final engineering receipt/delivery
-records its distinct SHA and workflow evidence without self-reference or old-SHA
-substitution. No unobserved job is PASS.
+Step 6 AUTHORIZED / IN PROGRESS.
+Exact-SHA certification pending; no unobserved job is PASS.
 MANUAL / AI ASSIST / AI AUTO-EDIT share native document/source/history authority.
 All six mode transitions abandon ephemeral AI state without edits or approval.
 Explicit HUMAN Apply, exact Plan binding, single-use approval, private candidate,
@@ -225,3 +217,27 @@ It requires both complete exact-closure-SHA workflows independently again. The
 final engineering receipt/delivery records that distinct SHA/run evidence without
 self-reference or reuse of implementation certification. Until then final closure
 certification is pending. Phase 7 Steps 7-8 and Phase 8 NOT STARTED.
+
+## Closure certification failure: verified no-op UI input
+
+Documentation-only closure candidate 9e86e29f568c4cfe23aad700af34061eb3bf7e1f
+is NOT certified. Foundation 40191429450 completed SUCCESS 7/7; Native shells
+40191429388 failed iOS UI job 121163057256, attempt 1. All nine app tests passed;
+the failure was testReviewHumanApplyOneOrdinaryRevisionAndManualUndoRedo.
+Its first manual revision-count assertion failed, followed by four cascading counts.
+Auto completion itself was observed. Other nine UI tests passed.
+
+The retained ios-shell-evidence artifact was downloaded and bounded zstd records
+inspected without an external dependency. Accessibility snapshots at 12:31:57-
+12:32:09 show manual-slider value 0, parameter-value Exposure: 0.0 EV and revision
+count 1 after XCTest's normalized 0.55 gesture. The following Apply was a no-op;
+manual editing correctly did not create a revision. This is a missing input
+postcondition in the Step 5 UI harness, not a native commit/approval defect.
+
+Require selected/enabled Exposure and live controls first, issue one deliberate
+0.75 slider gesture, then require changed native-bound parameter text and enabled
+Apply before tapping. Keep all original revision/history assertions. Stop on a
+failed input precondition instead of cascading. No retry, coordinate action,
+timeout increase, production change or assertion weakening. The corresponding
+source guard retains these preconditions. Current Step 6 returns IN PROGRESS;
+new implementation and separate closure SHAs require both full workflows afresh.

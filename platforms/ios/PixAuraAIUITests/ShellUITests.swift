@@ -41,8 +41,27 @@ final class ShellUITests: XCTestCase {
             guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
         }
         func revisions(_ count: Int) { XCTAssertTrue(app.staticTexts["Committed revisions: \(count)"].waitForExistence(timeout: 20)) }
+        func changeExposure() -> Bool {
+            tap("pixaura.exposure")
+            let selected = app.buttons.matching(NSPredicate(format: "identifier == %@ AND selected == true AND enabled == true", "pixaura.exposure"))
+            let slider = app.sliders["manual-slider"], value = app.staticTexts["parameter-value"]
+            let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+                selected.count == 1 && slider.exists && slider.isEnabled && app.buttons["Apply"].isEnabled
+            }, object: nil)
+            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Exposure gesture not ready"); return false }
+            // One deliberate gesture, never a retry. XCTest's small 0.55 move
+            // previously left the native-bound control at zero on the simulator.
+            slider.adjust(toNormalizedSliderPosition: 0.75)
+            let received = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+                value.exists && value.label.hasPrefix("Exposure: ") && value.label != "Exposure: 0.0 EV" && app.buttons["Apply"].isEnabled
+            }, object: nil)
+            guard XCTWaiter.wait(for: [received], timeout: 20) == .completed else {
+                XCTFail("Slider input did not reach native-bound controls: \(value.exists ? value.label : "missing")"); return false
+            }
+            return true
+        }
         tap("Open Manual editor"); revisions(1)
-        tap("Tone/Color"); tap("pixaura.exposure"); app.sliders["manual-slider"].adjust(toNormalizedSliderPosition: 0.55); tap("Apply"); revisions(2)
+        tap("Tone/Color"); guard changeExposure() else { return }; tap("Apply"); revisions(2)
         tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request")
         tap("auto-dismiss"); revisions(2); tap("auto-request")
         XCTAssertTrue(app.staticTexts["auto-exact-values-0"].waitForExistence(timeout: 20))
@@ -51,7 +70,7 @@ final class ShellUITests: XCTestCase {
         tap("auto-apply"); XCTAssertTrue(app.staticTexts["auto-completed"].waitForExistence(timeout: 20)); revisions(3)
         XCTAssertFalse(app.buttons["auto-apply"].exists)
         tap("mode-manual"); tap("Undo"); tap("Redo"); revisions(3)
-        tap("pixaura.exposure"); app.sliders["manual-slider"].adjust(toNormalizedSliderPosition: 0.6); tap("Apply"); revisions(4)
+        guard changeExposure() else { return }; tap("Apply"); revisions(4)
     }
     func testReviewCancelModeDepartureAndFailurePreserveManualEditing() {
         for flag in ["--review-test-pause", "--review-test-failure"] {
