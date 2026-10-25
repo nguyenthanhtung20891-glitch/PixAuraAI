@@ -183,7 +183,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     fun requestAdvice() {
         val ui = assistMutable.value
         if (disposed.get() || !ui.enabled || ui.selected !in ui.choices.indices || assistActive.get()) return
-        if (!providerActive.compareAndSet(false, true)) {
+        if (cancellingAdvice.get() || autoCancelling.get() || cancellingApplication.get() || !providerActive.compareAndSet(false, true)) {
             assistMutable.update { it.copy(status = AssistStatus.FAILED, error = "Provider busy. Manual editing is available.", advice = null) }; return
         }
         assistActive.set(true)
@@ -206,7 +206,14 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
                         val error = adviceFailure(failure); assistMutable.update { it.copy(status = error.first, error = error.second, advice = null) }
                     }
                 }
-            } finally { assistActive.set(false); providerActive.set(false); assistMutable.update { it.copy(inFlight = false) } }
+            } finally {
+                if (!disposed.get()) commands.execute {
+                    // Keep admission occupied through native validation/presentation.
+                    // An old completion must not clear a newer request's loading state.
+                    assistMutable.update { it.copy(inFlight = false) }
+                    assistActive.set(false); providerActive.set(false)
+                } else { assistActive.set(false); providerActive.set(false) }
+            }
         }
     }
     fun cancelAdvice() { invalidateAdvice(AssistStatus.CANCELLED); assistMutable.update { it.copy(status = if (it.enabled) AssistStatus.CANCELLED else AssistStatus.IDLE) } }
@@ -280,8 +287,8 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     }
     fun requestAuto() {
         val ui = autoMutable.value
-        if (disposed.get() || !ui.enabled || ui.selected !in ui.choices.indices || autoActive.get()) return
-        if (!providerActive.compareAndSet(false, true)) { autoFailure(EditorFailure(8, "Auto proposal")); return }
+        if (disposed.get() || !ui.enabled || ui.selected !in ui.choices.indices || ui.inFlight || autoApplying.get() || autoActive.get()) return
+        if (cancellingAdvice.get() || autoCancelling.get() || cancellingApplication.get() || !providerActive.compareAndSet(false, true)) { autoFailure(EditorFailure(8, "Auto proposal")); return }
         autoActive.set(true)
         val editor = owner; val stamp = nextAutoEpoch()
         if (editor == null || stamp == null) { autoActive.set(false); providerActive.set(false); return }
@@ -303,13 +310,18 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
                 if (!disposed.get()) commands.execute {
                     if (!disposed.get() && owner === editor && autoEpoch.get() == stamp && autoMutable.value.enabled) autoFailure(failure)
                 }
-            } finally { autoActive.set(false); providerActive.set(false); autoMutable.update { it.copy(inFlight = false) } }
+            } finally {
+                if (!disposed.get()) commands.execute {
+                    autoMutable.update { it.copy(inFlight = false) }
+                    autoActive.set(false); providerActive.set(false)
+                } else { autoActive.set(false); providerActive.set(false) }
+            }
         }
     }
     fun applyAutoFromHuman(review: ManualEditor.AutoReview) {
         val ui = autoMutable.value
         if (disposed.get() || !ui.enabled || ui.status != AutoStatus.REVIEW_READY || ui.review !== review || ui.inFlight || !autoApplying.compareAndSet(false, true)) return
-        if (!providerActive.compareAndSet(false, true)) { autoApplying.set(false); return }
+        if (cancellingAdvice.get() || autoCancelling.get() || cancellingApplication.get() || !providerActive.compareAndSet(false, true)) { autoApplying.set(false); return }
         val editor = owner; val stamp = nextAutoEpoch()
         if (editor == null || stamp == null) { autoApplying.set(false); providerActive.set(false); return }
         val call = editor to review; activeApplication.set(call)
@@ -333,8 +345,9 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
                             }
                         })
                 }
-                activeApplication.compareAndSet(call, null); autoApplying.set(false); providerActive.set(false)
+                activeApplication.compareAndSet(call, null)
                 autoMutable.update { it.copy(inFlight = false, review = if (it.status == AutoStatus.REVIEW_READY) it.review else null) }
+                autoApplying.set(false); providerActive.set(false)
             } else { activeApplication.compareAndSet(call, null); autoApplying.set(false); providerActive.set(false) }
         }
     }

@@ -161,7 +161,7 @@ private final class EditorWorker {
     }
     func requestAdvice(_ index: Int, completion: @escaping @MainActor (Result<ManualEditor.AssistAdvice, Error>) -> Void) {
         lock.lock()
-        if assistWorking { lock.unlock(); DispatchQueue.main.async { completion(.failure(ManualEditorFailure(status: 8, boundary: "Advice"))) }; return }
+        if assistWorking || cancellingAdvice || cancellingAuto { lock.unlock(); DispatchQueue.main.async { completion(.failure(ManualEditorFailure(status: 8, boundary: "Advice"))) }; return }
         assistWorking = true; lock.unlock()
         commands.async {
             guard let editor = self.owner else {
@@ -200,7 +200,7 @@ private final class EditorWorker {
         onExecuting: @escaping @MainActor () -> Void,
         completion: @escaping @MainActor (Result<ManualEditor.AgentReceipt, Error>) -> Void) {
         lock.lock()
-        if assistWorking { lock.unlock(); DispatchQueue.main.async { completion(.failure(ManualEditorFailure(status: 8, boundary: "Auto Apply"))) }; return }
+        if assistWorking || cancellingAdvice || cancellingAuto { lock.unlock(); DispatchQueue.main.async { completion(.failure(ManualEditorFailure(status: 8, boundary: "Auto Apply"))) }; return }
         assistWorking = true; lock.unlock()
         commands.async {
             self.latestEpoch = epoch
@@ -229,7 +229,7 @@ private final class EditorWorker {
         }
     }
     func requestAuto(_ index: Int, completion: @escaping @MainActor (Result<(ManualEditor.AutoProposal, ManualEditor.AutoReview), Error>) -> Void) {
-        lock.lock(); if assistWorking { lock.unlock(); DispatchQueue.main.async { completion(.failure(ManualEditorFailure(status: 8, boundary: "Auto proposal"))) }; return }
+        lock.lock(); if assistWorking || cancellingAdvice || cancellingAuto { lock.unlock(); DispatchQueue.main.async { completion(.failure(ManualEditorFailure(status: 8, boundary: "Auto proposal"))) }; return }
         assistWorking = true; lock.unlock()
         commands.async {
             guard let editor = self.owner else {
@@ -353,6 +353,12 @@ final class ManualEditorModel: ObservableObject {
             guard let self, self.editor === editor else { return }
             self.previewLoading = false; self.error = error
         }
+    }
+    deinit {
+        // Observable owner destruction must fence native publication even when
+        // no SwiftUI onDisappear event is delivered. Never join on the UI lane.
+        let closingWorker = worker
+        closingWorker.commands.async { closingWorker.close() }
     }
     private func send(_ work: @escaping (EditorWorker) throws -> Void) { epoch += 1; busy = true; error = nil; worker.send(epoch, work) }
     private func nextAssistEpoch() -> UInt64? {

@@ -1,6 +1,38 @@
 import XCTest
 
 final class ShellUITests: XCTestCase {
+    func testIntegratedModeBackgroundNavigationAndRestartNeverRestoreReviewAuthority() {
+        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
+        func tap(_ id: String) {
+            let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
+            let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
+            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+        }
+        tap("Open Manual editor")
+        XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
+        for (from,to) in [("manual","assist"),("assist","manual"),("manual","auto"),("auto","manual"),("assist","auto"),("auto","assist")] {
+            tap("mode-\(from)"); tap("mode-\(to)")
+            XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
+            XCTAssertFalse(app.buttons["auto-apply"].exists)
+        }
+        tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request")
+        XCTAssertTrue(app.buttons["auto-apply"].waitForExistence(timeout: 20))
+        XCUIDevice.shared.press(.home); app.activate()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 20))
+        XCTAssertFalse(app.buttons["auto-apply"].exists)
+        XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
+        tap("mode-manual"); tap("Back to Home"); tap("Open Manual editor")
+        XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
+        tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request")
+        tap("auto-apply"); XCTAssertTrue(app.staticTexts["auto-completed"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.staticTexts["Committed revisions: 2"].exists)
+        app.terminate(); app.launchArguments = ["--reset-shell-navigation"]; app.launch()
+        tap("Open Manual editor")
+        XCTAssertTrue(app.staticTexts["Committed revisions: 2"].waitForExistence(timeout: 20))
+        XCTAssertFalse(app.buttons["auto-apply"].exists); XCTAssertFalse(app.staticTexts["auto-completed"].exists)
+        tap("Undo"); tap("Redo"); XCTAssertTrue(app.staticTexts["Committed revisions: 2"].exists)
+    }
+
     func testReviewHumanApplyOneOrdinaryRevisionAndManualUndoRedo() {
         let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
         func tap(_ id: String) {

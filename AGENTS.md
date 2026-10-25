@@ -1,5 +1,42 @@
 # PixAuraAI Autonomous Engineering Contract
 
+<!-- phase7-step6-current-authority -->
+## Phase 7 Step 6 - current authority
+
+Phase 6 CLOSED / COMPLETE / FULL PASS. Phase 7 AUTHORIZED / IN PROGRESS.
+Step 1 COMPLETE / FULL PASS. Step 2 COMPLETE / FULL PASS. Step 3 COMPLETE / FULL PASS.
+Step 4 COMPLETE / FULL PASS. Step 5 COMPLETE / FULL PASS.
+Certified Step 5 closure: `eef23391fb18c0c9b30cefc632c7a86126e09a60`.
+Foundation 40152878375 SUCCESS 7/7; Native application shells 40152878474 SUCCESS
+3/3, completed exact SHA, attempt 1, every required job individually SUCCESS.
+Step 6 AUTHORIZED / IN PROGRESS.
+Exact-SHA certification pending; no unobserved job is PASS.
+MANUAL / AI ASSIST / AI AUTO-EDIT share native document/source/history authority.
+All six mode transitions abandon ephemeral AI state without edits or approval.
+Explicit HUMAN Apply, exact Plan binding, single-use approval, private candidate,
+source serial/epoch CAS and cancellation/publication fencing remain unchanged.
+Application admission includes queued validation/completion and pending cancellation.
+Late callbacks cannot resurrect review or transfer authority to another owner.
+Stop -> join ALL calls -> destroy (ADR 0009); no persistent AI authority.
+Publication wins or cancellation wins under existing native rules; no automatic undo,
+retry, replan or reapproval. Refresh ordinary history after every Apply outcome.
+Manual first-class; Assist Use suggestion navigation-only. No new public ABI.
+Intent/Structured Intent/Plan/Registry/Envelope/Provider/reference planner,
+AI Assist/Auto Proposal/Review Approval v1, approval/candidate, Schema 3,
+manual/history and Phase 5 trust unchanged. Production model UNRESOLVED.
+U2NETP unapproved / unincorporated / rights unresolved.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. No model/runtime/weights/NLP/cloud/network AI.
+DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED; hosted Apple software only.
+Phase 7 Steps 7-8 NOT STARTED. Phase 8 NOT STARTED. No Step 9.
+Both full implementation-SHA and separate closure-SHA workflows required,
+every required job completed/SUCCESS. Full retained native/platform/source,
+active ASan/UBSan, release isolation, workflow lint and diff checks required.
+STOP after Step 6. Do not implement Step 7 or Step 8.
+See docs/contracts/ai-interaction-lifecycle-integration-v1.md and docs/reports/phase-7-step-6.md.
+<!-- phase7-step6-history -->
+
+Earlier authority below is historical at its certified freeze time.
+
 <!-- phase7-step5-current-authority -->
 ## Phase 7 Step 5 - current authority
 

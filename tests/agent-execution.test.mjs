@@ -4,6 +4,27 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 const read=p=>fs.readFileSync(p,'utf8').replaceAll('\r\n','\n');
 
+
+test('Phase 7 Step 6 lifecycle authority and cancellation admission remain coherent',()=>{
+ const paths=['AGENTS.md','ARCHITECTURE.md','DECISIONS.md','QUALITY_GATES.md','ROADMAP.md','docs/plans/phase-7-roadmap.md','docs/reports/phase-7-step-6.md'];
+ const states=paths.map(p=>{
+  const current=read(p).split('<!-- phase7-step6-current-authority -->')[1]?.split('<!-- phase7-step6-history -->')[0];assert.ok(current,p);
+  const state=current.match(/^Step 6 (AUTHORIZED \/ IN PROGRESS|COMPLETE \/ FULL PASS)\./m);assert.ok(state,p);
+  for(const marker of ['Step 5 COMPLETE / FULL PASS','Phase 6 CLOSED / COMPLETE / FULL PASS','Phase 7 Steps 7-8 NOT STARTED','Phase 8 NOT STARTED','Production model UNRESOLVED','CPU VALIDATED','Vulkan/Metal UNKNOWN','Schema 3','NOT WAIVED','NOT SATISFIED'])assert.ok(current.includes(marker),p+marker);
+  if(state[1]==='COMPLETE / FULL PASS'){assert.match(current,/Implementation certification SHA: `[a-f0-9]{40}`/);assert.match(current,/Foundation \d+ SUCCESS 7\/7/);assert.match(current,/Native application shells \d+ SUCCESS 3\/3/);assert.ok(!current.includes('Exact-SHA certification pending'));}
+  return state[1];
+ });assert.equal(new Set(states).size,1);
+ assert.ok(read('docs/plans/phase-7-roadmap.md').includes('| 6 | Cross-Platform Lifecycle & Interaction Integration | '+states[0]+' |'));
+ const k=read('platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt');
+ assert.ok(k.includes('cancellingAdvice.get() || autoCancelling.get() || cancellingApplication.get()'));
+ assert.ok(k.includes('admission occupied through native validation/presentation'));
+ const apple=read('platforms/ios/PixAuraAI/ManualEditorModel.swift');assert.equal(apple.split('if assistWorking || cancellingAdvice || cancellingAuto').length-1,3);
+ assert.ok(apple.includes('closingWorker.commands.async { closingWorker.close() }'));
+ for(const p of ['platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt','platforms/ios/PixAuraAI/ManualEditorModel.swift'])assert.doesNotMatch(read(p),/SavedStateHandle|encode.*approval|put.*approval|set.*approval.*forKey/);
+ const contract=read('docs/contracts/ai-interaction-lifecycle-integration-v1.md');
+ for(const marker of ['MANUAL | ASSIST','ASSIST | MANUAL','MANUAL | AUTO','AUTO | MANUAL','ASSIST | AUTO','AUTO | ASSIST','stop -> join ALL','Process death','Schema 3 unchanged','Steps 7-8 NOT STARTED'])assert.ok(contract.includes(marker),marker);
+});
+
 test('Phase 7 Step 5 review uses only explicit human Apply and retained native authority',()=>{
  const paths=['AGENTS.md','ARCHITECTURE.md','DECISIONS.md','QUALITY_GATES.md','ROADMAP.md','docs/plans/phase-7-roadmap.md','docs/reports/phase-7-step-5.md'];
  const states=paths.map(p=>{
@@ -86,7 +107,7 @@ test('Phase 7 Step 1 authority agrees without reopening Phase 6 or authorizing l
   return m[1];
  });assert.equal(new Set(states).size,1);
  const rows=[...read('docs/plans/phase-7-roadmap.md').matchAll(/^\| (\d+) \| ([^|]+) \| ([^|]+) \|$/gm)];
- assert.deepEqual(rows.map(m=>+m[1]),[1,2,3,4,5,6,7,8]);assert.equal(rows[0][3],states[0]);for(const row of rows.slice(1,5))assert.ok(['NOT STARTED','AUTHORIZED / IN PROGRESS','COMPLETE / FULL PASS'].includes(row[3]));assert.deepEqual(rows.slice(5).map(m=>m[3]),Array(3).fill('NOT STARTED')); // Later authorized steps are checked separately; Step 1 remains historical.
+ assert.deepEqual(rows.map(m=>+m[1]),[1,2,3,4,5,6,7,8]);assert.equal(rows[0][3],states[0]);for(const row of rows.slice(1,6))assert.ok(['NOT STARTED','AUTHORIZED / IN PROGRESS','COMPLETE / FULL PASS'].includes(row[3]));assert.deepEqual(rows.slice(6).map(m=>m[3]),Array(2).fill('NOT STARTED')); // Later authorized steps are checked separately; Step 1 remains historical.
  assert.deepEqual(rows.map(m=>m[2]),['AI-Assisted MVP Contract & Interaction State Machine','Assistance Provider & Proposal Envelope v1','Manual + AI Assist Experience Foundation','AI Auto-Edit Proposal Flow','Plan Review & Explicit Approval UX','Cross-Platform Lifecycle & Interaction Integration','Production Intelligence Admission & MVP Provider','Phase 7 Closure']);
 });
 

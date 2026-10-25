@@ -115,4 +115,67 @@ class AutoReviewTest {
             status(9) { owner().applyAutoFromHuman(review) }; status(13) { editor.applyAutoFromHuman(review) }
         } finally { hooks.control(editor, 2); if (resume.isAlive) resume.join(10_000) }
     }
+    @Test fun allModeEdgesAndCloseReopenKeepOneHistoryAndNeverRestoreReview() {
+        open(); val editor = owner(); val source = editor.state().revisionId
+        val edges = listOf("manual" to "assist", "assist" to "manual", "manual" to "auto",
+            "auto" to "manual", "assist" to "auto", "auto" to "assist")
+        for ((from, to) in edges) {
+            mode("mode-$from"); mode("mode-$to"); barrier()
+            assertEquals(source, editor.state().revisionId); assertEquals(1, editor.state().revisionCount)
+            assertNull(model.autoProposal.value.review); assertNull(model.assistance.value.advice)
+        }
+        mode("mode-auto"); val abandoned = request()
+        compose.runOnUiThread { model.closeEditor() }; barrier()
+        assertNull(model.state.value.core)
+        compose.runOnUiThread { model.openLast() }
+        waitFor { model.state.value.image != null && !model.state.value.busy }
+        assertEquals(source, owner().state().revisionId)
+        assertNull(model.autoProposal.value.review); assertNull(model.assistance.value.advice)
+        status(9) { owner().applyAutoFromHuman(abandoned) }
+        mode("mode-auto"); request()
+        compose.onNodeWithTag("auto-apply").performScrollTo().performClick()
+        waitFor { model.autoProposal.value.status == AutoStatus.COMPLETED && !model.autoProposal.value.inFlight }
+        val published = owner().state().revisionId
+        compose.runOnUiThread { model.closeEditor() }; barrier()
+        compose.runOnUiThread { model.openLast() }
+        waitFor { model.state.value.image != null && !model.state.value.busy }
+        assertEquals(published, owner().state().revisionId); assertEquals(2, owner().state().revisionCount)
+        assertNull(model.autoProposal.value.receipt); assertNull(model.autoProposal.value.review)
+        mode("mode-manual"); compose.runOnUiThread { model.action(2) }; barrier()
+        assertEquals(source, owner().state().revisionId)
+        compose.runOnUiThread { model.action(3) }; barrier(); assertEquals(published, owner().state().revisionId)
+    }
+    @Test fun providerAdmissionIncludesQueuedValidationAndLateCancellationCannotHitFreshWork() {
+        open(); val editor = owner(); val source = editor.state().revisionId
+        val hooks = AutoTestHooks()
+        assertEquals(0, hooks.control(editor, 0, 1))
+        val entered = CountDownLatch(1); val release = CountDownLatch(1)
+        val commands = ManualEditorModel::class.java.getDeclaredField("commands").apply { isAccessible = true }.get(model) as ExecutorService
+        val advising = ManualEditorModel::class.java.getDeclaredField("advising").apply { isAccessible = true }.get(model) as ExecutorService
+        try {
+            compose.onNodeWithTag("auto-request").performScrollTo().performClick()
+            waitFor { hooks.control(editor, 1) == 1 }
+            commands.execute { entered.countDown(); check(release.await(10, TimeUnit.SECONDS)) }
+            assertTrue(entered.await(10, TimeUnit.SECONDS)); hooks.control(editor, 2)
+            advising.submit {}.get(10, TimeUnit.SECONDS)
+            assertTrue(model.autoProposal.value.inFlight)
+            val active = ManualEditorModel::class.java.getDeclaredField("providerActive").apply { isAccessible = true }.get(model) as AtomicBoolean
+            assertTrue("admission includes queued validation", active.get())
+        } finally { release.countDown(); hooks.control(editor, 2) }
+        waitFor { !model.autoProposal.value.inFlight }; barrier()
+        hooks.control(editor, 0, -1)
+        val previous = requireNotNull(model.autoProposal.value.proposal)
+        val cancellingEntered = CountDownLatch(1); val cancellingRelease = CountDownLatch(1)
+        commands.execute { cancellingEntered.countDown(); check(cancellingRelease.await(10, TimeUnit.SECONDS)) }
+        try {
+            assertTrue(cancellingEntered.await(10, TimeUnit.SECONDS))
+            compose.runOnUiThread { model.cancelAuto(); model.requestAuto() }
+            advising.submit {}.get(10, TimeUnit.SECONDS)
+            assertEquals(AutoStatus.FAILED, model.autoProposal.value.status) // pending cancellation is BUSY
+            assertTrue(editor.inspectAuto(previous).isNotEmpty()) // no new native proposal displaced it
+        } finally { cancellingRelease.countDown() }
+        barrier(); mode("mode-assist"); mode("mode-auto"); barrier()
+        request(); assertEquals(source, editor.state().revisionId); assertEquals(1, editor.state().revisionCount)
+    }
+
 }

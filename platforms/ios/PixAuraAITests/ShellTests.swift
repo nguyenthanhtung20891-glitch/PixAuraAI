@@ -1,4 +1,5 @@
 import XCTest
+import Combine
 @testable import PixAuraCore
 import CPixAuraCore
 import CoreGraphics
@@ -6,6 +7,80 @@ import Foundation
 @testable import PixAuraAI
 
 final class ShellTests: XCTestCase {
+    @MainActor private func waitFor<T>(_ publisher: Published<T>.Publisher, _ predicate: @escaping (T) -> Bool) async {
+        let ready = expectation(description: "authoritative interaction state")
+        let subscription = publisher.first(where: predicate).sink { _ in ready.fulfill() }
+        await fulfillment(of: [ready], timeout: 20)
+        withExtendedLifetime(subscription) {}
+    }
+    @MainActor func testInteractionModeMatrixCloseReopenAndOrdinaryPublishedHistory() async throws {
+        let file = try XCTUnwrap(Bundle(for: ShellTests.self).url(forResource: "fixtures", withExtension: "json"))
+        let fixtures = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [String: [String: Any]])
+        let input = FileManager.default.temporaryDirectory.appendingPathComponent("lifecycle-\(UUID()).png")
+        try Data(try XCTUnwrap(fixtures["png"]?["bytes"] as? [UInt8])).write(to: input)
+        defer { try? FileManager.default.removeItem(at: input) }
+        let capability = AppleCapabilityOwner(signals: AppTestAppleSignals()); defer { capability.close() }
+        let model = ManualEditorModel(capabilities: capability)
+        model.importImage(input); await waitFor(model.$core) { $0?.revisionCount == 1 }
+        let source = try XCTUnwrap(model.core?.revisionID)
+        let edges = [(0,1),(1,0),(0,2),(2,0),(1,2),(2,1)]
+        func mode(_ value: Int) {
+            if value == 1 { model.setAssistMode(true) }
+            else if value == 2 { model.setAutoMode(true) }
+            else { model.setAutoMode(false); model.setAssistMode(false) }
+        }
+        for (from,to) in edges {
+            mode(from); mode(to)
+            XCTAssertEqual(model.core?.revisionID, source)
+            XCTAssertNil(model.autoProposal.review); XCTAssertNil(model.assistance.advice)
+        }
+        mode(2); await waitFor(model.$autoProposal) { $0.choices.count == 11 }
+        model.chooseAuto(0); model.requestAuto(); await waitFor(model.$autoProposal) { $0.status == .reviewReady && !$0.inFlight }
+        model.close(); await waitFor(model.$core) { $0 == nil }
+        XCTAssertNil(model.autoProposal.review); XCTAssertFalse(model.autoProposal.enabled)
+        model.reopen(); await waitFor(model.$core) { $0?.revisionID == source }
+        mode(2); model.chooseAuto(0); model.requestAuto()
+        await waitFor(model.$autoProposal) { $0.status == .reviewReady && !$0.inFlight }
+        let review = try XCTUnwrap(model.autoProposal.review)
+        model.applyAutoFromHuman(review); model.applyAutoFromHuman(review)
+        await waitFor(model.$autoProposal) { $0.status == .completed && !$0.inFlight }
+        await waitFor(model.$core) { $0?.revisionCount == 2 }
+        let published = try XCTUnwrap(model.core?.revisionID)
+        model.close(); await waitFor(model.$core) { $0 == nil }
+        model.reopen(); await waitFor(model.$core) { $0?.revisionID == published }
+        XCTAssertNil(model.autoProposal.receipt); XCTAssertNil(model.autoProposal.review)
+        mode(0); model.action(2); await waitFor(model.$core) { $0?.revisionID == source }
+        model.action(3); await waitFor(model.$core) { $0?.revisionID == published }
+        model.close(); await waitFor(model.$core) { $0 == nil }
+    }
+
+    @MainActor func testObservableOwnerDestructionClosesNativeStateWithoutViewCallback() async throws {
+        let capability = AppleCapabilityOwner(signals: AppTestAppleSignals()); defer { capability.close() }
+        var model: ManualEditorModel? = ManualEditorModel(capabilities: capability)
+        let file = try XCTUnwrap(Bundle(for: ShellTests.self).url(forResource: "fixtures", withExtension: "json"))
+        let fixtures = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [String: [String: Any]])
+        let input = FileManager.default.temporaryDirectory.appendingPathComponent("owner-lifecycle-\(UUID()).png")
+        try Data(try XCTUnwrap(fixtures["png"]?["bytes"] as? [UInt8])).write(to: input)
+        defer { try? FileManager.default.removeItem(at: input) }
+        model!.importImage(input); await waitFor(model!.$core) { $0?.revisionCount == 1 }
+        let source = try XCTUnwrap(model!.core?.revisionID)
+        // Read-only test inspection; no lifecycle hook or production API added.
+        let worker = try XCTUnwrap(Mirror(reflecting: model!).children.first { $0.label == "worker" }?.value)
+        let queue = try XCTUnwrap(Mirror(reflecting: worker).children.first { $0.label == "commands" }?.value as? DispatchQueue)
+        let optionalOwner = try XCTUnwrap(Mirror(reflecting: worker).children.first { $0.label == "owner" }?.value)
+        let editor = try XCTUnwrap(Mirror(reflecting: optionalOwner).children.first?.value as? ManualEditor)
+        weak var released = model
+        model = nil
+        XCTAssertNil(released)
+        await withCheckedContinuation { (done: CheckedContinuation<Void, Never>) in
+            queue.async { done.resume() }
+        }
+        XCTAssertThrowsError(try editor.state()) { XCTAssertEqual(($0 as? ManualEditorFailure)?.status, 13) }
+        let reopened = ManualEditorModel(capabilities: capability)
+        reopened.reopen(); await waitFor(reopened.$core) { $0?.revisionID == source }
+        XCTAssertNil(reopened.autoProposal.review); XCTAssertNil(reopened.assistance.advice)
+        reopened.close(); await waitFor(reopened.$core) { $0 == nil }
+    }
     func testAppleOwnerPressureDuringGesturePreservesCommitCancelAndDisplay() async throws {
         try await Task.detached {
             let signals = AppTestAppleSignals()
