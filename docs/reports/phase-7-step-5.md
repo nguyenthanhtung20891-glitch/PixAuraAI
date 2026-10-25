@@ -6,8 +6,16 @@ Step 1 COMPLETE / FULL PASS. Step 2 COMPLETE / FULL PASS. Step 3 COMPLETE / FULL
 Step 4 COMPLETE / FULL PASS at `8c185389fddad8b59df202b2f7776e10a46271b0`.
 Foundation 40088844044 SUCCESS 7/7; Native application shells 40088844028 SUCCESS
 3/3, completed exact SHA, attempt 1, every required job individually SUCCESS.
-Step 5 AUTHORIZED / IN PROGRESS.
-Exact-SHA certification pending; no unobserved job is PASS.
+Step 5 COMPLETE / FULL PASS.
+Implementation certification SHA: `f93c478b345511f0af80749c3a057858a6ca0bb6`.
+Foundation 40115004288 SUCCESS 7/7.
+Native application shells 40115004276 SUCCESS 3/3.
+Both completed exact SHA, attempt 1; every required job individually SUCCESS.
+This separate documentation-only closure commit requires independent full
+closure-SHA certification by both workflows. Until that observed completion:
+FINAL STEP 5 CLOSURE CERTIFICATION PENDING. The final engineering receipt/delivery
+records its distinct SHA and workflow evidence without self-reference or old-SHA
+substitution. No unobserved job is PASS.
 Explicit HUMAN Apply of the exact immutable reviewed Plan -> existing native
 approval/binding -> existing private candidate/execution -> authoritative receipt
 -> one ordinary non-destructive revision/shared history. No automatic approval.
@@ -102,11 +110,9 @@ Phase 8 NOT STARTED.
 
 ## Validation and certification
 
-Implementation in progress. No unexecuted test is PASS. Full retained tests,
-focused platform review/apply/security tests, active ASan/UBSan, release isolation,
-source/workflow/diff gates and BOTH exact implementation-SHA and separate closure-
-SHA workflows are required. Changed-file inventory and observed evidence follow
-when actually executed. No certification SHA exists yet.
+Implementation certification is complete as recorded below. The separate closure
+commit still requires both complete exact-SHA workflows. No implementation result
+certifies a newer closure SHA; final observed receipt/delivery records that evidence.
 
 ## Implementation audit findings resolved before certification
 
@@ -195,3 +201,26 @@ published autoProposal state and verifies completion protection in the UI model.
 No native authority, approval, candidate, data schema, ABI or test expectation
 changes. The new remediation SHA requires both complete workflows afresh; no
 successful job from the initial SHA substitutes for that certification.
+
+## Certified implementation and separate closure
+
+Remediation implementation `f93c478b345511f0af80749c3a057858a6ca0bb6` is certified.
+Foundation boundaries **40115004288**: completed / SUCCESS, attempt 1, **7/7**
+required jobs individually completed / SUCCESS (Windows, Linux, Apple boundary,
+both Android ARM ABIs, active sanitizer and workflow lint). Native application
+shells **40115004276**: completed / SUCCESS, attempt 1, **3/3** required jobs
+individually completed / SUCCESS (source, Android application, iOS application).
+Both runs have the exact implementation head SHA above.
+
+Observed iOS job 120934361886: app unit tests **7/7**, semantic UI tests **9/9**,
+zero failures; debug/release app and retained Swift/macOS/Simulator gates SUCCESS.
+The initial worker/UI ownership compile defect is resolved; unchanged workflow
+lint also completed SUCCESS. No rerun of the failed initial SHA was used.
+No unresolved A finding remains. B: later authorized lifecycle/product integration,
+production intelligence admission and physical hardware certification. C: optional
+review polish. Neither is implemented here.
+
+This documentation-only closure update changes no production code, test behavior,
+workflow or frozen contract. Its distinct closure SHA must independently pass both
+full workflows before final delivery may claim Step 5 COMPLETE / FULL PASS. The
+final receipt records that SHA and run IDs without a self-referential commit.

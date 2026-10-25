@@ -8,8 +8,16 @@ Step 1 COMPLETE / FULL PASS. Step 2 COMPLETE / FULL PASS. Step 3 COMPLETE / FULL
 Step 4 COMPLETE / FULL PASS at `8c185389fddad8b59df202b2f7776e10a46271b0`.
 Foundation 40088844044 SUCCESS 7/7; Native application shells 40088844028 SUCCESS
 3/3, completed exact SHA, attempt 1, every required job individually SUCCESS.
-Step 5 AUTHORIZED / IN PROGRESS.
-Exact-SHA certification pending; no unobserved job is PASS.
+Step 5 COMPLETE / FULL PASS.
+Implementation certification SHA: `f93c478b345511f0af80749c3a057858a6ca0bb6`.
+Foundation 40115004288 SUCCESS 7/7.
+Native application shells 40115004276 SUCCESS 3/3.
+Both completed exact SHA, attempt 1; every required job individually SUCCESS.
+This separate documentation-only closure commit requires independent full
+closure-SHA certification by both workflows. Until that observed completion:
+FINAL STEP 5 CLOSURE CERTIFICATION PENDING. The final engineering receipt/delivery
+records its distinct SHA and workflow evidence without self-reference or old-SHA
+substitution. No unobserved job is PASS.
 Explicit HUMAN Apply of the exact immutable reviewed Plan -> existing native
 approval/binding -> existing private candidate/execution -> authoritative receipt
 -> one ordinary non-destructive revision/shared history. No automatic approval.
@@ -170,7 +178,7 @@ Phase 7 Steps 2-8 NOT STARTED. Phase 8 NOT STARTED.
 | 2 | Assistance Provider & Proposal Envelope v1 | COMPLETE / FULL PASS |
 | 3 | Manual + AI Assist Experience Foundation | COMPLETE / FULL PASS |
 | 4 | AI Auto-Edit Proposal Flow | COMPLETE / FULL PASS |
-| 5 | Plan Review & Explicit Approval UX | AUTHORIZED / IN PROGRESS |
+| 5 | Plan Review & Explicit Approval UX | COMPLETE / FULL PASS |
 | 6 | Cross-Platform Lifecycle & Interaction Integration | NOT STARTED |
 | 7 | Production Intelligence Admission & MVP Provider | NOT STARTED |
 | 8 | Phase 7 Closure | NOT STARTED |
