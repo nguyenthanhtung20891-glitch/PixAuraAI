@@ -6,6 +6,11 @@ import CoreGraphics
 import Foundation
 @testable import PixAuraAI
 
+@MainActor private final class ModelLifetimeProbe {
+    weak var value: ManualEditorModel?
+    init(_ value: ManualEditorModel) { self.value = value }
+}
+
 final class ShellTests: XCTestCase {
     @MainActor private func waitFor<T>(_ publisher: Published<T>.Publisher, _ predicate: @escaping (T) -> Bool) async {
         let ready = expectation(description: "authoritative interaction state")
@@ -69,9 +74,9 @@ final class ShellTests: XCTestCase {
         let queue = try XCTUnwrap(Mirror(reflecting: worker).children.first { $0.label == "commands" }?.value as? DispatchQueue)
         let optionalOwner = try XCTUnwrap(Mirror(reflecting: worker).children.first { $0.label == "owner" }?.value)
         let editor = try XCTUnwrap(Mirror(reflecting: optionalOwner).children.first?.value as? ManualEditor)
-        weak var released = model
+        let released = ModelLifetimeProbe(model!)
         model = nil
-        XCTAssertNil(released)
+        XCTAssertNil(released.value)
         await withCheckedContinuation { (done: CheckedContinuation<Void, Never>) in
             queue.async { done.resume() }
         }

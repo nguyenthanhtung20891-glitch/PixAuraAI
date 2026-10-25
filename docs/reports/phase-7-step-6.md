@@ -174,3 +174,15 @@ is retained unchanged. New SHA requires both complete workflows afresh.
 On the initial SHA CI Linux native passed 52/52 (both local DrvFS failures passed),
 active sanitizers passed 54/54 with probes 86/87, Android instrumentation 46 tests
 SUCCESS, Apple boundary SUCCESS. Those results do not certify newer code.
+
+## Test-harness compilation remediation
+
+725eebbffeca8b01ec5f4126caad04b906eed14c is NOT certified: Foundation 40188240245
+completed SUCCESS 7/7, but Native shells 40188240258 failed iOS test compilation.
+The production debug/release app build passed, confirming the worker queue handoff
+fix. ShellTests.swift:72's local weak var triggered a never-mutated diagnostic,
+promoted by unchanged warnings-as-errors. Replace the local weak variable with a
+small test-only ModelLifetimeProbe holding a weak property. The probe remains
+strongly owned while the observed model must deallocate; the same nil assertion
+and native closed-state/barrier assertions remain. No fake mutation, suppression,
+warning weakening or production-code change. Full new-SHA certification required.
