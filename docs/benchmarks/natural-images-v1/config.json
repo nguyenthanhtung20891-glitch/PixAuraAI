@@ -1,0 +1,137 @@
+{
+  "version": 1,
+  "scope": "OFFLINE_PAIRED_REFERENCE_NOT_ABSOLUTE_CORRECTION",
+  "model_sha256": "92dcbea108899e5d6e30d919b0744f90d9967e80c67a4ab5503ac16d54f62eb0",
+  "runtime_wheel_sha256": "b64e2cf6d7dcb90ff094b74af595cc5d53faa07e0889f967d15df8d3e696b53c",
+  "rules": [
+    {
+      "tool": "adjust.exposure",
+      "parameter": "milli_ev",
+      "neutral": 0,
+      "positive": 500,
+      "opposite": -500,
+      "reference": 500,
+      "prototypes": [
+        "A photograph that is underexposed and too dark.",
+        "A photograph that is overexposed and too bright.",
+        "A photograph with correct balanced exposure."
+      ]
+    },
+    {
+      "tool": "adjust.brightness",
+      "parameter": "milli_linear",
+      "neutral": 0,
+      "positive": 100,
+      "opposite": -100,
+      "reference": 100,
+      "prototypes": [
+        "A photograph that is too dim and needs more brightness.",
+        "A photograph that is too bright and needs less brightness.",
+        "A photograph with correct balanced brightness."
+      ]
+    },
+    {
+      "tool": "adjust.contrast",
+      "parameter": "milli_stops",
+      "neutral": 0,
+      "positive": 250,
+      "opposite": -250,
+      "reference": 250,
+      "prototypes": [
+        "A photograph that is flat with too little contrast.",
+        "A photograph that is harsh with too much contrast.",
+        "A photograph with balanced natural contrast."
+      ]
+    },
+    {
+      "tool": "adjust.highlights",
+      "parameter": "milli_ev",
+      "neutral": 0,
+      "positive": -500,
+      "opposite": 500,
+      "reference": -500,
+      "prototypes": [
+        "A photograph that is overly bright with clipped highlights.",
+        "A photograph that is too dim in its highlight regions.",
+        "A photograph with well preserved balanced highlights."
+      ]
+    },
+    {
+      "tool": "adjust.shadows",
+      "parameter": "milli_ev",
+      "neutral": 0,
+      "positive": 500,
+      "opposite": -500,
+      "reference": 500,
+      "prototypes": [
+        "A photograph that is dark with crushed shadows.",
+        "A photograph that is washed out with overly bright shadows.",
+        "A photograph with well preserved balanced shadows."
+      ]
+    },
+    {
+      "tool": "adjust.saturation",
+      "parameter": "milli_ratio",
+      "neutral": 1000,
+      "positive": 1200,
+      "opposite": 800,
+      "reference": 1200,
+      "prototypes": [
+        "A photograph that is dull with too little color saturation.",
+        "A photograph that is overly vivid with too much color saturation.",
+        "A photograph with natural balanced color saturation."
+      ]
+    },
+    {
+      "tool": "adjust.temperature",
+      "parameter": "kelvin",
+      "neutral": 6504,
+      "positive": 6000,
+      "opposite": 7000,
+      "reference": 7000,
+      "prototypes": [
+        "A photograph that is too warm with an orange color cast.",
+        "A photograph that is too cool with a blue color cast.",
+        "A photograph with neutral balanced white balance."
+      ]
+    },
+    {
+      "tool": "detail.sharpen",
+      "parameter": "milli_amount",
+      "neutral": 0,
+      "positive": 250,
+      "opposite": null,
+      "reference": 250,
+      "prototypes": [
+        "A photograph that is soft and blurry lacking sharp detail.",
+        "A photograph that is noisy and oversharpened with excessive detail.",
+        "A photograph with clean with appropriate sharp detail."
+      ]
+    }
+  ],
+  "levels": [
+    -1,
+    -0.6,
+    -0.2,
+    0,
+    0.2,
+    0.6,
+    1
+  ],
+  "abstention": 0.1,
+  "bins": [
+    0.25,
+    0.75,
+    1.25
+  ],
+  "policy": "one predeclared contrastive axis from frozen Round2 positive-minus-opposite prototypes; signed change against same unmodified base; development least-squares scalar calibration, zero intercept; no policy-variant search",
+  "metric": "paired changes in linear luminance mean/std, highlight excess, shadow capped mean, RGB channel spread, red-blue balance, horizontal luma difference",
+  "fitting": "one slope per tool/method using all development regular cases; stress excluded; no holdout fitting",
+  "relative_only": true,
+  "bootstrap": {
+    "seed": 73003,
+    "replicates": 2000,
+    "cluster": "base photograph"
+  },
+  "bounds": "one ordinary typed non-executable integer recommendation, native golden Registry bounds; sharpen opposite abstains; no embedding component used as parameter"
+}
