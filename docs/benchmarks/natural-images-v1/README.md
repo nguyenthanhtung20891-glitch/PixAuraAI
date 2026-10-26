@@ -71,3 +71,12 @@ seed 73003, percentile intervals. Small stratum/stress counts limit inference.
 No aggregate parameter error across incompatible units or statistical-significance
 claim is authorized. Cost is host CPU engineering evidence, not a resource lease or
 physical-device admission. Production model remains UNRESOLVED.
+
+The decision gate is the Principal Architect's Round 3 incremental-value rule:
+continue only for robust useful advantage beyond the cheap metric baseline, such
+as multiple useful categories, substantially better abstention/conflict behavior
+or clear complementary information. Marginal numerical differences do not justify
+the candidate's artifact/runtime cost. Equal/better metric results, fragile tuning
+or no robust incremental information imply DISQUALIFY_CANDIDATE. A hold requires a
+specific remaining evidence question, not reluctance to reject. No universal pass
+percentage or production threshold is invented here.
