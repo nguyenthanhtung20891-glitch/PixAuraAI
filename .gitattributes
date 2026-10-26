@@ -3,6 +3,7 @@ docs/benchmarks/natural-images-v1/*.json text eol=lf
 docs/benchmarks/natural-images-v1/*.png -text
 docs/reports/evidence/phase-7-step-7-round3-*.json text eol=lf
 scripts/qualify-natural-images.py text eol=lf
+scripts/analyze-natural-images.py text eol=lf
 tests/natural-images-qualification.test.py text eol=lf
 docs/benchmarks/intelligence-qualification-v1* text eol=lf
 docs/reports/evidence/phase-7-step-7-round2-*.json text eol=lf

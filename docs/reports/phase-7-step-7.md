@@ -1,5 +1,209 @@
 # Phase 7 Step 7 — admission evidence
 
+## Round 3 — Realistic Image Evidence & Incremental Value Gate
+
+Status: AUTHORIZED / IN PROGRESS / ADMISSION BLOCKED. Round 3 evaluation complete;
+exact-SHA certification pending. Step 7 is not complete. Step 8 and Phase 8 remain
+NOT STARTED. Starting SHA `f2a4ef05e0166a3abd23b9a64d7d91a4c07cc039` verified main
+== origin/main after fetch, clean tracked/staged state. Round 2 accepted COMPLETE /
+FULL PASS: Foundation 40279433883 (7/7), Native shells 40279433687 (3/3), both exact
+SHA, attempt 1, completed/SUCCESS. Existing ignored candidate evidence preserved.
+
+The [natural-image method](../benchmarks/natural-images-v1/README.md) and
+[individual CC0 source manifest](../benchmarks/natural-images-v1/sources.json)
+record 32 realistic base photographs, four each in eight scene strata. Original
+asset/page/license evidence stays ignored; compact normalized derivatives are
+committed, 3,729,759 bytes in total. A near-duplicate was replaced by a hardware
+photo before the split and corpus pin.
+Portrait-specific quality and absolute artistic correction labels are absent.
+Split: 16 development / 16 locked holdout, stratified deterministic SHA ordering,
+no base or derivative crosses sets. Corpus/method pin commit
+`fa5fa39e2af3c7a385cbf02a77273afd63c0d37c` preceded development fitting.
+
+Seven signed controlled perturbation levels exercise the eight authorized tools.
+Two bases per split also exercise opposed-half conflicts and two-condition
+combinations. Both cheap metrics and semantic-axis evidence compare against the
+same unmodified base. This tests relative recognition only:
+**ABSOLUTE AUTO-CORRECTION STILL UNQUALIFIED**. Unchanged paired inputs have zero
+evidence by construction; their false positives are not absolute neutral-photo
+false positives. No exact inverse/perceptually optimal correction claim is made.
+
+One predeclared candidate policy reuses the frozen Round 2 prototype directions;
+no prototype search. Each method fits a single zero-intercept scalar calibration
+per tool using development regular cases only. Fixed abstention/bins, golden
+Registry bounds and a frozen pre-holdout policy bind all subsequent decisions.
+The explicit reference provider is context; B (cheap metrics) versus C (embedding)
+is the decisive comparison. Paired bootstrap intervals cluster by base photo,
+not correlated derivatives. No aggregate mixed-unit calibration score is used.
+
+Current artifact remains CURRENT_ARTIFACT_PROVENANCE_FAILED. No conversion,
+new weights, production dependency, app wiring, runtime owner change, approval or
+editing authority is authorized or introduced. Production model UNRESOLVED;
+EmbeddingGemma unadmitted/unintegrated; CPU VALIDATED, Vulkan/Metal UNKNOWN.
+DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED. All frozen contracts,
+Schema 3, existing resource caps and Manual/history semantics remain unchanged.
+
+### Frozen experiment and development
+
+Pre-holdout calibration commit `d110b2f636351c6abeee96c590b6f107689c80a0` records
+the development results and [frozen policy](../benchmarks/natural-images-v1/frozen-policy.json).
+Policy SHA-256 `dd4610dc97d6edd66a5593e8f2e422ecf1b32e1735f046bd191ae5c5c782bd2b`;
+configuration `ff2a6cf6bad86fef8cf818033c070c9ef55d9eca520ab5b50362b9e9ce0bc7b8`;
+source/split manifest `7ff9aef7912046ae8dc1461f45b63afda9b2774bb42e43c5eb26255d1c827142`;
+runner `1ee0006a6447e4bae861f13d567cb646b97bb4e90b7c13a9aa79f1e447eeb746`.
+Bindings include all 32 derivative PNGs, native golden Registry, existing reference
+baseline, runner dependencies, method and exact development result. Exactly one
+development policy was executed; no prototype search, variant selection or tuning
+after holdout. The exclusive holdout-start marker is retained as evidence.
+
+Each split has 928 cases: 896 regular levels plus 16 combinations and 16 conflicts.
+Development regular direction counts (B metrics / C candidate, each out of 96):
+exposure 87/53, brightness 96/31, contrast 94/29, highlights 47/2, shadows 90/35,
+saturation 81/49, temperature 86/61, sharpen 83/54. These are in-sample calibration
+results, not independent qualification. Exact outputs/slopes/cost are in
+[development evidence](evidence/phase-7-step-7-round3-development.json).
+
+### Locked holdout result
+
+Engineering MODEL FAMILY recommendation: **DISQUALIFY_CANDIDATE for the current
+PixAuraAI MVP**. This is a recommendation to the Principal Architect, not a claim
+about every possible use of this model family. Meaningful incremental image-aware
+value over cheap metrics was **NOT DEMONSTRATED**.
+
+| Tool | B direction /96 | C direction /96 | C minus B, percentage points | Paired bootstrap 95% interval, points | B/C weak /32 | B/C strong /32 |
+|---|---:|---:|---:|---|---|---|
+| Exposure | 86 | 48 | -39.58 | [-50.00, -29.17] | 24/14 | 32/19 |
+| Brightness | 96 | 39 | -59.38 | [-67.71, -52.08] | 32/7 | 32/17 |
+| Contrast | 95 | 30 | -67.71 | [-77.08, -57.29] | 31/10 | 32/9 |
+| Highlights | 64 | 6 | -60.42 | [-79.17, -39.58] | 14/0 | 26/4 |
+| Shadows | 94 | 41 | -55.21 | [-64.58, -44.79] | 30/14 | 32/15 |
+| Saturation | 78 | 43 | -36.46 | [-50.00, -25.00] | 16/12 | 32/16 |
+| Temperature | 86 | 62 | -25.00 | [-36.46, -13.54] | 24/15 | 32/26 |
+| Sharpen | 83 | 61 | -22.92 | [-37.50, -8.33] | 22/11 | 31/27 |
+
+Each interval uses 2,000 paired bootstrap samples of the 16 held-out BASE photos,
+seed 73003. Intervals are descriptive, without a multiplicity-adjusted significance
+claim. Small scene/stress strata and one source directory limit generalization.
+The exact-RGB audit found all 768 requested nonzero regular perturbations were
+byte-observable. No cases or labels were removed or changed after scoring.
+
+| Tool | B/C abstentions /112 regular | B/C missing actionable recommendations | B/C native-unit MAE on emitted applicable samples |
+|---|---|---|---|
+| Exposure | 26/45 | 10/29 | 127.326 / 240.672 milli-EV |
+| Brightness | 16/57 | 0/41 | 16.146 / 53.727 milli-linear |
+| Contrast | 17/62 | 1/46 | 44.989 / 150.440 milli-stops |
+| Highlights | 48/102 | 32/86 | 178.125 / 415.000 milli-EV |
+| Shadows | 18/50 | 2/34 | 88.298 / 283.871 milli-EV |
+| Saturation | 34/51 | 18/35 | 63.846 / 103.115 milli-ratio |
+| Temperature | 26/37 | 10/21 | 127.326 / 197.632 kelvin |
+| Sharpen | 71/71 | 7/14 | 75.805 / 71.353 milli-amount |
+
+Missing recommendation counts exclude intentionally non-actionable sharpen
+opposites; wrong-direction emissions are separately reflected in direction scores.
+MAE is conditional on emitted applicable actions, with different sample coverage;
+sharpen's small conditional MAE difference is not an overall quality advantage.
+The targets are fixed perturbation-scaled native bins, not perceptually optimal
+inverse edits. No mixed-unit parameter aggregate is used. Both B/C have zero
+invalid/nonfinite/unbounded outputs and zero false positives on the 16 identical
+reference pairs per tool. That paired false-positive result does not qualify
+absolute neutral-photo behavior. All 928 candidate recommendations repeat exactly;
+maximum repeated embedding-component difference is zero. Actual image embedding
+calls: 1,632 (two evaluations per distinct image, reusing byte-identical references).
+The metric implementation's repeated evaluations are deterministic in preflight
+and a focused real-photo regression; this is not a second complete holdout run.
+
+Sharpen's opposite/no-action cases require an additional false-positive check:
+including unchanged and opposite cases, B emits 0/64 unwanted recommendations,
+C emits 7/64, and the explicit reference emits 64/64. Other tools have 0/16 B/C
+false positives on their non-actionable regular cases. These counts are derived
+from the same retained records, without changing scoring inputs or policy.
+
+| Scene stratum (2 held-out bases each) | B correct /96 | C correct /96 |
+|---|---:|---:|
+| Flowers | 90 | 50 |
+| Indoor | 87 | 37 |
+| Landscape | 81 | 44 |
+| Low light | 65 | 38 |
+| Nature | 84 | 45 |
+| Objects/food | 89 | 37 |
+| Urban | 92 | 44 |
+| Water | 94 | 35 |
+
+Conflict abstentions: B 8/16, C 7/16. Combination primary directions: B 13/16,
+C 8/16. Candidate wins in isolated stress cells do not establish robust context
+or complementary signal; only two stress bases were evaluated per split. No
+combined/ensemble policy was trained or evaluated, and none is claimed qualified.
+
+A explicit reference baseline was executed through the existing JS provider on
+the same requests. It emits every explicit request and has 48/96 regular directions
+per tool in this balanced experiment, with 16/16 paired-reference false positives.
+It does not claim image understanding. A reporting defect in the frozen raw runner
+assumed positive direction for all reference values: 7000 K is actually opposite
+to the temperature rule's 6000 K positive correction. The separate reporting tool
+corrects temperature's combination count from 2/2 to 0/2. Balanced regular counts
+are unchanged. Raw records remain intact; B/C evidence, policies, slopes, labels,
+thresholds and their comparison are unaffected. No inference was rerun. A focused
+regression checks the corrected native-value interpretation.
+
+### Cost and disposition
+
+Host: WSL x86_64, Intel Core i5-12600K, Python 3.14.4, existing LiteRT-LM API 0.18.0,
+CPU text/vision one thread, audio disabled. Candidate load 2.9880 s, first image
+0.9126 s after static-text setup, warm image median 0.4735 s / p95 0.4991 s. No
+cold OS-cache guarantee. Metric paired evaluation median 0.0573 s, maximum 0.0960 s.
+Metric memory probe: 9,181,175 peak traced Python-allocation bytes for one 224x224
+call (input allocated before tracing); at most 50,176 pixel records. This is not
+native/device accounting or a production lease. Reference caching could reduce
+baseline cost further; no such optimization was used to win this comparison.
+
+Candidate artifact 387,710,976 bytes; process peak RSS 799,682,560 bytes, active RSS
+788,369,408 (anonymous 405,835,776 / file-backed 382,533,632), post-close RSS
+276,512,768. Process evidence includes Python, retained embedding-cache and corpus
+overhead; post-close is not proof of a runtime leak, and RSS is never an exact lease.
+No mobile/package/thermal/memory-pressure qualification or accelerator trust claim.
+
+Metrics outperform the candidate on every tool and scene stratum; candidate
+direction gaps are large, with every paired interval below zero. Conflict and
+combination behavior do not compensate, and conditional sharpen calibration is
+not better coverage. This result does not justify a roughly 388 MB artifact and
+heavy runtime versus inexpensive read-only metrics for these current MVP tasks.
+Do not invest in rebuilding or mobile integration on the evidence of this round.
+Metrics themselves remain offline, non-authoritative and unqualified for absolute
+auto-correction. No replacement production provider/model is selected here.
+
+CURRENT ARTIFACT status remains **CURRENT_ARTIFACT_PROVENANCE_FAILED**, unadmitted
+and unintegrated. Quality disqualification and artifact provenance failure are
+independent. No new conversion-lineage evidence was obtained or inferred.
+
+Raw [holdout](evidence/phase-7-step-7-round3-holdout.json),
+[start marker](evidence/phase-7-step-7-round3-holdout-start.json) and
+[derived analysis](evidence/phase-7-step-7-round3-analysis.json) retain exact counts,
+per-tool domains/calibration coverage, raw evidence, host cost and reporting erratum.
+The [changed-file inventory](evidence/phase-7-step-7-round3-files.json) lists every
+changed path. No production source/dependency/ABI/app behavior changed.
+
+A: production admission remains blocked by failed provenance and no demonstrated
+incremental quality; no new approval/execution or persistence bypass exists in this
+offline path. B: absolute auto-correction and physical-device quality/resources
+remain unqualified; no mobile work is authorized. C: faster metric implementations
+and broader task research are optional future work, not implementation authority.
+
+Final exact evidence-SHA certification is pending until both full workflows and
+every required job complete/SUCCESS. The final engineering receipt records actual
+SHA/run/attempt/job evidence without circular self-reference. No earlier SHA can
+certify a later commit. No unexecuted test is PASS; no tests were weakened, skipped
+or optionalized, and no rerun-until-green was used. This is Round 3 evidence only,
+not Step 7 closure or model admission.
+
+Local validation corrections: the existing text-hygiene gate initially decoded
+the new PNG fixtures as UTF-8. It now admits only manifest-listed CC0 PNG paths
+with exact SHA-256, bounded size, PNG signature and 224x224 RGB8 headers; altered
+bytes and unlisted images have negative tests. Text checks remain intact. The
+copied start-marker evidence also needed a terminal newline, and the report's
+changed-file inventory had to be generated before link validation. These were
+tooling/evidence defects, corrected without changing any frozen experiment input
+or rerunning inference. Original ignored run logs/start marker remain preserved.
+
 ## Round 2 — Candidate Qualification
 
 Status: AUTHORIZED / IN PROGRESS / ADMISSION BLOCKED. Round 2 engineering

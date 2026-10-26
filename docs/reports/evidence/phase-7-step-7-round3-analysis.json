@@ -1,0 +1,598 @@
+{
+  "version": 1,
+  "scope": "OFFLINE_REPORTING_NOT_ADMISSION",
+  "reference_direction_erratum": "Raw reference temperature combination count assumed positive direction; actual explicit 7000 K has opposite direction to positive 6000 K. Balanced regular direction counts are unchanged. B/C policies, raw evidence, labels, slopes and thresholds unchanged; no model rerun.",
+  "corrected_reference": {
+    "adjust.exposure": {
+      "direction_correct": 48,
+      "direction_total": 96,
+      "weak_correct": 16,
+      "weak_total": 32,
+      "strong_correct": 16,
+      "strong_total": 32,
+      "abstentions": 0,
+      "false_positives": 16,
+      "false_negatives": 0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_ev",
+      "parameter_error_samples": 112,
+      "mean_native_error": 500.0,
+      "conflict_abstentions": 0,
+      "combination_direction_correct": 2,
+      "domains": {
+        "flowers": {
+          "correct": 6,
+          "total": 12
+        },
+        "indoor": {
+          "correct": 6,
+          "total": 12
+        },
+        "landscape": {
+          "correct": 6,
+          "total": 12
+        },
+        "low_light": {
+          "correct": 6,
+          "total": 12
+        },
+        "nature": {
+          "correct": 6,
+          "total": 12
+        },
+        "objects": {
+          "correct": 6,
+          "total": 12
+        },
+        "urban": {
+          "correct": 6,
+          "total": 12
+        },
+        "water": {
+          "correct": 6,
+          "total": 12
+        }
+      }
+    },
+    "adjust.brightness": {
+      "direction_correct": 48,
+      "direction_total": 96,
+      "weak_correct": 16,
+      "weak_total": 32,
+      "strong_correct": 16,
+      "strong_total": 32,
+      "abstentions": 0,
+      "false_positives": 16,
+      "false_negatives": 0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_linear",
+      "parameter_error_samples": 112,
+      "mean_native_error": 100.0,
+      "conflict_abstentions": 0,
+      "combination_direction_correct": 2,
+      "domains": {
+        "flowers": {
+          "correct": 6,
+          "total": 12
+        },
+        "indoor": {
+          "correct": 6,
+          "total": 12
+        },
+        "landscape": {
+          "correct": 6,
+          "total": 12
+        },
+        "low_light": {
+          "correct": 6,
+          "total": 12
+        },
+        "nature": {
+          "correct": 6,
+          "total": 12
+        },
+        "objects": {
+          "correct": 6,
+          "total": 12
+        },
+        "urban": {
+          "correct": 6,
+          "total": 12
+        },
+        "water": {
+          "correct": 6,
+          "total": 12
+        }
+      }
+    },
+    "adjust.contrast": {
+      "direction_correct": 48,
+      "direction_total": 96,
+      "weak_correct": 16,
+      "weak_total": 32,
+      "strong_correct": 16,
+      "strong_total": 32,
+      "abstentions": 0,
+      "false_positives": 16,
+      "false_negatives": 0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_stops",
+      "parameter_error_samples": 112,
+      "mean_native_error": 250.0,
+      "conflict_abstentions": 0,
+      "combination_direction_correct": 2,
+      "domains": {
+        "flowers": {
+          "correct": 6,
+          "total": 12
+        },
+        "indoor": {
+          "correct": 6,
+          "total": 12
+        },
+        "landscape": {
+          "correct": 6,
+          "total": 12
+        },
+        "low_light": {
+          "correct": 6,
+          "total": 12
+        },
+        "nature": {
+          "correct": 6,
+          "total": 12
+        },
+        "objects": {
+          "correct": 6,
+          "total": 12
+        },
+        "urban": {
+          "correct": 6,
+          "total": 12
+        },
+        "water": {
+          "correct": 6,
+          "total": 12
+        }
+      }
+    },
+    "adjust.highlights": {
+      "direction_correct": 48,
+      "direction_total": 96,
+      "weak_correct": 16,
+      "weak_total": 32,
+      "strong_correct": 16,
+      "strong_total": 32,
+      "abstentions": 0,
+      "false_positives": 16,
+      "false_negatives": 0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_ev",
+      "parameter_error_samples": 112,
+      "mean_native_error": 500.0,
+      "conflict_abstentions": 0,
+      "combination_direction_correct": 2,
+      "domains": {
+        "flowers": {
+          "correct": 6,
+          "total": 12
+        },
+        "indoor": {
+          "correct": 6,
+          "total": 12
+        },
+        "landscape": {
+          "correct": 6,
+          "total": 12
+        },
+        "low_light": {
+          "correct": 6,
+          "total": 12
+        },
+        "nature": {
+          "correct": 6,
+          "total": 12
+        },
+        "objects": {
+          "correct": 6,
+          "total": 12
+        },
+        "urban": {
+          "correct": 6,
+          "total": 12
+        },
+        "water": {
+          "correct": 6,
+          "total": 12
+        }
+      }
+    },
+    "adjust.shadows": {
+      "direction_correct": 48,
+      "direction_total": 96,
+      "weak_correct": 16,
+      "weak_total": 32,
+      "strong_correct": 16,
+      "strong_total": 32,
+      "abstentions": 0,
+      "false_positives": 16,
+      "false_negatives": 0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_ev",
+      "parameter_error_samples": 112,
+      "mean_native_error": 500.0,
+      "conflict_abstentions": 0,
+      "combination_direction_correct": 2,
+      "domains": {
+        "flowers": {
+          "correct": 6,
+          "total": 12
+        },
+        "indoor": {
+          "correct": 6,
+          "total": 12
+        },
+        "landscape": {
+          "correct": 6,
+          "total": 12
+        },
+        "low_light": {
+          "correct": 6,
+          "total": 12
+        },
+        "nature": {
+          "correct": 6,
+          "total": 12
+        },
+        "objects": {
+          "correct": 6,
+          "total": 12
+        },
+        "urban": {
+          "correct": 6,
+          "total": 12
+        },
+        "water": {
+          "correct": 6,
+          "total": 12
+        }
+      }
+    },
+    "adjust.saturation": {
+      "direction_correct": 48,
+      "direction_total": 96,
+      "weak_correct": 16,
+      "weak_total": 32,
+      "strong_correct": 16,
+      "strong_total": 32,
+      "abstentions": 0,
+      "false_positives": 16,
+      "false_negatives": 0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_ratio",
+      "parameter_error_samples": 112,
+      "mean_native_error": 200.0,
+      "conflict_abstentions": 0,
+      "combination_direction_correct": 2,
+      "domains": {
+        "flowers": {
+          "correct": 6,
+          "total": 12
+        },
+        "indoor": {
+          "correct": 6,
+          "total": 12
+        },
+        "landscape": {
+          "correct": 6,
+          "total": 12
+        },
+        "low_light": {
+          "correct": 6,
+          "total": 12
+        },
+        "nature": {
+          "correct": 6,
+          "total": 12
+        },
+        "objects": {
+          "correct": 6,
+          "total": 12
+        },
+        "urban": {
+          "correct": 6,
+          "total": 12
+        },
+        "water": {
+          "correct": 6,
+          "total": 12
+        }
+      }
+    },
+    "adjust.temperature": {
+      "direction_correct": 48,
+      "direction_total": 96,
+      "weak_correct": 16,
+      "weak_total": 32,
+      "strong_correct": 16,
+      "strong_total": 32,
+      "abstentions": 0,
+      "false_positives": 16,
+      "false_negatives": 0,
+      "invalid_output": 0,
+      "parameter_unit": "kelvin",
+      "parameter_error_samples": 112,
+      "mean_native_error": 498.0571428571428,
+      "conflict_abstentions": 0,
+      "combination_direction_correct": 0,
+      "domains": {
+        "flowers": {
+          "correct": 6,
+          "total": 12
+        },
+        "indoor": {
+          "correct": 6,
+          "total": 12
+        },
+        "landscape": {
+          "correct": 6,
+          "total": 12
+        },
+        "low_light": {
+          "correct": 6,
+          "total": 12
+        },
+        "nature": {
+          "correct": 6,
+          "total": 12
+        },
+        "objects": {
+          "correct": 6,
+          "total": 12
+        },
+        "urban": {
+          "correct": 6,
+          "total": 12
+        },
+        "water": {
+          "correct": 6,
+          "total": 12
+        }
+      }
+    },
+    "detail.sharpen": {
+      "direction_correct": 48,
+      "direction_total": 96,
+      "weak_correct": 16,
+      "weak_total": 32,
+      "strong_correct": 16,
+      "strong_total": 32,
+      "abstentions": 0,
+      "false_positives": 16,
+      "false_negatives": 0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_amount",
+      "parameter_error_samples": 64,
+      "mean_native_error": 137.5,
+      "conflict_abstentions": 0,
+      "combination_direction_correct": 2,
+      "domains": {
+        "flowers": {
+          "correct": 6,
+          "total": 12
+        },
+        "indoor": {
+          "correct": 6,
+          "total": 12
+        },
+        "landscape": {
+          "correct": 6,
+          "total": 12
+        },
+        "low_light": {
+          "correct": 6,
+          "total": 12
+        },
+        "nature": {
+          "correct": 6,
+          "total": 12
+        },
+        "objects": {
+          "correct": 6,
+          "total": 12
+        },
+        "urban": {
+          "correct": 6,
+          "total": 12
+        },
+        "water": {
+          "correct": 6,
+          "total": 12
+        }
+      }
+    }
+  },
+  "pixel_observability": {
+    "criterion": "exact decoded RGB byte equality; supplementary only, no records/labels/policies removed or changed",
+    "unchanged_nonzero_case_ids": [],
+    "effective_direction": {
+      "adjust.exposure": {
+        "requested_nonzero": 96,
+        "byte_observable": 96,
+        "metric_correct": 86,
+        "candidate_correct": 48
+      },
+      "adjust.brightness": {
+        "requested_nonzero": 96,
+        "byte_observable": 96,
+        "metric_correct": 96,
+        "candidate_correct": 39
+      },
+      "adjust.contrast": {
+        "requested_nonzero": 96,
+        "byte_observable": 96,
+        "metric_correct": 95,
+        "candidate_correct": 30
+      },
+      "adjust.highlights": {
+        "requested_nonzero": 96,
+        "byte_observable": 96,
+        "metric_correct": 64,
+        "candidate_correct": 6
+      },
+      "adjust.shadows": {
+        "requested_nonzero": 96,
+        "byte_observable": 96,
+        "metric_correct": 94,
+        "candidate_correct": 41
+      },
+      "adjust.saturation": {
+        "requested_nonzero": 96,
+        "byte_observable": 96,
+        "metric_correct": 78,
+        "candidate_correct": 43
+      },
+      "adjust.temperature": {
+        "requested_nonzero": 96,
+        "byte_observable": 96,
+        "metric_correct": 86,
+        "candidate_correct": 62
+      },
+      "detail.sharpen": {
+        "requested_nonzero": 96,
+        "byte_observable": 96,
+        "metric_correct": 83,
+        "candidate_correct": 61
+      }
+    }
+  },
+  "metric_memory": {
+    "measurement": "separate tracemalloc peak Python allocations for one 224x224 metric call, input RGB allocated before tracing; not native/process/device accounting",
+    "input_rgb_bytes": 150528,
+    "maximum_live_pixel_records": 50176,
+    "peak_python_bytes_by_tool": {
+      "adjust.exposure": 9171896,
+      "adjust.brightness": 9171896,
+      "adjust.contrast": 9181175,
+      "adjust.highlights": 9173064,
+      "adjust.shadows": 9173032,
+      "adjust.saturation": 9173056,
+      "adjust.temperature": 9173048,
+      "detail.sharpen": 9173104
+    }
+  },
+  "environment": {
+    "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "python": "3.14.4",
+    "runtime": "existing LiteRT-LM API 0.18.0",
+    "backend": "CPU one thread text and vision, audio disabled",
+    "cpu_model": "12th Gen Intel(R) Core(TM) i5-12600K",
+    "vm_memory_observation": "MemTotal:       16267160 kB (WSL-visible, not physical mobile RAM)"
+  },
+  "artifact_bytes": 387710976,
+  "production_admitted": false,
+  "nonactionable_false_positives": {
+    "reference": {
+      "adjust.exposure": {
+        "false_positives": 16,
+        "nonactionable_cases": 16
+      },
+      "adjust.brightness": {
+        "false_positives": 16,
+        "nonactionable_cases": 16
+      },
+      "adjust.contrast": {
+        "false_positives": 16,
+        "nonactionable_cases": 16
+      },
+      "adjust.highlights": {
+        "false_positives": 16,
+        "nonactionable_cases": 16
+      },
+      "adjust.shadows": {
+        "false_positives": 16,
+        "nonactionable_cases": 16
+      },
+      "adjust.saturation": {
+        "false_positives": 16,
+        "nonactionable_cases": 16
+      },
+      "adjust.temperature": {
+        "false_positives": 16,
+        "nonactionable_cases": 16
+      },
+      "detail.sharpen": {
+        "false_positives": 64,
+        "nonactionable_cases": 64
+      }
+    },
+    "metric": {
+      "adjust.exposure": {
+        "false_positives": 0,
+        "nonactionable_cases": 16
+      },
+      "adjust.brightness": {
+        "false_positives": 0,
+        "nonactionable_cases": 16
+      },
+      "adjust.contrast": {
+        "false_positives": 0,
+        "nonactionable_cases": 16
+      },
+      "adjust.highlights": {
+        "false_positives": 0,
+        "nonactionable_cases": 16
+      },
+      "adjust.shadows": {
+        "false_positives": 0,
+        "nonactionable_cases": 16
+      },
+      "adjust.saturation": {
+        "false_positives": 0,
+        "nonactionable_cases": 16
+      },
+      "adjust.temperature": {
+        "false_positives": 0,
+        "nonactionable_cases": 16
+      },
+      "detail.sharpen": {
+        "false_positives": 0,
+        "nonactionable_cases": 64
+      }
+    },
+    "candidate": {
+      "adjust.exposure": {
+        "false_positives": 0,
+        "nonactionable_cases": 16
+      },
+      "adjust.brightness": {
+        "false_positives": 0,
+        "nonactionable_cases": 16
+      },
+      "adjust.contrast": {
+        "false_positives": 0,
+        "nonactionable_cases": 16
+      },
+      "adjust.highlights": {
+        "false_positives": 0,
+        "nonactionable_cases": 16
+      },
+      "adjust.shadows": {
+        "false_positives": 0,
+        "nonactionable_cases": 16
+      },
+      "adjust.saturation": {
+        "false_positives": 0,
+        "nonactionable_cases": 16
+      },
+      "adjust.temperature": {
+        "false_positives": 0,
+        "nonactionable_cases": 16
+      },
+      "detail.sharpen": {
+        "false_positives": 7,
+        "nonactionable_cases": 64
+      }
+    }
+  }
+}
