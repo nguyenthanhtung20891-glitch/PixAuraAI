@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "scope": "PHASE_7_STEP_7_ROUND_4_OFFLINE_ONLY",
+  "production_code_changed": false,
+  "changed_files": [
+    ".gitattributes",
+    ".github/workflows/foundation.yml",
+    ".github/workflows/native-shells.yml",
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "DECISIONS.md",
+    "QUALITY_GATES.md",
+    "ROADMAP.md",
+    "docs/benchmarks/absolute-images-v1/README.md",
+    "docs/benchmarks/absolute-images-v1/candidate-landscape.md",
+    "docs/benchmarks/absolute-images-v1/labels.json",
+    "docs/benchmarks/absolute-images-v1/landscape.json",
+    "docs/benchmarks/absolute-images-v1/policy.json",
+    "docs/benchmarks/absolute-images-v1/recipes.json",
+    "docs/benchmarks/absolute-images-v1/review-freeze.json",
+    "docs/benchmarks/absolute-images-v1/task-decomposition.md",
+    "docs/plans/phase-7-roadmap.md",
+    "docs/reports/evidence/phase-7-step-7-round4-absolute.json",
+    "docs/reports/evidence/phase-7-step-7-round4-cost.json",
+    "docs/reports/evidence/phase-7-step-7-round4-files.json",
+    "docs/reports/evidence/phase-7-step-7-round4-start.json",
+    "docs/reports/phase-7-step-7.md",
+    "scripts/assess-absolute-images.py",
+    "tests/absolute-images.test.py"
+  ]
+}

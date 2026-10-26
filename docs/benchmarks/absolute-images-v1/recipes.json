@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "scope": "OFFLINE_REVIEWED_DERIVATIVES_NOT_GROUND_TRUTH_FROM_TRANSFORMS",
+  "derivatives": [
+    {"id":"v01","base":"3920","tool":"adjust.exposure","amount":4},
+    {"id":"v02","base":"114","tool":"adjust.exposure","amount":-4},
+    {"id":"v03","base":"188","tool":"adjust.brightness","amount":4},
+    {"id":"v04","base":"408","tool":"adjust.brightness","amount":-4},
+    {"id":"v05","base":"255","tool":"adjust.contrast","amount":4},
+    {"id":"v06","base":"1222","tool":"adjust.contrast","amount":-4},
+    {"id":"v07","base":"139","tool":"adjust.highlights","amount":4},
+    {"id":"v08","base":"747","tool":"adjust.shadows","amount":4},
+    {"id":"v09","base":"5731","tool":"adjust.saturation","amount":4},
+    {"id":"v10","base":"99","tool":"adjust.saturation","amount":-4},
+    {"id":"v11","base":"5068","tool":"adjust.temperature","amount":2},
+    {"id":"v12","base":"90","tool":"adjust.temperature","amount":-2},
+    {"id":"v13","base":"481","tool":"detail.sharpen","amount":1},
+    {"id":"v14","base":"218","tool":"detail.sharpen","amount":1},
+    {"id":"v15","base":"223","tool":"adjust.exposure","amount":3},
+    {"id":"v16","base":"419","tool":"adjust.exposure","amount":-3}
+  ]
+}

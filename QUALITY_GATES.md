@@ -1,5 +1,33 @@
 # Quality gates and promotion policy
 
+<!-- phase7-step7-round4 -->
+## Phase 7 Step 7 — Round 4 current authority
+
+Phase 6 CLOSED / COMPLETE / FULL PASS. Phase 7 Steps 1-6 COMPLETE / FULL PASS.
+Step 7 AUTHORIZED / IN PROGRESS / ADMISSION BLOCKED. Round 4 is offline candidate
+discovery and absolute-image feasibility only; exact-SHA evidence certification
+does not admit a provider or close Step 7. Accepted Round 3 baseline:
+`e02750be62cddf284442a32598fdd12986d6659f`, Foundation 40326439382 SUCCESS 7/7,
+Native shells 40326439363 SUCCESS 3/3, exact SHA/attempt 1/every job SUCCESS.
+EmbeddingGemma DISQUALIFIED FOR THE CURRENT PIXAURAAI MVP. Do not reopen its work.
+Round 3 paired metrics are not production absolute auto-correction authority.
+Round 4 recommendation NEW_CANDIDATE_SEARCH_REQUIRED; no learned component has
+demonstrated incremental PixAuraAI quality or earned production integration.
+Provisional single-AI visual labels are not independent human quality certification.
+Existing Intent/Structured Intent/Plan/Registry/Envelope/Provider/planner, HUMAN
+approval/candidate/publication, Schema 3, Manual/shared history/platform authority,
+Phase 4/5 resource/segmentation and intelligence resource admission remain unchanged.
+Production model UNRESOLVED. CPU VALIDATED; Vulkan/Metal UNKNOWN.
+DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+No production model/runtime/dependency/app integration, NLP or cloud inference.
+Step 8 NOT STARTED. Phase 8 NOT STARTED. Stop after this round.
+See docs/reports/phase-7-step-7.md and docs/benchmarks/absolute-images-v1/README.md
+(repository-relative paths). Full exact-final-SHA Foundation and Native shells,
+every required job completed/SUCCESS, remain mandatory. No rerun-until-green.
+<!-- phase7-step7-round4-history -->
+
+Earlier sections retain their historical freeze-time authority and candidate status.
+
 <!-- phase7-step7-round1 -->
 ## Phase 7 Step 7 — remediation / admission foundation round 1
 

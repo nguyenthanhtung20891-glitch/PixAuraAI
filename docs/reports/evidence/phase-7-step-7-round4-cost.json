@@ -1,0 +1,17 @@
+{
+  "host": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "python": "3.14.4",
+  "baseline_median_seconds": 0.07196810749883298,
+  "baseline_p95_seconds": 0.07677742297528312,
+  "baseline_max_seconds": 0.08212812201236375,
+  "repeated_outputs_equal": 48,
+  "total_images": 48,
+  "peak_traced_python_allocations_one_input": 11224124,
+  "input_rgb_bytes_excluded_from_trace": 150528,
+  "process_peak_rss_bytes_diagnostic": 68591616,
+  "memory_caveat": "Python imported scripts, retained records, corpus generation, repeat check and tracemalloc; not a lease or production device measurement",
+  "learned_inference": "NOT_EXECUTED",
+  "learned_load_latency": "NOT_MEASURED",
+  "learned_peak_rss": "NOT_MEASURED",
+  "mobile_qualification": "NOT_VERIFIED"
+}

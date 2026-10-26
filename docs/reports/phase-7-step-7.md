@@ -1,5 +1,200 @@
 # Phase 7 Step 7 — admission evidence
 
+## Round 4 — Production Candidate Discovery & Absolute-Image Intelligence Feasibility
+
+Round 4 engineering evaluation complete; exact-SHA certification PENDING until the
+observed final delivery records both full workflows. Step 7 AUTHORIZED / IN PROGRESS /
+ADMISSION BLOCKED. Production model UNRESOLVED. Step 8 NOT STARTED. Phase 8 NOT STARTED.
+Starting main == HEAD == origin/main `e02750be62cddf284442a32598fdd12986d6659f`
+verified after fetch, clean tracked/staged tree. Ignored historical evidence preserved.
+Accepted Round 3: Foundation 40326439382 SUCCESS 7/7; Native shells 40326439363 SUCCESS
+3/3, both exact SHA, attempt 1, every required job completed/SUCCESS.
+
+EmbeddingGemma remains **DISQUALIFIED FOR THE CURRENT PIXAURAAI MVP**. No further
+probe, tuning, rebuilding, provenance repair or mobile integration was performed.
+Its current artifact remains CURRENT_ARTIFACT_PROVENANCE_FAILED. Round 3 is historical
+relative-signal evidence, not an absolute correction qualification or replacement provider.
+
+### Task decomposition and deterministic core
+
+The [per-tool decomposition](../benchmarks/absolute-images-v1/task-decomposition.md)
+distinguishes measurable conditions from desired corrections. Exposure, highlights
+and shadows have deterministically observable extreme-condition evidence; safe
+correction remains context-dependent. Brightness/contrast/saturation/temperature/
+sharpness benefit from subject/intent/illuminant/noise context. Blur, crop and rotation
+remain excluded from automatic inference, with existing explicit/manual tools intact.
+No dark low-key photograph, warm sunset, foggy scene or selective-focus portrait is
+automatically defective. A global quality score is not an editing direction.
+
+The new OFFLINE one-image baseline measures linear luminance percentiles/spread,
+clipping occupancy, saturation, channel balance and edge energy at fixed 224 RGB8.
+It receives no paired reference. Fixed [policy v1](../benchmarks/absolute-images-v1/policy.json)
+emits at most one bounded exposure/highlight/shadow suggestion, otherwise abstains.
+Five ambiguous tool decisions always abstain. HEURISTIC_LOW is an evidence tier,
+not calibrated probability; numeric suggestions are fixed feasibility values checked
+against the existing Registry golden, not measured optimal corrections. No Plan,
+Envelope, approval, candidate, edit/history operation or production provider is created.
+
+### Absolute review and frozen evidence
+
+[Review protocol](../benchmarks/absolute-images-v1/README.md),
+[labels](../benchmarks/absolute-images-v1/labels.json),
+[recipes](../benchmarks/absolute-images-v1/recipes.json) and
+[pre-score bindings](../benchmarks/absolute-images-v1/review-freeze.json) document 32
+CC0 natural bases and 16 visually reviewed degraded derivatives, eight scene strata,
+48 images / 384 image-tool labels. No external photos were newly acquired; Round 3
+individual source/license and byte identities are reused. Derivatives are not new
+independent natural scenes. The policy and review were SHA-bound before first scoring;
+the exclusive [start marker](evidence/phase-7-step-7-round4-start.json) records that
+freeze. Freeze SHA-256 `f10eb08ad4040393c714a0466ee72960cb84ed0cbff2b960b61b90241e8dd929`.
+No thresholds, images or labels were tuned after seeing results.
+
+Labels are SINGLE AI VISUAL ENGINEERING REVIEW, not independent human consensus or
+objective ground truth. They were made from images before metric outputs, not generated
+by the tested metrics, and are explicitly not blind to derivative recipes. Confidence
+is medium/low, with per-image/tool rationale and ambiguous exclusion. Sunset/white-balance
+and softness variants can remain ambiguous despite known transformations. Technical
+correction is separate from artistic taste. No parameter goldens or universal accuracy
+thresholds exist. Future admission needs independent human review/adjudication and
+fresh locked realistic evidence; this small feasibility set does not satisfy that gate.
+
+### Absolute baseline results
+
+| Tool | Positive / negative labels | Correct direction | Missed | False positive / acceptable labels | Abstained on scored labels | Ambiguous excluded |
+|---|---:|---:|---:|---:|---:|---:|
+| Exposure | 2 / 2 | 0 | 4 | 1 / 41 | 44 | 3 |
+| Brightness | 1 / 1 | 0 | 2 | 0 / 46 | 48 | 0 |
+| Contrast | 1 / 1 | 0 | 2 | 0 / 46 | 48 | 0 |
+| Highlights | 0 / 1 | 1 | 0 | 1 / 46 | 45 | 1 |
+| Shadows | 1 / 0 | 0 | 1 | 0 / 42 | 43 | 5 |
+| Saturation | 1 / 1 | 0 | 2 | 0 / 45 | 47 | 1 |
+| Temperature | 0 / 0 | 0 | 0 | 0 / 46 | 46 | 2 |
+| Sharpen | 1 / 0 | 0 | 1 | 0 / 46 | 47 | 1 |
+
+Only 3/48 images receive a suggestion; all 32 natural bases abstain. One broadly
+white rose variant receives the reviewed highlight direction. Two nominal false
+positives are label disagreements: v02 gets highlight reduction rather than its
+labeled exposure reduction (a plausible alternative-tool correction, not proven harm);
+v06 gets an exposure lift for a harsh contrast variant (concrete failure to distinguish
+histogram darkness from the actual condition). Do not inflate alternative-tool
+penalties into certainty. The 12 missed tool labels include alternatives for two tonal
+variants, so they are coverage diagnostics, not 12 independently failed photographs.
+
+No wrong-direction emissions on labeled correction slots, no nonfinite/invalid/out-of-
+Registry values, no mutation. All 48 outputs reproduce exactly. The natural cohort
+has no confidently labeled required correction; 32/32 abstention is NOT proof of useful
+natural-photo correction coverage. Temperature has no confident directional label;
+color accuracy is NOT VERIFIED. Native-unit calibration error is NOT SCORED.
+No mixed-unit aggregate or statistical significance is claimed.
+
+Per-domain and natural/derived strata are retained in the
+[raw result](evidence/phase-7-step-7-round4-absolute.json). All three recommendations
+are in derived urban/nature/flower cases; the nature contrast/exposure confusion
+is a useful residual context case. Small strata do not establish scene generalization.
+The baseline is not promoted to production and has not been optimized to this corpus.
+
+### Candidate discovery and provenance
+
+The complete [landscape/source table](../benchmarks/absolute-images-v1/candidate-landscape.md)
+and [pinned source/provenance matrix](../benchmarks/absolute-images-v1/landscape.json)
+cover NIMA, FFCC, MobileIQA, PaQ-2-PiQ, Deep White-Balance Editing, exposure correction,
+HyperIQA and MUSIQ, plus the current IQA toolbox license boundary. Unknown parameters,
+artifact sizes or conversion facts stay UNKNOWN. Monorepo dates are not model releases.
+
+Shortlist, exactly three engineering hypotheses:
+
+- NIMA MobileNet technical: compact rating-distribution veto/abstention evidence.
+  Original repo HDF5 measured 13,174,216 bytes; SHA-256
+  `78c8bb95098fd27695de4147465f4fd504d0ca5e11699a487534854b5aeb3036`.
+  Apache-2.0 repository declaration; no full training/data-rights custody clearance.
+  MOS distribution is not a defect classifier or direction/parameter source.
+- FFCC: explicit illuminant uncertainty. Apache-2.0 source, archived; camera-linear
+  training domain is not arbitrary already-white-balanced sRGB. No appropriate
+  pinned production artifact or Kelvin calibration is established.
+- MobileIQA: mobile-resolution contextual quality assessment. No LICENSE/checkpoint
+  found in inspected official tree; README checkpoint/testing TBU. Published Android
+  TFLite measurements are upstream only, not an audited artifact or Apple evidence.
+
+PaQ-2-PiQ, Deep White-Balance and exposure-correction official sources declare
+noncommercial terms and are excluded from the commercial production shortlist.
+Direct RGB correction outputs also cannot replace existing tool execution authority.
+HyperIQA and MUSIQ are deprioritized for heavier/context-score pipelines with no
+demonstrated tool-specific gain or complete artifact lineage. The current IQA-PyTorch
+toolbox declares PolyForm Noncommercial; it was not installed or treated as blanket
+permission for all checkpoints. No weights from an unofficial mirror were substituted.
+
+No learned inference executed in Round 4. NIMA was downloaded to ignored build/
+only for official artifact identity/hash; it was NOT loaded or benchmarked. No new
+framework installed. Learned PixAuraAI quality, incremental gain, load/cold/warm
+latency, RAM and mobile compatibility all remain NOT VERIFIED / NOT MEASURED.
+No host probe result is fabricated from upstream benchmark numbers or file size.
+
+### Cost, decision and remaining gates
+
+[Cost evidence](evidence/phase-7-step-7-round4-cost.json): WSL Linux x86_64 Python
+3.14.4, absolute baseline median 0.07197 s / p95 0.07678 s / maximum 0.08213 s.
+One-input traced Python allocation peak 11,224,124 bytes; 150,528 RGB input bytes
+allocated before tracing. Diagnostic process peak RSS 68,591,616 includes retained
+records, imports, repeated corpus generation and memory probe; not an allocation
+lease or mobile budget. Low implementation complexity for measurements; candidate
+integration complexity MEDIUM for NIMA, HIGH for FFCC's domain adaptation and MobileIQA's
+missing rights/artifact plus attention/high-resolution transport. No production
+package size, thermal, battery, Android/Apple memory-pressure evidence is established.
+
+Round 4 recommendation, exactly one: **NEW_CANDIDATE_SEARCH_REQUIRED**.
+The inspected deterministic policy has low correction coverage and context confusion;
+these data do not prove every possible deterministic method insufficient, but do not
+support DETERMINISTIC_ONLY_MVP admission. No inspected learned component establishes
+an acceptable production-ready task/provenance/value combination. In particular, lack
+of NIMA execution is NOT a negative measured quality result. HYBRID_WITH_CANDIDATE or
+HYBRID_MULTI_COMPONENT would overclaim incremental value. None earns integration now.
+
+Recommended future architecture (NOT IMPLEMENTED): one bounded deterministic
+measurement core, optionally ONE small, licensed, provenance-complete contextual
+technical-defect/uncertainty component for the specific residual cases; shared
+evidence fusion with explicit uncertainty/conflict/abstention; independent bounded
+deterministic parameter calibration; ordinary UNTRUSTED Envelope; existing native
+validation/Plan/Registry/HUMAN approval/execution/history. No model zoo, generic MOS
+to-edit shortcut or dedicated execution path. Candidate should first prove reduced
+false correction on low-key/sunset/fog/selective-focus/noisy cases against a stronger
+frozen absolute baseline. If it cannot, retain safe abstention and Manual control.
+
+Before production: independently human-reviewed full-resolution corpus and fresh
+holdout; rights/training/conversion provenance; actual candidate-vs-baseline measurement;
+per-tool calibration/uncertainty and negative cases; runtime integrity/parity; physical
+device headroom/lifecycle/package/thermal measurements under existing resource owner.
+No new runtime, production registration, model loader, weights packaging or app changes.
+
+A: admission evidence remains incomplete (human quality labels, contextual value,
+candidate provenance/runtime/device qualification). No new editing-authority defect
+or frozen-contract change is introduced. B: improve absolute baseline and independent
+review diversity before any integration; no inferred correction for ambiguous intent.
+C: optimize metric loops and evaluate bounded spatial/noise features only if useful.
+
+All frozen Intent/Structured Intent/Plan/Registry/Envelope/Provider/planner, HUMAN
+approval/candidate/publication, Schema 3, shared history/Manual/platform authority,
+Phase 4 resource, Phase 5 segmentation/trust and Intelligence Runtime Resource Admission
+v1 semantics are unchanged. CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01
+DEFERRED / NOT WAIVED / NOT SATISFIED. No production model/runtime/cloud inference,
+free-form NLP or network editing authority. Hosted evidence remains software only.
+
+The [Round 4 file inventory](evidence/phase-7-step-7-round4-files.json) records exact
+paths. Both full workflows must certify the final evidence SHA, attempt/job level;
+the final engineering receipt resolves SHA/run IDs without circular self-reference.
+No Step 7 closure, Step 8 or Phase 8 authorization is created.
+
+Pre-commit local validation: retained complete Linux source suite 174/174 PASS,
+Round 2 evidence 4/4, Round 3 evidence 6/6, Round 4 evidence 8/8; actionlint PASS.
+Initial local environment issues were diagnosed without repository behavior changes:
+Windows sandbox Node spawn EPERM, then POSIX emulator fixtures' incompatible Windows
+temporary paths; the full suite ran under the existing repository Linux Node toolchain
+with TMPDIR inside build/. A non-login WSL PATH initially omitted that toolchain;
+the explicit existing tool path resolved it. actionlint was an existing Windows
+executable within a directory, not the directory itself. The ignored derivative
+preparation initially called the PNG helper with an incorrect argument signature;
+inspection corrected that helper call before review/freeze/scoring. No thresholds,
+labels, tests, timeouts or production code were altered to hide a failure.
+
 ## Round 3 — Realistic Image Evidence & Incremental Value Gate
 
 Status: AUTHORIZED / IN PROGRESS / ADMISSION BLOCKED. Round 3 evaluation complete;

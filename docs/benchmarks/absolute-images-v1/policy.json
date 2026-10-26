@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "scope": "OFFLINE_HEURISTIC_FEASIBILITY_NOT_PRODUCTION",
+  "threshold_authority": "ENGINEERING_PREDECLARED_NOT_ADMISSION_THRESHOLDS",
+  "measurement_fields": ["p10","p50","p90","p95","p99","mean","std","black","white","saturation","red_blue","edge_mean"],
+  "dark_p95": 0.12,
+  "dark_p50": 0.025,
+  "dark_signal_floor": 0.04,
+  "bright_p10": 0.65,
+  "white_fraction": 0.15,
+  "white_p50": 0.55,
+  "shadow_fraction": 0.5,
+  "shadow_p95": 0.4,
+  "shadow_mean": 0.12,
+  "unsupported_decisions": ["adjust.brightness","adjust.contrast","adjust.saturation","adjust.temperature","detail.sharpen"],
+  "numeric_edit_calibration": "fixed bounded feasibility suggestions only; native-unit error NOT_SCORED without independently reviewed parameter targets"
+}

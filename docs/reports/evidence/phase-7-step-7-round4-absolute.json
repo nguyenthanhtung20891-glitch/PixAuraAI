@@ -1,0 +1,3276 @@
+{
+  "version": 1,
+  "scope": "OFFLINE_ONLY_NOT_ADMISSION",
+  "production_admitted": false,
+  "labels_sha256": "d1b4a0f86f7af9cf89ff56398793d94303440fefcdf9a61e7792c8f855622496",
+  "policy_sha256": "41c8bb226097b4192048e65c52f06d1c0a892e9759c802ee2b4b66f91d674b7b",
+  "records": [
+    {
+      "id": "3920",
+      "base": "3920",
+      "domain": "indoor",
+      "kind": "natural",
+      "rgb_sha256": "8da3fce96f5818ef47e4911124b9c02f1ee5bb67f1f898d51b3434023e1051ed",
+      "measurements": {
+        "p10": 0.027300069277137774,
+        "p50": 0.09213618046853984,
+        "p90": 0.30348972012219794,
+        "p95": 0.5419534685378594,
+        "p99": 0.9734452903984125,
+        "mean": 0.14272307454175512,
+        "std": 0.16512015744155634,
+        "black": 0.003527582908163265,
+        "white": 0.009127869897959183,
+        "saturation": 0.29196520513963425,
+        "red_blue": 0.008288466783430195,
+        "edge_mean": 0.021112065006001116
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07623458598391153
+    },
+    {
+      "id": "5068",
+      "base": "5068",
+      "domain": "indoor",
+      "kind": "natural",
+      "rgb_sha256": "f619bae24b36ed81f7318e1ac5e89e76e25a36f640b80b8a1f253165a0a3cc5b",
+      "measurements": {
+        "p10": 0.01325006248061899,
+        "p50": 0.11396291026357783,
+        "p90": 0.2558738488669064,
+        "p95": 0.35419436444344876,
+        "p99": 0.7250393402877869,
+        "mean": 0.13772909747046724,
+        "std": 0.1355136712649151,
+        "black": 0.06973453443877552,
+        "white": 0.0014150191326530613,
+        "saturation": 0.33517204966596525,
+        "red_blue": 0.041695461219630976,
+        "edge_mean": 0.03176215723497046
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07244443098898046
+    },
+    {
+      "id": "6616",
+      "base": "6616",
+      "domain": "indoor",
+      "kind": "natural",
+      "rgb_sha256": "27113ef87f42762d9c1815a70dce28b7bcccaeef6ae87516e466694b46064504",
+      "measurements": {
+        "p10": 0.01639964305643453,
+        "p50": 0.12711138581185022,
+        "p90": 0.3989297181303667,
+        "p95": 0.6177571414243226,
+        "p99": 1.0,
+        "mean": 0.18830115229955466,
+        "std": 0.2107458781318807,
+        "black": 0.048728475765306124,
+        "white": 0.03360172193877551,
+        "saturation": 0.3959646632837303,
+        "red_blue": 0.04192452596090614,
+        "edge_mean": 0.04579713580055589
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07530043699080124
+    },
+    {
+      "id": "39",
+      "base": "39",
+      "domain": "landscape",
+      "kind": "natural",
+      "rgb_sha256": "150286ca1e3f1bcd8c20dc65ad9f264d26d0bec4c4780d6086af8750aa3095f1",
+      "measurements": {
+        "p10": 0.0021178762758137853,
+        "p50": 0.1346018435732616,
+        "p90": 0.2866434876921959,
+        "p95": 0.35106931456525675,
+        "p99": 0.5064215728992645,
+        "mean": 0.12333952911847303,
+        "std": 0.12928995938712223,
+        "black": 0.40937898596938777,
+        "white": 0.0,
+        "saturation": 0.8988771228440848,
+        "red_blue": -0.3536666888776764,
+        "edge_mean": 0.004210282104622094
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07226488701417111
+    },
+    {
+      "id": "185",
+      "base": "185",
+      "domain": "landscape",
+      "kind": "natural",
+      "rgb_sha256": "146b717a642f47e8c560f2b22e90cac0c46074cc75daa392de2c8875aaf0405d",
+      "measurements": {
+        "p10": 0.024687935127173145,
+        "p50": 0.17006753508085892,
+        "p90": 0.5074496767933847,
+        "p95": 0.5828033441474348,
+        "p99": 0.6752052641027524,
+        "mean": 0.22262722712816996,
+        "std": 0.18769465406910185,
+        "black": 0.04099569515306122,
+        "white": 0.0,
+        "saturation": 0.5247940795398476,
+        "red_blue": -0.1611833146671026,
+        "edge_mean": 0.025874838013799157
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07123776999651454
+    },
+    {
+      "id": "188",
+      "base": "188",
+      "domain": "landscape",
+      "kind": "natural",
+      "rgb_sha256": "d2cc76d2d60b83c90ecb3ca62a47e99c3731e3e36e8903721d0e766788ff172a",
+      "measurements": {
+        "p10": 0.015236285132618526,
+        "p50": 0.1330270990129905,
+        "p90": 0.45854792023591706,
+        "p95": 0.5476251026643237,
+        "p99": 0.6248102108707781,
+        "mean": 0.18058156585368496,
+        "std": 0.1684960702189421,
+        "black": 0.005939094387755102,
+        "white": 0.0,
+        "saturation": 0.5704444333631509,
+        "red_blue": -0.06986654817328654,
+        "edge_mean": 0.03154911859893544
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.0708765180024784
+    },
+    {
+      "id": "223",
+      "base": "223",
+      "domain": "landscape",
+      "kind": "natural",
+      "rgb_sha256": "2ad739fe40a3254b1e914753572e53f9ae835f403def4da4e6affb8e6b81a29b",
+      "measurements": {
+        "p10": 0.06002109593192778,
+        "p50": 0.33525346190308736,
+        "p90": 0.6347115622618755,
+        "p95": 0.7004607636609254,
+        "p99": 0.7540403015561149,
+        "mean": 0.3339172248035991,
+        "std": 0.2067829911195883,
+        "black": 0.009984853316326531,
+        "white": 0.0,
+        "saturation": 0.40792736758692383,
+        "red_blue": -0.08327418793057645,
+        "edge_mean": 0.006734674566140831
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.06974934399477206
+    },
+    {
+      "id": "114",
+      "base": "114",
+      "domain": "urban",
+      "kind": "natural",
+      "rgb_sha256": "865e99f573e7c085188dc12607f5d9876b1f5b9bdb319a0e0512c8968fa480e0",
+      "measurements": {
+        "p10": 0.06892694377012987,
+        "p50": 0.41893049978612246,
+        "p90": 0.8289735650333081,
+        "p95": 0.8843763574185697,
+        "p99": 0.9568734308915708,
+        "mean": 0.4578330356462485,
+        "std": 0.3056205520108786,
+        "black": 0.02752311862244898,
+        "white": 0.003168845663265306,
+        "saturation": 0.3261537594383517,
+        "red_blue": 0.044298328180266786,
+        "edge_mean": 0.03591289935061992
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07623646501451731
+    },
+    {
+      "id": "255",
+      "base": "255",
+      "domain": "urban",
+      "kind": "natural",
+      "rgb_sha256": "f2299ff535cae8508e7bccc49cac8f9c151506771db62490745575b18d51fb00",
+      "measurements": {
+        "p10": 0.03593438420407506,
+        "p50": 0.30503362869233985,
+        "p90": 0.6204168763047699,
+        "p95": 0.662012980139455,
+        "p99": 0.7377942241305178,
+        "mean": 0.31777266120882885,
+        "std": 0.2228890105789956,
+        "black": 0.018714126275510203,
+        "white": 0.00033880739795918367,
+        "saturation": 0.41312288894547533,
+        "red_blue": -0.11001199248521727,
+        "edge_mean": 0.02029880255069157
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07156637299340218
+    },
+    {
+      "id": "405",
+      "base": "405",
+      "domain": "urban",
+      "kind": "natural",
+      "rgb_sha256": "17b4f86fe75855102b7c4e70b97757e1a5b225fdfa35ca934a021ab4274e4d14",
+      "measurements": {
+        "p10": 0.006405961712549046,
+        "p50": 0.011613419513272565,
+        "p90": 0.21211256033759204,
+        "p95": 0.40274011657955666,
+        "p99": 0.9368697129222119,
+        "mean": 0.073503981761635,
+        "std": 0.1675179771639396,
+        "black": 0.4484813456632653,
+        "white": 0.00625797193877551,
+        "saturation": 0.5115660696191094,
+        "red_blue": 0.05169523919921775,
+        "edge_mean": 0.02150360272131714
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.073543441016227
+    },
+    {
+      "id": "481",
+      "base": "481",
+      "domain": "urban",
+      "kind": "natural",
+      "rgb_sha256": "ed911a0968aef705c6b5272dc29b3c89f6308a613de26266b5f3199e6bd56e88",
+      "measurements": {
+        "p10": 0.010618964215510042,
+        "p50": 0.07003518334259862,
+        "p90": 0.6776392903695256,
+        "p95": 0.8411559225507159,
+        "p99": 0.9301108583754237,
+        "mean": 0.1844316801728411,
+        "std": 0.2579168653755194,
+        "black": 0.09293287627551021,
+        "white": 0.0031489158163265306,
+        "saturation": 0.32451424155483183,
+        "red_blue": -0.01304829710459614,
+        "edge_mean": 0.04632171149295143
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07198755501303822
+    },
+    {
+      "id": "3689",
+      "base": "3689",
+      "domain": "objects",
+      "kind": "natural",
+      "rgb_sha256": "267dba8e181f075be6cb229bb2097079efe0db5a1ea48b7c4290c3f5bdc87c9b",
+      "measurements": {
+        "p10": 0.0747433667878005,
+        "p50": 0.2983164990556521,
+        "p90": 0.5407959136147238,
+        "p95": 0.6309075274261622,
+        "p99": 0.840563512725909,
+        "mean": 0.2961743451702961,
+        "std": 0.19845024580741524,
+        "black": 0.0,
+        "white": 0.0001992984693877551,
+        "saturation": 0.6772994112164786,
+        "red_blue": 0.3118845427880055,
+        "edge_mean": 0.018093725865288308
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07194865998462774
+    },
+    {
+      "id": "5731",
+      "base": "5731",
+      "domain": "objects",
+      "kind": "natural",
+      "rgb_sha256": "5d1eaf395077de38b2700afe06a61e9bc65e7e49eb203be530aab3fafebc259e",
+      "measurements": {
+        "p10": 0.02783493547448158,
+        "p50": 0.2667049277240478,
+        "p90": 0.740353524354257,
+        "p95": 0.7686229829216111,
+        "p99": 0.8575425636235595,
+        "mean": 0.3361353914675381,
+        "std": 0.2600479521680721,
+        "black": 0.05393016581632653,
+        "white": 0.0002192283163265306,
+        "saturation": 0.50289240368259,
+        "red_blue": 0.20465214990690817,
+        "edge_mean": 0.05155487129274434
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07118324699695222
+    },
+    {
+      "id": "9428",
+      "base": "9428",
+      "domain": "objects",
+      "kind": "natural",
+      "rgb_sha256": "53c5f195c1898e6f4f1564dffb47cccf2f2192ed3437a52b231ec937aa3ed5db",
+      "measurements": {
+        "p10": 0.0159474593993866,
+        "p50": 0.07385605989561711,
+        "p90": 0.7470570970799013,
+        "p95": 0.8125860782502898,
+        "p99": 0.9785304362356866,
+        "mean": 0.25812366580629226,
+        "std": 0.2899165793519248,
+        "black": 0.06451291454081633,
+        "white": 0.009845344387755101,
+        "saturation": 0.5223407790252573,
+        "red_blue": 0.0797644498725932,
+        "edge_mean": 0.03238726444974337
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.06968664101441391
+    },
+    {
+      "id": "304",
+      "base": "304",
+      "domain": "nature",
+      "kind": "natural",
+      "rgb_sha256": "549c5d2fa69f6b98c90d34a470548a82b8ad867884c9b41cab14e284cb6221e5",
+      "measurements": {
+        "p10": 0.017271358579414246,
+        "p50": 0.07949214000215349,
+        "p90": 0.6628813307151058,
+        "p95": 0.7596882630472412,
+        "p99": 0.998718489734051,
+        "mean": 0.2322753885167199,
+        "std": 0.2688361006983077,
+        "black": 0.020806760204081634,
+        "white": 0.016063456632653062,
+        "saturation": 0.30329362413298344,
+        "red_blue": 0.023640137961265982,
+        "edge_mean": 0.08057419634442499
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07052696397295222
+    },
+    {
+      "id": "747",
+      "base": "747",
+      "domain": "nature",
+      "kind": "natural",
+      "rgb_sha256": "9812feec0a2e87b1b72a4eed9cacd56ee0abc760aed620092ad84e70c2831ab7",
+      "measurements": {
+        "p10": 0.02637790714487841,
+        "p50": 0.12157480452168035,
+        "p90": 0.4105181353263162,
+        "p95": 0.5606701485350507,
+        "p99": 0.8611540351031342,
+        "mean": 0.18186402807537527,
+        "std": 0.17959297560231754,
+        "black": 0.020487882653061226,
+        "white": 0.002810108418367347,
+        "saturation": 0.5148406939846008,
+        "red_blue": 0.06592992785674713,
+        "edge_mean": 0.07035682363598532
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.0726109959941823
+    },
+    {
+      "id": "802",
+      "base": "802",
+      "domain": "nature",
+      "kind": "natural",
+      "rgb_sha256": "d960d8f4ea31911b2564f7e8fbea35d714988e2391bbe1d21607090275305d25",
+      "measurements": {
+        "p10": 0.0025796213817513465,
+        "p50": 0.02707895744166153,
+        "p90": 0.36640429638830035,
+        "p95": 0.5508585428235548,
+        "p99": 0.9454737528938685,
+        "mean": 0.11653444778422757,
+        "std": 0.1933440175935077,
+        "black": 0.3416772959183674,
+        "white": 0.007453762755102041,
+        "saturation": 0.6057491659191944,
+        "red_blue": 0.034572041990579915,
+        "edge_mean": 0.06434957290676438
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07495669499621727
+    },
+    {
+      "id": "1222",
+      "base": "1222",
+      "domain": "nature",
+      "kind": "natural",
+      "rgb_sha256": "cfd78df395422dcff2b065d182a19b969c7b1756a5dafb8934ee044d3bc11b13",
+      "measurements": {
+        "p10": 0.01682587438238573,
+        "p50": 0.0504603325010911,
+        "p90": 0.10168118477754992,
+        "p95": 0.12484832944510012,
+        "p99": 0.24485969865499385,
+        "mean": 0.05881778117231706,
+        "std": 0.049712678562087324,
+        "black": 0.0419921875,
+        "white": 0.0,
+        "saturation": 0.9433532250017117,
+        "red_blue": -0.07144484411091558,
+        "edge_mean": 0.015298928748597177
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07892889200593345
+    },
+    {
+      "id": "72",
+      "base": "72",
+      "domain": "water",
+      "kind": "natural",
+      "rgb_sha256": "6abf587add78f1626a89c93b4b515c487915f8e22d54d76db0cdbf389530b432",
+      "measurements": {
+        "p10": 0.12936046769704102,
+        "p50": 0.3133925533779186,
+        "p90": 0.6244523015410234,
+        "p95": 0.8084071531651617,
+        "p99": 0.9343238560248673,
+        "mean": 0.34782226739878486,
+        "std": 0.20059555121999428,
+        "black": 0.007075095663265306,
+        "white": 3.985969387755102e-05,
+        "saturation": 0.4039276519655078,
+        "red_blue": 0.025856348928772588,
+        "edge_mean": 0.05774990548876071
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07381358300335705
+    },
+    {
+      "id": "129",
+      "base": "129",
+      "domain": "water",
+      "kind": "natural",
+      "rgb_sha256": "ff9c5661dced58c8001081395b485f39e36d69a13f94fb1042c0ae9195312232",
+      "measurements": {
+        "p10": 0.006410115369472415,
+        "p50": 0.16644695565820192,
+        "p90": 0.2651772385246704,
+        "p95": 0.33938416212567935,
+        "p99": 0.6579796684783861,
+        "mean": 0.16067996383803954,
+        "std": 0.13974890671898746,
+        "black": 0.15094866071428573,
+        "white": 0.0017338966836734694,
+        "saturation": 0.44908745039266945,
+        "red_blue": 0.10702433931911541,
+        "edge_mean": 0.020719478230638327
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.0699353730014991
+    },
+    {
+      "id": "318",
+      "base": "318",
+      "domain": "water",
+      "kind": "natural",
+      "rgb_sha256": "90263c312815689c713e5be4a8ee47c2cf6e5a1dfe4a4920b6d78af4c5efc794",
+      "measurements": {
+        "p10": 0.11062272181489279,
+        "p50": 0.5306816555907186,
+        "p90": 0.7392868593208335,
+        "p95": 0.7841187959562823,
+        "p99": 0.8522216039756656,
+        "mean": 0.4714773092304561,
+        "std": 0.22892978436943723,
+        "black": 0.014389349489795918,
+        "white": 0.0003587372448979592,
+        "saturation": 0.24128507740946203,
+        "red_blue": -0.11418042909609878,
+        "edge_mean": 0.017065734559164363
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.072298999002669
+    },
+    {
+      "id": "585",
+      "base": "585",
+      "domain": "water",
+      "kind": "natural",
+      "rgb_sha256": "cfadd10aae0c872dcc2d9dc90246f2f5cb5897c889012e26995165afedcf4219",
+      "measurements": {
+        "p10": 0.010414693731238718,
+        "p50": 0.21412528396261643,
+        "p90": 0.4222249684148034,
+        "p95": 0.46325218282287134,
+        "p99": 0.5239397648367187,
+        "mean": 0.21335629393694935,
+        "std": 0.15348783290250245,
+        "black": 0.09885204081632654,
+        "white": 3.985969387755102e-05,
+        "saturation": 0.631025428096616,
+        "red_blue": 0.2977518946197091,
+        "edge_mean": 0.0037083404245670604
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07216934897587635
+    },
+    {
+      "id": "136",
+      "base": "136",
+      "domain": "low_light",
+      "kind": "natural",
+      "rgb_sha256": "bd761307253de7c242041fa8ad3197af80f36b5ee91b350d13e845427ad4403a",
+      "measurements": {
+        "p10": 0.0005632246706732229,
+        "p50": 0.01141641128381209,
+        "p90": 0.21563958840859607,
+        "p95": 0.43233324148651686,
+        "p99": 0.9102104695693523,
+        "mean": 0.07198864583749008,
+        "std": 0.17021271500126367,
+        "black": 0.4736328125,
+        "white": 0.0061782525510204085,
+        "saturation": 0.6754974185689661,
+        "red_blue": 0.08457106068768407,
+        "edge_mean": 0.029966232029841326
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07126139898900874
+    },
+    {
+      "id": "413",
+      "base": "413",
+      "domain": "low_light",
+      "kind": "natural",
+      "rgb_sha256": "4c714e35efe165ec62736576783c5501d05607d05d5c7d4ec06fbaedecbd41fa",
+      "measurements": {
+        "p10": 0.0038033907913555954,
+        "p50": 0.0439591760151601,
+        "p90": 0.2594596971228367,
+        "p95": 0.3323808102538106,
+        "p99": 0.5718482539063751,
+        "mean": 0.09219587063821612,
+        "std": 0.11978475726893263,
+        "black": 0.20852598852040816,
+        "white": 0.0,
+        "saturation": 0.4836640627483503,
+        "red_blue": 0.009245740855572879,
+        "edge_mean": 0.00962310310082817
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07208161798189394
+    },
+    {
+      "id": "419",
+      "base": "419",
+      "domain": "low_light",
+      "kind": "natural",
+      "rgb_sha256": "faa22903688486d890ad865aa4e894583591a46b15090bef2f68c1a8384cae4e",
+      "measurements": {
+        "p10": 0.00607879341255621,
+        "p50": 0.011811083651237874,
+        "p90": 0.07564109439424854,
+        "p95": 0.15187341203081636,
+        "p99": 0.5484354552340385,
+        "mean": 0.03942924331589404,
+        "std": 0.09624027318073239,
+        "black": 0.3933155293367347,
+        "white": 0.0017338966836734694,
+        "saturation": 0.31725981128908687,
+        "red_blue": 0.010540291334638519,
+        "edge_mean": 0.01993023572612021
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07210021500941366
+    },
+    {
+      "id": "510",
+      "base": "510",
+      "domain": "low_light",
+      "kind": "natural",
+      "rgb_sha256": "7f561d426000170713a4f7e007dc84f0de47fc8bd464d8ebca996118d01244d1",
+      "measurements": {
+        "p10": 0.010582254547394063,
+        "p50": 0.04912461262338962,
+        "p90": 0.29787765803766675,
+        "p95": 0.4035147248676473,
+        "p99": 0.6984095902633047,
+        "mean": 0.10649536493565405,
+        "std": 0.14081490937671653,
+        "black": 0.09554368622448979,
+        "white": 0.0008370535714285714,
+        "saturation": 0.5278630540690354,
+        "red_blue": 0.035530245534844955,
+        "edge_mean": 0.03932497411596348
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07532300599268638
+    },
+    {
+      "id": "90",
+      "base": "90",
+      "domain": "flowers",
+      "kind": "natural",
+      "rgb_sha256": "a65daae208958efccd3b8baa48bbd8a9eef8b710f4dd5c1f19e04425a8ee41cf",
+      "measurements": {
+        "p10": 0.034441625778309205,
+        "p50": 0.4745267778252591,
+        "p90": 0.6743011351272435,
+        "p95": 0.7263896527751271,
+        "p99": 0.8127386768702424,
+        "mean": 0.37878889490867473,
+        "std": 0.24957286493476022,
+        "black": 0.0065170599489795915,
+        "white": 1.992984693877551e-05,
+        "saturation": 0.4606165103281365,
+        "red_blue": -0.08223913634167476,
+        "edge_mean": 0.03801135637841466
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.06830191402696073
+    },
+    {
+      "id": "99",
+      "base": "99",
+      "domain": "flowers",
+      "kind": "natural",
+      "rgb_sha256": "9b200f904c2ae4ef163b8fd17d41ef90f20b8f8626fd5f7f654311a3a36fc4b4",
+      "measurements": {
+        "p10": 0.07880375394882622,
+        "p50": 0.38118391674950197,
+        "p90": 0.7244305749875227,
+        "p95": 0.8410573585107367,
+        "p99": 0.9752615193020012,
+        "mean": 0.3914289423546615,
+        "std": 0.24048395494117872,
+        "black": 0.0040058992346938774,
+        "white": 0.007334183673469388,
+        "saturation": 0.6734437582099886,
+        "red_blue": 0.030820543179656823,
+        "edge_mean": 0.0805741026052666
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07415736201801337
+    },
+    {
+      "id": "139",
+      "base": "139",
+      "domain": "flowers",
+      "kind": "natural",
+      "rgb_sha256": "752df2ebd811eea0a527ecc992153ecce9b1472e1c5885827622ceefd53f1338",
+      "measurements": {
+        "p10": 0.02699944812229858,
+        "p50": 0.5387838858215523,
+        "p90": 0.7016798268475497,
+        "p95": 0.7253685215849552,
+        "p99": 0.7803730117666786,
+        "mean": 0.45860627964009476,
+        "std": 0.23590845121397536,
+        "black": 0.06602758290816327,
+        "white": 0.0,
+        "saturation": 0.3758890200315261,
+        "red_blue": 0.08963842427343216,
+        "edge_mean": 0.0166121598496284
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07107329898281023
+    },
+    {
+      "id": "218",
+      "base": "218",
+      "domain": "flowers",
+      "kind": "natural",
+      "rgb_sha256": "a30b5acecfcba063b9d189f460fdd7b40cc2972c41b1b35b9487b0e2859246ad",
+      "measurements": {
+        "p10": 0.019450956196502774,
+        "p50": 0.1238952502798002,
+        "p90": 0.5163742287630526,
+        "p95": 0.6211342219779138,
+        "p99": 0.7192522724267466,
+        "mean": 0.18426560304927858,
+        "std": 0.1837822606393767,
+        "black": 0.02321827168367347,
+        "white": 0.0,
+        "saturation": 0.7910393092650058,
+        "red_blue": 0.18039939715490527,
+        "edge_mean": 0.022267609371373787
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07640899700345472
+    },
+    {
+      "id": "19053",
+      "base": "19053",
+      "domain": "indoor",
+      "kind": "natural",
+      "rgb_sha256": "99ac967e8f41aea6357b9b3b73fdd6610ce7025d4895b3a4bc43545fc6950f8c",
+      "measurements": {
+        "p10": 0.026035784721179036,
+        "p50": 0.21103069399624275,
+        "p90": 0.5316212881117557,
+        "p95": 0.7154179411778041,
+        "p99": 0.9993575714116185,
+        "mean": 0.24830623737368607,
+        "std": 0.21157693524751664,
+        "black": 0.024394132653061226,
+        "white": 0.016980229591836735,
+        "saturation": 0.31024713690101163,
+        "red_blue": 0.047084866953116124,
+        "edge_mean": 0.03510824161304287
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.06923346998519264
+    },
+    {
+      "id": "408",
+      "base": "408",
+      "domain": "objects",
+      "kind": "natural",
+      "rgb_sha256": "f17eb1777f49e9eec1aeee44c954430cad3ae3d0f5b93b9e4279e668b9ecc259",
+      "measurements": {
+        "p10": 0.006966862401982586,
+        "p50": 0.10906008021722655,
+        "p90": 0.46845374048678207,
+        "p95": 0.8680238616269842,
+        "p99": 1.0,
+        "mean": 0.20457459233079933,
+        "std": 0.2429565035911933,
+        "black": 0.13277264030612246,
+        "white": 0.036451690051020405,
+        "saturation": 0.30063663993213685,
+        "red_blue": 0.045808180512276725,
+        "edge_mean": 0.020420768455266722
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07677742297528312
+    },
+    {
+      "id": "v01",
+      "base": "3920",
+      "domain": "indoor",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "25c6845e8ec9e970df92cbcea53f979c77eaae0bd704af4b08e9b690a1178826",
+      "measurements": {
+        "p10": 0.00683101608079825,
+        "p50": 0.023204452542932713,
+        "p90": 0.0757550328716121,
+        "p95": 0.1355413542267646,
+        "p99": 0.24228112246555483,
+        "mean": 0.035678374705670896,
+        "std": 0.04127455001225841,
+        "black": 0.1963488520408163,
+        "white": 0.0,
+        "saturation": 0.29185673491876124,
+        "red_blue": 0.002076498616684822,
+        "edge_mean": 0.005284893055444605
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.08212812201236375
+    },
+    {
+      "id": "v02",
+      "base": "114",
+      "domain": "urban",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "131104bf2cf73813ab998ed95994a3a945ff0e1cc9bd1b0c5d66544c7bde6af0",
+      "measurements": {
+        "p10": 0.2751383246676084,
+        "p50": 1.0,
+        "p90": 1.0,
+        "p95": 1.0,
+        "p99": 1.0,
+        "mean": 0.8014095972805392,
+        "std": 0.3022462485155897,
+        "black": 0.011738679846938776,
+        "white": 0.5723254145408163,
+        "saturation": 0.21354352467829119,
+        "red_blue": 0.14542932807633754,
+        "edge_mean": 0.06870975530205313
+      },
+      "result": {
+        "recommendations": [
+          {
+            "tool": "adjust.highlights",
+            "value": -300,
+            "direction": -1,
+            "confidence": "HEURISTIC_LOW",
+            "reason": "widespread_near_white"
+          }
+        ],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.06216543598566204
+    },
+    {
+      "id": "v03",
+      "base": "188",
+      "domain": "landscape",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "42a917e6111f7419c2f8b2529157e75094b26ceaa0821b1067b17889263f0b18",
+      "measurements": {
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.08511753136115481,
+        "p95": 0.15627738400735733,
+        "p99": 0.22476366398426462,
+        "mean": 0.0196524137211966,
+        "std": 0.050704694430083234,
+        "black": 0.8191764987244898,
+        "white": 0.0,
+        "saturation": 0.2886388146276428,
+        "red_blue": -0.02216933448066421,
+        "edge_mean": 0.0050758394355612186
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.04987284098751843
+    },
+    {
+      "id": "v04",
+      "base": "408",
+      "domain": "objects",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "168feb19aae049391f9c01e00e2946a923307bfa9e2ffbaf7f90c169582701f6",
+      "measurements": {
+        "p10": 0.40724021190173665,
+        "p50": 0.5089232937291324,
+        "p90": 0.8454758096142372,
+        "p95": 1.0,
+        "p99": 1.0,
+        "mean": 0.5797215134155589,
+        "std": 0.17619266406639195,
+        "black": 0.0,
+        "white": 0.07240513392857142,
+        "saturation": 0.08313333004005827,
+        "red_blue": 0.032265096516085064,
+        "edge_mean": 0.01621980726713677
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07528385097975843
+    },
+    {
+      "id": "v05",
+      "base": "255",
+      "domain": "urban",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "6dcbb8668091e464ba749c1e78a4b92ed00b6926afc667210b857f378e29ce77",
+      "measurements": {
+        "p10": 0.10783421886161354,
+        "p50": 0.24233557869630273,
+        "p90": 0.4004407113574784,
+        "p95": 0.42126017364819307,
+        "p99": 0.4582519931729603,
+        "mean": 0.2488818714348528,
+        "std": 0.11148474288509536,
+        "black": 0.0,
+        "white": 0.0,
+        "saturation": 0.22659380270130214,
+        "red_blue": -0.05498921062413503,
+        "edge_mean": 0.010159123459503252
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.06979496200801805
+    },
+    {
+      "id": "v06",
+      "base": "1222",
+      "domain": "nature",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "10f46b762ecb98f7aac45ac6013e0f05da97091952a6e2f30b60d31e030f5548",
+      "measurements": {
+        "p10": 0.0,
+        "p50": 0.002855238186980111,
+        "p90": 0.05186050475419671,
+        "p95": 0.09413768368234947,
+        "p99": 0.31879972310384946,
+        "mean": 0.021243639567769416,
+        "std": 0.06716215438865797,
+        "black": 0.6874402104591837,
+        "white": 0.0,
+        "saturation": 0.5748394232724799,
+        "red_blue": -0.05953981934695171,
+        "edge_mean": 0.014806295534794407
+      },
+      "result": {
+        "recommendations": [
+          {
+            "tool": "adjust.exposure",
+            "value": 500,
+            "direction": 1,
+            "confidence": "HEURISTIC_LOW",
+            "reason": "globally_dark_with_some_signal"
+          }
+        ],
+        "abstain_tools": [
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.06075666600372642
+    },
+    {
+      "id": "v07",
+      "base": "139",
+      "domain": "flowers",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "00153869a4f40d8fff092a1cca638956f2a480cc2a27e833efb6f49fbc646ab3",
+      "measurements": {
+        "p10": 0.02699944812229858,
+        "p50": 1.0,
+        "p90": 1.0,
+        "p95": 1.0,
+        "p99": 1.0,
+        "mean": 0.6616077172334003,
+        "std": 0.3956258982944899,
+        "black": 0.06602758290816327,
+        "white": 0.5257294323979592,
+        "saturation": 0.2581168049945979,
+        "red_blue": 0.07884864614355866,
+        "edge_mean": 0.023412224635693125
+      },
+      "result": {
+        "recommendations": [
+          {
+            "tool": "adjust.highlights",
+            "value": -300,
+            "direction": -1,
+            "confidence": "HEURISTIC_LOW",
+            "reason": "widespread_near_white"
+          }
+        ],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.06088706699665636
+    },
+    {
+      "id": "v08",
+      "base": "747",
+      "domain": "nature",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "f6d686d37ef7a4a16da9465aa33fbe7898715cefca0bf022646bf45461fb29cc",
+      "measurements": {
+        "p10": 0.006598034509433108,
+        "p50": 0.030379560570409747,
+        "p90": 0.4105181353263162,
+        "p95": 0.5606701485350507,
+        "p99": 0.8611540351031342,
+        "mean": 0.12752114043851862,
+        "std": 0.19847363890078148,
+        "black": 0.17530293367346939,
+        "white": 0.002810108418367347,
+        "saturation": 0.5143992975207499,
+        "red_blue": 0.04019619064744651,
+        "edge_mean": 0.06911947701528316
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.0696764659951441
+    },
+    {
+      "id": "v09",
+      "base": "5731",
+      "domain": "objects",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "ca49cdbc8216c4938630255c885a7124cd002751dda83cbdfb324084ea211040",
+      "measurements": {
+        "p10": 0.02781254588950452,
+        "p50": 0.26684224744801505,
+        "p90": 0.7387924859600278,
+        "p95": 0.7683339089207898,
+        "p99": 0.8578876101871281,
+        "mean": 0.336126545135869,
+        "std": 0.26004786300190147,
+        "black": 0.054767219387755105,
+        "white": 0.00015943877551020407,
+        "saturation": 0.2965081506404756,
+        "red_blue": 0.09869866770184228,
+        "edge_mean": 0.05155399702015309
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.06883673998527229
+    },
+    {
+      "id": "v10",
+      "base": "99",
+      "domain": "flowers",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "1650d48f1b81031a679667725cc69efb859b34fbb3e4c53f5f95082cc65e6795",
+      "measurements": {
+        "p10": 0.0772031173659322,
+        "p50": 0.3903021347719574,
+        "p90": 0.731009409181413,
+        "p95": 0.8374020549314142,
+        "p99": 0.9606567337649251,
+        "mean": 0.3961637961739531,
+        "std": 0.24357156786490572,
+        "black": 0.002810108418367347,
+        "white": 0.005919164540816327,
+        "saturation": 0.8409428379185984,
+        "red_blue": 0.010327836129952006,
+        "edge_mean": 0.07901301567779336
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.08147718501277268
+    },
+    {
+      "id": "v11",
+      "base": "5068",
+      "domain": "indoor",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "ea4d4e64ebf4d1659f9726b220a4383e2443fb07f48ef665ba6407d88a34ef9f",
+      "measurements": {
+        "p10": 0.014720271980408263,
+        "p50": 0.1212495204045627,
+        "p90": 0.2726592209081753,
+        "p95": 0.37814288023275805,
+        "p99": 0.7568951534849359,
+        "mean": 0.14629483625477555,
+        "std": 0.14139172857260396,
+        "black": 0.058912627551020405,
+        "white": 0.0,
+        "saturation": 0.6649097485069414,
+        "red_blue": 0.1371692830130702,
+        "edge_mean": 0.03337974086601711
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07483959698583931
+    },
+    {
+      "id": "v12",
+      "base": "90",
+      "domain": "flowers",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "d93efbab34b123a7781df4fb36a8a196f1587df2dcd241d0b0cab45600e84cb3",
+      "measurements": {
+        "p10": 0.03265794903379482,
+        "p50": 0.4627789764846829,
+        "p90": 0.6436692502739135,
+        "p95": 0.6904625787440273,
+        "p99": 0.764449764108004,
+        "mean": 0.3632911685089426,
+        "std": 0.23937303351432687,
+        "black": 0.007553411989795918,
+        "white": 0.0,
+        "saturation": 0.6635559816116001,
+        "red_blue": -0.3384410433354968,
+        "edge_mean": 0.03582897935131869
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.06841539798188023
+    },
+    {
+      "id": "v13",
+      "base": "481",
+      "domain": "urban",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "6be0539a8c9bd1e4d2518f91157296fd19a429c6fdc380c7fdc38e0223aedfd7",
+      "measurements": {
+        "p10": 0.015968458456414383,
+        "p50": 0.08347545926263997,
+        "p90": 0.6322773397298904,
+        "p95": 0.7572622609813511,
+        "p99": 0.8654820079557387,
+        "mean": 0.18442980855155952,
+        "std": 0.2323776052993656,
+        "black": 0.04928651147959184,
+        "white": 0.0,
+        "saturation": 0.2872542056623562,
+        "red_blue": -0.013047634275811454,
+        "edge_mean": 0.0183663718543496
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.06873937300406396
+    },
+    {
+      "id": "v14",
+      "base": "218",
+      "domain": "flowers",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "c4007f8e790272d74f3d49b1dbd211042796df7a540f29433786c3c989c7e418",
+      "measurements": {
+        "p10": 0.023491078623912476,
+        "p50": 0.13287005203806135,
+        "p90": 0.48494192802333624,
+        "p95": 0.574778135691837,
+        "p99": 0.6791687599287036,
+        "mean": 0.1842714633202055,
+        "std": 0.16966710896576354,
+        "black": 0.011120854591836735,
+        "white": 0.0,
+        "saturation": 0.8030744453430573,
+        "red_blue": 0.18040196964380473,
+        "edge_mean": 0.013311421972618356
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.06813488900661469
+    },
+    {
+      "id": "v15",
+      "base": "223",
+      "domain": "landscape",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "8e2caf1015f6a0b2405f99a2cfb6d509ca6958444336ca9b5162503843059bfe",
+      "measurements": {
+        "p10": 0.021155545350465946,
+        "p50": 0.11834762435246673,
+        "p90": 0.22474361948480634,
+        "p95": 0.2473790639699156,
+        "p99": 0.2664473281542871,
+        "mean": 0.11805431098250806,
+        "std": 0.07310860310741442,
+        "black": 0.04290896045918367,
+        "white": 0.0,
+        "saturation": 0.407965028742137,
+        "red_blue": -0.02945485598061598,
+        "edge_mean": 0.0024102992984195515
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07210560099338181
+    },
+    {
+      "id": "v16",
+      "base": "419",
+      "domain": "low_light",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "04a2f0baf7e793d2533c35fd407dc8a811c1e462f782b04ca85497d66bf4ea97",
+      "measurements": {
+        "p10": 0.01699662744539646,
+        "p50": 0.033492519423347814,
+        "p90": 0.21238658841029867,
+        "p95": 0.42410863784032693,
+        "p99": 1.0,
+        "mean": 0.09648655491292234,
+        "std": 0.1761729364832484,
+        "black": 0.023457429846938774,
+        "white": 0.01620296556122449,
+        "saturation": 0.31224681815093613,
+        "red_blue": 0.024324538819480414,
+        "edge_mean": 0.04132893800176824
+      },
+      "result": {
+        "recommendations": [],
+        "abstain_tools": [
+          "adjust.exposure",
+          "adjust.brightness",
+          "adjust.contrast",
+          "adjust.highlights",
+          "adjust.shadows",
+          "adjust.saturation",
+          "adjust.temperature",
+          "detail.sharpen"
+        ],
+        "confidence_semantics": "uncalibrated heuristic evidence; not a probability or approval",
+        "production_admitted": false
+      },
+      "seconds": 0.07118441100465134
+    }
+  ],
+  "scores": {
+    "adjust.exposure": {
+      "positive": 2,
+      "negative": 2,
+      "acceptable": 41,
+      "ambiguous": 3,
+      "correct_direction": 0,
+      "missed": 4,
+      "wrong_direction": 0,
+      "false_positive": 1,
+      "abstained": 44,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 5,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "landscape": {
+          "scored": 5,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "urban": {
+          "scored": 7,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "objects": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "nature": {
+          "scored": 6,
+          "false_positive": 1,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "water": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 8,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    },
+    "adjust.brightness": {
+      "positive": 1,
+      "negative": 1,
+      "acceptable": 46,
+      "ambiguous": 0,
+      "correct_direction": 0,
+      "missed": 2,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 48,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "urban": {
+          "scored": 7,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "objects": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "nature": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "water": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 5,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 8,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    },
+    "adjust.contrast": {
+      "positive": 1,
+      "negative": 1,
+      "acceptable": 46,
+      "ambiguous": 0,
+      "correct_direction": 0,
+      "missed": 2,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 48,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 7,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "objects": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "nature": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "water": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 5,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 8,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    },
+    "adjust.highlights": {
+      "positive": 0,
+      "negative": 1,
+      "acceptable": 46,
+      "ambiguous": 1,
+      "correct_direction": 1,
+      "missed": 0,
+      "wrong_direction": 0,
+      "false_positive": 1,
+      "abstained": 45,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 7,
+          "false_positive": 1,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "objects": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "nature": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "water": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 5,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 7,
+          "false_positive": 0,
+          "correct_direction": 1,
+          "missed": 0
+        }
+      }
+    },
+    "adjust.shadows": {
+      "positive": 1,
+      "negative": 0,
+      "acceptable": 42,
+      "ambiguous": 5,
+      "correct_direction": 0,
+      "missed": 1,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 43,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 5,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "objects": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "nature": {
+          "scored": 3,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "water": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 5,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 8,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    },
+    "adjust.saturation": {
+      "positive": 1,
+      "negative": 1,
+      "acceptable": 45,
+      "ambiguous": 1,
+      "correct_direction": 0,
+      "missed": 2,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 47,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 7,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "objects": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "nature": {
+          "scored": 5,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "water": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 5,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 8,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        }
+      }
+    },
+    "adjust.temperature": {
+      "positive": 0,
+      "negative": 0,
+      "acceptable": 46,
+      "ambiguous": 2,
+      "correct_direction": 0,
+      "missed": 0,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 46,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 5,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 7,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "objects": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "nature": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "water": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 5,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 7,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    },
+    "detail.sharpen": {
+      "positive": 1,
+      "negative": 0,
+      "acceptable": 46,
+      "ambiguous": 1,
+      "correct_direction": 0,
+      "missed": 1,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 47,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 7,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "objects": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "nature": {
+          "scored": 6,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "water": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 5,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 7,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    }
+  },
+  "natural_scores": {
+    "adjust.exposure": {
+      "positive": 0,
+      "negative": 0,
+      "acceptable": 31,
+      "ambiguous": 1,
+      "correct_direction": 0,
+      "missed": 0,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 31,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 3,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "objects": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "nature": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "water": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    },
+    "adjust.brightness": {
+      "positive": 0,
+      "negative": 0,
+      "acceptable": 32,
+      "ambiguous": 0,
+      "correct_direction": 0,
+      "missed": 0,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 32,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "objects": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "nature": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "water": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    },
+    "adjust.contrast": {
+      "positive": 0,
+      "negative": 0,
+      "acceptable": 32,
+      "ambiguous": 0,
+      "correct_direction": 0,
+      "missed": 0,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 32,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "objects": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "nature": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "water": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    },
+    "adjust.highlights": {
+      "positive": 0,
+      "negative": 0,
+      "acceptable": 31,
+      "ambiguous": 1,
+      "correct_direction": 0,
+      "missed": 0,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 31,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "objects": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "nature": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "water": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 3,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    },
+    "adjust.shadows": {
+      "positive": 0,
+      "negative": 0,
+      "acceptable": 27,
+      "ambiguous": 5,
+      "correct_direction": 0,
+      "missed": 0,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 27,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 3,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 3,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "objects": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "nature": {
+          "scored": 1,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "water": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    },
+    "adjust.saturation": {
+      "positive": 0,
+      "negative": 0,
+      "acceptable": 32,
+      "ambiguous": 0,
+      "correct_direction": 0,
+      "missed": 0,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 32,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "objects": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "nature": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "water": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    },
+    "adjust.temperature": {
+      "positive": 0,
+      "negative": 0,
+      "acceptable": 32,
+      "ambiguous": 0,
+      "correct_direction": 0,
+      "missed": 0,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 32,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "objects": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "nature": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "water": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    },
+    "detail.sharpen": {
+      "positive": 0,
+      "negative": 0,
+      "acceptable": 32,
+      "ambiguous": 0,
+      "correct_direction": 0,
+      "missed": 0,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 32,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "objects": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "nature": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "water": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    }
+  },
+  "derivative_scores": {
+    "adjust.exposure": {
+      "positive": 2,
+      "negative": 2,
+      "acceptable": 10,
+      "ambiguous": 2,
+      "correct_direction": 0,
+      "missed": 4,
+      "wrong_direction": 0,
+      "false_positive": 1,
+      "abstained": 13,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "urban": {
+          "scored": 3,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "landscape": {
+          "scored": 1,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "objects": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "nature": {
+          "scored": 2,
+          "false_positive": 1,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 0,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    },
+    "adjust.brightness": {
+      "positive": 1,
+      "negative": 1,
+      "acceptable": 14,
+      "ambiguous": 0,
+      "correct_direction": 0,
+      "missed": 2,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 16,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 3,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "objects": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "nature": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 1,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    },
+    "adjust.contrast": {
+      "positive": 1,
+      "negative": 1,
+      "acceptable": 14,
+      "ambiguous": 0,
+      "correct_direction": 0,
+      "missed": 2,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 16,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 3,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "landscape": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "objects": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "nature": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "flowers": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 1,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    },
+    "adjust.highlights": {
+      "positive": 0,
+      "negative": 1,
+      "acceptable": 15,
+      "ambiguous": 0,
+      "correct_direction": 1,
+      "missed": 0,
+      "wrong_direction": 0,
+      "false_positive": 1,
+      "abstained": 14,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 3,
+          "false_positive": 1,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "objects": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "nature": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 1,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 1,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    },
+    "adjust.shadows": {
+      "positive": 1,
+      "negative": 0,
+      "acceptable": 15,
+      "ambiguous": 0,
+      "correct_direction": 0,
+      "missed": 1,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 16,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 3,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "objects": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "nature": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "flowers": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 1,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    },
+    "adjust.saturation": {
+      "positive": 1,
+      "negative": 1,
+      "acceptable": 13,
+      "ambiguous": 1,
+      "correct_direction": 0,
+      "missed": 2,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 15,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 3,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "objects": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "nature": {
+          "scored": 1,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 4,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "low_light": {
+          "scored": 1,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    },
+    "adjust.temperature": {
+      "positive": 0,
+      "negative": 0,
+      "acceptable": 14,
+      "ambiguous": 2,
+      "correct_direction": 0,
+      "missed": 0,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 14,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 1,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 3,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "landscape": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "objects": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "nature": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 3,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 1,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    },
+    "detail.sharpen": {
+      "positive": 1,
+      "negative": 0,
+      "acceptable": 14,
+      "ambiguous": 1,
+      "correct_direction": 0,
+      "missed": 1,
+      "wrong_direction": 0,
+      "false_positive": 0,
+      "abstained": 15,
+      "excluded_emissions": 0,
+      "invalid": 0,
+      "domains": {
+        "indoor": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "urban": {
+          "scored": 3,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 1
+        },
+        "landscape": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "objects": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "nature": {
+          "scored": 2,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "flowers": {
+          "scored": 3,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        },
+        "low_light": {
+          "scored": 1,
+          "false_positive": 0,
+          "correct_direction": 0,
+          "missed": 0
+        }
+      }
+    }
+  }
+}

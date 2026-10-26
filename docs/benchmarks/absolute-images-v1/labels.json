@@ -1,0 +1,2411 @@
+{
+  "version": 1,
+  "status": "PROVISIONAL_SINGLE_AI_VISUAL_ENGINEERING_REVIEW_NOT_HUMAN_GROUND_TRUTH",
+  "reviewed_utc": "2026-10-26",
+  "reviewer": "Codex visual engineering assessment; no independent human/adjudicated labels",
+  "review_before_metric_outputs": true,
+  "blind_to_transform_recipe": false,
+  "parameter_goldens": false,
+  "images": [
+    {
+      "id": "3920",
+      "base": "3920",
+      "domain": "indoor",
+      "kind": "natural",
+      "rgb_sha256": "8da3fce96f5818ef47e4911124b9c02f1ee5bb67f1f898d51b3434023e1051ed",
+      "review_context": "Dim historical interior; bright openings and shadow detail coexist; no unique global correction is established.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "ambiguous",
+          "confidence": "low",
+          "rationale": "Dim historical interior; bright openings and shadow detail coexist; no unique global correction is established."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "ambiguous",
+          "confidence": "low",
+          "rationale": "Dim historical interior; bright openings and shadow detail coexist; no unique global correction is established."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "5068",
+      "base": "5068",
+      "domain": "indoor",
+      "kind": "natural",
+      "rgb_sha256": "f619bae24b36ed81f7318e1ac5e89e76e25a36f640b80b8a1f253165a0a3cc5b",
+      "review_context": "Cathedral interior retains architectural detail; warm stone and window light are plausible.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "6616",
+      "base": "6616",
+      "domain": "indoor",
+      "kind": "natural",
+      "rgb_sha256": "27113ef87f42762d9c1815a70dce28b7bcccaeef6ae87516e466694b46064504",
+      "review_context": "Ornate interior with bright window; localized brightness is not a global defect.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "39",
+      "base": "39",
+      "domain": "landscape",
+      "kind": "natural",
+      "rgb_sha256": "150286ca1e3f1bcd8c20dc65ad9f264d26d0bec4c4780d6086af8750aa3095f1",
+      "review_context": "Blue-hour mountain silhouette; darkness and cool tone can be intentional.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "185",
+      "base": "185",
+      "domain": "landscape",
+      "kind": "natural",
+      "rgb_sha256": "146b717a642f47e8c560f2b22e90cac0c46074cc75daa392de2c8875aaf0405d",
+      "review_context": "Snowy mountain with blue atmospheric shadows; cold appearance is not proof of wrong white balance.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "188",
+      "base": "188",
+      "domain": "landscape",
+      "kind": "natural",
+      "rgb_sha256": "d2cc76d2d60b83c90ecb3ca62a47e99c3731e3e36e8903721d0e766788ff172a",
+      "review_context": "Daylight mountain lake with plausible landscape contrast and green foliage.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "223",
+      "base": "223",
+      "domain": "landscape",
+      "kind": "natural",
+      "rgb_sha256": "2ad739fe40a3254b1e914753572e53f9ae835f403def4da4e6affb8e6b81a29b",
+      "review_context": "Sunset beach and silhouette; warm sky and deep foreground are scene-consistent.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "114",
+      "base": "114",
+      "domain": "urban",
+      "kind": "natural",
+      "rgb_sha256": "865e99f573e7c085188dc12607f5d9876b1f5b9bdb319a0e0512c8968fa480e0",
+      "review_context": "Sunlit architecture with bright sky; no unmistakable global defect.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "255",
+      "base": "255",
+      "domain": "urban",
+      "kind": "natural",
+      "rgb_sha256": "f2299ff535cae8508e7bccc49cac8f9c151506771db62490745575b18d51fb00",
+      "review_context": "River and buildings retain tone; overcast low contrast may be natural.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "405",
+      "base": "405",
+      "domain": "urban",
+      "kind": "natural",
+      "rgb_sha256": "17b4f86fe75855102b7c4e70b97757e1a5b225fdfa35ca934a021ab4274e4d14",
+      "review_context": "Night traffic with light sources; black surroundings and clipped lamps are expected.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "481",
+      "base": "481",
+      "domain": "urban",
+      "kind": "natural",
+      "rgb_sha256": "ed911a0968aef705c6b5272dc29b3c89f6308a613de26266b5f3199e6bd56e88",
+      "review_context": "Stone arches with backlit people; shadow lifting is an intent-dependent choice.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "ambiguous",
+          "confidence": "low",
+          "rationale": "Stone arches with backlit people; shadow lifting is an intent-dependent choice."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "3689",
+      "base": "3689",
+      "domain": "objects",
+      "kind": "natural",
+      "rgb_sha256": "267dba8e181f075be6cb229bb2097079efe0db5a1ea48b7c4290c3f5bdc87c9b",
+      "review_context": "Vivid colored drinks with defocused background; object color is not excessive saturation evidence.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "5731",
+      "base": "5731",
+      "domain": "objects",
+      "kind": "natural",
+      "rgb_sha256": "5d1eaf395077de38b2700afe06a61e9bc65e7e49eb203be530aab3fafebc259e",
+      "review_context": "Colorful cakes with selective focus; vivid icing and shallow depth are plausible.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "9428",
+      "base": "9428",
+      "domain": "objects",
+      "kind": "natural",
+      "rgb_sha256": "53c5f195c1898e6f4f1564dffb47cccf2f2192ed3437a52b231ec937aa3ed5db",
+      "review_context": "Food plate under ambient indoor lighting; no neutral reference for color correction.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "304",
+      "base": "304",
+      "domain": "nature",
+      "kind": "natural",
+      "rgb_sha256": "549c5d2fa69f6b98c90d34a470548a82b8ad867884c9b41cab14e284cb6221e5",
+      "review_context": "Backlit trees near low sun; silhouettes do not establish underexposure.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "ambiguous",
+          "confidence": "low",
+          "rationale": "Backlit trees near low sun; silhouettes do not establish underexposure."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "747",
+      "base": "747",
+      "domain": "nature",
+      "kind": "natural",
+      "rgb_sha256": "9812feec0a2e87b1b72a4eed9cacd56ee0abc760aed620092ad84e70c2831ab7",
+      "review_context": "Dappled forest path; dark foliage and bright ground are plausible scene contrast.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "ambiguous",
+          "confidence": "low",
+          "rationale": "Dappled forest path; dark foliage and bright ground are plausible scene contrast."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "802",
+      "base": "802",
+      "domain": "nature",
+      "kind": "natural",
+      "rgb_sha256": "d960d8f4ea31911b2564f7e8fbea35d714988e2391bbe1d21607090275305d25",
+      "review_context": "Backlit forest with small bright sky; no unique global correction.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "ambiguous",
+          "confidence": "low",
+          "rationale": "Backlit forest with small bright sky; no unique global correction."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "1222",
+      "base": "1222",
+      "domain": "nature",
+      "kind": "natural",
+      "rgb_sha256": "cfd78df395422dcff2b065d182a19b969c7b1756a5dafb8934ee044d3bc11b13",
+      "review_context": "Blue water and foliage; natural color diversity argues against gray-world normalization.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "72",
+      "base": "72",
+      "domain": "water",
+      "kind": "natural",
+      "rgb_sha256": "6abf587add78f1626a89c93b4b515c487915f8e22d54d76db0cdbf389530b432",
+      "review_context": "Geese and reeds beside water; subject detail remains readable.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "129",
+      "base": "129",
+      "domain": "water",
+      "kind": "natural",
+      "rgb_sha256": "ff9c5661dced58c8001081395b485f39e36d69a13f94fb1042c0ae9195312232",
+      "review_context": "Soft overcast lake; muted tone can reflect weather rather than a contrast defect.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "318",
+      "base": "318",
+      "domain": "water",
+      "kind": "natural",
+      "rgb_sha256": "90263c312815689c713e5be4a8ee47c2cf6e5a1dfe4a4920b6d78af4c5efc794",
+      "review_context": "Warm sunset with strong silhouette; color and darkness are intentional-looking.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "585",
+      "base": "585",
+      "domain": "water",
+      "kind": "natural",
+      "rgb_sha256": "cfadd10aae0c872dcc2d9dc90246f2f5cb5897c889012e26995165afedcf4219",
+      "review_context": "Mountain lake under warm cloud light; scene color alone does not justify correction.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "136",
+      "base": "136",
+      "domain": "low_light",
+      "kind": "natural",
+      "rgb_sha256": "bd761307253de7c242041fa8ad3197af80f36b5ee91b350d13e845427ad4403a",
+      "review_context": "Illuminated carousel at night; bulbs and black sky should remain luminous/dark.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "413",
+      "base": "413",
+      "domain": "low_light",
+      "kind": "natural",
+      "rgb_sha256": "4c714e35efe165ec62736576783c5501d05607d05d5c7d4ec06fbaedecbd41fa",
+      "review_context": "City across water at night; darkness and warm lights are scene-consistent.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "419",
+      "base": "419",
+      "domain": "low_light",
+      "kind": "natural",
+      "rgb_sha256": "faa22903688486d890ad865aa4e894583591a46b15090bef2f68c1a8384cae4e",
+      "review_context": "City waterfront at night; specular lamps and dark sky are expected.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "510",
+      "base": "510",
+      "domain": "low_light",
+      "kind": "natural",
+      "rgb_sha256": "7f561d426000170713a4f7e007dc84f0de47fc8bd464d8ebca996118d01244d1",
+      "review_context": "Twilight street with artificial light; mixed illumination precludes a single white-balance inference.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "90",
+      "base": "90",
+      "domain": "flowers",
+      "kind": "natural",
+      "rgb_sha256": "a65daae208958efccd3b8baa48bbd8a9eef8b710f4dd5c1f19e04425a8ee41cf",
+      "review_context": "Sunflowers against bright sky with intentionally soft foreground elements.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "99",
+      "base": "99",
+      "domain": "flowers",
+      "kind": "natural",
+      "rgb_sha256": "9b200f904c2ae4ef163b8fd17d41ef90f20b8f8626fd5f7f654311a3a36fc4b4",
+      "review_context": "Blue flowers and green grass; vivid natural color and selective focus are plausible.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "139",
+      "base": "139",
+      "domain": "flowers",
+      "kind": "natural",
+      "rgb_sha256": "752df2ebd811eea0a527ecc992153ecce9b1472e1c5885827622ceefd53f1338",
+      "review_context": "Cream rose with warm center; flower pigment is not a reliable illuminant reference.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "ambiguous",
+          "confidence": "low",
+          "rationale": "Cream rose with warm center; flower pigment is not a reliable illuminant reference."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "218",
+      "base": "218",
+      "domain": "flowers",
+      "kind": "natural",
+      "rgb_sha256": "a30b5acecfcba063b9d189f460fdd7b40cc2972c41b1b35b9487b0e2859246ad",
+      "review_context": "Yellow flower with selective focus; smooth background is not global technical blur.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "19053",
+      "base": "19053",
+      "domain": "indoor",
+      "kind": "natural",
+      "rgb_sha256": "99ac967e8f41aea6357b9b3b73fdd6610ce7025d4895b3a4bc43545fc6950f8c",
+      "review_context": "Bright windowed interior; deliberate lighting contrast and visible floor detail.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "408",
+      "base": "408",
+      "domain": "objects",
+      "kind": "natural",
+      "rgb_sha256": "f17eb1777f49e9eec1aeee44c954430cad3ae3d0f5b93b9e4279e668b9ecc259",
+      "review_context": "Hardware held in hand; out-of-focus background should not trigger global sharpening.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "v01",
+      "base": "3920",
+      "domain": "indoor",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "25c6845e8ec9e970df92cbcea53f979c77eaae0bd704af4b08e9b690a1178826",
+      "review_context": "Variant visually reviewed singly in the derivative contact sheet; unaffected tools have no unmistakable safe technical correction.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "positive",
+          "confidence": "medium",
+          "rationale": "Architecture is globally difficult to see, not merely localized shadow; a cautious tonal lift is useful."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "v02",
+      "base": "114",
+      "domain": "urban",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "131104bf2cf73813ab998ed95994a3a945ff0e1cc9bd1b0c5d66544c7bde6af0",
+      "review_context": "Variant visually reviewed singly in the derivative contact sheet; unaffected tools have no unmistakable safe technical correction.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "negative",
+          "confidence": "medium",
+          "rationale": "Large white sky and washed sunlit facades lose separation; reducing global brightness is a plausible bounded suggestion."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "v03",
+      "base": "188",
+      "domain": "landscape",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "42a917e6111f7419c2f8b2529157e75094b26ceaa0821b1067b17889263f0b18",
+      "review_context": "Variant visually reviewed singly in the derivative contact sheet; unaffected tools have no unmistakable safe technical correction.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "positive",
+          "confidence": "medium",
+          "rationale": "Broadly unreadable terrain also permits an exposure lift as an alternative, not a stacked action."
+        },
+        "adjust.brightness": {
+          "class": "positive",
+          "confidence": "medium",
+          "rationale": "Landscape midtone detail collapses into near-black/posterized regions; tonal lift is plausible, recovery is not guaranteed."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "v04",
+      "base": "408",
+      "domain": "objects",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "168feb19aae049391f9c01e00e2946a923307bfa9e2ffbaf7f90c169582701f6",
+      "review_context": "Variant visually reviewed singly in the derivative contact sheet; unaffected tools have no unmistakable safe technical correction.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "negative",
+          "confidence": "medium",
+          "rationale": "A global exposure reduction is an alternative tonal correction, not a required second action."
+        },
+        "adjust.brightness": {
+          "class": "negative",
+          "confidence": "medium",
+          "rationale": "Hardware and hand appear veiled by broad washed highlights; lower brightness may improve separation."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "v05",
+      "base": "255",
+      "domain": "urban",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "6dcbb8668091e464ba749c1e78a4b92ed00b6926afc667210b857f378e29ce77",
+      "review_context": "Variant visually reviewed singly in the derivative contact sheet; unaffected tools have no unmistakable safe technical correction.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "positive",
+          "confidence": "medium",
+          "rationale": "River and architecture are visibly covered by a gray veil, with compressed separation."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "v06",
+      "base": "1222",
+      "domain": "nature",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "10f46b762ecb98f7aac45ac6013e0f05da97091952a6e2f30b60d31e030f5548",
+      "review_context": "Variant visually reviewed singly in the derivative contact sheet; unaffected tools have no unmistakable safe technical correction.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "negative",
+          "confidence": "medium",
+          "rationale": "Water and foliage exhibit harsh crushed/saturated separation; reduce contrast cautiously."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "ambiguous",
+          "confidence": "low",
+          "rationale": "Extreme color could stem from tonal clipping; a separate saturation edit is not uniquely established."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "v07",
+      "base": "139",
+      "domain": "flowers",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "00153869a4f40d8fff092a1cca638956f2a480cc2a27e833efb6f49fbc646ab3",
+      "review_context": "Variant visually reviewed singly in the derivative contact sheet; unaffected tools have no unmistakable safe technical correction.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "negative",
+          "confidence": "medium",
+          "rationale": "Broad rose-petal areas merge into white with sharp transitions; cautious highlight reduction is plausible but cannot restore lost detail."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "v08",
+      "base": "747",
+      "domain": "nature",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "f6d686d37ef7a4a16da9465aa33fbe7898715cefca0bf022646bf45461fb29cc",
+      "review_context": "Variant visually reviewed singly in the derivative contact sheet; unaffected tools have no unmistakable safe technical correction.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "positive",
+          "confidence": "medium",
+          "rationale": "Forest trunks/path texture is obscured while bright ground remains; local shadow lift is plausible, not a global normalization mandate."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "v09",
+      "base": "5731",
+      "domain": "objects",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "ca49cdbc8216c4938630255c885a7124cd002751dda83cbdfb324084ea211040",
+      "review_context": "Variant visually reviewed singly in the derivative contact sheet; unaffected tools have no unmistakable safe technical correction.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "positive",
+          "confidence": "medium",
+          "rationale": "Food colors look markedly muted; a cautious color increase is plausible, though style remains a confound."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "v10",
+      "base": "99",
+      "domain": "flowers",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "1650d48f1b81031a679667725cc69efb859b34fbb3e4c53f5f95082cc65e6795",
+      "review_context": "Variant visually reviewed singly in the derivative contact sheet; unaffected tools have no unmistakable safe technical correction.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "negative",
+          "confidence": "medium",
+          "rationale": "Grass and petals look unnaturally electric with poor color separation; a cautious decrease is plausible."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "v11",
+      "base": "5068",
+      "domain": "indoor",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "ea4d4e64ebf4d1659f9726b220a4383e2443fb07f48ef665ba6407d88a34ef9f",
+      "review_context": "Variant visually reviewed singly in the derivative contact sheet; unaffected tools have no unmistakable safe technical correction.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "ambiguous",
+          "confidence": "low",
+          "rationale": "Warm cathedral stone and mixed interior lighting do not establish the intended neutral point."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "v12",
+      "base": "90",
+      "domain": "flowers",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "d93efbab34b123a7781df4fb36a8a196f1587df2dcd241d0b0cab45600e84cb3",
+      "review_context": "Variant visually reviewed singly in the derivative contact sheet; unaffected tools have no unmistakable safe technical correction.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "ambiguous",
+          "confidence": "low",
+          "rationale": "Blue sky and green foliage could be plausible natural daylight; no trusted neutral surface."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "v13",
+      "base": "481",
+      "domain": "urban",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "6be0539a8c9bd1e4d2518f91157296fd19a429c6fdc380c7fdc38e0223aedfd7",
+      "review_context": "Variant visually reviewed singly in the derivative contact sheet; unaffected tools have no unmistakable safe technical correction.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "positive",
+          "confidence": "medium",
+          "rationale": "Stone arches and figures lose edge definition across the frame; mild sharpening advice may help but cannot undo defocus."
+        }
+      }
+    },
+    {
+      "id": "v14",
+      "base": "218",
+      "domain": "flowers",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "c4007f8e790272d74f3d49b1dbd211042796df7a540f29433786c3c989c7e418",
+      "review_context": "Variant visually reviewed singly in the derivative contact sheet; unaffected tools have no unmistakable safe technical correction.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "ambiguous",
+          "confidence": "low",
+          "rationale": "Soft floral image could be intentional shallow focus; global sharpening is not safely implied."
+        }
+      }
+    },
+    {
+      "id": "v15",
+      "base": "223",
+      "domain": "landscape",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "8e2caf1015f6a0b2405f99a2cfb6d509ca6958444336ca9b5162503843059bfe",
+      "review_context": "Variant visually reviewed singly in the derivative contact sheet; unaffected tools have no unmistakable safe technical correction.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "ambiguous",
+          "confidence": "low",
+          "rationale": "Dark sunset silhouette may be deliberate even after additional darkening."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    },
+    {
+      "id": "v16",
+      "base": "419",
+      "domain": "low_light",
+      "kind": "reviewed_derivative",
+      "rgb_sha256": "04a2f0baf7e793d2533c35fd407dc8a811c1e462f782b04ca85497d66bf4ea97",
+      "review_context": "Variant visually reviewed singly in the derivative contact sheet; unaffected tools have no unmistakable safe technical correction.",
+      "labels": {
+        "adjust.exposure": {
+          "class": "ambiguous",
+          "confidence": "low",
+          "rationale": "Bright night lights with dark sky remain plausible; intended rendering is unknown."
+        },
+        "adjust.brightness": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.contrast": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.highlights": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.shadows": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.saturation": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "adjust.temperature": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        },
+        "detail.sharpen": {
+          "class": "acceptable",
+          "confidence": "medium",
+          "rationale": "No sufficiently safe technical correction established from this rendered thumbnail; preserve plausible style/scene intent."
+        }
+      }
+    }
+  ]
+}
