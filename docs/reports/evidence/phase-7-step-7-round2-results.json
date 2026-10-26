@@ -1,0 +1,2912 @@
+{
+  "version": 1,
+  "scope": "OFFLINE_ONLY_NOT_PRODUCTION_ADMISSION",
+  "frozen_corpus_sha256": "f12417d5ec208192eebf0af5620d1bee676fe0369ca2146ca79984ad9c3760bb",
+  "model_sha256": "92dcbea108899e5d6e30d919b0744f90d9967e80c67a4ab5503ac16d54f62eb0",
+  "artifact_bytes": 387710976,
+  "reference": {
+    "adjust.exposure": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 6,
+      "direction_correct": 4,
+      "abstention_correct": 0,
+      "false_positives": 6,
+      "false_negatives": 0,
+      "false_positive_rate": 1.0,
+      "false_negative_rate": 0.0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_ev",
+      "parameter_errors": [
+        0,
+        1000,
+        0,
+        0,
+        1000,
+        0
+      ],
+      "mean_parameter_error": 333.3333333333333,
+      "conflict_abstentions": 0
+    },
+    "adjust.brightness": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 6,
+      "direction_correct": 4,
+      "abstention_correct": 0,
+      "false_positives": 6,
+      "false_negatives": 0,
+      "false_positive_rate": 1.0,
+      "false_negative_rate": 0.0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_linear",
+      "parameter_errors": [
+        0,
+        200,
+        0,
+        0,
+        200,
+        0
+      ],
+      "mean_parameter_error": 66.66666666666667,
+      "conflict_abstentions": 0
+    },
+    "adjust.contrast": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 6,
+      "direction_correct": 4,
+      "abstention_correct": 0,
+      "false_positives": 6,
+      "false_negatives": 0,
+      "false_positive_rate": 1.0,
+      "false_negative_rate": 0.0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_stops",
+      "parameter_errors": [
+        0,
+        500,
+        0,
+        0,
+        500,
+        0
+      ],
+      "mean_parameter_error": 166.66666666666666,
+      "conflict_abstentions": 0
+    },
+    "adjust.highlights": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 6,
+      "direction_correct": 4,
+      "abstention_correct": 0,
+      "false_positives": 6,
+      "false_negatives": 0,
+      "false_positive_rate": 1.0,
+      "false_negative_rate": 0.0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_ev",
+      "parameter_errors": [
+        0,
+        1000,
+        0,
+        0,
+        1000,
+        0
+      ],
+      "mean_parameter_error": 333.3333333333333,
+      "conflict_abstentions": 0
+    },
+    "adjust.shadows": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 6,
+      "direction_correct": 4,
+      "abstention_correct": 0,
+      "false_positives": 6,
+      "false_negatives": 0,
+      "false_positive_rate": 1.0,
+      "false_negative_rate": 0.0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_ev",
+      "parameter_errors": [
+        0,
+        1000,
+        0,
+        0,
+        1000,
+        0
+      ],
+      "mean_parameter_error": 333.3333333333333,
+      "conflict_abstentions": 0
+    },
+    "adjust.saturation": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 6,
+      "direction_correct": 4,
+      "abstention_correct": 0,
+      "false_positives": 6,
+      "false_negatives": 0,
+      "false_positive_rate": 1.0,
+      "false_negative_rate": 0.0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_ratio",
+      "parameter_errors": [
+        0,
+        400,
+        0,
+        0,
+        400,
+        0
+      ],
+      "mean_parameter_error": 133.33333333333334,
+      "conflict_abstentions": 0
+    },
+    "adjust.temperature": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 6,
+      "direction_correct": 2,
+      "abstention_correct": 0,
+      "false_positives": 6,
+      "false_negatives": 0,
+      "false_positive_rate": 1.0,
+      "false_negative_rate": 0.0,
+      "invalid_output": 0,
+      "parameter_unit": "kelvin",
+      "parameter_errors": [
+        1000,
+        0,
+        1000,
+        1000,
+        0,
+        1000
+      ],
+      "mean_parameter_error": 666.6666666666666,
+      "conflict_abstentions": 0
+    },
+    "detail.sharpen": {
+      "cases": 12,
+      "positive_cases": 4,
+      "negative_cases": 8,
+      "selection": 4,
+      "direction_correct": 4,
+      "abstention_correct": 0,
+      "false_positives": 8,
+      "false_negatives": 0,
+      "false_positive_rate": 1.0,
+      "false_negative_rate": 0.0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_amount",
+      "parameter_errors": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "mean_parameter_error": 0.0,
+      "conflict_abstentions": 0
+    }
+  },
+  "candidate": {
+    "adjust.exposure": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 0,
+      "direction_correct": 0,
+      "abstention_correct": 6,
+      "false_positives": 0,
+      "false_negatives": 6,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 1.0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_ev",
+      "parameter_errors": [],
+      "mean_parameter_error": null,
+      "conflict_abstentions": 2
+    },
+    "adjust.brightness": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 0,
+      "direction_correct": 0,
+      "abstention_correct": 6,
+      "false_positives": 0,
+      "false_negatives": 6,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 1.0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_linear",
+      "parameter_errors": [],
+      "mean_parameter_error": null,
+      "conflict_abstentions": 2
+    },
+    "adjust.contrast": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 0,
+      "direction_correct": 0,
+      "abstention_correct": 6,
+      "false_positives": 0,
+      "false_negatives": 6,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 1.0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_stops",
+      "parameter_errors": [],
+      "mean_parameter_error": null,
+      "conflict_abstentions": 2
+    },
+    "adjust.highlights": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 0,
+      "direction_correct": 0,
+      "abstention_correct": 5,
+      "false_positives": 1,
+      "false_negatives": 6,
+      "false_positive_rate": 0.16666666666666666,
+      "false_negative_rate": 1.0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_ev",
+      "parameter_errors": [],
+      "mean_parameter_error": null,
+      "conflict_abstentions": 1
+    },
+    "adjust.shadows": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 0,
+      "direction_correct": 0,
+      "abstention_correct": 6,
+      "false_positives": 0,
+      "false_negatives": 6,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 1.0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_ev",
+      "parameter_errors": [],
+      "mean_parameter_error": null,
+      "conflict_abstentions": 2
+    },
+    "adjust.saturation": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 0,
+      "direction_correct": 0,
+      "abstention_correct": 6,
+      "false_positives": 0,
+      "false_negatives": 6,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 1.0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_ratio",
+      "parameter_errors": [],
+      "mean_parameter_error": null,
+      "conflict_abstentions": 2
+    },
+    "adjust.temperature": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 0,
+      "direction_correct": 0,
+      "abstention_correct": 6,
+      "false_positives": 0,
+      "false_negatives": 6,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 1.0,
+      "invalid_output": 0,
+      "parameter_unit": "kelvin",
+      "parameter_errors": [],
+      "mean_parameter_error": null,
+      "conflict_abstentions": 2
+    },
+    "detail.sharpen": {
+      "cases": 12,
+      "positive_cases": 4,
+      "negative_cases": 8,
+      "selection": 0,
+      "direction_correct": 0,
+      "abstention_correct": 8,
+      "false_positives": 0,
+      "false_negatives": 4,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 1.0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_amount",
+      "parameter_errors": [],
+      "mean_parameter_error": null,
+      "conflict_abstentions": 2
+    }
+  },
+  "metric_only": {
+    "adjust.exposure": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 5,
+      "direction_correct": 5,
+      "abstention_correct": 6,
+      "false_positives": 0,
+      "false_negatives": 1,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.16666666666666666,
+      "invalid_output": 0,
+      "parameter_unit": "milli_ev",
+      "parameter_errors": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "mean_parameter_error": 0.0,
+      "conflict_abstentions": 2
+    },
+    "adjust.brightness": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 4,
+      "direction_correct": 4,
+      "abstention_correct": 6,
+      "false_positives": 0,
+      "false_negatives": 2,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.3333333333333333,
+      "invalid_output": 0,
+      "parameter_unit": "milli_linear",
+      "parameter_errors": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "mean_parameter_error": 0.0,
+      "conflict_abstentions": 2
+    },
+    "adjust.contrast": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 6,
+      "direction_correct": 4,
+      "abstention_correct": 0,
+      "false_positives": 6,
+      "false_negatives": 0,
+      "false_positive_rate": 1.0,
+      "false_negative_rate": 0.0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_stops",
+      "parameter_errors": [
+        0,
+        500,
+        0,
+        0,
+        500,
+        0
+      ],
+      "mean_parameter_error": 166.66666666666666,
+      "conflict_abstentions": 0
+    },
+    "adjust.highlights": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 2,
+      "direction_correct": 2,
+      "abstention_correct": 1,
+      "false_positives": 5,
+      "false_negatives": 4,
+      "false_positive_rate": 0.8333333333333334,
+      "false_negative_rate": 0.6666666666666666,
+      "invalid_output": 0,
+      "parameter_unit": "milli_ev",
+      "parameter_errors": [
+        0,
+        0
+      ],
+      "mean_parameter_error": 0.0,
+      "conflict_abstentions": 1
+    },
+    "adjust.shadows": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 4,
+      "direction_correct": 2,
+      "abstention_correct": 1,
+      "false_positives": 5,
+      "false_negatives": 2,
+      "false_positive_rate": 0.8333333333333334,
+      "false_negative_rate": 0.3333333333333333,
+      "invalid_output": 0,
+      "parameter_unit": "milli_ev",
+      "parameter_errors": [
+        0,
+        1000,
+        0,
+        1000
+      ],
+      "mean_parameter_error": 500.0,
+      "conflict_abstentions": 1
+    },
+    "adjust.saturation": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 1,
+      "direction_correct": 1,
+      "abstention_correct": 3,
+      "false_positives": 3,
+      "false_negatives": 5,
+      "false_positive_rate": 0.5,
+      "false_negative_rate": 0.8333333333333334,
+      "invalid_output": 0,
+      "parameter_unit": "milli_ratio",
+      "parameter_errors": [
+        0
+      ],
+      "mean_parameter_error": 0.0,
+      "conflict_abstentions": 1
+    },
+    "adjust.temperature": {
+      "cases": 12,
+      "positive_cases": 6,
+      "negative_cases": 6,
+      "selection": 2,
+      "direction_correct": 2,
+      "abstention_correct": 3,
+      "false_positives": 3,
+      "false_negatives": 4,
+      "false_positive_rate": 0.5,
+      "false_negative_rate": 0.6666666666666666,
+      "invalid_output": 0,
+      "parameter_unit": "kelvin",
+      "parameter_errors": [
+        0,
+        0
+      ],
+      "mean_parameter_error": 0.0,
+      "conflict_abstentions": 1
+    },
+    "detail.sharpen": {
+      "cases": 12,
+      "positive_cases": 4,
+      "negative_cases": 8,
+      "selection": 4,
+      "direction_correct": 4,
+      "abstention_correct": 4,
+      "false_positives": 4,
+      "false_negatives": 0,
+      "false_positive_rate": 0.5,
+      "false_negative_rate": 0.0,
+      "invalid_output": 0,
+      "parameter_unit": "milli_amount",
+      "parameter_errors": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "mean_parameter_error": 0.0,
+      "conflict_abstentions": 2
+    }
+  },
+  "repeat_consistent_cases": 96,
+  "maximum_embedding_repeat_difference": 0,
+  "load_seconds": 2.7446824930084404,
+  "prototype_embedding_seconds": 3.2174681839969708,
+  "calibration_seconds": {
+    "median": 0.05396823849878274,
+    "maximum": 0.08878122799796984
+  },
+  "first_image_seconds": 0.8943412240041653,
+  "warm_image_seconds": {
+    "minimum": 0.4159175489912741,
+    "median": 0.4374619649897795,
+    "maximum": 0.49412660401139874,
+    "p95": 0.4660180150094675
+  },
+  "memory": {
+    "before_load": {
+      "peak_rss_bytes": 80654336,
+      "VmHWM_bytes": 80654336,
+      "VmRSS_bytes": 75833344,
+      "RssAnon_bytes": 62767104,
+      "RssFile_bytes": 13066240
+    },
+    "after_load": {
+      "peak_rss_bytes": 307564544,
+      "VmHWM_bytes": 307924992,
+      "VmRSS_bytes": 307924992,
+      "RssAnon_bytes": 216326144,
+      "RssFile_bytes": 91598848
+    },
+    "after_inference": {
+      "peak_rss_bytes": 748568576,
+      "VmHWM_bytes": 748568576,
+      "VmRSS_bytes": 714088448,
+      "RssAnon_bytes": 367005696,
+      "RssFile_bytes": 347082752
+    },
+    "after_close": {
+      "peak_rss_bytes": 748568576,
+      "VmHWM_bytes": 748568576,
+      "VmRSS_bytes": 230432768,
+      "RssAnon_bytes": 175239168,
+      "RssFile_bytes": 55193600
+    }
+  },
+  "records": [
+    {
+      "id": "chart-adjust.exposure-positive",
+      "scores": [
+        [
+          0.6740546477822222,
+          0.668514932463216,
+          0.693924892584884
+        ],
+        [
+          0.6740546477822222,
+          0.668514932463216,
+          0.693924892584884
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 500
+    },
+    {
+      "id": "chart-adjust.exposure-opposite",
+      "scores": [
+        [
+          0.6603369835232792,
+          0.6640734489682996,
+          0.6909821350114898
+        ],
+        [
+          0.6603369835232792,
+          0.6640734489682996,
+          0.6909821350114898
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": -500
+    },
+    {
+      "id": "chart-adjust.exposure-neutral",
+      "scores": [
+        [
+          0.6676025668297063,
+          0.6685672448871032,
+          0.696254950916848
+        ],
+        [
+          0.6676025668297063,
+          0.6685672448871032,
+          0.696254950916848
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.exposure-boundary",
+      "scores": [
+        [
+          0.6626663551183866,
+          0.6630454161553058,
+          0.6935873538765938
+        ],
+        [
+          0.6626663551183866,
+          0.6630454161553058,
+          0.6935873538765938
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.exposure-combination",
+      "scores": [
+        [
+          0.6685767139352866,
+          0.6623613447453675,
+          0.691016709725055
+        ],
+        [
+          0.6685767139352866,
+          0.6623613447453675,
+          0.691016709725055
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 500
+    },
+    {
+      "id": "chart-adjust.exposure-conflict",
+      "scores": [
+        [
+          0.6845852148474866,
+          0.6855394430181212,
+          0.698766707797016
+        ],
+        [
+          0.6845852148474866,
+          0.6855394430181212,
+          0.698766707797016
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.brightness-positive",
+      "scores": [
+        [
+          0.6581657642252785,
+          0.6679084099727729,
+          0.7086509097916759
+        ],
+        [
+          0.6581657642252785,
+          0.6679084099727729,
+          0.7086509097916759
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 100
+    },
+    {
+      "id": "chart-adjust.brightness-opposite",
+      "scores": [
+        [
+          0.6694223104651974,
+          0.6854322241361975,
+          0.7232908653945853
+        ],
+        [
+          0.6694223104651974,
+          0.6854322241361975,
+          0.7232908653945853
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.brightness-neutral",
+      "scores": [
+        [
+          0.6683223718815595,
+          0.6834997291655238,
+          0.7217659869976137
+        ],
+        [
+          0.6683223718815595,
+          0.6834997291655238,
+          0.7217659869976137
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.brightness-boundary",
+      "scores": [
+        [
+          0.6641743346819801,
+          0.6805141653342216,
+          0.7187208886554637
+        ],
+        [
+          0.6641743346819801,
+          0.6805141653342216,
+          0.7187208886554637
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.brightness-combination",
+      "scores": [
+        [
+          0.6629942970951879,
+          0.6705647033674856,
+          0.7118351767427544
+        ],
+        [
+          0.6629942970951879,
+          0.6705647033674856,
+          0.7118351767427544
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 100
+    },
+    {
+      "id": "chart-adjust.brightness-conflict",
+      "scores": [
+        [
+          0.6797914681107196,
+          0.6888556078747946,
+          0.7236573597003346
+        ],
+        [
+          0.6797914681107196,
+          0.6888556078747946,
+          0.7236573597003346
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.contrast-positive",
+      "scores": [
+        [
+          0.7130618448745263,
+          0.6644428247500241,
+          0.7058779026437937
+        ],
+        [
+          0.7130618448745263,
+          0.6644428247500241,
+          0.7058779026437937
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "chart-adjust.contrast-opposite",
+      "scores": [
+        [
+          0.7156431705454217,
+          0.6635213946974824,
+          0.7081727070060087
+        ],
+        [
+          0.7156431705454217,
+          0.6635213946974824,
+          0.7081727070060087
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "chart-adjust.contrast-neutral",
+      "scores": [
+        [
+          0.7130674486826567,
+          0.6628542273932089,
+          0.7059672600439012
+        ],
+        [
+          0.7130674486826567,
+          0.6628542273932089,
+          0.7059672600439012
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "chart-adjust.contrast-boundary",
+      "scores": [
+        [
+          0.7057510127346539,
+          0.6548019665650682,
+          0.7005915546720547
+        ],
+        [
+          0.7057510127346539,
+          0.6548019665650682,
+          0.7005915546720547
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "chart-adjust.contrast-combination",
+      "scores": [
+        [
+          0.7134047075439908,
+          0.662707820797192,
+          0.7084939098413171
+        ],
+        [
+          0.7134047075439908,
+          0.662707820797192,
+          0.7084939098413171
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "chart-adjust.contrast-conflict",
+      "scores": [
+        [
+          0.7114907803454054,
+          0.6609232367657475,
+          0.7055686411585363
+        ],
+        [
+          0.7114907803454054,
+          0.6609232367657475,
+          0.7055686411585363
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "chart-adjust.highlights-positive",
+      "scores": [
+        [
+          0.6780429489651134,
+          0.7039156436426726,
+          0.6888860580495861
+        ],
+        [
+          0.6780429489651134,
+          0.7039156436426726,
+          0.6888860580495861
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.highlights-opposite",
+      "scores": [
+        [
+          0.6701455997752893,
+          0.6965419709126391,
+          0.684307059941135
+        ],
+        [
+          0.6701455997752893,
+          0.6965419709126391,
+          0.684307059941135
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 500
+    },
+    {
+      "id": "chart-adjust.highlights-neutral",
+      "scores": [
+        [
+          0.6718919042802314,
+          0.7023689527752207,
+          0.6887604581610863
+        ],
+        [
+          0.6718919042802314,
+          0.7023689527752207,
+          0.6887604581610863
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 500
+    },
+    {
+      "id": "chart-adjust.highlights-boundary",
+      "scores": [
+        [
+          0.6669713222571755,
+          0.6995907637211004,
+          0.6855695898105634
+        ],
+        [
+          0.6669713222571755,
+          0.6995907637211004,
+          0.6855695898105634
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 500
+    },
+    {
+      "id": "chart-adjust.highlights-combination",
+      "scores": [
+        [
+          0.6834061994103866,
+          0.7111265670786733,
+          0.6936842243634823
+        ],
+        [
+          0.6834061994103866,
+          0.7111265670786733,
+          0.6936842243634823
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.highlights-conflict",
+      "scores": [
+        [
+          0.6842686174257167,
+          0.7104005898787532,
+          0.6899393237166404
+        ],
+        [
+          0.6842686174257167,
+          0.7104005898787532,
+          0.6899393237166404
+        ]
+      ],
+      "candidate": [
+        500,
+        500
+      ],
+      "metric_only": 500
+    },
+    {
+      "id": "chart-adjust.shadows-positive",
+      "scores": [
+        [
+          0.6905564266495321,
+          0.6773637072830648,
+          0.6887788217086118
+        ],
+        [
+          0.6905564266495321,
+          0.6773637072830648,
+          0.6887788217086118
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.shadows-opposite",
+      "scores": [
+        [
+          0.6748535221020016,
+          0.6670210777727964,
+          0.6777546537390313
+        ],
+        [
+          0.6748535221020016,
+          0.6670210777727964,
+          0.6777546537390313
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": -500
+    },
+    {
+      "id": "chart-adjust.shadows-neutral",
+      "scores": [
+        [
+          0.6749437869361979,
+          0.6752253703724456,
+          0.6856512411112997
+        ],
+        [
+          0.6749437869361979,
+          0.6752253703724456,
+          0.6856512411112997
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": -500
+    },
+    {
+      "id": "chart-adjust.shadows-boundary",
+      "scores": [
+        [
+          0.6745626788845388,
+          0.6729648753875027,
+          0.6850025292223764
+        ],
+        [
+          0.6745626788845388,
+          0.6729648753875027,
+          0.6850025292223764
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": -500
+    },
+    {
+      "id": "chart-adjust.shadows-combination",
+      "scores": [
+        [
+          0.6881430587109598,
+          0.6772024637471896,
+          0.6879338978244831
+        ],
+        [
+          0.6881430587109598,
+          0.6772024637471896,
+          0.6879338978244831
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.shadows-conflict",
+      "scores": [
+        [
+          0.6766494516745731,
+          0.6658402839926875,
+          0.678098586747376
+        ],
+        [
+          0.6766494516745731,
+          0.6658402839926875,
+          0.678098586747376
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.saturation-positive",
+      "scores": [
+        [
+          0.686141180579082,
+          0.6558288452518541,
+          0.7093699550124917
+        ],
+        [
+          0.686141180579082,
+          0.6558288452518541,
+          0.7093699550124917
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.saturation-opposite",
+      "scores": [
+        [
+          0.6771954679296945,
+          0.6534403546191124,
+          0.7047578209306278
+        ],
+        [
+          0.6771954679296945,
+          0.6534403546191124,
+          0.7047578209306278
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.saturation-neutral",
+      "scores": [
+        [
+          0.6850957987244277,
+          0.6573093683029281,
+          0.7082368258467713
+        ],
+        [
+          0.6850957987244277,
+          0.6573093683029281,
+          0.7082368258467713
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.saturation-boundary",
+      "scores": [
+        [
+          0.6775080212668584,
+          0.6484871600374326,
+          0.7053854160683708
+        ],
+        [
+          0.6775080212668584,
+          0.6484871600374326,
+          0.7053854160683708
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.saturation-combination",
+      "scores": [
+        [
+          0.6858906727809697,
+          0.6521980243896142,
+          0.7044108590751204
+        ],
+        [
+          0.6858906727809697,
+          0.6521980243896142,
+          0.7044108590751204
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.saturation-conflict",
+      "scores": [
+        [
+          0.6897422725072355,
+          0.6617944669078788,
+          0.7133745038674095
+        ],
+        [
+          0.6897422725072355,
+          0.6617944669078788,
+          0.7133745038674095
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.temperature-positive",
+      "scores": [
+        [
+          0.7039588184160044,
+          0.6936612533892206,
+          0.709076354163183
+        ],
+        [
+          0.7039588184160044,
+          0.6936612533892206,
+          0.709076354163183
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 6000
+    },
+    {
+      "id": "chart-adjust.temperature-opposite",
+      "scores": [
+        [
+          0.6969169643244223,
+          0.7181238905725211,
+          0.7148953412027194
+        ],
+        [
+          0.6969169643244223,
+          0.7181238905725211,
+          0.7148953412027194
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.temperature-neutral",
+      "scores": [
+        [
+          0.7016552695800125,
+          0.710494740865503,
+          0.717684325884965
+        ],
+        [
+          0.7016552695800125,
+          0.710494740865503,
+          0.717684325884965
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.temperature-boundary",
+      "scores": [
+        [
+          0.7014476888716974,
+          0.705660131095834,
+          0.7146489868740804
+        ],
+        [
+          0.7014476888716974,
+          0.705660131095834,
+          0.7146489868740804
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.temperature-combination",
+      "scores": [
+        [
+          0.7037870884690511,
+          0.6976230242333461,
+          0.7145874187178929
+        ],
+        [
+          0.7037870884690511,
+          0.6976230242333461,
+          0.7145874187178929
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-adjust.temperature-conflict",
+      "scores": [
+        [
+          0.7103673569084703,
+          0.7155069395350313,
+          0.7152291056195835
+        ],
+        [
+          0.7103673569084703,
+          0.7155069395350313,
+          0.7152291056195835
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-detail.sharpen-positive",
+      "scores": [
+        [
+          0.6594094255967381,
+          0.630864548043398,
+          0.6784608415826593
+        ],
+        [
+          0.6594094255967381,
+          0.630864548043398,
+          0.6784608415826593
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "chart-detail.sharpen-opposite",
+      "scores": [
+        [
+          0.6859512555156958,
+          0.7069781724483178,
+          0.7042289639520127
+        ],
+        [
+          0.6859512555156958,
+          0.7069781724483178,
+          0.7042289639520127
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "chart-detail.sharpen-neutral",
+      "scores": [
+        [
+          0.6778276824206638,
+          0.6442021483988123,
+          0.6858678183914155
+        ],
+        [
+          0.6778276824206638,
+          0.6442021483988123,
+          0.6858678183914155
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "chart-detail.sharpen-boundary",
+      "scores": [
+        [
+          0.6665066748416704,
+          0.6308038927148496,
+          0.6762963980548323
+        ],
+        [
+          0.6665066748416704,
+          0.6308038927148496,
+          0.6762963980548323
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "chart-detail.sharpen-combination",
+      "scores": [
+        [
+          0.6623979681946587,
+          0.6300838909251818,
+          0.6806232357463274
+        ],
+        [
+          0.6623979681946587,
+          0.6300838909251818,
+          0.6806232357463274
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "chart-detail.sharpen-conflict",
+      "scores": [
+        [
+          0.6738985417514567,
+          0.6784536620371715,
+          0.6929473647532414
+        ],
+        [
+          0.6738985417514567,
+          0.6784536620371715,
+          0.6929473647532414
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "scene-adjust.exposure-positive",
+      "scores": [
+        [
+          0.6768873167656301,
+          0.6841707150110373,
+          0.7021088911981014
+        ],
+        [
+          0.6768873167656301,
+          0.6841707150110373,
+          0.7021088911981014
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 500
+    },
+    {
+      "id": "scene-adjust.exposure-opposite",
+      "scores": [
+        [
+          0.6684483468410579,
+          0.6851042948236056,
+          0.7044520647427617
+        ],
+        [
+          0.6684483468410579,
+          0.6851042948236056,
+          0.7044520647427617
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "scene-adjust.exposure-neutral",
+      "scores": [
+        [
+          0.6723225259670457,
+          0.6849771624385448,
+          0.705742738347205
+        ],
+        [
+          0.6723225259670457,
+          0.6849771624385448,
+          0.705742738347205
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "scene-adjust.exposure-boundary",
+      "scores": [
+        [
+          0.6708752887632087,
+          0.6824921274255881,
+          0.7019663831207482
+        ],
+        [
+          0.6708752887632087,
+          0.6824921274255881,
+          0.7019663831207482
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "scene-adjust.exposure-combination",
+      "scores": [
+        [
+          0.6839157817340352,
+          0.6901170783802433,
+          0.7035273641474211
+        ],
+        [
+          0.6839157817340352,
+          0.6901170783802433,
+          0.7035273641474211
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 500
+    },
+    {
+      "id": "scene-adjust.exposure-conflict",
+      "scores": [
+        [
+          0.6724539779551978,
+          0.6863527328866142,
+          0.7135083942985471
+        ],
+        [
+          0.6724539779551978,
+          0.6863527328866142,
+          0.7135083942985471
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "scene-adjust.brightness-positive",
+      "scores": [
+        [
+          0.6834423732011163,
+          0.6858151217368245,
+          0.7188867264914662
+        ],
+        [
+          0.6834423732011163,
+          0.6858151217368245,
+          0.7188867264914662
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 100
+    },
+    {
+      "id": "scene-adjust.brightness-opposite",
+      "scores": [
+        [
+          0.6883405945351684,
+          0.6938680031998955,
+          0.7251193266369854
+        ],
+        [
+          0.6883405945351684,
+          0.6938680031998955,
+          0.7251193266369854
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "scene-adjust.brightness-neutral",
+      "scores": [
+        [
+          0.6884401497055956,
+          0.6916057064222523,
+          0.7241664864410595
+        ],
+        [
+          0.6884401497055956,
+          0.6916057064222523,
+          0.7241664864410595
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "scene-adjust.brightness-boundary",
+      "scores": [
+        [
+          0.687645363408863,
+          0.6905018942779715,
+          0.7217912496482647
+        ],
+        [
+          0.687645363408863,
+          0.6905018942779715,
+          0.7217912496482647
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "scene-adjust.brightness-combination",
+      "scores": [
+        [
+          0.6838161560791954,
+          0.6829813519453052,
+          0.715965490604093
+        ],
+        [
+          0.6838161560791954,
+          0.6829813519453052,
+          0.715965490604093
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 100
+    },
+    {
+      "id": "scene-adjust.brightness-conflict",
+      "scores": [
+        [
+          0.672250059025953,
+          0.6821589743967931,
+          0.7221472188259305
+        ],
+        [
+          0.672250059025953,
+          0.6821589743967931,
+          0.7221472188259305
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "scene-adjust.contrast-positive",
+      "scores": [
+        [
+          0.7203183572242993,
+          0.6702690914677419,
+          0.7054387899745578
+        ],
+        [
+          0.7203183572242993,
+          0.6702690914677419,
+          0.7054387899745578
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "scene-adjust.contrast-opposite",
+      "scores": [
+        [
+          0.7158554836130957,
+          0.6689338293214397,
+          0.7040230521091609
+        ],
+        [
+          0.7158554836130957,
+          0.6689338293214397,
+          0.7040230521091609
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "scene-adjust.contrast-neutral",
+      "scores": [
+        [
+          0.719200456588994,
+          0.6685063136580508,
+          0.7072021546513485
+        ],
+        [
+          0.719200456588994,
+          0.6685063136580508,
+          0.7072021546513485
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "scene-adjust.contrast-boundary",
+      "scores": [
+        [
+          0.7188536760429605,
+          0.6690727266048407,
+          0.7042401870864688
+        ],
+        [
+          0.7188536760429605,
+          0.6690727266048407,
+          0.7042401870864688
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "scene-adjust.contrast-combination",
+      "scores": [
+        [
+          0.72658736088587,
+          0.6760967049829341,
+          0.7104763188715244
+        ],
+        [
+          0.72658736088587,
+          0.6760967049829341,
+          0.7104763188715244
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "scene-adjust.contrast-conflict",
+      "scores": [
+        [
+          0.7233777088341594,
+          0.6742406828781793,
+          0.7103441495794843
+        ],
+        [
+          0.7233777088341594,
+          0.6742406828781793,
+          0.7103441495794843
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "scene-adjust.highlights-positive",
+      "scores": [
+        [
+          0.6786970915251137,
+          0.695819244272215,
+          0.6867734571927918
+        ],
+        [
+          0.6786970915251137,
+          0.695819244272215,
+          0.6867734571927918
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "scene-adjust.highlights-opposite",
+      "scores": [
+        [
+          0.6767277938110114,
+          0.698634668005502,
+          0.691700715843593
+        ],
+        [
+          0.6767277938110114,
+          0.698634668005502,
+          0.691700715843593
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 500
+    },
+    {
+      "id": "scene-adjust.highlights-neutral",
+      "scores": [
+        [
+          0.6746242444528703,
+          0.6955534935613681,
+          0.6897440805571936
+        ],
+        [
+          0.6746242444528703,
+          0.6955534935613681,
+          0.6897440805571936
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 500
+    },
+    {
+      "id": "scene-adjust.highlights-boundary",
+      "scores": [
+        [
+          0.6751538619340783,
+          0.6954460463828281,
+          0.6887215674814212
+        ],
+        [
+          0.6751538619340783,
+          0.6954460463828281,
+          0.6887215674814212
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 500
+    },
+    {
+      "id": "scene-adjust.highlights-combination",
+      "scores": [
+        [
+          0.6813347433562332,
+          0.7017355210857902,
+          0.6914629942854357
+        ],
+        [
+          0.6813347433562332,
+          0.7017355210857902,
+          0.6914629942854357
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "scene-adjust.highlights-conflict",
+      "scores": [
+        [
+          0.6774317264561583,
+          0.6998262959683585,
+          0.6867390029036602
+        ],
+        [
+          0.6774317264561583,
+          0.6998262959683585,
+          0.6867390029036602
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "scene-adjust.shadows-positive",
+      "scores": [
+        [
+          0.686895709907674,
+          0.6922378304273411,
+          0.6992944451262165
+        ],
+        [
+          0.686895709907674,
+          0.6922378304273411,
+          0.6992944451262165
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": -500
+    },
+    {
+      "id": "scene-adjust.shadows-opposite",
+      "scores": [
+        [
+          0.6771954357154435,
+          0.6867621812260642,
+          0.6950622150344595
+        ],
+        [
+          0.6771954357154435,
+          0.6867621812260642,
+          0.6950622150344595
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": -500
+    },
+    {
+      "id": "scene-adjust.shadows-neutral",
+      "scores": [
+        [
+          0.6814042439124026,
+          0.6890179566137328,
+          0.7003334732967896
+        ],
+        [
+          0.6814042439124026,
+          0.6890179566137328,
+          0.7003334732967896
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": -500
+    },
+    {
+      "id": "scene-adjust.shadows-boundary",
+      "scores": [
+        [
+          0.6821847378765243,
+          0.6874068475532562,
+          0.6987177228574959
+        ],
+        [
+          0.6821847378765243,
+          0.6874068475532562,
+          0.6987177228574959
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": -500
+    },
+    {
+      "id": "scene-adjust.shadows-combination",
+      "scores": [
+        [
+          0.6953706233663219,
+          0.6966560339117787,
+          0.7063272825378396
+        ],
+        [
+          0.6953706233663219,
+          0.6966560339117787,
+          0.7063272825378396
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": -500
+    },
+    {
+      "id": "scene-adjust.shadows-conflict",
+      "scores": [
+        [
+          0.683996857512527,
+          0.685667985663995,
+          0.6990537523142666
+        ],
+        [
+          0.683996857512527,
+          0.685667985663995,
+          0.6990537523142666
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": -500
+    },
+    {
+      "id": "scene-adjust.saturation-positive",
+      "scores": [
+        [
+          0.6927653894830479,
+          0.6697815167289467,
+          0.7034321349279297
+        ],
+        [
+          0.6927653894830479,
+          0.6697815167289467,
+          0.7034321349279297
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "scene-adjust.saturation-opposite",
+      "scores": [
+        [
+          0.6825805835865104,
+          0.6633340191324524,
+          0.695885011234587
+        ],
+        [
+          0.6825805835865104,
+          0.6633340191324524,
+          0.695885011234587
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 800
+    },
+    {
+      "id": "scene-adjust.saturation-neutral",
+      "scores": [
+        [
+          0.6882426310767168,
+          0.6667196885428754,
+          0.7018873303972603
+        ],
+        [
+          0.6882426310767168,
+          0.6667196885428754,
+          0.7018873303972603
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 800
+    },
+    {
+      "id": "scene-adjust.saturation-boundary",
+      "scores": [
+        [
+          0.691540923579829,
+          0.6692476238160632,
+          0.7005368420629673
+        ],
+        [
+          0.691540923579829,
+          0.6692476238160632,
+          0.7005368420629673
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 800
+    },
+    {
+      "id": "scene-adjust.saturation-combination",
+      "scores": [
+        [
+          0.6960291909611822,
+          0.669817833391001,
+          0.7011230414557561
+        ],
+        [
+          0.6960291909611822,
+          0.669817833391001,
+          0.7011230414557561
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "scene-adjust.saturation-conflict",
+      "scores": [
+        [
+          0.6862661534376556,
+          0.6669294742267784,
+          0.6999689860089409
+        ],
+        [
+          0.6862661534376556,
+          0.6669294742267784,
+          0.6999689860089409
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 800
+    },
+    {
+      "id": "scene-adjust.temperature-positive",
+      "scores": [
+        [
+          0.7207658963233023,
+          0.6940219420955163,
+          0.7070704614566496
+        ],
+        [
+          0.7207658963233023,
+          0.6940219420955163,
+          0.7070704614566496
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "scene-adjust.temperature-opposite",
+      "scores": [
+        [
+          0.7151140667743985,
+          0.7025609117236487,
+          0.7157757353204833
+        ],
+        [
+          0.7151140667743985,
+          0.7025609117236487,
+          0.7157757353204833
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 7000
+    },
+    {
+      "id": "scene-adjust.temperature-neutral",
+      "scores": [
+        [
+          0.7197749193516741,
+          0.7019007814034789,
+          0.7143814610733501
+        ],
+        [
+          0.7197749193516741,
+          0.7019007814034789,
+          0.7143814610733501
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 7000
+    },
+    {
+      "id": "scene-adjust.temperature-boundary",
+      "scores": [
+        [
+          0.721601619779126,
+          0.7020383271306432,
+          0.7156940108793572
+        ],
+        [
+          0.721601619779126,
+          0.7020383271306432,
+          0.7156940108793572
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 7000
+    },
+    {
+      "id": "scene-adjust.temperature-combination",
+      "scores": [
+        [
+          0.7220571062766896,
+          0.6979382820165171,
+          0.7122671489545986
+        ],
+        [
+          0.7220571062766896,
+          0.6979382820165171,
+          0.7122671489545986
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "scene-adjust.temperature-conflict",
+      "scores": [
+        [
+          0.7200179733126227,
+          0.7003048385491051,
+          0.7067157358185748
+        ],
+        [
+          0.7200179733126227,
+          0.7003048385491051,
+          0.7067157358185748
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 7000
+    },
+    {
+      "id": "scene-detail.sharpen-positive",
+      "scores": [
+        [
+          0.6528366063066366,
+          0.6313011270015073,
+          0.6858359296569839
+        ],
+        [
+          0.6528366063066366,
+          0.6313011270015073,
+          0.6858359296569839
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "scene-detail.sharpen-opposite",
+      "scores": [
+        [
+          0.6567042566788197,
+          0.6483896531591902,
+          0.6882596201470816
+        ],
+        [
+          0.6567042566788197,
+          0.6483896531591902,
+          0.6882596201470816
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    },
+    {
+      "id": "scene-detail.sharpen-neutral",
+      "scores": [
+        [
+          0.664565689920708,
+          0.645644730165156,
+          0.6949855800288931
+        ],
+        [
+          0.664565689920708,
+          0.645644730165156,
+          0.6949855800288931
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "scene-detail.sharpen-boundary",
+      "scores": [
+        [
+          0.6691221970057037,
+          0.6484121161376749,
+          0.6959449392911778
+        ],
+        [
+          0.6691221970057037,
+          0.6484121161376749,
+          0.6959449392911778
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "scene-detail.sharpen-combination",
+      "scores": [
+        [
+          0.6542559513921784,
+          0.6292068843188304,
+          0.6834008823242642
+        ],
+        [
+          0.6542559513921784,
+          0.6292068843188304,
+          0.6834008823242642
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": 250
+    },
+    {
+      "id": "scene-detail.sharpen-conflict",
+      "scores": [
+        [
+          0.6802635307952308,
+          0.6722749712186519,
+          0.7068769048429538
+        ],
+        [
+          0.6802635307952308,
+          0.6722749712186519,
+          0.7068769048429538
+        ]
+      ],
+      "candidate": [
+        null,
+        null
+      ],
+      "metric_only": null
+    }
+  ],
+  "natural_photo_status": "INSUFFICIENT REALISTIC QUALITY EVIDENCE",
+  "production_admitted": false,
+  "sensitivity": {
+    "0.0": {
+      "adjust.exposure": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 6,
+        "false_positives": 0,
+        "false_negatives": 6,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "milli_ev",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 2
+      },
+      "adjust.brightness": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 6,
+        "false_positives": 0,
+        "false_negatives": 6,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "milli_linear",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 2
+      },
+      "adjust.contrast": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 6,
+        "direction_correct": 4,
+        "abstention_correct": 0,
+        "false_positives": 6,
+        "false_negatives": 0,
+        "false_positive_rate": 1.0,
+        "false_negative_rate": 0.0,
+        "invalid_output": 0,
+        "parameter_unit": "milli_stops",
+        "parameter_errors": [
+          0,
+          500,
+          0,
+          0,
+          500,
+          0
+        ],
+        "mean_parameter_error": 166.66666666666666,
+        "conflict_abstentions": 0
+      },
+      "adjust.highlights": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 2,
+        "direction_correct": 2,
+        "abstention_correct": 1,
+        "false_positives": 5,
+        "false_negatives": 4,
+        "false_positive_rate": 0.8333333333333334,
+        "false_negative_rate": 0.6666666666666666,
+        "invalid_output": 0,
+        "parameter_unit": "milli_ev",
+        "parameter_errors": [
+          0,
+          0
+        ],
+        "mean_parameter_error": 0.0,
+        "conflict_abstentions": 1
+      },
+      "adjust.shadows": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 6,
+        "false_positives": 0,
+        "false_negatives": 6,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "milli_ev",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 2
+      },
+      "adjust.saturation": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 6,
+        "false_positives": 0,
+        "false_negatives": 6,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "milli_ratio",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 2
+      },
+      "adjust.temperature": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 6,
+        "false_positives": 0,
+        "false_negatives": 6,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "kelvin",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 2
+      },
+      "detail.sharpen": {
+        "cases": 12,
+        "positive_cases": 4,
+        "negative_cases": 8,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 8,
+        "false_positives": 0,
+        "false_negatives": 4,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "milli_amount",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 2
+      }
+    },
+    "0.01": {
+      "adjust.exposure": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 6,
+        "false_positives": 0,
+        "false_negatives": 6,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "milli_ev",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 2
+      },
+      "adjust.brightness": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 6,
+        "false_positives": 0,
+        "false_negatives": 6,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "milli_linear",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 2
+      },
+      "adjust.contrast": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 3,
+        "direction_correct": 2,
+        "abstention_correct": 3,
+        "false_positives": 3,
+        "false_negatives": 3,
+        "false_positive_rate": 0.5,
+        "false_negative_rate": 0.5,
+        "invalid_output": 0,
+        "parameter_unit": "milli_stops",
+        "parameter_errors": [
+          0,
+          500,
+          0
+        ],
+        "mean_parameter_error": 166.66666666666666,
+        "conflict_abstentions": 1
+      },
+      "adjust.highlights": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 1,
+        "direction_correct": 1,
+        "abstention_correct": 3,
+        "false_positives": 3,
+        "false_negatives": 5,
+        "false_positive_rate": 0.5,
+        "false_negative_rate": 0.8333333333333334,
+        "invalid_output": 0,
+        "parameter_unit": "milli_ev",
+        "parameter_errors": [
+          0
+        ],
+        "mean_parameter_error": 0.0,
+        "conflict_abstentions": 1
+      },
+      "adjust.shadows": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 6,
+        "false_positives": 0,
+        "false_negatives": 6,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "milli_ev",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 2
+      },
+      "adjust.saturation": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 6,
+        "false_positives": 0,
+        "false_negatives": 6,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "milli_ratio",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 2
+      },
+      "adjust.temperature": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 6,
+        "false_positives": 0,
+        "false_negatives": 6,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "kelvin",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 2
+      },
+      "detail.sharpen": {
+        "cases": 12,
+        "positive_cases": 4,
+        "negative_cases": 8,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 8,
+        "false_positives": 0,
+        "false_negatives": 4,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "milli_amount",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 2
+      }
+    },
+    "0.02": {
+      "adjust.exposure": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 6,
+        "false_positives": 0,
+        "false_negatives": 6,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "milli_ev",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 2
+      },
+      "adjust.brightness": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 6,
+        "false_positives": 0,
+        "false_negatives": 6,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "milli_linear",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 2
+      },
+      "adjust.contrast": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 6,
+        "false_positives": 0,
+        "false_negatives": 6,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "milli_stops",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 2
+      },
+      "adjust.highlights": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 5,
+        "false_positives": 1,
+        "false_negatives": 6,
+        "false_positive_rate": 0.16666666666666666,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "milli_ev",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 1
+      },
+      "adjust.shadows": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 6,
+        "false_positives": 0,
+        "false_negatives": 6,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "milli_ev",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 2
+      },
+      "adjust.saturation": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 6,
+        "false_positives": 0,
+        "false_negatives": 6,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "milli_ratio",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 2
+      },
+      "adjust.temperature": {
+        "cases": 12,
+        "positive_cases": 6,
+        "negative_cases": 6,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 6,
+        "false_positives": 0,
+        "false_negatives": 6,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "kelvin",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 2
+      },
+      "detail.sharpen": {
+        "cases": 12,
+        "positive_cases": 4,
+        "negative_cases": 8,
+        "selection": 0,
+        "direction_correct": 0,
+        "abstention_correct": 8,
+        "false_positives": 0,
+        "false_negatives": 4,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "invalid_output": 0,
+        "parameter_unit": "milli_amount",
+        "parameter_errors": [],
+        "mean_parameter_error": null,
+        "conflict_abstentions": 2
+      }
+    }
+  }
+}

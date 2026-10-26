@@ -1,0 +1,13 @@
+{
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "python": "3.14.4",
+  "zlib": "1.3.1",
+  "backend": "CPU",
+  "threads": 1,
+  "model": "existing pinned local artifact; no download",
+  "runtime": "LiteRT-LM API 0.18.0",
+  "audio_backend": null,
+  "fixture_rights": "project-owned procedural generation",
+  "model_input": "224 RGB sRGB, runtime 70-token image preprocessing",
+  "note": "RSS is process evidence, not exact leases or mobile certification"
+}

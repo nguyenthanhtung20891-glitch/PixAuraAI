@@ -1,4 +1,8 @@
 * text=auto
+docs/benchmarks/intelligence-qualification-v1* text eol=lf
+docs/reports/evidence/phase-7-step-7-round2-*.json text eol=lf
+scripts/qualify-intelligence.py text eol=lf
+tests/intelligence-qualification.test.py text eol=lf
 *.md text eol=lf
 *.mjs text eol=lf
 *.h text eol=lf

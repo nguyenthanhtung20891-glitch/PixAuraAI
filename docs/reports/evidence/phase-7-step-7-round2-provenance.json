@@ -1,0 +1,147 @@
+{
+  "version": 1,
+  "scope": "OFFLINE_EVIDENCE_NOT_ADMISSION",
+  "current_artifact_verdict": "CURRENT_ARTIFACT_PROVENANCE_FAILED",
+  "production_admitted": false,
+  "matrix": [
+    {
+      "item": "official_upstream",
+      "status": "PROVEN",
+      "evidence": "Google official documentation links google/embeddinggemma-2.",
+      "source": "https://huggingface.co/google/embeddinggemma-2/tree/914f7f89142e33e77833254d9c9b90c3cef7303b"
+    },
+    {
+      "item": "upstream_revision",
+      "status": "PROVEN",
+      "evidence": "914f7f89142e33e77833254d9c9b90c3cef7303b pinned metadata.",
+      "source": "https://huggingface.co/google/embeddinggemma-2/tree/914f7f89142e33e77833254d9c9b90c3cef7303b"
+    },
+    {
+      "item": "original_checkpoint_hashes",
+      "status": "PARTIAL",
+      "evidence": "model.safetensors: 1488915288 bytes, published LFS SHA256 197a32965d4b1105faf060417baa899e193fb73cd401f42ec9295234d5553d79; original weights NOT downloaded/hash-verified locally.",
+      "source": "https://huggingface.co/google/embeddinggemma-2/tree/914f7f89142e33e77833254d9c9b90c3cef7303b"
+    },
+    {
+      "item": "license_text",
+      "status": "PROVEN",
+      "evidence": "Apache-2.0 declared upstream; exact official Apache text SHA256 cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30. Text retained in ignored audit evidence.",
+      "source": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    },
+    {
+      "item": "redistribution_evidence",
+      "status": "PARTIAL",
+      "evidence": "Apache-2.0 grants conditional redistribution upstream; full converted-artifact derivation/attribution compliance is not established.",
+      "source": "https://huggingface.co/litert-community/embeddinggemma-2-text-vision-440m-litert-lm/tree/e301f74d5551b0c2641bd5cb4652a76239d5c5f8"
+    },
+    {
+      "item": "tokenizer",
+      "status": "PROVEN",
+      "evidence": "Embedded 4689013-byte SentencePiece tokenizer hash e594c8a90eb08d8bda498ff4747977dc827ae0c3c56b5c0d41a605a22d02ef03 matches published pinned upstream LFS identity.",
+      "source": "https://huggingface.co/google/embeddinggemma-2/tree/914f7f89142e33e77833254d9c9b90c3cef7303b"
+    },
+    {
+      "item": "processor_preprocessing",
+      "status": "PARTIAL",
+      "evidence": "Pinned upstream processor_config.json SHA256 168f6a08522f3ce5dea596d94d003af2fd691742d4f41fe1f9d8cce76bfbf69c; upstream image tokens 280 vs tested LiteRT signature 70; no conversion/parity attestation.",
+      "source": "https://huggingface.co/google/embeddinggemma-2/tree/914f7f89142e33e77833254d9c9b90c3cef7303b"
+    },
+    {
+      "item": "architecture_config",
+      "status": "PARTIAL",
+      "evidence": "Pinned upstream config SHA256 b8f1e9931b57fbc054acdb445c41765d55b0074c58d145fa82839941ad1b5bb3; text+vision container sections verified, exact graph derivation unproven.",
+      "source": "https://huggingface.co/google/embeddinggemma-2/tree/914f7f89142e33e77833254d9c9b90c3cef7303b"
+    },
+    {
+      "item": "converted_repository_revision",
+      "status": "PROVEN",
+      "evidence": "litert-community/embeddinggemma-2-text-vision-440m-litert-lm at e301f74d5551b0c2641bd5cb4652a76239d5c5f8.",
+      "source": "https://huggingface.co/litert-community/embeddinggemma-2-text-vision-440m-litert-lm/tree/e301f74d5551b0c2641bd5cb4652a76239d5c5f8"
+    },
+    {
+      "item": "converter_tool",
+      "status": "UNPROVEN",
+      "evidence": "No converter identity for this artifact in inspected pinned repository/model card.",
+      "source": "https://huggingface.co/litert-community/embeddinggemma-2-text-vision-440m-litert-lm/tree/e301f74d5551b0c2641bd5cb4652a76239d5c5f8"
+    },
+    {
+      "item": "converter_revision",
+      "status": "UNPROVEN",
+      "evidence": "No artifact-specific converter revision/version published in inspected material.",
+      "source": "https://huggingface.co/litert-community/embeddinggemma-2-text-vision-440m-litert-lm/tree/e301f74d5551b0c2641bd5cb4652a76239d5c5f8"
+    },
+    {
+      "item": "conversion_argv",
+      "status": "UNPROVEN",
+      "evidence": "No exact artifact-specific conversion command/argv.",
+      "source": "https://huggingface.co/litert-community/embeddinggemma-2-text-vision-440m-litert-lm/tree/e301f74d5551b0c2641bd5cb4652a76239d5c5f8"
+    },
+    {
+      "item": "quantization",
+      "status": "PARTIAL",
+      "evidence": "Model card declares per-channel QAT int4 text/embedder and int8 vision; exact QAT derivation, parameters and scale history absent.",
+      "source": "https://huggingface.co/litert-community/embeddinggemma-2-text-vision-440m-litert-lm/tree/e301f74d5551b0c2641bd5cb4652a76239d5c5f8"
+    },
+    {
+      "item": "optimization",
+      "status": "UNPROVEN",
+      "evidence": "No exact artifact-specific optimization recipe.",
+      "source": "https://huggingface.co/litert-community/embeddinggemma-2-text-vision-440m-litert-lm/tree/e301f74d5551b0c2641bd5cb4652a76239d5c5f8"
+    },
+    {
+      "item": "conversion_environment",
+      "status": "UNPROVEN",
+      "evidence": "No artifact-specific dependency lock/environment identity.",
+      "source": "https://huggingface.co/litert-community/embeddinggemma-2-text-vision-440m-litert-lm/tree/e301f74d5551b0c2641bd5cb4652a76239d5c5f8"
+    },
+    {
+      "item": "intermediate_hashes",
+      "status": "UNPROVEN",
+      "evidence": "No intermediates/hashes or explicit not-applicable attestation.",
+      "source": "https://huggingface.co/litert-community/embeddinggemma-2-text-vision-440m-litert-lm/tree/e301f74d5551b0c2641bd5cb4652a76239d5c5f8"
+    },
+    {
+      "item": "final_artifact",
+      "status": "PROVEN",
+      "evidence": "embeddinggemma-2-text-vision-440m.litertlm: 387710976 bytes; locally reverified SHA256 92dcbea108899e5d6e30d919b0744f90d9967e80c67a4ab5503ac16d54f62eb0.",
+      "source": "https://huggingface.co/litert-community/embeddinggemma-2-text-vision-440m-litert-lm/tree/e301f74d5551b0c2641bd5cb4652a76239d5c5f8"
+    },
+    {
+      "item": "runtime_compatibility",
+      "status": "PARTIAL",
+      "evidence": "Actual Linux x86_64 CPU LiteRT-LM API 0.18.0 execution; wheel hash b64e2cf6d7dcb90ff094b74af595cc5d53faa07e0889f967d15df8d3e696b53c. No mobile/original-model parity evidence.",
+      "source": "https://github.com/google-ai-edge/LiteRT-LM/tree/b2f686e2ed4718fb84ec398a61dd59ca0f0aff27"
+    },
+    {
+      "item": "reproduction_parity",
+      "status": "UNPROVEN",
+      "evidence": "No independently reproducible build or upstream-vs-converted parity results.",
+      "source": "https://huggingface.co/litert-community/embeddinggemma-2-text-vision-440m-litert-lm/tree/e301f74d5551b0c2641bd5cb4652a76239d5c5f8"
+    },
+    {
+      "item": "custody_derivation",
+      "status": "PARTIAL",
+      "evidence": "Pinned official-linked HTTPS artifact and local byte identity established; conversion/training derivation chain missing.",
+      "source": "https://huggingface.co/litert-community/embeddinggemma-2-text-vision-440m-litert-lm/tree/e301f74d5551b0c2641bd5cb4652a76239d5c5f8"
+    }
+  ],
+  "clean_conversion": {
+    "status": "CONDITIONALLY_REPAIRABLE_NOT_DEMONSTRATED",
+    "inspected_converter_revision": "c677a8069d63fc86a6d14e11168dfc387fd9357c",
+    "legal_source_path": "Pinned Apache-2.0 upstream weights/config/source provide a potential clean-source route; no new weights acquired.",
+    "technical_evidence": [
+      "Public litert_torch.convert supports fixed-shape PyTorch modules.",
+      "Pinned embedding_gemma example explicitly targets older text-only 300M, not this 440M text+vision model.",
+      "Pinned export_hf task enumeration has no embedding task; model extensions handle gemma4 generation, not embedding_gemma2.",
+      "A new fixed-shape embedding wrapper/export/parity pipeline would require bounded proof before any clean rebuild; no exact runnable recipe is claimed.",
+      "Published QAT artifact cannot be assumed reproducible from BF16 via generic PTQ."
+    ],
+    "sources": [
+      "https://github.com/google-ai-edge/litert-torch/blob/c677a8069d63fc86a6d14e11168dfc387fd9357c/litert_torch/generative/examples/embedding_gemma/convert_to_tflite.py",
+      "https://github.com/google-ai-edge/litert-torch/blob/c677a8069d63fc86a6d14e11168dfc387fd9357c/litert_torch/generative/export_hf/core/exportable_module_config.py",
+      "https://github.com/google-ai-edge/litert-torch/blob/c677a8069d63fc86a6d14e11168dfc387fd9357c/litert_torch/generative/export_hf/model_ext/exportables.py",
+      "https://github.com/google-ai-edge/litert-torch"
+    ],
+    "production_conversion_performed": false
+  }
+}

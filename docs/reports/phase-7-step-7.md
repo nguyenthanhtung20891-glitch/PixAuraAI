@@ -1,4 +1,123 @@
-# Phase 7 Step 7 — remediation round 1
+# Phase 7 Step 7 — admission evidence
+
+## Round 2 — Candidate Qualification
+
+Status: AUTHORIZED / IN PROGRESS / ADMISSION BLOCKED. Round 2 engineering
+recommendation: **HOLD_FOR_MORE_QUALITY_EVIDENCE**. This does not admit a model or
+close Step 7. Step 8 and Phase 8 remain NOT STARTED.
+
+Certified starting SHA `001967ce53276a7eba4166f57f339fcbbec666d6`, main ==
+origin/main, clean tracked/staged tree after fetch. Round 1 accepted COMPLETE /
+FULL PASS: Foundation 40264527997, Native shells 40264528001, attempt 1,
+completed/SUCCESS, respectively 7/7 and 3/3 required jobs.
+Ignored prior audit/probe artifacts were preserved.
+
+### Provenance decision
+
+**CURRENT_ARTIFACT_PROVENANCE_FAILED**. Exact twenty-item matrix and primary-source
+links: [provenance evidence](evidence/phase-7-step-7-round2-provenance.json).
+Official upstream `google/embeddinggemma-2` revision
+`914f7f89142e33e77833254d9c9b90c3cef7303b`; converted repository
+`litert-community/embeddinggemma-2-text-vision-440m-litert-lm` revision
+`e301f74d5551b0c2641bd5cb4652a76239d5c5f8`.
+Current artifact 387,710,976 bytes, SHA-256
+`92dcbea108899e5d6e30d919b0744f90d9967e80c67a4ab5503ac16d54f62eb0`.
+Locally hashed embedded tokenizer matches the official published tokenizer hash.
+Official original checkpoint hash is published, not locally verified; original
+weights were not downloaded. Apache-2.0 is declared upstream; canonical license
+text identity is recorded. Conditional upstream redistribution permission does not
+establish the converted artifact's missing derivation/attribution chain.
+
+Converter identity/revision/argv, optimization, environment, intermediates and
+parity are unproven. Quantization descriptions alone do not establish conversion
+lineage. Clean-source conversion is **CONDITIONALLY_REPAIRABLE_NOT_DEMONSTRATED**:
+official pinned source/config and generic LiteRT Torch module export provide an
+engineering route, but inspected converter revision
+`c677a8069d63fc86a6d14e11168dfc387fd9357c` has an older 300M text-only example;
+its HF task enumeration has no embedding task for this text+vision candidate.
+No ready-made pinned working 440M pipeline or QAT reproduction is claimed.
+No full conversion or new weight acquisition occurred. A bounded wrapper/export/
+parity experiment would be needed before claiming a reproducible rebuild path.
+
+### Semantic experiment and results
+
+[Frozen method](../benchmarks/intelligence-qualification-v1.md),
+[raw scores/results](evidence/phase-7-step-7-round2-results.json) and
+[environment](evidence/phase-7-step-7-round2-environment.json) define the evidence.
+96 procedural cases, eight explicit goals, positive/opposite/neutral/boundary/
+combination/conflict variants, two repeats; labels and policy frozen before model
+scoring. No realistic reviewed photos: **INSUFFICIENT REALISTIC QUALITY EVIDENCE**.
+
+Candidate policy: each tool 0 selected positives, 0 correct directions, 100% false
+negative rate. True abstention is 6/6 for exposure, brightness, contrast, shadows,
+saturation and temperature; 5/6 highlights; 8/8 sharpen. One highlights conflict
+false positive (+500 milli-EV); zero invalid/nonfinite/unbounded outputs. All 96
+outputs repeat exactly, maximum embedding component difference zero. No emitted
+positive calibration samples: all candidate parameter errors are null/unmeasured.
+Combination recovery 0/16; conflict abstention 15/16. The frozen policy is
+UNQUALIFIED for every tested category; no category is QUALIFIED.
+
+| Tool | Baseline selection / positives | Baseline correct direction | Baseline FP / negatives | Baseline mean absolute native-unit error | Metric-only correct direction / positives; FP |
+|---|---:|---:|---:|---:|---:|
+| Exposure | 6/6 | 4/6 | 6/6 | 333.333 milli-EV | 5/6; 0 |
+| Brightness | 6/6 | 4/6 | 6/6 | 66.667 milli-linear | 4/6; 0 |
+| Contrast | 6/6 | 4/6 | 6/6 | 166.667 milli-stops | 4/6; 6 |
+| Highlights | 6/6 | 4/6 | 6/6 | 333.333 milli-EV | 2/6; 5 |
+| Shadows | 6/6 | 4/6 | 6/6 | 333.333 milli-EV | 2/6; 5 |
+| Saturation | 6/6 | 4/6 | 6/6 | 133.333 milli-ratio | 1/6; 3 |
+| Temperature | 6/6 | 2/6 | 6/6 | 666.667 kelvin | 2/6; 3 |
+| Sharpen | 4/4 | 4/4 | 8/8 | 0 milli-amount | 4/4; 4 |
+
+The baseline simply honors the explicit request and has no automatic abstention.
+Sensitivity margins 0/0.01/0.02 did not establish a useful bounded policy. A clearly
+post-hoc diagnostic ignoring the neutral prototype ranks temperature direction
+correctly 5/6 and softness 4/4; this was not used to alter goldens or policy and is
+not qualification. Those two signals are PROMISING / MORE EVIDENCE REQUIRED at
+the evidence level only. Remaining categories have no demonstrated policy value.
+Blur, rotation and crop were not inferred or tested and are NOT SUITABLE FOR THIS
+PROVIDER FAMILY under the authorized eight-tool intelligence subset.
+
+Meaningful product improvement over the reference baseline is **not demonstrated**.
+The candidate abstains more but misses every positive. The small raw ranking
+signals and synthetic-only corpus do not establish family-wide unsuitability.
+Hold pending realistic reviewed evidence and proof of a repairable conversion
+pipeline; do not spend on mobile production integration or call this a rebuild
+approval. Final admission thresholds/decision remain with Principal Architect.
+
+### Host cost, security and boundaries
+
+Load 2.7447 s; 24 text prototypes 3.2175 s; first image 0.8943 s; 191 warm images
+median 0.4375 s, p95 0.4660 s, range 0.4159–0.4941 s. Read-only calibration median
+0.0540 s. Process peak RSS 748,568,576 bytes; after inference RSS 714,088,448
+(anonymous 367,005,696; file-backed 347,082,752); after close RSS 230,432,768.
+These include Python/corpus/runtime overhead, not exact allocation leases, mobile
+budgets or physical-device certification. No cold OS-cache guarantee. CPU only;
+Android/Apple physical memory, thermal, pressure and package impact NOT VERIFIED.
+
+A: provenance gate remains blocking; useful semantic qualification and realistic
+quality evidence remain absent. No new authority bypass found in offline tooling.
+B: clean converter proof/parity, reviewed natural-photo corpus and later physical
+device evidence required. C: prototype/neutral calibration research may be useful
+only under a new reviewed evaluation version; no tuning of this frozen run.
+
+No production code, runtime owner, dependencies, app adapters or frozen contracts
+changed. No document/history mutation or approval/candidate capability exists in
+the offline runner. No network inference, free-form NLP, weights, production model
+registration or model bundle was added. Schema 3 and all existing Phase 4/5 caps
+and segmentation semantics unchanged. Production model UNRESOLVED; EmbeddingGemma
+candidate/unadmitted/unintegrated; CPU VALIDATED, Vulkan/Metal UNKNOWN.
+DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+
+Changed-file inventory: `.gitattributes` (stable evidence line endings), two
+workflow files (add offline regression only),
+`scripts/qualify-intelligence.py`, `tests/intelligence-qualification.test.py`, this
+report, four `docs/benchmarks/intelligence-qualification-v1*` files and three
+`docs/reports/evidence/phase-7-step-7-round2-*` JSON files. No tests removed,
+weakened, skipped or optionalized. Exact evidence-SHA certification remains pending
+until both full workflows complete and every required job succeeds. The final
+engineering receipt records the actual SHA/run IDs without a circular self-hash.
+
+## Historical Round 1 implementation record
 
 Status: AUTHORIZED / IN PROGRESS / ADMISSION BLOCKED.
 Remediation implementation certification pending; Step 7 is not complete.

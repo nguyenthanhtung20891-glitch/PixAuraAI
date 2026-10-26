@@ -1,0 +1,184 @@
+{
+  "version": 1,
+  "scope": "OFFLINE_ENGINEERING_ONLY_NOT_ADMISSION",
+  "size": 224,
+  "bases": [
+    "chart",
+    "scene"
+  ],
+  "variants": [
+    "positive",
+    "opposite",
+    "neutral",
+    "boundary",
+    "combination",
+    "conflict"
+  ],
+  "repeats": 2,
+  "model_sha256": "92dcbea108899e5d6e30d919b0744f90d9967e80c67a4ab5503ac16d54f62eb0",
+  "runtime": "litert-lm-api==0.18.0",
+  "runtime_wheel_sha256": "b64e2cf6d7dcb90ff094b74af595cc5d53faa07e0889f967d15df8d3e696b53c",
+  "policy": {
+    "version": 1,
+    "minimum_cosine": 0.15,
+    "minimum_margin": 0.02,
+    "sensitivity_margins": [
+      0.0,
+      0.01,
+      0.02
+    ],
+    "similarity_is_probability": false,
+    "maximum_actions": 1,
+    "strength_policy": "fixed conservative native-unit bins; metrics determine direction and veto uncertainty",
+    "request_mode": "explicit frozen goal; no natural-language input",
+    "prototype_prefix": "task: classification | text: ",
+    "metric_gates": {
+      "luminance_mean": [
+        0.2,
+        0.35
+      ],
+      "luminance_std": [
+        0.12,
+        0.25
+      ],
+      "highlight_q95": [
+        0.45,
+        0.85
+      ],
+      "shadow_q05": [
+        0.04,
+        0.12
+      ],
+      "mean_hsv_saturation": [
+        0.25,
+        0.65
+      ],
+      "red_minus_blue_cast": 0.08,
+      "horizontal_gradient": 0.025,
+      "conflict": "opposed nonzero half-image metric directions veto recommendation"
+    }
+  },
+  "quality_thresholds": "PENDING_PRINCIPAL_ARCHITECT",
+  "natural_photo_evidence": false,
+  "rules": [
+    {
+      "tool": "adjust.exposure",
+      "parameter": "milli_ev",
+      "neutral": 0,
+      "positive": 500,
+      "opposite": -500,
+      "reference": 500,
+      "prototypes": [
+        "A photograph that is underexposed and too dark.",
+        "A photograph that is overexposed and too bright.",
+        "A photograph with correct balanced exposure."
+      ]
+    },
+    {
+      "tool": "adjust.brightness",
+      "parameter": "milli_linear",
+      "neutral": 0,
+      "positive": 100,
+      "opposite": -100,
+      "reference": 100,
+      "prototypes": [
+        "A photograph that is too dim and needs more brightness.",
+        "A photograph that is too bright and needs less brightness.",
+        "A photograph with correct balanced brightness."
+      ]
+    },
+    {
+      "tool": "adjust.contrast",
+      "parameter": "milli_stops",
+      "neutral": 0,
+      "positive": 250,
+      "opposite": -250,
+      "reference": 250,
+      "prototypes": [
+        "A photograph that is flat with too little contrast.",
+        "A photograph that is harsh with too much contrast.",
+        "A photograph with balanced natural contrast."
+      ]
+    },
+    {
+      "tool": "adjust.highlights",
+      "parameter": "milli_ev",
+      "neutral": 0,
+      "positive": -500,
+      "opposite": 500,
+      "reference": -500,
+      "prototypes": [
+        "A photograph that is overly bright with clipped highlights.",
+        "A photograph that is too dim in its highlight regions.",
+        "A photograph with well preserved balanced highlights."
+      ]
+    },
+    {
+      "tool": "adjust.shadows",
+      "parameter": "milli_ev",
+      "neutral": 0,
+      "positive": 500,
+      "opposite": -500,
+      "reference": 500,
+      "prototypes": [
+        "A photograph that is dark with crushed shadows.",
+        "A photograph that is washed out with overly bright shadows.",
+        "A photograph with well preserved balanced shadows."
+      ]
+    },
+    {
+      "tool": "adjust.saturation",
+      "parameter": "milli_ratio",
+      "neutral": 1000,
+      "positive": 1200,
+      "opposite": 800,
+      "reference": 1200,
+      "prototypes": [
+        "A photograph that is dull with too little color saturation.",
+        "A photograph that is overly vivid with too much color saturation.",
+        "A photograph with natural balanced color saturation."
+      ]
+    },
+    {
+      "tool": "adjust.temperature",
+      "parameter": "kelvin",
+      "neutral": 6504,
+      "positive": 6000,
+      "opposite": 7000,
+      "reference": 7000,
+      "prototypes": [
+        "A photograph that is too warm with an orange color cast.",
+        "A photograph that is too cool with a blue color cast.",
+        "A photograph with neutral balanced white balance."
+      ]
+    },
+    {
+      "tool": "detail.sharpen",
+      "parameter": "milli_amount",
+      "neutral": 0,
+      "positive": 250,
+      "opposite": null,
+      "reference": 250,
+      "prototypes": [
+        "A photograph that is soft and blurry lacking sharp detail.",
+        "A photograph that is noisy and oversharpened with excessive detail.",
+        "A photograph with clean with appropriate sharp detail."
+      ]
+    }
+  ],
+  "preprocessing": {
+    "version": 1,
+    "input": "224x224 RGB8 sRGB PNG, no alpha, orientation 1",
+    "runtime": "pinned LiteRT-LM default image patchification, 70 vision tokens; no upstream parity claim",
+    "cpu_threads": 1,
+    "audio_backend": null,
+    "output_dimensions": 768,
+    "l2_normalized": true,
+    "embedding_repeat_tolerance": 1e-05
+  },
+  "not_automatically_supported": {
+    "detail.blur": "artistic/user-purpose choice, excluded from authorized eight-tool intelligence subset",
+    "transform.rotate_quarter": "orientation requires realistic semantic evidence, excluded from authorized intelligence subset",
+    "transform.crop_normalized": "composition/user intent, excluded from authorized intelligence subset"
+  }
+}
