@@ -14,9 +14,9 @@ public:
     ~Fixture()override{++destroys;}
     void load()override{++loads;if(fail_load)throw 0;}
     void run(const std::atomic<bool>& cancellation)override {
-        if(allocation_failure)throw std::bad_alloc();
         ++runs;std::unique_lock<std::mutex> lock(gate);entered=true;cv.notify_all();
         if(paused)cv.wait(lock,[&]{return released;});
+        if(allocation_failure)throw std::bad_alloc();
         (void)cancellation.load();
     }
 };
@@ -69,6 +69,9 @@ int main(){
     CHECK(result==Status::cancelled&&destroys==6&&owner.phase()==Phase::unloaded);
     allocation_failure=true;CHECK(owner.request(editor2,1,costs,facts,factory)==Status::resource);
     CHECK(destroys==7);allocation_failure=false;owner.unload();
+    pause();std::thread cancelled_failure([&]{result=owner.request(editor2,1,costs,facts,factory);});await();
+    allocation_failure=true;owner.cancel();resume();cancelled_failure.join();allocation_failure=false;
+    CHECK(result==Status::cancelled);CHECK(destroys==8);owner.unload();
     owner.shutdown();CHECK(owner.request(editor2,1,costs,facts,factory)==Status::unavailable);
     owner.unload();CHECK(owner.phase()==Phase::stopped);
     std::printf("Intelligence resource foundation: %u checks; no model/editor/approval/history capability\n",checks);

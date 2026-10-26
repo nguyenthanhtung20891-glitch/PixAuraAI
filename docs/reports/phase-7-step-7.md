@@ -250,3 +250,22 @@ No test skip/optionalization, sanitizer suppression or rerun-until-green.
 
 No remediation closure commit or Step 7 admission is claimed here. Actual implementation
 SHA and workflow observations are recorded by the final engineering delivery.
+
+## Round 1 cleanup remediation
+
+Initial implementation: 787cf45c0c8a2d66f3fab96ded011d05c7a02e26. Foundation run
+40262829420 completed SUCCESS 7/7, attempt 1. Its Native shells run 40262829381
+was still in progress when final review found a new foundation cleanup defect.
+These results do not certify the correction below.
+
+Cancellation or stop could overwrite RESOURCE/FAILED status before cleanup tested
+that status, retaining a runtime whose run had failed. A deterministic rendezvous
+now cancels an admitted request immediately before its injected allocation failure.
+The test failed against the initial implementation (session destruction missing).
+The correction retains execution_failed independently of final status precedence,
+so cancellation may win the reported outcome while failed sessions are destroyed.
+No frozen approval/candidate/edit semantics are involved or changed. The focused
+ASan/UBSan resource corpus now passes 51 assertions; focused source checks pass 8/8.
+The new correction SHA requires both complete workflows independently, with no
+rerun of the old SHA and no old-SHA substitution. Actual SHA/run IDs are recorded
+in final engineering delivery. Step 7 admission remains blocked.

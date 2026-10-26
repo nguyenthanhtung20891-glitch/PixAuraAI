@@ -113,10 +113,11 @@ public:
             if(!cancellation_)runtime_->run(cancellation_);
         }catch(const std::bad_alloc&){status=Status::resource;}
         catch(...){status=Status::failed;}
+        const bool execution_failed=status==Status::failed||status==Status::resource;
         lock.lock();
         if(stopped_||cancellation_)status=Status::cancelled;
         else if(epoch!=epoch_||client.generation!=generation)status=Status::stale;
-        if(status==Status::failed||status==Status::resource)runtime_.reset();
+        if(execution_failed)runtime_.reset();
         phase_=stopped_?Phase::stopped:runtime_?Phase::ready:Phase::failed;
         active_=false;idle_.notify_all();return status;
     }
