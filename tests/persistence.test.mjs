@@ -3,6 +3,13 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 const read = file => fs.readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
+function nativeAuthority(file) {
+  if(file!=='scripts/check-native-zig.ps1')return read(file);
+  assert.match(read(file),/check-decode-zig.ps1/);
+  const delegate=read('scripts/check-decode-zig.ps1');
+  for(const command of ['-S $workspacePath','--build $binaryPath','--test-dir $binaryPath'])assert.ok(delegate.includes(command));
+  return read('CMakeLists.txt');
+}
 test('SQLite vendor bytes match the reviewed official pin', () => {
   const base = 'packages/core/vendor/sqlite/';
   const pin = JSON.parse(read(`${base}provenance.json`));
@@ -16,11 +23,11 @@ test('SQLite vendor bytes match the reviewed official pin', () => {
 });
 test('persistence and independent C consumers execute in all native host gates', () => {
   for (const file of ['CMakeLists.txt', 'scripts/check-native.ps1', 'scripts/check-native-zig.ps1']) {
-    for (const name of ['storage_test', 'storage_c_consumer']) assert.ok(read(file).includes(name), `${file}: ${name}`);
+    for (const name of ['storage_test', 'storage_c_consumer']) assert.ok(nativeAuthority(file).includes(name), `${file}: ${name}`);
   }
   for (const file of ['CMakeLists.txt', 'packages/core/Package.swift', 'scripts/check-native.ps1', 'scripts/check-native-zig.ps1']) {
-    for (const source of ['storage.cpp', 'storage_files.cpp', 'sha256.cpp', 'storage_api.cpp', 'sqlite3.c']) assert.ok(read(file).includes(source), `${file}: ${source}`);
-    for (const option of ['SQLITE_OMIT_LOAD_EXTENSION', 'SQLITE_OMIT_SHARED_CACHE', 'SQLITE_MAX_LENGTH', 'SQLITE_DQS']) assert.ok(read(file).includes(option), `${file}: ${option}`);
+    for (const source of ['storage.cpp', 'storage_files.cpp', 'sha256.cpp', 'storage_api.cpp', 'sqlite3.c']) assert.ok(nativeAuthority(file).includes(source), `${file}: ${source}`);
+    for (const option of ['SQLITE_OMIT_LOAD_EXTENSION', 'SQLITE_OMIT_SHARED_CACHE', 'SQLITE_MAX_LENGTH', 'SQLITE_DQS']) assert.ok(nativeAuthority(file).includes(option), `${file}: ${option}`);
   }
   assert.match(read('CMakeLists.txt'), /storage_test PROPERTIES TIMEOUT 180/);
   assert.match(read('CMakeLists.txt'), /storage_c_consumer PROPERTIES LINKER_LANGUAGE CXX/);

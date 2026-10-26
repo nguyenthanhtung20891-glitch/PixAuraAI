@@ -6,6 +6,7 @@ if(PIXAURA_SANITIZERS AND (MSVC OR ANDROID))
 endif()
 
 add_library(pixaura_core SHARED packages/core/src/core.cpp
+    packages/core/src/intelligence_resources.cpp
     packages/core/src/document.cpp packages/core/src/document_api.cpp packages/core/src/storage_api.cpp
     packages/core/src/manual_geometry_preview.cpp packages/core/src/editor_api.cpp)
 target_include_directories(pixaura_core PUBLIC packages/core/include)
@@ -81,6 +82,22 @@ target_sources(pixaura_core PRIVATE packages/core/src/gpu.cpp packages/core/src/
 
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(intelligence_resources_test packages/core/tests/intelligence_resources_test.cpp packages/core/src/intelligence_resources.cpp)
+    target_compile_features(intelligence_resources_test PRIVATE cxx_std_17)
+    pixaura_strict(intelligence_resources_test)
+    add_test(NAME intelligence_resources_test COMMAND intelligence_resources_test)
+    set_tests_properties(intelligence_resources_test PROPERTIES TIMEOUT 30)
+    # Preserve the historical Windows GNU standalone core UBSan gate while
+    # keeping its build/test inventory in canonical CMake, not PowerShell.
+    if(WIN32 AND NOT MSVC)
+        add_executable(core_ubsan_test packages/core/src/core.cpp packages/core/tests/core_test.cpp)
+        target_include_directories(core_ubsan_test PRIVATE packages/core/include)
+        target_compile_features(core_ubsan_test PRIVATE cxx_std_17)
+        pixaura_strict(core_ubsan_test)
+        target_compile_options(core_ubsan_test PRIVATE -fsanitize=undefined)
+        target_link_options(core_ubsan_test PRIVATE -fsanitize=undefined)
+        add_test(NAME core_ubsan_test COMMAND core_ubsan_test)
+    endif()
     add_executable(auto_proposal_test packages/core/tests/auto_proposal_test.cpp)
     target_link_libraries(auto_proposal_test PRIVATE pixaura_core)
     pixaura_strict(auto_proposal_test)

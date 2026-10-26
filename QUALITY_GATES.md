@@ -1,5 +1,34 @@
 # Quality gates and promotion policy
 
+<!-- phase7-step7-round1 -->
+## Phase 7 Step 7 — remediation / admission foundation round 1
+
+Phase 6 CLOSED / COMPLETE / FULL PASS. Phase 7 Steps 1-6 COMPLETE / FULL PASS.
+Step 7 AUTHORIZED / IN PROGRESS / ADMISSION BLOCKED. This is not Step 7 closure.
+One process-scoped lazy intelligence owner; one heavy request, no queue/retry.
+Additive resource accounting with protected Manual/platform reserves; no guessed
+production thresholds. Existing Phase 4/5 256 MiB authorities and segmentation
+inference admission unchanged. No production runtime/provider or model integration.
+Offline provenance and candidate-neutral quality tooling cannot approve or edit.
+Production model UNRESOLVED. EmbeddingGemma 2 text+vision 440M candidate only:
+runnable CPU probe, not semantically/mobile/provenance qualified or admitted.
+Intent/Structured Intent/Plan/Registry/Envelope/Provider, human approval/candidate,
+Schema 3, manual/history, ADR 0009 and Phase 5 trust unchanged. CPU VALIDATED;
+Vulkan/Metal UNKNOWN. No production weights/LiteRT/NLP/cloud/network AI added.
+DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+Step 8 NOT STARTED. Phase 8 NOT STARTED. No new numbered step.
+Full exact-SHA Foundation and Native shells certification required for remediation;
+no prior SHA substitutes for new changes. Remediation certification is not model
+admission or Step 7 completion. Stop after this round.
+See docs/contracts/intelligence-runtime-resource-admission-v1.md,
+docs/contracts/production-intelligence-provenance-evaluation-v1.md and
+ docs/reports/phase-7-step-7.md.
+<!-- phase7-step7-round1-history -->
+
+Earlier authority below is historical at its certified freeze time.
+
+
+
 <!-- phase7-step6-current-authority -->
 ## Phase 7 Step 6 - current authority
 

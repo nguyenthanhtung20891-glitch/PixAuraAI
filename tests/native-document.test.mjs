@@ -3,6 +3,13 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const read = file => fs.readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
+function nativeAuthority(file) {
+  if(file!=='scripts/check-native-zig.ps1')return read(file);
+  assert.match(read(file),/check-decode-zig.ps1/);
+  const delegate=read('scripts/check-decode-zig.ps1');
+  for(const command of ['-S $workspacePath','--build $binaryPath','--test-dir $binaryPath'])assert.ok(delegate.includes(command));
+  return read('CMakeLists.txt');
+}
 
 test('Apple package resource is byte-identical to the approved cross-boundary fixture', () => {
   assert.equal(read('packages/core/swift/Tests/Fixtures/image-document-v1.json'), read('tests/fixtures/image-document-v1.json'));
@@ -13,7 +20,7 @@ test('Apple package resource is byte-identical to the approved cross-boundary fi
 
 test('all shipping builds include the native document implementation and existing ABI 1 stays unchanged', () => {
   for (const file of ['CMakeLists.txt', 'packages/core/Package.swift', 'scripts/check-native.ps1', 'scripts/check-native-zig.ps1']) {
-    for (const source of ['document.cpp', 'document_api.cpp']) assert.ok(read(file).includes(source), `${file}: ${source}`);
+    for (const source of ['document.cpp', 'document_api.cpp']) assert.ok(nativeAuthority(file).includes(source), `${file}: ${source}`);
   }
   assert.match(read('packages/core/src/core.cpp'), /\*output = \{PIXAURA_ABI_VERSION, sizeof\(pixaura_core_info\), 0u, 0u\}/);
   assert.match(read('packages/core/include/pixaura/core.h'), /#define PIXAURA_ABI_VERSION 1u/);
@@ -25,7 +32,7 @@ test('Linux Windows Apple and sanitizers execute document ownership and parser t
   for (const target of ['document_test', 'document_c_consumer', 'document_allocation_test']) {
     assert.match(cmake, new RegExp(`add_test\\(NAME ${target} COMMAND ${target}`));
     assert.ok(read('scripts/check-native.ps1').includes(`${target}.exe`));
-    assert.ok(read('scripts/check-native-zig.ps1').includes(`${target}.exe`));
+    assert.match(nativeAuthority('scripts/check-native-zig.ps1'),new RegExp(`add_test\\(NAME ${target} COMMAND ${target}`));
   }
   assert.match(read('scripts/check-apple.sh'), /ctest --test-dir build\/apple-host --output-on-failure/);
   assert.match(read('scripts/check-apple.sh'), /swift test --package-path packages\/core/);
