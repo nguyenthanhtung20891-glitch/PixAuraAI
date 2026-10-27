@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "status": "PENDING_EXACT_SHA",
+  "status": "CLOSURE_CERTIFICATION_PENDING",
   "provider": "reference.assistance.v1",
   "provider_version": 1,
   "planner": "reference.deterministic.v1",
@@ -79,5 +79,110 @@
   },
   "criteria": "docs/contracts/deterministic-mvp-provider-admission-v1.md",
   "model_artifacts": [],
-  "production_dependencies_added": []
+  "production_dependencies_added": [],
+  "certified_implementation_sha": "4a795a81aa4b3b14f8c923bd8f9492859d877253",
+  "implementation_certification": [
+    {
+      "id": 40459163663,
+      "name": "Foundation boundaries",
+      "attempt": 1,
+      "jobs": [
+        {
+          "id": 122039422047,
+          "name": "sanitizer",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-27T06:06:51Z",
+          "completed_at": "2026-10-27T06:11:13Z"
+        },
+        {
+          "id": 122039422252,
+          "name": "portable (windows-2025)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-27T06:06:52Z",
+          "completed_at": "2026-10-27T06:14:32Z"
+        },
+        {
+          "id": 122039422314,
+          "name": "android-boundary (armeabi-v7a)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-27T06:06:52Z",
+          "completed_at": "2026-10-27T06:07:53Z"
+        },
+        {
+          "id": 122039422332,
+          "name": "apple-boundary",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-27T06:06:53Z",
+          "completed_at": "2026-10-27T06:15:38Z"
+        },
+        {
+          "id": 122039422349,
+          "name": "portable (ubuntu-24.04)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-27T06:06:52Z",
+          "completed_at": "2026-10-27T06:12:46Z"
+        },
+        {
+          "id": 122039422423,
+          "name": "workflow-lint",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-27T06:06:52Z",
+          "completed_at": "2026-10-27T06:06:58Z"
+        },
+        {
+          "id": 122039422444,
+          "name": "android-boundary (arm64-v8a)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-27T06:06:52Z",
+          "completed_at": "2026-10-27T06:07:54Z"
+        }
+      ],
+      "conclusion": "success",
+      "head_sha": "4a795a81aa4b3b14f8c923bd8f9492859d877253",
+      "status": "completed"
+    },
+    {
+      "id": 40459163654,
+      "name": "Native application shells",
+      "attempt": 1,
+      "jobs": [
+        {
+          "id": 122039422052,
+          "name": "ios-app",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-27T06:06:52Z",
+          "completed_at": "2026-10-27T06:32:45Z"
+        },
+        {
+          "id": 122039422231,
+          "name": "android-app",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-27T06:06:51Z",
+          "completed_at": "2026-10-27T06:18:27Z"
+        },
+        {
+          "id": 122039422374,
+          "name": "source",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-27T06:06:52Z",
+          "completed_at": "2026-10-27T06:08:40Z"
+        }
+      ],
+      "conclusion": "success",
+      "head_sha": "4a795a81aa4b3b14f8c923bd8f9492859d877253",
+      "status": "completed"
+    }
+  ],
+  "admission_activation": "reference.assistance.v1 ADMITTED only when the observed final engineering receipt certifies this exact closure commit via both full workflows; no old-SHA substitution",
+  "step7_closure_activation": "Observed exact closure-SHA success on all 7 Foundation and 3 Native jobs; until then pending"
 }

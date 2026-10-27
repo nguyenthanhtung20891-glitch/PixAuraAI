@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "scope": "DOCUMENTATION_ONLY_STEP_7_CLOSURE",
+  "runtime_test_workflow_behavior_changed": false,
+  "changed_files": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "DECISIONS.md",
+    "QUALITY_GATES.md",
+    "ROADMAP.md",
+    "docs/admission/deterministic-mvp-provider-v1.json",
+    "docs/contracts/deterministic-mvp-provider-admission-v1.md",
+    "docs/plans/phase-7-roadmap.md",
+    "docs/reports/evidence/phase-7-step-7-round5-closure-files.json",
+    "docs/reports/evidence/phase-7-step-7-round5-implementation-certification.json",
+    "docs/reports/phase-7-step-7.md"
+  ]
+}

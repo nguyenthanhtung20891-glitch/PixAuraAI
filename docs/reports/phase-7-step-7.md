@@ -2,8 +2,9 @@
 
 ## Round 5 — Deterministic MVP Provider Admission and Step 7 Closure
 
-Status: implementation/admission CERTIFICATION PENDING. Step 7 AUTHORIZED /
-IN PROGRESS. Separate exact closure-SHA certification is mandatory. Step 8 NOT
+Status: implementation certified; Step 7 CLOSURE CERTIFICATION PENDING.
+This separate documentation-only closure requires independent full exact-SHA
+certification before the observed final receipt activates admission/Step 7 closure. Step 8 NOT
 STARTED. Phase 8 NOT STARTED. Starting main == HEAD == origin/main
 `91a2bfc1094b212a99dede92ac470cd047e268d3`, verified after fetch, clean tracked/staged
 tree. Accepted Round 4 Foundation 40365322260 SUCCESS 7/7 and Native shells
@@ -12,6 +13,44 @@ Ignored Round 1–4 evidence is preserved.
 The [implementation inventory](evidence/phase-7-step-7-round5-files.json) lists all
 changed files; [executed local evidence](evidence/phase-7-step-7-round5-local.json)
 retains measurements and the explicit local filesystem limitation.
+
+### Certified implementation and prepared closure
+
+Corrected implementation `4a795a81aa4b3b14f8c923bd8f9492859d877253` independently
+passed Foundation 40459163663 (7/7) and Native shells 40459163654 (3/3), both
+completed/SUCCESS, attempt 1, every required job individually SUCCESS. The
+[job-level implementation receipt](evidence/phase-7-step-7-round5-implementation-certification.json)
+records exact heads, jobs and conclusions. No initial-SHA or roll-up substitution.
+All eleven explicit goals, 117 golden envelopes, 22 typical cases, fingerprint,
+resource/failure paths and full retained native/platform gates passed. The corrected
+measurement labels distinguish checkpoint/test layout from shipping layout.
+
+Observed implementation evidence: Windows 52/52, Linux 53/53, Apple native 53/53,
+active ASan/UBSan 55/55 (both instrumentation probes), source 177/177, Android both
+native ABIs and 47/47 emulator instrumentation tests, Swift macOS/Simulator 44/44
+each, iOS app 9/9 and UI 10/10. Final APK scan: 12 native libraries, 2 DEX files,
+31,870,648 uncompressed bytes. Final unsigned Apple release APP scan: 8 files,
+2,940,223 bytes, zero model assets. Release-negative fixtures and workflow lint pass.
+These are software/package observations, not physical GPU or thermal certification.
+Linux Debug provider request mean/max 146,181/226,624 ns, validation 354,518/440,663 ns;
+shipping-layout object 104 bytes. Windows MSVC Debug request 249,067/318,100 ns,
+validation 650,589/768,900 ns; shipping-layout object 184 bytes. Corresponding
+instrumented test layouts are 120 and 200 bytes. Cumulative requested allocation
+maxima: Linux 29,534 request / 65,553 validation bytes; Windows 42,367 / 99,173.
+No such diagnostic value is promoted to a production allocation lease.
+
+The final closure SHA is intentionally not written before it exists. This prepared
+closure is documentation/authority only; its own two full workflows must complete
+successfully. The observed final engineering receipt then activates:
+PRODUCTION MVP ASSISTANCE PROVIDER reference.assistance.v1 — ADMITTED;
+PRODUCTION LEARNED MODEL NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP;
+and Step 7 closure. Until that observed receipt: CLOSURE CERTIFICATION PENDING.
+Step 8 and Phase 8 remain NOT STARTED. No runtime, contract semantic, dependency,
+test or workflow behavior changes in this closure. The
+[closure inventory](evidence/phase-7-step-7-round5-closure-files.json) records its scope.
+No unresolved A-class finding remains for the bounded model-free provider; deferred
+absolute-photo/learned research is not claimed solved or admitted. B/C future research
+and optimization never authorize work beyond Step 7. CPU/Vulkan/Metal/DH trust unchanged.
 
 ### Principal Architect selection and exact identity
 

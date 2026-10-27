@@ -4,8 +4,13 @@
 ## Phase 7 Step 7 — Round 5 deterministic MVP provider admission
 
 Phase 6 CLOSED / COMPLETE / FULL PASS. Phase 7 Steps 1-6 COMPLETE / FULL PASS.
-Step 7 AUTHORIZED / IN PROGRESS; implementation/admission exact-SHA certification
-PENDING. Separate closure-SHA certification is required before final Step 7 closure.
+Step 7 CLOSURE CERTIFICATION PENDING. Corrected implementation/admission SHA
+`4a795a81aa4b3b14f8c923bd8f9492859d877253` is certified: Foundation 40459163663
+SUCCESS 7/7; Native shells 40459163654 SUCCESS 3/3, both completed exact SHA,
+attempt 1, every required job individually SUCCESS. This separate documentation-only
+closure requires both full workflows on its OWN exact SHA. Only the observed final
+engineering receipt activates provider ADMITTED and Step 7 closure. Until that
+receipt, closure/admission remains pending; no older SHA certifies this commit.
 Selected existing MVP Assistance Provider: reference.assistance.v1, contract 1.
 Existing planner identity remains reference.deterministic.v1; no rename/new provider.
 PRODUCTION LEARNED MODEL: NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.

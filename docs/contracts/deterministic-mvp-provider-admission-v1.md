@@ -1,7 +1,7 @@
 # Deterministic MVP Assistance Provider admission v1
 
 Phase 7 Step 7 Round 5. Admission evidence/selection, not a new Provider version.
-State: PENDING_EXACT_SHA. Only observed full implementation and closure certification
+State: IMPLEMENTATION_CERTIFIED / CLOSURE_CERTIFICATION_PENDING. Only observed full implementation and closure certification
 can activate final admission/closure. Step 8 and Phase 8 remain NOT STARTED.
 
 ## Identity and product claim
