@@ -1,0 +1,23 @@
+{
+    "scope":  "PHASE_8_STEP_1_CONTRACT_ONLY",
+    "files":  [
+                  ".github/workflows/foundation.yml",
+                  ".github/workflows/native-shells.yml",
+                  "AGENTS.md",
+                  "ARCHITECTURE.md",
+                  "DECISIONS.md",
+                  "docs/contracts/full-review-experience-v1.md",
+                  "docs/plans/phase-8-roadmap.md",
+                  "docs/reports/evidence/phase-8-step-1-baseline.json",
+                  "docs/reports/evidence/phase-8-step-1-files.json",
+                  "docs/reports/phase-8-step-1.md",
+                  "docs/reports/phase-8-step-1-v1.json",
+                  "QUALITY_GATES.md",
+                  "ROADMAP.md",
+                  "tests/deterministic-admission.test.mjs",
+                  "tests/full-review-contract.test.mjs"
+              ],
+    "version":  1,
+    "baseline":  "fe01c4a4222eb5bed63adc840b140f73784e1c18",
+    "production_behavior_changed":  false
+}

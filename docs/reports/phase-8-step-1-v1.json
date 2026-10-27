@@ -1,0 +1,295 @@
+{
+  "version": 1,
+  "runtime_authority": false,
+  "scope": "DOCUMENTATION_GOVERNANCE_ONLY",
+  "baseline": "fe01c4a4222eb5bed63adc840b140f73784e1c18",
+  "status": "AUTHORIZED_IN_PROGRESS",
+  "phase": 8,
+  "step": 1,
+  "contract": "docs/contracts/full-review-experience-v1.md",
+  "contract_sha256_lf": "a129aec6086bd7b2b6510cea5935386e16ec8ac1385d2f4c6a0abcb5813b6754",
+  "approved_additive_contracts": [
+    "docs/contracts/full-review-experience-v1.md"
+  ],
+  "roadmap": [
+    {
+      "step": 1,
+      "name": "Review Experience Contract & Information Architecture",
+      "status": "AUTHORIZED_IN_PROGRESS"
+    },
+    {
+      "step": 2,
+      "name": "Before/After Preview Foundation",
+      "status": "NOT_STARTED"
+    },
+    {
+      "step": 3,
+      "name": "Plan Inspection & Action Review",
+      "status": "NOT_STARTED"
+    },
+    {
+      "step": 4,
+      "name": "Editable Review Before Apply",
+      "status": "NOT_STARTED"
+    },
+    {
+      "step": 5,
+      "name": "History / Result Review Integration",
+      "status": "NOT_STARTED"
+    },
+    {
+      "step": 6,
+      "name": "Cross-Platform Polish & Phase 8 Closure",
+      "status": "NOT_STARTED"
+    }
+  ],
+  "states": [
+    "NO_REVIEW",
+    "PLAN_REVIEW",
+    "PREVIEW_LOADING",
+    "PREVIEW_READY",
+    "PREVIEW_FAILED",
+    "STALE",
+    "APPLY_PENDING",
+    "APPLY_EXECUTING",
+    "APPLY_SUCCEEDED",
+    "APPLY_FAILED",
+    "CANCELLED"
+  ],
+  "transitions": [
+    {
+      "from": "NO_REVIEW",
+      "event": "validated_plan",
+      "to": "PLAN_REVIEW",
+      "guard": "native_current_exact_plan"
+    },
+    {
+      "from": "PLAN_REVIEW",
+      "event": "request_preview",
+      "to": "PREVIEW_LOADING",
+      "guard": "explicit_current_bounded_request"
+    },
+    {
+      "from": "PREVIEW_READY",
+      "event": "request_preview",
+      "to": "PREVIEW_LOADING",
+      "guard": "explicit_current_bounded_request"
+    },
+    {
+      "from": "PREVIEW_FAILED",
+      "event": "request_preview",
+      "to": "PREVIEW_LOADING",
+      "guard": "explicit_current_bounded_request"
+    },
+    {
+      "from": "PREVIEW_LOADING",
+      "event": "preview_current",
+      "to": "PREVIEW_READY",
+      "guard": "native_owner_source_plan_request_match"
+    },
+    {
+      "from": "PREVIEW_LOADING",
+      "event": "preview_failure",
+      "to": "PREVIEW_FAILED",
+      "guard": "native_failure"
+    },
+    {
+      "from": "PREVIEW_LOADING",
+      "event": "preview_cancelled",
+      "to": "CANCELLED",
+      "guard": "native_preview_cancel_confirmed"
+    },
+    {
+      "from": "CANCELLED",
+      "event": "inspect_retained_plan",
+      "to": "PLAN_REVIEW",
+      "guard": "preview_scope_only_and_native_current"
+    },
+    {
+      "from": "PLAN_REVIEW",
+      "event": "binding_changed",
+      "to": "STALE",
+      "guard": "native_binding_invalid"
+    },
+    {
+      "from": "PREVIEW_LOADING",
+      "event": "binding_changed",
+      "to": "STALE",
+      "guard": "native_binding_invalid"
+    },
+    {
+      "from": "PREVIEW_READY",
+      "event": "binding_changed",
+      "to": "STALE",
+      "guard": "native_binding_invalid"
+    },
+    {
+      "from": "PREVIEW_FAILED",
+      "event": "binding_changed",
+      "to": "STALE",
+      "guard": "native_binding_invalid"
+    },
+    {
+      "from": "PLAN_REVIEW",
+      "event": "human_apply",
+      "to": "APPLY_PENDING",
+      "guard": "explicit_human_and_native_exact_current_review"
+    },
+    {
+      "from": "PREVIEW_READY",
+      "event": "human_apply",
+      "to": "APPLY_PENDING",
+      "guard": "explicit_human_and_native_exact_current_review"
+    },
+    {
+      "from": "PREVIEW_FAILED",
+      "event": "human_apply",
+      "to": "APPLY_PENDING",
+      "guard": "explicit_human_and_native_exact_current_review"
+    },
+    {
+      "from": "APPLY_PENDING",
+      "event": "native_admitted",
+      "to": "APPLY_EXECUTING",
+      "guard": "existing_single_use_execution_admission"
+    },
+    {
+      "from": "APPLY_PENDING",
+      "event": "approval_failure",
+      "to": "APPLY_FAILED",
+      "guard": "native_failure_cleanup"
+    },
+    {
+      "from": "APPLY_EXECUTING",
+      "event": "native_published_receipt",
+      "to": "APPLY_SUCCEEDED",
+      "guard": "valid_authoritative_publication_receipt"
+    },
+    {
+      "from": "APPLY_PENDING",
+      "event": "native_stale",
+      "to": "STALE",
+      "guard": "native_stale_outcome"
+    },
+    {
+      "from": "APPLY_EXECUTING",
+      "event": "native_stale",
+      "to": "STALE",
+      "guard": "native_stale_outcome"
+    },
+    {
+      "from": "APPLY_PENDING",
+      "event": "native_cancelled_no_publish",
+      "to": "CANCELLED",
+      "guard": "native_no_publication_confirmed"
+    },
+    {
+      "from": "APPLY_EXECUTING",
+      "event": "native_cancelled_no_publish",
+      "to": "CANCELLED",
+      "guard": "native_no_publication_confirmed"
+    },
+    {
+      "from": "APPLY_EXECUTING",
+      "event": "native_failure",
+      "to": "APPLY_FAILED",
+      "guard": "native_failure_refresh_history"
+    },
+    {
+      "from": "PLAN_REVIEW",
+      "event": "abandon",
+      "to": "NO_REVIEW",
+      "guard": "cancel_drop_and_join_owned_calls"
+    },
+    {
+      "from": "PREVIEW_LOADING",
+      "event": "abandon",
+      "to": "NO_REVIEW",
+      "guard": "cancel_drop_and_join_owned_calls"
+    },
+    {
+      "from": "PREVIEW_READY",
+      "event": "abandon",
+      "to": "NO_REVIEW",
+      "guard": "cancel_drop_and_join_owned_calls"
+    },
+    {
+      "from": "PREVIEW_FAILED",
+      "event": "abandon",
+      "to": "NO_REVIEW",
+      "guard": "cancel_drop_and_join_owned_calls"
+    },
+    {
+      "from": "STALE",
+      "event": "abandon",
+      "to": "NO_REVIEW",
+      "guard": "cancel_drop_and_join_owned_calls"
+    }
+  ],
+  "provider": "reference.assistance.v1",
+  "planner": "reference.deterministic.v1",
+  "production_learned_model": "NONE_REQUIRED_NONE_ADMITTED_FOR_PHASE_7_MVP",
+  "review_authority": false,
+  "preview_authority": false,
+  "review_persisted": false,
+  "plan_limit_bytes": 8192,
+  "plan_limit_actions": 8,
+  "review_identity_is_capability": false,
+  "forbidden_session_fields": [
+    "approval_token",
+    "approval_issuer",
+    "candidate_handle",
+    "revision_publisher",
+    "history_owner",
+    "durable_execution_token",
+    "cancellation_capability"
+  ],
+  "review_edits": [
+    {
+      "operation": "parameter_change",
+      "invalidates_old_review": true,
+      "requires_full_native_validation": true,
+      "requires_new_plan_and_review_identity": true,
+      "reuses_approval": false
+    },
+    {
+      "operation": "action_remove",
+      "invalidates_old_review": true,
+      "requires_full_native_validation": true,
+      "requires_new_plan_and_review_identity": true,
+      "reuses_approval": false
+    },
+    {
+      "operation": "action_reorder",
+      "invalidates_old_review": true,
+      "requires_full_native_validation": true,
+      "requires_new_plan_and_review_identity": true,
+      "reuses_approval": false
+    },
+    {
+      "operation": "restore",
+      "invalidates_old_review": true,
+      "requires_full_native_validation": true,
+      "requires_new_plan_and_review_identity": true,
+      "reuses_approval": false
+    }
+  ],
+  "threats": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K"
+  ],
+  "step2": "NOT_STARTED",
+  "production_implementation": false,
+  "frozen_phase7_evidence": "docs/reports/phase-7-closure-v1.json",
+  "baseline_certification": "docs/reports/evidence/phase-8-step-1-baseline.json",
+  "phase7_closure_manifest_sha256_lf": "2916f737d3dfe047df4dee9f7240eca4ab74cd6b3c49b7daf3e9bfe198e4d7bd"
+}

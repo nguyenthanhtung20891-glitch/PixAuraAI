@@ -1,5 +1,42 @@
 # PixAuraAI Autonomous Engineering Contract
 
+<!-- phase8-step1-current -->
+## Phase 8 Step 1 - Review Experience Contract & Information Architecture
+
+Phase 7 CLOSED / COMPLETE / FULL PASS at `fe01c4a4222eb5bed63adc840b140f73784e1c18`.
+Foundation 40502641648 SUCCESS 7/7; Native shells 40502641654 SUCCESS 3/3,
+both exact SHA, attempt 1, every required job individually completed/SUCCESS.
+Phase 8 AUTHORIZED / IN PROGRESS. Step 1 AUTHORIZED / IN PROGRESS.
+Steps 2-6 NOT STARTED. No Step 7 without Product Owner / Principal Architect approval.
+Only contract/architecture, roadmap, threat/lifecycle/accessibility semantics and
+minimal documentation/governance tests. No production UI, preview raster or bridge.
+REVIEW != APPROVAL. PREVIEW != EXECUTION. PREVIEW != REVISION.
+UI STATE != NATIVE AUTHORITY. Review Session is bounded, ephemeral, source/Plan-bound;
+it owns no approval, candidate, publication or history authority. Schema 3 unchanged.
+Future review edits require NEW INTENT / NEW PLAN CANDIDATE -> existing native
+validation -> NEW exact Plan/review identity; old review/approval cannot be reused.
+Explicit HUMAN Apply alone enters unchanged Phase 7 approval/candidate/execution;
+native cancellation/publication winner and shared ordinary history remain authoritative.
+Manual independent; Assist non-mutating, Use suggestion navigation-only. No retry,
+rebase, replan or reapproval. Stop -> join ALL calls -> destroy (ADR 0009).
+Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
+Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP. Future learned provider
+DEFERRED / REPLACEABLE. Free-form Intent v1 uninterpreted; no NLP/chat, arbitrary-photo
+diagnosis, learned model/runtime/weights, cloud preview or research reopened.
+EmbeddingGemma disqualified; NIMA/FFCC/MobileIQA unselected. Existing Phase 7 frozen
+contracts, approval/candidate, Schema 3, Manual/history/platform authority and Phase
+4/5 plus Intelligence Runtime Resource Admission v1 unchanged. No new memory ceiling.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED /
+NOT SATISFIED; hosted Apple software only. Both full exact implementation-SHA and
+separate closure-SHA workflows required, all 7 Foundation / 3 Native jobs SUCCESS.
+No old-SHA substitution, self-certification or rerun-until-green. Stop after Step 1.
+See docs/contracts/full-review-experience-v1.md, docs/plans/phase-8-roadmap.md and
+docs/reports/phase-8-step-1.md. Do NOT begin Phase 8 Step 2.
+<!-- phase8-step1-history -->
+
+Earlier sections retain historical freeze-time authority and conditional closure
+records; current Phase 8 authority and observed receipts supersede their status.
+
 <!-- phase7-step8-current -->
 ## Phase 7 Step 8 - final Phase 7 closure
 
