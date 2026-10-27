@@ -3,7 +3,7 @@
   "runtime_authority": false,
   "scope": "DOCUMENTATION_GOVERNANCE_ONLY",
   "baseline": "fe01c4a4222eb5bed63adc840b140f73784e1c18",
-  "status": "AUTHORIZED_IN_PROGRESS",
+  "status": "CLOSURE_CERTIFICATION_PENDING",
   "phase": 8,
   "step": 1,
   "contract": "docs/contracts/full-review-experience-v1.md",
@@ -15,7 +15,7 @@
     {
       "step": 1,
       "name": "Review Experience Contract & Information Architecture",
-      "status": "AUTHORIZED_IN_PROGRESS"
+      "status": "CLOSURE_CERTIFICATION_PENDING"
     },
     {
       "step": 2,
@@ -291,5 +291,124 @@
   "production_implementation": false,
   "frozen_phase7_evidence": "docs/reports/phase-7-closure-v1.json",
   "baseline_certification": "docs/reports/evidence/phase-8-step-1-baseline.json",
-  "phase7_closure_manifest_sha256_lf": "2916f737d3dfe047df4dee9f7240eca4ab74cd6b3c49b7daf3e9bfe198e4d7bd"
+  "phase7_closure_manifest_sha256_lf": "2916f737d3dfe047df4dee9f7240eca4ab74cd6b3c49b7daf3e9bfe198e4d7bd",
+  "certified_implementation_sha": "bc8ec7a7627a017dcf65c978de0704a9fa0ab80f",
+  "implementation_certification": {
+    "learned_model": "NONE_REQUIRED_NONE_ADMITTED_FOR_PHASE_7_MVP",
+    "version": 1,
+    "branch": "main",
+    "runs": [
+      {
+        "id": 40522093119,
+        "name": "Foundation boundaries",
+        "attempt": 1,
+        "jobs": [
+          {
+            "id": 122251609164,
+            "name": "sanitizer",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T14:32:36Z",
+            "completed_at": "2026-10-27T14:40:29Z"
+          },
+          {
+            "id": 122251609386,
+            "name": "workflow-lint",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T14:32:36Z",
+            "completed_at": "2026-10-27T14:32:45Z"
+          },
+          {
+            "id": 122251609484,
+            "name": "android-boundary (arm64-v8a)",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T14:32:36Z",
+            "completed_at": "2026-10-27T14:33:36Z"
+          },
+          {
+            "id": 122251609517,
+            "name": "apple-boundary",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T14:32:37Z",
+            "completed_at": "2026-10-27T14:46:01Z"
+          },
+          {
+            "id": 122251609617,
+            "name": "portable (windows-2025)",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T14:32:37Z",
+            "completed_at": "2026-10-27T14:46:16Z"
+          },
+          {
+            "id": 122251609618,
+            "name": "android-boundary (armeabi-v7a)",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T14:32:36Z",
+            "completed_at": "2026-10-27T14:33:41Z"
+          },
+          {
+            "id": 122251609665,
+            "name": "portable (ubuntu-24.04)",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T14:32:36Z",
+            "completed_at": "2026-10-27T14:37:56Z"
+          }
+        ],
+        "conclusion": "success",
+        "head_sha": "bc8ec7a7627a017dcf65c978de0704a9fa0ab80f",
+        "status": "completed"
+      },
+      {
+        "id": 40522093433,
+        "name": "Native application shells",
+        "attempt": 1,
+        "jobs": [
+          {
+            "id": 122251609108,
+            "name": "android-app",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T14:32:36Z",
+            "completed_at": "2026-10-27T14:43:14Z"
+          },
+          {
+            "id": 122251609826,
+            "name": "ios-app",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T14:32:36Z",
+            "completed_at": "2026-10-27T15:00:21Z"
+          },
+          {
+            "id": 122251610123,
+            "name": "source",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T14:32:37Z",
+            "completed_at": "2026-10-27T14:34:26Z"
+          }
+        ],
+        "conclusion": "success",
+        "head_sha": "bc8ec7a7627a017dcf65c978de0704a9fa0ab80f",
+        "status": "completed"
+      }
+    ],
+    "observed_utc": "2026-10-27T17:46:35.3283920Z",
+    "step2": "NOT_STARTED",
+    "provider": "reference.assistance.v1",
+    "label": "implementation",
+    "provider_status": "ADMITTED",
+    "sha": "bc8ec7a7627a017dcf65c978de0704a9fa0ab80f",
+    "scope": "PHASE_8_STEP_1_ONLY",
+    "working_tree": "CLEAN",
+    "runtime_authority": false,
+    "phase8": "IN_PROGRESS"
+  },
+  "closure_activation": "Only observed final exact closure-SHA attempt-1 success on all 7 Foundation and 3 Native jobs activates Phase 8 Step 1 COMPLETE / FULL PASS. Steps 2-6 remain NOT STARTED; until that receipt closure pending."
 }

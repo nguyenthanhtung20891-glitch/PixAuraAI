@@ -2,7 +2,7 @@
 
 <!-- phase8-step1-current -->
 Phase 7 CLOSED / COMPLETE / FULL PASS. Phase 8 AUTHORIZED / IN PROGRESS.
-Step 1 AUTHORIZED / IN PROGRESS. Steps 2-6 NOT STARTED.
+Step 1 CLOSURE CERTIFICATION PENDING. Steps 2-6 NOT STARTED.
 Only contract, information architecture and minimal governance plumbing are added.
 No production review/preview/edit UI, raster path, bridge or editing authority.
 Implementation and separate documentation-only closure both need complete exact-SHA
@@ -168,3 +168,42 @@ Stop after Step 1. Phase 8 Step 2 NOT STARTED.
 No local production preview implementation, physical-device test or new UI test is
 claimed. Complete retained native, platform, sanitizer and release scans must pass
 the implementation SHA and the later documentation-only closure SHA independently.
+
+## Observed implementation certification and prepared closure
+
+Certified implementation SHA `bc8ec7a7627a017dcf65c978de0704a9fa0ab80f` independently passed
+Foundation **40522093119** (**7/7**) and Native shells **40522093433** (**3/3**),
+both completed/SUCCESS, exact SHA, attempt 1, every required job individually SUCCESS.
+The [implementation receipt](evidence/phase-8-step-1-implementation-certification.json)
+records observed heads, attempts, job IDs and conclusions. No workflow rerun.
+
+Observed implementation execution: source 186/186, zero skipped; Windows native
+52/52; Linux and Apple native 53/53 each; ASan/UBSan 55/55 with both active negative
+instrumentation probes; Android both native ABIs and 47/47 emulator instrumentation;
+Swift macOS/Simulator 44/44 each; iOS app 9/9 and UI 10/10. Final APK isolation:
+12 native libraries, 2 DEX, 31,870,648 uncompressed bytes. Final Apple APP isolation:
+8 files, 2,940,223 bytes, zero model assets. Release negative fixtures and workflow
+lint passed. These retain existing runtime evidence; they do not claim an implemented
+Phase 8 preview/edit UI or physical Android/Apple accelerator certification.
+
+| Workflow | Job | ID | Result |
+| --- | --- | --- | --- |
+| Foundation boundaries | sanitizer | 122251609164 | completed / SUCCESS |
+| Foundation boundaries | workflow-lint | 122251609386 | completed / SUCCESS |
+| Foundation boundaries | android-boundary (arm64-v8a) | 122251609484 | completed / SUCCESS |
+| Foundation boundaries | apple-boundary | 122251609517 | completed / SUCCESS |
+| Foundation boundaries | portable (windows-2025) | 122251609617 | completed / SUCCESS |
+| Foundation boundaries | android-boundary (armeabi-v7a) | 122251609618 | completed / SUCCESS |
+| Foundation boundaries | portable (ubuntu-24.04) | 122251609665 | completed / SUCCESS |
+| Native application shells | android-app | 122251609108 | completed / SUCCESS |
+| Native application shells | ios-app | 122251609826 | completed / SUCCESS |
+| Native application shells | source | 122251610123 | completed / SUCCESS |
+
+This separate closure changes documentation/evidence only; the new contract, tests,
+workflows and all production/Phase 7 files remain unchanged. The
+[closure inventory](evidence/phase-8-step-1-closure-files.json) lists its exact files.
+Its distinct closure SHA is intentionally not self-referenced before creation.
+Both full workflows must independently pass that final SHA. Only the externally
+observed final engineering receipt then activates Phase 8 Step 1 COMPLETE / FULL PASS.
+Until then CLOSURE CERTIFICATION PENDING. Phase 8 remains IN PROGRESS; Steps 2-6
+NOT STARTED. No Step 2 preview implementation or new editing authority is added.

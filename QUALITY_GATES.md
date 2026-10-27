@@ -3,20 +3,26 @@
 <!-- phase8-step1-current -->
 ## Phase 8 Step 1 - Review Experience Contract & Information Architecture
 
-Phase 7 CLOSED / COMPLETE / FULL PASS at `fe01c4a4222eb5bed63adc840b140f73784e1c18`.
-Foundation 40502641648 SUCCESS 7/7; Native shells 40502641654 SUCCESS 3/3,
-both exact SHA, attempt 1, every required job individually completed/SUCCESS.
-Phase 8 AUTHORIZED / IN PROGRESS. Step 1 AUTHORIZED / IN PROGRESS.
+Phase 7 CLOSED / COMPLETE / FULL PASS at fe01c4a4222eb5bed63adc840b140f73784e1c18.
+Foundation 40502641648 SUCCESS 7/7; Native shells 40502641654 SUCCESS 3/3;
+observed exact SHA, attempt 1, every job completed/SUCCESS.
+Phase 8 AUTHORIZED / IN PROGRESS. Step 1 CLOSURE CERTIFICATION PENDING.
+Certified implementation SHA: `bc8ec7a7627a017dcf65c978de0704a9fa0ab80f`.
+Foundation 40522093119 SUCCESS 7/7; Native shells 40522093433 SUCCESS 3/3;
+both exact implementation SHA, attempt 1, every required job completed/SUCCESS.
+This separate documentation-only closure must pass BOTH full workflows on its
+OWN exact SHA. Only the external observed final engineering receipt then activates
+Phase 8 Step 1 COMPLETE / FULL PASS. Until then CLOSURE CERTIFICATION PENDING.
 Steps 2-6 NOT STARTED. No Step 7 without Product Owner / Principal Architect approval.
-Only contract/architecture, roadmap, threat/lifecycle/accessibility semantics and
-minimal documentation/governance tests. No production UI, preview raster or bridge.
+Stop after Step 1. Do NOT begin Phase 8 Step 2. No old-SHA substitution,
+self-certification or rerun-until-green. No production UI, preview raster or bridge.
 REVIEW != APPROVAL. PREVIEW != EXECUTION. PREVIEW != REVISION.
 UI STATE != NATIVE AUTHORITY. Review Session is bounded, ephemeral, source/Plan-bound;
 it owns no approval, candidate, publication or history authority. Schema 3 unchanged.
 Future review edits require NEW INTENT / NEW PLAN CANDIDATE -> existing native
 validation -> NEW exact Plan/review identity; old review/approval cannot be reused.
 Explicit HUMAN Apply alone enters unchanged Phase 7 approval/candidate/execution;
-native cancellation/publication winner and shared ordinary history remain authoritative.
+native cancellation/publication winner and shared ordinary history stay authoritative.
 Manual independent; Assist non-mutating, Use suggestion navigation-only. No retry,
 rebase, replan or reapproval. Stop -> join ALL calls -> destroy (ADR 0009).
 Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
@@ -27,11 +33,8 @@ EmbeddingGemma disqualified; NIMA/FFCC/MobileIQA unselected. Existing Phase 7 fr
 contracts, approval/candidate, Schema 3, Manual/history/platform authority and Phase
 4/5 plus Intelligence Runtime Resource Admission v1 unchanged. No new memory ceiling.
 CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED /
-NOT SATISFIED; hosted Apple software only. Both full exact implementation-SHA and
-separate closure-SHA workflows required, all 7 Foundation / 3 Native jobs SUCCESS.
-No old-SHA substitution, self-certification or rerun-until-green. Stop after Step 1.
-See docs/contracts/full-review-experience-v1.md, docs/plans/phase-8-roadmap.md and
-docs/reports/phase-8-step-1.md. Do NOT begin Phase 8 Step 2.
+NOT SATISFIED; hosted Apple software only. See docs/contracts/full-review-experience-v1.md,
+docs/plans/phase-8-roadmap.md and docs/reports/phase-8-step-1.md.
 <!-- phase8-step1-history -->
 
 Earlier sections retain historical freeze-time authority and conditional closure

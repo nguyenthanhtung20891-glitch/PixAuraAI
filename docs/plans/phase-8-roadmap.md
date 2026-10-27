@@ -5,7 +5,7 @@ FULL PASS at `fe01c4a4222eb5bed63adc840b140f73784e1c18`, Foundation 40502641648
 7/7 and Native shells 40502641654 3/3 SUCCESS, exact SHA, attempt 1, every job SUCCESS.
 
 <!-- phase8-step1-current -->
-Phase 8 AUTHORIZED / IN PROGRESS. Step 1 AUTHORIZED / IN PROGRESS.
+Phase 8 AUTHORIZED / IN PROGRESS. Step 1 CLOSURE CERTIFICATION PENDING.
 Steps 2-6 NOT STARTED. No Step 7 without Product Owner / Principal Architect approval.
 Step 1 is contract/architecture/document governance only; no production preview,
 editable review, UI/bridge or editing authority implementation. Stop after Step 1.
@@ -13,7 +13,7 @@ editable review, UI/bridge or editing authority implementation. Stop after Step 
 
 | Step | Official scope | Current authorization |
 | --- | --- | --- |
-| 1 | Review Experience Contract & Information Architecture | AUTHORIZED / IN PROGRESS |
+| 1 | Review Experience Contract & Information Architecture | CLOSURE CERTIFICATION PENDING |
 | 2 | Before/After Preview Foundation | NOT STARTED |
 | 3 | Plan Inspection & Action Review | NOT STARTED |
 | 4 | Editable Review Before Apply | NOT STARTED |
