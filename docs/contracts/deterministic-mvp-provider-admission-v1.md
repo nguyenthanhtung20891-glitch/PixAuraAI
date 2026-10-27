@@ -65,7 +65,10 @@ upper-bound simultaneous requested C++ payload bytes for those calls, but exclud
 allocator metadata/stack/OS memory and are NOT RSS, a production lease, or a proof
 that every hostile payload uses that measured maximum. Input/parser bounds provide
 the structural bound; existing allocation-failure sweeps prove safe RESOURCE exits.
-Retained provider state is sizeof(ReferenceProvider), ABI-dependent, plus normal
+The allocation executable measures the shipping ReferenceProvider layout without
+PIXAURA_ASSISTANCE_TESTING. The assistance executable's test_owner_bytes includes
+its two checkpoint pointers and must NEVER be reported as production object size.
+Retained provider state is shipping sizeof(ReferenceProvider), ABI-dependent, plus normal
 mutex implementation internals; it owns no persistent heap member. Caller-retained
 requests/results and editor snapshots are not mislabeled as provider caches.
 

@@ -21,6 +21,10 @@ test('production deterministic admission binds exact existing code and all eleve
  assert.equal(streams.length,m.envelopes);assert.equal(hash(streams.join('')),m.golden_envelope_stream_sha256);
  assert.equal(fnv.toString(16).padStart(16,'0'),m.golden_fnv64);
  assert.ok(fs.readFileSync('packages/core/tests/assistance_test.cpp','utf8').includes('0x'+m.golden_fnv64));
+ assert.ok(fs.readFileSync('packages/core/tests/assistance_test.cpp','utf8').includes('test_owner_bytes='));
+ assert.ok(fs.readFileSync('packages/core/tests/document_allocation_test.cpp','utf8').includes('production_owner_bytes='));
+ const defs=fs.readFileSync('CMakeLists.txt','utf8').match(/target_compile_definitions\(document_allocation_test PRIVATE ([^)]+)\)/)?.[1];
+ assert.ok(defs&&!defs.includes('PIXAURA_ASSISTANCE_TESTING'),'shipping layout measurement must exclude checkpoint fields');
 });
 test('admission preserves separate provider/planner identity and model-free scope',()=>{
  const c=fs.readFileSync('docs/contracts/deterministic-mvp-provider-admission-v1.md','utf8');

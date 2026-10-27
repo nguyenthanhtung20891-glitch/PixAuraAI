@@ -82,9 +82,12 @@ shapes and integer/tool validators reject, never clamp or repair. Reference plan
 emits one action; provider may wrap already explicit bounded multi-action Plan data.
 Returned bytes belong to the caller; provider state retains no dynamic container.
 
-Local Windows Zig Debug corpus: provider object **56 bytes** on that ABI; request
-mean/max **255,841 / 608,300 ns**, trusted validation/planning mean/max
-**654,848 / 1,149,400 ns**, over the 117 envelopes, excluding image execution.
+Local Windows Zig Debug corpus: shipping-layout provider object **40 bytes** on
+that ABI (the standalone assistance test object is **56 bytes**, including two
+checkpoint pointers); request mean/max **242,156 / 496,100 ns**, trusted
+validation/planning mean/max **621,611 / 1,363,200 ns**, over the 117 envelopes,
+excluding image execution. These are build-specific diagnostics, not a universal
+Release/device object size or latency claim.
 Diagnostic requested C++ allocation totals max **23,544 bytes request** and
 **54,564 bytes validation**, max **210 request allocations** across that corpus.
 These are cumulative requested-byte observations, not live peaks, RSS, production
@@ -164,6 +167,23 @@ workflow lint evidence must independently complete. Implementation and subsequen
 documentation-only closure SHAs each require both full workflows, every required job
 completed/SUCCESS. The observed final receipt activates Step 7 closure only after the
 closure SHA succeeds; no unobserved COMPLETE claim or circular SHA is written here.
+
+#### Measurement correction before closure
+
+Initial implementation `9e5aaa5341188da211fa2e8fc9b6ef6f5e290623` had a measurement
+label defect: assistance_test compiles PIXAURA_ASSISTANCE_TESTING, so its reported
+object sizes include two checkpoint pointers. They were incorrectly described as
+shipping-layout sizes. Request/Plan bytes, authority and runtime code are unaffected.
+The correction labels that value test_owner_bytes, measures production_owner_bytes
+inside the allocation executable WITHOUT that define, and adds a compile-time guard
+and source regression. Windows Zig reports 56 test / 40 shipping-layout bytes;
+Linux sanitizer reports 120 test / 104 shipping-layout bytes. Debug/ABI and mutex
+internals remain explicitly distinguished from actual Release/device memory.
+Corrected focused sanitizer assistance/allocation tests pass 2/2; the full local
+filesystem limitation remains 53/55, never relabeled PASS. Initial Foundation run
+40456988343 succeeded 7/7; Native run 40456988072 was still running when the defect
+was found. Neither certifies the new correction SHA. No old workflow was rerun;
+the correction requires fresh complete exact-SHA certification before closure.
 
 Intent v1, Structured Intent v1, Plan v1, Registry v1, Proposal Envelope v1, Assistance
 Provider v1, reference planner, HUMAN approval, candidate lifecycle, source/publication

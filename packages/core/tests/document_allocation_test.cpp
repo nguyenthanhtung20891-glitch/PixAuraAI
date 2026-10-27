@@ -4,6 +4,9 @@
 #include "pixaura/manual.h"
 #include "../src/document.hpp"
 #include "../src/assistance.hpp"
+#ifdef PIXAURA_ASSISTANCE_TESTING
+#error "Shipping provider layout measurement must exclude assistance checkpoint fields"
+#endif
 #include "agent_schema_fixtures.hpp"
 #include "reference_planner_fixtures.hpp"
 #include <atomic>
@@ -146,8 +149,8 @@ int main(int argc, char** argv) {
                 admission_meter=false;CHECK(valid.code==0);peak_validation=std::max(peak_validation,admission_bytes);
             }
         }
-        std::printf("Assistance admission allocations request_total_max=%llu validation_total_max=%llu request_calls_max=%llu no_retained_provider_heap_members\n",
-            static_cast<unsigned long long>(peak_request),static_cast<unsigned long long>(peak_validation),static_cast<unsigned long long>(peak_calls));
+        std::printf("Assistance admission allocations request_total_max=%llu validation_total_max=%llu request_calls_max=%llu production_owner_bytes=%zu no_retained_provider_heap_members\n",
+            static_cast<unsigned long long>(peak_request),static_cast<unsigned long long>(peak_validation),static_cast<unsigned long long>(peak_calls),sizeof(assistance::ReferenceProvider));
         request.kind=assistance::Kind::StructuredIntent;request.payload=reference_planner_fixtures::cases[0].input;
         for(int path=0;path<3;++path)for(int64_t n=0;n<10000;++n){
             progress("assistance.allocation",path,n);fail_after=n;

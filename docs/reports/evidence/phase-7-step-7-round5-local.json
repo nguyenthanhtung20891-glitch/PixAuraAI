@@ -5,27 +5,29 @@
     "corpus": 117,
     "typical": 22,
     "fingerprint": "162cbcfb525cd535",
-    "owner_bytes": 56,
-    "request_mean_ns": 255841,
-    "request_max_ns": 608300,
-    "validation_mean_ns": 654848,
-    "validation_max_ns": 1149400
+    "test_owner_bytes": 56,
+    "request_mean_ns": 242156,
+    "request_max_ns": 496100,
+    "validation_mean_ns": 621611,
+    "validation_max_ns": 1363200
   },
   "windows_allocation": {
     "request_total_max": 23544,
     "validation_total_max": 54564,
     "request_calls_max": 210,
-    "accounting": "cumulative C++ requested bytes, not RSS/live peak/production lease"
+    "accounting": "cumulative C++ requested bytes, not RSS/live peak/production lease",
+    "production_owner_bytes": 40
   },
   "sanitized_linux": {
     "corpus": 117,
     "typical": 22,
     "fingerprint": "162cbcfb525cd535",
-    "owner_bytes": 120,
-    "request_mean_ns": 719259,
-    "request_max_ns": 1274695,
-    "validation_mean_ns": 1790157,
-    "validation_max_ns": 3455887
+    "test_owner_bytes": 120,
+    "request_mean_ns": 760444,
+    "request_max_ns": 1487145,
+    "validation_mean_ns": 1914156,
+    "validation_max_ns": 5480136,
+    "production_owner_bytes": 104
   },
   "local_sanitizer_full_suite": {
     "passed": 53,
@@ -238,5 +240,11 @@
       }
     ],
     "symbol_caveat": "Namespace-attributed text only; shared parser/callees excluded, weak symbols may coalesce; NOT isolated linked/package contribution. Empty on unsupported hosts."
-  }
+  },
+  "corrected_sanitizer_focused_tests": {
+    "passed": 2,
+    "total": 2,
+    "scope": "assistance and document allocation only; does not turn the original full local 53/55 into PASS"
+  },
+  "measurement_correction": "Standalone assistance test layout includes two checkpoint pointers; test_owner_bytes is NOT shipping object size. Shipping layout measured in allocation executable without PIXAURA_ASSISTANCE_TESTING."
 }

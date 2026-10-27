@@ -122,7 +122,7 @@ int main(){
  CHECK(success+busy+cancelled==600);CHECK(provider.request(r).code==13);
  CHECK(document::serialize(d).value==before.value); // original, revisions, history unchanged
  CHECK(d.operations().size()==2 && d.revisions().size()==3);
- std::printf("Assistance admission v1 provider=reference.assistance.v1 corpus=%u typical=22 fingerprint=%016" PRIx64 " owner_bytes=%zu request_mean_ns=%" PRIu64 " request_max_ns=%" PRIu64 " validation_mean_ns=%" PRIu64 " validation_max_ns=%" PRIu64 "\n",
+ std::printf("Assistance admission v1 provider=reference.assistance.v1 corpus=%u typical=22 fingerprint=%016" PRIx64 " test_owner_bytes=%zu request_mean_ns=%" PRIu64 " request_max_ns=%" PRIu64 " validation_mean_ns=%" PRIu64 " validation_max_ns=%" PRIu64 "\n",
   positives,fingerprint,sizeof(ReferenceProvider),request_ns/positives,max_request_ns,validation_ns/positives,max_validation_ns);
  std::printf("Assistance v1 checks=%u positives=%u deterministic repeats=10 concurrency=600 side_effects=0 no_approval_or_candidate_API\n",checks,positives);
 }
