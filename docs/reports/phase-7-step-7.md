@@ -1,5 +1,10 @@
 # Phase 7 Step 7 — admission evidence
 
+> Current integrated status: Steps 1-7 COMPLETE / FULL PASS. The observed exact
+> closure-SHA receipts are in [Phase 7 closure](phase-7-closure.md). Earlier
+> prepared/pending and future-step statements below retain their historical
+> freeze-time meaning. Step 8 is separately authorized; Phase 8 NOT STARTED.
+
 ## Round 5 — Deterministic MVP Provider Admission and Step 7 Closure
 
 Status: implementation certified; Step 7 CLOSURE CERTIFICATION PENDING.

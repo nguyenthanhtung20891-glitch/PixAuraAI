@@ -1,0 +1,27 @@
+{
+    "scope":  "PHASE_7_STEP_8_AUDIT_ONLY",
+    "files":  [
+                  "AGENTS.md",
+                  "ARCHITECTURE.md",
+                  "DECISIONS.md",
+                  "docs/admission/deterministic-mvp-provider-v1.json",
+                  "docs/plans/phase-7-roadmap.md",
+                  "docs/reports/evidence/phase-7-certified-steps.json",
+                  "docs/reports/evidence/phase-7-step-8-audit-files.json",
+                  "docs/reports/phase-7-closure.md",
+                  "docs/reports/phase-7-closure-v1.json",
+                  "docs/reports/phase-7-step-1.md",
+                  "docs/reports/phase-7-step-2.md",
+                  "docs/reports/phase-7-step-3.md",
+                  "docs/reports/phase-7-step-4.md",
+                  "docs/reports/phase-7-step-5.md",
+                  "docs/reports/phase-7-step-6.md",
+                  "docs/reports/phase-7-step-7.md",
+                  "QUALITY_GATES.md",
+                  "ROADMAP.md",
+                  "tests/deterministic-admission.test.mjs"
+              ],
+    "version":  1,
+    "baseline":  "54dcc9292f43ab49335a99df3a4145d0279c7980",
+    "production_behavior_changed":  false
+}

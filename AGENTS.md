@@ -1,5 +1,38 @@
 # PixAuraAI Autonomous Engineering Contract
 
+<!-- phase7-step8-current -->
+## Phase 7 Step 8 - final closure audit
+
+Phase 6 CLOSED / COMPLETE / FULL PASS. Phase 7 Steps 1-7 COMPLETE / FULL PASS.
+Step 7 closure: `54dcc9292f43ab49335a99df3a4145d0279c7980`; Foundation 40462182955 SUCCESS 7/7,
+Native shells 40462183031 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
+The observed Step 7 closure receipt activates reference.assistance.v1 - ADMITTED.
+Planner reference.deterministic.v1 unchanged. PRODUCTION LEARNED MODEL:
+NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP. Future learned provider DEFERRED /
+REPLACEABLE. EmbeddingGemma disqualified; NIMA/FFCC/MobileIQA not selected.
+Absolute-image research remains OFFLINE / NON-PRODUCTION; no further search.
+Step 8 AUTHORIZED / IN PROGRESS; Phase 7 final closure NOT YET CERTIFIED.
+Phase 8 NOT STARTED. Only closure documentation/audit tests are authorized.
+MANUAL independent; AI ASSIST non-mutating, Use suggestion navigation-only.
+AUTO means proposal/planning, never approval. Explicit bounded requests only;
+free-form Intent v1 uninterpreted, no arbitrary-photo diagnosis or NLP claim.
+Provider -> UNTRUSTED Envelope -> trusted validation/Plan/Registry -> exact review
+-> explicit HUMAN Apply -> existing single-use approval/private candidate/execution
+-> at most one ordinary revision/shared history. No retry/replan/reapproval.
+Stop -> join ALL calls -> destroy; current native source/history truth wins.
+All frozen contracts, Schema 3, Manual/history/platform authority, Phase 4/5 and
+Intelligence Runtime Resource Admission v1 unchanged. No production behavior change.
+No model/runtime/weights, cloud/network inference or new product functionality.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED /
+NOT SATISFIED. Hosted Apple evidence is software only. Both full exact audit-SHA
+and separate final closure-SHA workflows must pass every required job. No old-SHA
+substitution, self-certification or rerun-until-green. Stop after Step 8.
+See docs/reports/phase-7-closure.md and docs/reports/phase-7-closure-v1.json.
+<!-- phase7-step8-history -->
+
+Earlier sections retain historical freeze-time authority; their phase-relative
+status is superseded by the current Step 8 section and observed receipts.
+
 <!-- phase7-step7-round5 -->
 ## Phase 7 Step 7 — Round 5 deterministic MVP provider admission
 

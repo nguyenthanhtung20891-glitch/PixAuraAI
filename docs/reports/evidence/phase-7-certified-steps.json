@@ -1,0 +1,610 @@
+{
+    "scope":  "PHASE_7_STEPS_1_7_CLOSURE_HISTORY",
+    "observed_utc":  "2026-10-27T11:40:32.2671533Z",
+    "runtime_authority":  false,
+    "version":  1,
+    "steps":  [
+                  {
+                      "step":  1,
+                      "closure_sha":  "3640d94e473bddd792a12541a45b6bb36ff8cd50",
+                      "runs":  [
+                                   {
+                                       "id":  39768943832,
+                                       "name":  "Foundation boundaries",
+                                       "attempt":  1,
+                                       "jobs":  [
+                                                    {
+                                                        "id":  119791317091,
+                                                        "name":  "android-boundary (arm64-v8a)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  119791317384,
+                                                        "name":  "sanitizer",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  119791317440,
+                                                        "name":  "workflow-lint",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  119791317445,
+                                                        "name":  "apple-boundary",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  119791317458,
+                                                        "name":  "portable (ubuntu-24.04)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  119791317488,
+                                                        "name":  "portable (windows-2025)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  119791317721,
+                                                        "name":  "android-boundary (armeabi-v7a)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    }
+                                                ],
+                                       "conclusion":  "success",
+                                       "head_sha":  "3640d94e473bddd792a12541a45b6bb36ff8cd50",
+                                       "status":  "completed"
+                                   },
+                                   {
+                                       "id":  39768943890,
+                                       "name":  "Native application shells",
+                                       "attempt":  1,
+                                       "jobs":  [
+                                                    {
+                                                        "id":  119791317034,
+                                                        "name":  "ios-app",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  119791317330,
+                                                        "name":  "source",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  119791317331,
+                                                        "name":  "android-app",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    }
+                                                ],
+                                       "conclusion":  "success",
+                                       "head_sha":  "3640d94e473bddd792a12541a45b6bb36ff8cd50",
+                                       "status":  "completed"
+                                   }
+                               ]
+                  },
+                  {
+                      "step":  2,
+                      "closure_sha":  "0d73ffc3ec1fa1ac5e1032a4f8f47a2c69e1b990",
+                      "runs":  [
+                                   {
+                                       "id":  39956128221,
+                                       "name":  "Foundation boundaries",
+                                       "attempt":  1,
+                                       "jobs":  [
+                                                    {
+                                                        "id":  120422295266,
+                                                        "name":  "sanitizer",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120422295524,
+                                                        "name":  "portable (windows-2025)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120422295601,
+                                                        "name":  "android-boundary (armeabi-v7a)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120422295699,
+                                                        "name":  "android-boundary (arm64-v8a)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120422295745,
+                                                        "name":  "workflow-lint",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120422295777,
+                                                        "name":  "portable (ubuntu-24.04)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120422295909,
+                                                        "name":  "apple-boundary",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    }
+                                                ],
+                                       "conclusion":  "success",
+                                       "head_sha":  "0d73ffc3ec1fa1ac5e1032a4f8f47a2c69e1b990",
+                                       "status":  "completed"
+                                   },
+                                   {
+                                       "id":  39956128320,
+                                       "name":  "Native application shells",
+                                       "attempt":  1,
+                                       "jobs":  [
+                                                    {
+                                                        "id":  120422295809,
+                                                        "name":  "source",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120422295962,
+                                                        "name":  "android-app",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120422296154,
+                                                        "name":  "ios-app",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    }
+                                                ],
+                                       "conclusion":  "success",
+                                       "head_sha":  "0d73ffc3ec1fa1ac5e1032a4f8f47a2c69e1b990",
+                                       "status":  "completed"
+                                   }
+                               ]
+                  },
+                  {
+                      "step":  3,
+                      "closure_sha":  "43b2e36f294e4f0d518742b3923027551ec34c1a",
+                      "runs":  [
+                                   {
+                                       "id":  40056249044,
+                                       "name":  "Foundation boundaries",
+                                       "attempt":  1,
+                                       "jobs":  [
+                                                    {
+                                                        "id":  120759764876,
+                                                        "name":  "android-boundary (arm64-v8a)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120759765032,
+                                                        "name":  "workflow-lint",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120759765037,
+                                                        "name":  "portable (windows-2025)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120759765081,
+                                                        "name":  "apple-boundary",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120759765115,
+                                                        "name":  "sanitizer",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120759765150,
+                                                        "name":  "android-boundary (armeabi-v7a)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120759765205,
+                                                        "name":  "portable (ubuntu-24.04)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    }
+                                                ],
+                                       "conclusion":  "success",
+                                       "head_sha":  "43b2e36f294e4f0d518742b3923027551ec34c1a",
+                                       "status":  "completed"
+                                   },
+                                   {
+                                       "id":  40056248966,
+                                       "name":  "Native application shells",
+                                       "attempt":  1,
+                                       "jobs":  [
+                                                    {
+                                                        "id":  120759764637,
+                                                        "name":  "source",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120759764805,
+                                                        "name":  "ios-app",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120759764894,
+                                                        "name":  "android-app",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    }
+                                                ],
+                                       "conclusion":  "success",
+                                       "head_sha":  "43b2e36f294e4f0d518742b3923027551ec34c1a",
+                                       "status":  "completed"
+                                   }
+                               ]
+                  },
+                  {
+                      "step":  4,
+                      "closure_sha":  "8c185389fddad8b59df202b2f7776e10a46271b0",
+                      "runs":  [
+                                   {
+                                       "id":  40088844044,
+                                       "name":  "Foundation boundaries",
+                                       "attempt":  1,
+                                       "jobs":  [
+                                                    {
+                                                        "id":  120857178813,
+                                                        "name":  "sanitizer",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120857178896,
+                                                        "name":  "android-boundary (armeabi-v7a)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120857178925,
+                                                        "name":  "android-boundary (arm64-v8a)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120857179033,
+                                                        "name":  "apple-boundary",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120857179038,
+                                                        "name":  "portable (ubuntu-24.04)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120857179041,
+                                                        "name":  "portable (windows-2025)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120857179623,
+                                                        "name":  "workflow-lint",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    }
+                                                ],
+                                       "conclusion":  "success",
+                                       "head_sha":  "8c185389fddad8b59df202b2f7776e10a46271b0",
+                                       "status":  "completed"
+                                   },
+                                   {
+                                       "id":  40088844028,
+                                       "name":  "Native application shells",
+                                       "attempt":  1,
+                                       "jobs":  [
+                                                    {
+                                                        "id":  120857178829,
+                                                        "name":  "ios-app",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120857178903,
+                                                        "name":  "source",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  120857178962,
+                                                        "name":  "android-app",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    }
+                                                ],
+                                       "conclusion":  "success",
+                                       "head_sha":  "8c185389fddad8b59df202b2f7776e10a46271b0",
+                                       "status":  "completed"
+                                   }
+                               ]
+                  },
+                  {
+                      "step":  5,
+                      "closure_sha":  "eef23391fb18c0c9b30cefc632c7a86126e09a60",
+                      "runs":  [
+                                   {
+                                       "id":  40152878375,
+                                       "name":  "Foundation boundaries",
+                                       "attempt":  1,
+                                       "jobs":  [
+                                                    {
+                                                        "id":  121047908699,
+                                                        "name":  "portable (windows-2025)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  121047908817,
+                                                        "name":  "sanitizer",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  121047908823,
+                                                        "name":  "portable (ubuntu-24.04)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  121047908831,
+                                                        "name":  "android-boundary (armeabi-v7a)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  121047908846,
+                                                        "name":  "workflow-lint",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  121047908867,
+                                                        "name":  "android-boundary (arm64-v8a)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  121047908991,
+                                                        "name":  "apple-boundary",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    }
+                                                ],
+                                       "conclusion":  "success",
+                                       "head_sha":  "eef23391fb18c0c9b30cefc632c7a86126e09a60",
+                                       "status":  "completed"
+                                   },
+                                   {
+                                       "id":  40152878474,
+                                       "name":  "Native application shells",
+                                       "attempt":  1,
+                                       "jobs":  [
+                                                    {
+                                                        "id":  121047908741,
+                                                        "name":  "ios-app",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  121047908932,
+                                                        "name":  "android-app",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  121047908981,
+                                                        "name":  "source",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    }
+                                                ],
+                                       "conclusion":  "success",
+                                       "head_sha":  "eef23391fb18c0c9b30cefc632c7a86126e09a60",
+                                       "status":  "completed"
+                                   }
+                               ]
+                  },
+                  {
+                      "step":  6,
+                      "closure_sha":  "f2dd3ceac7f9f18bf9033b9e398ac703d491e3c5",
+                      "runs":  [
+                                   {
+                                       "id":  40198995481,
+                                       "name":  "Foundation boundaries",
+                                       "attempt":  1,
+                                       "jobs":  [
+                                                    {
+                                                        "id":  121185922336,
+                                                        "name":  "workflow-lint",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  121185922466,
+                                                        "name":  "android-boundary (arm64-v8a)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  121185922520,
+                                                        "name":  "portable (ubuntu-24.04)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  121185922528,
+                                                        "name":  "portable (windows-2025)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  121185922559,
+                                                        "name":  "apple-boundary",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  121185922566,
+                                                        "name":  "sanitizer",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  121185922567,
+                                                        "name":  "android-boundary (armeabi-v7a)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    }
+                                                ],
+                                       "conclusion":  "success",
+                                       "head_sha":  "f2dd3ceac7f9f18bf9033b9e398ac703d491e3c5",
+                                       "status":  "completed"
+                                   },
+                                   {
+                                       "id":  40198995512,
+                                       "name":  "Native application shells",
+                                       "attempt":  1,
+                                       "jobs":  [
+                                                    {
+                                                        "id":  121185922431,
+                                                        "name":  "source",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  121185922612,
+                                                        "name":  "ios-app",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  121185922631,
+                                                        "name":  "android-app",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    }
+                                                ],
+                                       "conclusion":  "success",
+                                       "head_sha":  "f2dd3ceac7f9f18bf9033b9e398ac703d491e3c5",
+                                       "status":  "completed"
+                                   }
+                               ]
+                  },
+                  {
+                      "step":  7,
+                      "closure_sha":  "54dcc9292f43ab49335a99df3a4145d0279c7980",
+                      "runs":  [
+                                   {
+                                       "id":  40462182955,
+                                       "name":  "Foundation boundaries",
+                                       "attempt":  1,
+                                       "jobs":  [
+                                                    {
+                                                        "id":  122049122089,
+                                                        "name":  "sanitizer",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  122049122249,
+                                                        "name":  "android-boundary (arm64-v8a)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  122049122261,
+                                                        "name":  "apple-boundary",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  122049122340,
+                                                        "name":  "portable (windows-2025)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  122049122354,
+                                                        "name":  "android-boundary (armeabi-v7a)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  122049122370,
+                                                        "name":  "workflow-lint",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  122049122584,
+                                                        "name":  "portable (ubuntu-24.04)",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    }
+                                                ],
+                                       "conclusion":  "success",
+                                       "head_sha":  "54dcc9292f43ab49335a99df3a4145d0279c7980",
+                                       "status":  "completed"
+                                   },
+                                   {
+                                       "id":  40462183031,
+                                       "name":  "Native application shells",
+                                       "attempt":  1,
+                                       "jobs":  [
+                                                    {
+                                                        "id":  122049122503,
+                                                        "name":  "source",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  122049122677,
+                                                        "name":  "android-app",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    },
+                                                    {
+                                                        "id":  122049122739,
+                                                        "name":  "ios-app",
+                                                        "status":  "completed",
+                                                        "conclusion":  "success"
+                                                    }
+                                                ],
+                                       "conclusion":  "success",
+                                       "head_sha":  "54dcc9292f43ab49335a99df3a4145d0279c7980",
+                                       "status":  "completed"
+                                   }
+                               ]
+                  }
+              ]
+}

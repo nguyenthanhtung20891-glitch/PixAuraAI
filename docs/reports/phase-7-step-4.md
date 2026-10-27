@@ -1,5 +1,10 @@
 # PixAuraAI Autonomous Engineering Contract
 
+> Current integrated status: Steps 1-7 COMPLETE / FULL PASS. The observed exact
+> closure-SHA receipts are in [Phase 7 closure](phase-7-closure.md). Earlier
+> prepared/pending and future-step statements below retain their historical
+> freeze-time meaning. Step 8 is separately authorized; Phase 8 NOT STARTED.
+
 <!-- phase7-step4-current-authority -->
 ## Phase 7 Step 4 - current authority
 

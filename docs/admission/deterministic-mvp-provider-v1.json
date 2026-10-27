@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "status": "CLOSURE_CERTIFICATION_PENDING",
+  "status": "ADMITTED",
   "provider": "reference.assistance.v1",
   "provider_version": 1,
   "planner": "reference.deterministic.v1",
@@ -183,6 +183,8 @@
       "status": "completed"
     }
   ],
-  "admission_activation": "reference.assistance.v1 ADMITTED only when the observed final engineering receipt certifies this exact closure commit via both full workflows; no old-SHA substitution",
-  "step7_closure_activation": "Observed exact closure-SHA success on all 7 Foundation and 3 Native jobs; until then pending"
+  "admission_activation": "ACTIVATED by observed exact closure-SHA attempt-1 Foundation 40462182955 7/7 and Native 40462183031 3/3 SUCCESS",
+  "step7_closure_activation": "ACTIVATED; Step 7 COMPLETE / FULL PASS; Step 8 separately authorized",
+  "certified_closure_sha": "54dcc9292f43ab49335a99df3a4145d0279c7980",
+  "observed_closure_certification": "docs/reports/evidence/phase-7-certified-steps.json"
 }
