@@ -44,6 +44,26 @@ class AutoProposalTest {
     }
     private fun request() { compose.onNodeWithTag("auto-request").performScrollTo().performClick() }
     private fun ready() = waitFor { model.autoProposal.value.status == AutoStatus.REVIEW_READY }
+    @Test fun admittedReferenceProviderAllGoalsRepeatWithoutAuthority() {
+        open(); val editor = owner(); val revision = editor.state().revisionId
+        val choices = editor.adviceChoices(); assertEquals(11, choices.size)
+        for (choice in choices) {
+            val first = editor.requestAuto(choice.index)
+            assertEquals("reference.assistance.v1", first.providerId)
+            assertEquals(1, first.actions.size)
+            assertEquals(choice.values, first.actions[0].values)
+            val bytes = editor.inspectAuto(first)
+            assertArrayEquals(bytes, editor.validateAgentPlan(bytes).canonicalBytes())
+            editor.cancelAuto()
+            val repeated = editor.requestAuto(choice.index)
+            assertArrayEquals(bytes, editor.inspectAuto(repeated))
+            try { editor.executeAgentPlan(editor.validateAgentPlan(bytes)); fail("provider minted approval") }
+            catch (e: EditorFailure) { assertEquals(15, e.status) }
+            editor.cancelAuto()
+            assertEquals(revision, editor.state().revisionId)
+            assertEquals(1, editor.state().revisionCount)
+        }
+    }
     @Test fun realProposalSummaryIsInertDismissibleAndNeverAnApprovalControl() {
         open(); val editor = owner(); val revision = editor.state().revisionId
         request(); ready(); compose.onNodeWithTag("auto-ready").assertExists()

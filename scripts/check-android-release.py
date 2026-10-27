@@ -12,6 +12,10 @@ MARKERS = (
     b'synthetic-segmentation', b'fake-human-apply', b'auto-approval-hook',
     b'privileged-test-provider', b'hidden-plan-executor', b'direct-commit-hook',
     b'embeddinggemma', b'EmbeddingGemma',
+    b'weights_mobilenet', b'FFCCModel', b'MobileIQA',
+    b'OFFLINE_HEURISTIC_FEASIBILITY_NOT_PRODUCTION',
+    b'OFFLINE_PAIRED_REFERENCE_NOT_ABSOLUTE_CORRECTION',
+    b'Assistance admission v1', b'Assistance admission allocations',
     b'pixaura_model_test_boundary', b'pixaura_inference_test_boundary',
     b'pixaura_inference_android_test_boundary', b'pixaura_inference_apple_test_boundary',
     b'production_selection', b'certification_output_fault', b'cpu_execution_calls',
@@ -20,7 +24,7 @@ MARKERS = (
     b'assist_test_fault', b'auto_test_fault',
     bytes.fromhex('d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a'),
 )
-MODEL_SUFFIXES = ('.litertlm', '.tflite', '.onnx', '.safetensors', '.ckpt', '.pt', '.pth')
+MODEL_SUFFIXES = ('.litertlm', '.tflite', '.onnx', '.safetensors', '.ckpt', '.pt', '.pth', '.hdf5', '.h5', '.npz', '.mat', '.pb')
 
 def scan(path):
     natives = dex = 0

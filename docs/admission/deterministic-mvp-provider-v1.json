@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "status": "PENDING_EXACT_SHA",
+  "provider": "reference.assistance.v1",
+  "provider_version": 1,
+  "planner": "reference.deterministic.v1",
+  "planner_version": 1,
+  "baseline": "91a2bfc1094b212a99dede92ac470cd047e268d3",
+  "production_learned_model": "NONE_REQUIRED_NONE_ADMITTED_FOR_PHASE_7_MVP",
+  "future_learned_provider": "DEFERRED_REPLACEABLE",
+  "envelopes": 117,
+  "structured_positive": 39,
+  "structured_negative": 42,
+  "golden_fnv64": "162cbcfb525cd535",
+  "golden_envelope_stream_sha256": "f70abfee6c1266faeb01ec95cc7454d5d460f3c1735f26d5f51462806230199c",
+  "tools": [
+    [
+      "adjust.brightness",
+      "pixaura.brightness"
+    ],
+    [
+      "adjust.contrast",
+      "pixaura.contrast"
+    ],
+    [
+      "adjust.exposure",
+      "pixaura.exposure"
+    ],
+    [
+      "adjust.highlights",
+      "pixaura.highlights"
+    ],
+    [
+      "adjust.saturation",
+      "pixaura.saturation"
+    ],
+    [
+      "adjust.shadows",
+      "pixaura.shadows"
+    ],
+    [
+      "adjust.temperature",
+      "pixaura.temperature"
+    ],
+    [
+      "detail.blur",
+      "pixaura.blur"
+    ],
+    [
+      "detail.sharpen",
+      "pixaura.sharpen"
+    ],
+    [
+      "transform.crop_normalized",
+      "pixaura.crop"
+    ],
+    [
+      "transform.rotate_quarter",
+      "pixaura.rotate"
+    ]
+  ],
+  "source_identity": {
+    "encoding": "UTF-8 source normalized CRLF to LF",
+    "sha256": {
+      "packages/core/src/assistance.hpp": "333738bececa253758aba4eafa65f01e3796927c855c935192e386c827ecd238",
+      "packages/core/src/assistance_codec.inc": "c87f512977003a556c42acfdff56411954819198b3dc545b6b22b2091c3e0822",
+      "packages/core/src/assist_experience.hpp": "838eadc61a92186f5a5307b4ad826905839138e8d08629bca692ce1c295502aa",
+      "packages/core/src/assist_request_codec.hpp": "baf950b836807019b3e9df14a97e8bd02fb2425ff58e7833367e1a4c824b6ed6",
+      "packages/core/src/assist_experience_boundary.hpp": "b2201e6b69d697f7460f1a8e5b55aa1a2d653eb1df6d8a5f2b1f930a0f0d7d4f",
+      "packages/core/src/auto_proposal_boundary.hpp": "6ea369361a1a4d97b1157f7cce4efc5e83a10fe083abdc5233e409556c4b2c61",
+      "packages/core/src/structured_goals.hpp": "1c2b2228add976daf9d934f43bfb8ac375d41680a6d9090a885734eea801fc2f",
+      "packages/core/src/manual_tools.hpp": "72c5e77b2aa02922c4af96efbe54f0812e017e3dac6344379205eb4d57f2fbaf",
+      "packages/core/src/manual_tools.cpp": "8db1c86fa4e8f7a145771f7a91ec3fabc950d191566cb57d8d76e0c9002a938c",
+      "packages/core/src/document.cpp": "8bd84b0943f66b70f34b79b2de49e46f3b3690ae7425b73506fb53e499f29119",
+      "tests/fixtures/reference-planner-v1.json": "044325c00aeeb8d808fb2241644d872138aa8ea86237004832f741ac31deb2cc",
+      "tests/fixtures/agent-schema-v1/goldens.json": "ad3908aae7e0984d3afe907ad828e3775a4ad2b3deba2d8cad5f256a029b123c",
+      "tests/fixtures/agent-tools-v1.json": "0a8d197ebeb5be70107b2934d7c873a73233d7e2484c6ace34484aea46d71e97"
+    }
+  },
+  "criteria": "docs/contracts/deterministic-mvp-provider-admission-v1.md",
+  "model_artifacts": [],
+  "production_dependencies_added": []
+}

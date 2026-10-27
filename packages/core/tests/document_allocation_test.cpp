@@ -7,6 +7,7 @@
 #include "agent_schema_fixtures.hpp"
 #include "reference_planner_fixtures.hpp"
 #include <atomic>
+#include <algorithm>
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
@@ -24,6 +25,8 @@
 #endif
 
 static thread_local int64_t fail_after = -1;
+static thread_local bool admission_meter=false;
+static thread_local uint64_t admission_bytes=0,admission_calls=0;
 static thread_local bool pause_allocation = false;
 static std::atomic<bool> serializer_pinned{false}, continue_serialization{false}, serializer_done{false};
 static std::atomic<const char*> active_phase{"startup"};
@@ -57,6 +60,10 @@ static void wait_for(const std::atomic<bool>& flag, const char* message) {
 }
 
 void* operator new(std::size_t size) {
+    if(admission_meter){
+        if(size>UINT64_MAX-admission_bytes)throw std::bad_alloc();
+        admission_bytes+=size;++admission_calls;
+    }
     if (pause_allocation) {
         pause_allocation = false;
         serializer_pinned.store(true);
@@ -125,6 +132,23 @@ int main(int argc, char** argv) {
         const auto envelope=assistance::encode(request,assistance::reference_id);CHECK(envelope.code==0);
         CHECK(assistance::validate(envelope.value.value(),*snapshot.value,"000000000000000000000000000000a1",assistance::reference_id).code==0);
         assistance::ReferenceProvider provider;
+        // Requested C++ allocation totals, NOT RSS, live peak or a production lease.
+        uint64_t peak_request=0,peak_validation=0,peak_calls=0;
+        for(const auto& fixture:reference_planner_fixtures::cases){
+            request.payload=fixture.input;
+            for(auto kind:{assistance::Kind::Advice,assistance::Kind::StructuredIntent,assistance::Kind::PlanCandidate}){
+                request.kind=kind;request.payload=kind==assistance::Kind::PlanCandidate?fixture.plan:fixture.input;
+                admission_bytes=admission_calls=0;admission_meter=true;
+                auto out=provider.request(request);admission_meter=false;CHECK(out.code==0);
+                peak_request=std::max(peak_request,admission_bytes);peak_calls=std::max(peak_calls,admission_calls);
+                admission_bytes=admission_calls=0;admission_meter=true;
+                auto valid=assistance::validate(*out.value,*snapshot.value,"000000000000000000000000000000a1",assistance::reference_id);
+                admission_meter=false;CHECK(valid.code==0);peak_validation=std::max(peak_validation,admission_bytes);
+            }
+        }
+        std::printf("Assistance admission allocations request_total_max=%llu validation_total_max=%llu request_calls_max=%llu no_retained_provider_heap_members\n",
+            static_cast<unsigned long long>(peak_request),static_cast<unsigned long long>(peak_validation),static_cast<unsigned long long>(peak_calls));
+        request.kind=assistance::Kind::StructuredIntent;request.payload=reference_planner_fixtures::cases[0].input;
         for(int path=0;path<3;++path)for(int64_t n=0;n<10000;++n){
             progress("assistance.allocation",path,n);fail_after=n;
             int status;

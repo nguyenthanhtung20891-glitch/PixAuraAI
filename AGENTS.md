@@ -1,5 +1,36 @@
 # PixAuraAI Autonomous Engineering Contract
 
+<!-- phase7-step7-round5 -->
+## Phase 7 Step 7 — Round 5 deterministic MVP provider admission
+
+Phase 6 CLOSED / COMPLETE / FULL PASS. Phase 7 Steps 1-6 COMPLETE / FULL PASS.
+Step 7 AUTHORIZED / IN PROGRESS; implementation/admission exact-SHA certification
+PENDING. Separate closure-SHA certification is required before final Step 7 closure.
+Selected existing MVP Assistance Provider: reference.assistance.v1, contract 1.
+Existing planner identity remains reference.deterministic.v1; no rename/new provider.
+PRODUCTION LEARNED MODEL: NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.
+Future learned provider DEFERRED / REPLACEABLE. Stop learned model search for MVP.
+EmbeddingGemma disqualified for MVP; NIMA/FFCC/MobileIQA not selected or integrated.
+Round 3/4 absolute-image research remains offline, not production-qualified.
+Only bounded explicit machine-semantic goals/values; no free-form understanding,
+arbitrary-photo diagnosis, model, NLP, network/cloud, runtime or weight integration.
+Provider -> UNTRUSTED Envelope -> existing trusted validation/Plan/Registry -> review
+-> explicit HUMAN Apply -> unchanged approval/candidate/publication/shared history.
+Manual first-class; Assist non-mutating, Use suggestion navigation-only.
+No cache, worker, queue, inference session or heavyweight owner introduced.
+Intent/Structured Intent/Plan/Registry/Envelope/Provider/planner, HUMAN approval,
+candidate lifecycle, Schema 3, Manual/history/platform authority and Phase 4/5 plus
+Intelligence Runtime Resource Admission v1 semantics unchanged.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED /
+NOT SATISFIED; hosted Apple software evidence only. Step 8 NOT STARTED.
+Phase 8 NOT STARTED. Full retained implementation and closure exact-SHA workflows,
+every required job completed/SUCCESS, remain mandatory. No rerun-until-green.
+See docs/contracts/deterministic-mvp-provider-admission-v1.md and
+docs/reports/phase-7-step-7.md (repository-relative paths). Stop after Round 5.
+<!-- phase7-step7-round5-history -->
+
+Earlier sections retain historical freeze-time authority and model-search status.
+
 <!-- phase7-step7-round4 -->
 ## Phase 7 Step 7 — Round 4 current authority
 

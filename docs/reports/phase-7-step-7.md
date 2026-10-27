@@ -1,5 +1,177 @@
 # Phase 7 Step 7 — admission evidence
 
+## Round 5 — Deterministic MVP Provider Admission and Step 7 Closure
+
+Status: implementation/admission CERTIFICATION PENDING. Step 7 AUTHORIZED /
+IN PROGRESS. Separate exact closure-SHA certification is mandatory. Step 8 NOT
+STARTED. Phase 8 NOT STARTED. Starting main == HEAD == origin/main
+`91a2bfc1094b212a99dede92ac470cd047e268d3`, verified after fetch, clean tracked/staged
+tree. Accepted Round 4 Foundation 40365322260 SUCCESS 7/7 and Native shells
+40365322294 SUCCESS 3/3, exact SHA, attempt 1, every required job SUCCESS.
+Ignored Round 1–4 evidence is preserved.
+The [implementation inventory](evidence/phase-7-step-7-round5-files.json) lists all
+changed files; [executed local evidence](evidence/phase-7-step-7-round5-local.json)
+retains measurements and the explicit local filesystem limitation.
+
+### Principal Architect selection and exact identity
+
+The intended production MVP Assistance Provider is the ALREADY IMPLEMENTED
+**reference.assistance.v1**, contract/version 1, capabilities 7. The separate frozen
+planner identity is **reference.deterministic.v1**. Neither is renamed or duplicated.
+Existing shared-native Assist/Auto boundaries already construct ReferenceProvider;
+no new production registration path, runtime source change or platform feature is
+needed. [Admission contract](../contracts/deterministic-mvp-provider-admission-v1.md)
+and [source/corpus manifest](../admission/deterministic-mvp-provider-v1.json) govern
+this admission. A provider is not a learned model.
+
+PRODUCTION LEARNED MODEL: **NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP**.
+Future learned provider DEFERRED / REPLACEABLE. Learned model search stops for MVP.
+EmbeddingGemma stays DISQUALIFIED FOR THE CURRENT PIXAURAAI MVP; NIMA/FFCC/MobileIQA
+are not selected or integrated. Round 3/4 research remains unchanged OFFLINE evidence,
+not production-qualified. Learned-artifact/contextual-image gaps remain deferred
+research requirements, not requirements silently waived for a shipped learned model.
+
+### Product quality and authority
+
+This provider wraps exact bounded machine-semantic requests. It does not inspect
+photos, diagnose exposure/white balance/style, parse free-form Intent, translate,
+perform NLP or choose artistic outcomes. Existing UI explicitly selects one of eleven
+existing goals and values. Quality means exact request semantics, canonical envelopes,
+existing validation/planner/Registry correctness and failure safety—not photo aesthetics.
+
+Explicit request -> provider -> UNTRUSTED Envelope -> trusted native validation ->
+existing Structured Intent/planner or Plan/Registry -> review -> HUMAN Apply ->
+unchanged approval binding/single-use consumption -> private candidate/execution ->
+at most one ordinary revision -> shared history/undo/redo. Provider has no document,
+history, approval, candidate, editor callback, shell, filesystem or network capability.
+Advice returns no Plan; Use suggestion remains navigation-only, no hidden prefill.
+Manual remains independent. Auto means proposal/planning, never approval. No retry,
+alternate-provider execution, replan or reapproval is introduced.
+
+Retained native corpus: 39 valid Structured Intent goldens / 42 negative cases,
+all eleven exact goal/tool mappings, minimum/maximum/neutral where permitted,
+parameter/geometry boundaries, unknown fields/tools/versions, numeric and byte bounds.
+Every valid case traverses all three envelope kinds: **117 canonical envelopes**,
+ten exact repetitions each. Native test now asserts independent whole-stream FNV-64
+**162cbcfb525cd535**, a non-security regression fingerprint; SHA-256 also binds the
+stream in the manifest. Existing Plan corpus retains multi-action order and valid
+eight-action/nine-action rejection coverage. No new multi-tool recipe is invented.
+The eleven actual application catalog choices add **22 typical Advice/Structured
+Intent cases**. Existing malformed/forgery/wrong-owner/context/ABA, cancel/stop/BUSY,
+600 concurrent outcomes and allocation-failure tests remain active.
+
+Android instrumentation now repeats all eleven native Auto Plans, checks exact
+canonical bytes/values and provider identity, rejects execution as NOT_APPROVED,
+and verifies unchanged ordinary history. Swift all-goal tests add the same repeated
+Plan-byte check. Correlation IDs/request serials can differ between calls; Plan bytes
+for unchanged live context do not. Platforms validate neither tool semantics nor
+Plans independently; they use the existing shared-native authority.
+
+### Ownership, bounds and measured cost
+
+Each existing editor Service lazily owns one small synchronous provider reused by
+Assist/Auto. There is no worker, queue, cache, model mapping, session or new handle.
+Try-lock permits one request per provider, RESOURCE/BUSY otherwise. Cancellation
+is nonsticky; stop is permanent; owner stop -> join ALL calls -> destroy remains
+mandatory. No heavyweight Round 1 owner is instantiated for this model-free path.
+Existing source/context/generation/serial/epoch fencing wins over late interaction.
+
+Bounds remain: Structured/advice 2048 bytes, Plan 8192 bytes / eight actions,
+binding 512 bytes, IDs 64 ASCII bytes, envelope 12288 bytes. Existing finite parser
+shapes and integer/tool validators reject, never clamp or repair. Reference planner
+emits one action; provider may wrap already explicit bounded multi-action Plan data.
+Returned bytes belong to the caller; provider state retains no dynamic container.
+
+Local Windows Zig Debug corpus: provider object **56 bytes** on that ABI; request
+mean/max **255,841 / 608,300 ns**, trusted validation/planning mean/max
+**654,848 / 1,149,400 ns**, over the 117 envelopes, excluding image execution.
+Diagnostic requested C++ allocation totals max **23,544 bytes request** and
+**54,564 bytes validation**, max **210 request allocations** across that corpus.
+These are cumulative requested-byte observations, not live peaks, RSS, production
+leases or every-malformed-input maxima; stack/allocator/OS and caller-owned inputs
+are not included. Source bounds and retained failure sweeps supply structural/failure
+evidence. Provider retains only mutexes, epoch and stopped flag. Object sizes/timings
+are ABI/build-dependent; sanitizer instrumentation is separately labeled in logs.
+
+Existing footprint tooling now records actual document/manual/editor object bytes
+and Linux namespace-attributed provider text symbols as well as archives. These
+shared-object/symbol measurements are NOT an isolated linked/package provider delta;
+common parser code and linker coalescing prevent a false exact attribution. Actual
+APK/app bytes are recorded by final-package scans on the certification SHA. Round 5
+adds no production source, runtime dependency or model asset; the existing provider
+has nonzero code/data footprint and is not mislabeled zero-cost.
+
+Battery/thermal criterion: **NO MODEL WORKLOAD**—bounded synchronous JSON work only,
+no raster/image/GPU/inference/background loop. Hosted/platform execution and bounded
+code review characterize this provider's negligible model-specific workload. Whole-app
+battery/physical thermal behavior is NOT MEASURED, not a hardware certification claim.
+No Phase 4/5 cap, segmentation admission or intelligence resource contract is changed.
+
+### Provenance, privacy, failure and release isolation
+
+Source identity is bound by normalized UTF-8/LF SHA-256 and exact certified Git SHA:
+provider header/codec, catalog/adapters, planner/document/manual sources and immutable
+fixture metadata. Provider is first-party source; shared native/SQLite/codec/crypto
+dependencies remain under existing pinned dependency/license/notices records.
+No learned checkpoint, tokenizer, conversion artifact, redistribution obligation or
+new dependency is introduced. The learned-model provenance contract is unchanged;
+this model-free source admission does not fabricate a model manifest or bypass a
+future learned artifact gate.
+
+Provider input/output is local in-memory data. No upload, cloud, API key, telemetry,
+environment read, filesystem scan, shell or dynamic loader exists in the interface.
+Invalid requests/proposals, allocation/resource failure, stop/cancel/stale outcomes
+leave document/history unchanged and create no approval/candidate/execution. Retained
+platform failure, lifecycle, Manual-before/after, undo/redo, duplicate Apply and
+publication atomicity suites remain mandatory; no pending authority enters Schema 3.
+
+Native release-object scans now reject deferred research/admission-test markers.
+Final Android APK scanning also rejects HDF5/NPZ/MAT/PB and known research-model markers,
+with negative fixtures. A final Apple release APP scanner reuses the same forbidden
+marker/model list across actual executable/framework/resources, rejects symlinks and
+oversized members, and runs after the unsigned Release build with negative fixtures.
+Existing native symbol/test-key, release/test-hook and Android asset allowlist gates
+are retained. Research docs/data stay in the repository, not runtime app resources.
+
+### Admission matrix and certification procedure
+
+The contract explicitly covers quality, determinism, latency, memory/resource cost,
+package, battery/thermal workload, Android, Apple, trust, provenance, privacy,
+offline operation, fallback, release isolation and authority. No criterion is silently
+omitted because the provider is deterministic. Learned performance/weights are not
+applicable; physical GPU trust remains separate. No unresolved A-class authority
+finding is known; final admission remains pending exact-SHA implementation and closure
+certification. B: arbitrary-photo intelligence and physical future learned/device
+qualification remain deferred, with no MVP diagnosis promise. C: optional allocation/
+parser optimization must preserve exact bytes and contracts.
+
+Local retained Windows native suite **53/53 PASS**; admission source checks **3/3 PASS**.
+Full retained Linux source suite **177/177 PASS**, scanner negative fixtures and
+workflow lint PASS. Local sanitizer run is explicitly **53/55, NOT FULL PASS**:
+storage_test and storage_android_test require POSIX permissions and atomic
+RENAME_NOREPLACE semantics unavailable on this G: v9fs mount. An isolated ignored
+probe recorded chmod(0555) still reporting 0777, unprivileged write succeeding,
+and renameat2(RENAME_NOREPLACE) returning EINVAL (22). Provider/admission sanitizer
+tests passed, including fingerprint and allocation-failure paths. No unchanged
+rerun, suppression, storage code/contract change or timeout increase was used.
+The complete Linux CI filesystem must independently pass all 55 tests; this local
+limitation is not substituted for that gate. Windows retains its native filesystem
+suite. Initial offline manifest preparation used the wrong fixture field name
+(plan rather than expected_plan); inspection corrected the engineering generator
+before the manifest was created. No fixture/expected semantics were changed.
+Actual final-SHA sanitizer/native/platform, full retained source, release scans and
+workflow lint evidence must independently complete. Implementation and subsequent
+documentation-only closure SHAs each require both full workflows, every required job
+completed/SUCCESS. The observed final receipt activates Step 7 closure only after the
+closure SHA succeeds; no unobserved COMPLETE claim or circular SHA is written here.
+
+Intent v1, Structured Intent v1, Plan v1, Registry v1, Proposal Envelope v1, Assistance
+Provider v1, reference planner, HUMAN approval, candidate lifecycle, source/publication
+fencing, Schema 3, Manual/shared history/platform authority, Phase 4/5 and Intelligence
+Runtime Resource Admission v1 remain unchanged. cpu.reference.v1 VALIDATED;
+android.vulkan.v1 UNKNOWN; apple.metal.v1 UNKNOWN. DH-APPLE-METAL-01 DEFERRED /
+NOT WAIVED / NOT SATISFIED. Hosted Apple evidence is software only.
+
 ## Round 4 — Production Candidate Discovery & Absolute-Image Intelligence Feasibility
 
 Round 4 engineering evaluation complete; exact-SHA certification PENDING until the

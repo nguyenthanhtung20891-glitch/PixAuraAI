@@ -48,6 +48,10 @@ final class AutoProposalTests: XCTestCase {
                 XCTAssertEqual(try editor.state().revisionID, revision)
                 try fixture { other in self.status(9) { _ = try other.inspectAuto(proposal) } }
                 try editor.cancelAuto(); status(9) { _ = try editor.inspectAuto(proposal) }
+                let repeated = try editor.requestAuto(choice.index)
+                XCTAssertEqual(repeated.providerID, "reference.assistance.v1")
+                XCTAssertEqual(try editor.inspectAuto(repeated), bytes)
+                try editor.cancelAuto()
             }
             let p = try editor.requestAuto(0)
             try editor.select(4); try editor.update([250]); try editor.action(1)

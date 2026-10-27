@@ -15,6 +15,8 @@ for configuration in Debug Release; do
         PIXAURA_PRIVATE_EXTERNS_CPixAuraSQLite=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraCodecs=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraSodium=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraMetal=YES CODE_SIGNING_ALLOWED=NO build
 done
 node scripts/check-model-release.mjs "$workspace_path/build/ios-shell-device/Build/Products/Release-iphoneos/PixAuraAI.app/PixAuraAI"
+python3 tests/apple-release-scanner.test.py
+python3 scripts/check-apple-release.py "$workspace_path/build/ios-shell-device/Build/Products/Release-iphoneos/PixAuraAI.app"
 result_directory="$(mktemp -d "$workspace_path/build/ios-shell-results.XXXXXX")"
 xcodebuild -project platforms/ios/PixAuraAI.xcodeproj -scheme PixAuraAI \
     -configuration Debug -destination "platform=iOS Simulator,id=$simulator_id,arch=$simulator_arch" \

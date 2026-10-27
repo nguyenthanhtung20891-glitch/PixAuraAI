@@ -1,7 +1,11 @@
 #include "../src/assistance.hpp"
 #include "agent_schema_fixtures.hpp"
 #include "reference_planner_fixtures.hpp"
+#include "../src/assist_experience.hpp"
 #include <atomic>
+#include <algorithm>
+#include <chrono>
+#include <cinttypes>
 #include <cstdio>
 #include <cstdlib>
 #include <thread>
@@ -23,17 +27,39 @@ int main(){
  CHECK(check_identity(provider.identity())==0);CHECK(check_identity({reference_id,1,8})==1);
  CHECK(check_identity({reference_id,2,7})==2);CHECK(check_identity({"unknown",1,7})==1);
  auto validate_bytes=[&](std::string_view s){return validate(s,d,context,reference_id);};
- unsigned positives=0;
+ unsigned positives=0;uint64_t fingerprint=UINT64_C(14695981039346656037);
+ uint64_t request_ns=0,validation_ns=0,max_request_ns=0,max_validation_ns=0;
  for(const auto& fixture:reference_planner_fixtures::cases){
   r.payload=fixture.input;
   for(Kind kind:{Kind::Advice,Kind::StructuredIntent,Kind::PlanCandidate}){
    r.kind=kind;if(kind==Kind::PlanCandidate)r.payload=fixture.plan;
-   const auto first=provider.request(r);CHECK(first.code==0);
+   auto started=std::chrono::steady_clock::now();const auto first=provider.request(r);
+   const auto request_elapsed=static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-started).count());
+   request_ns+=request_elapsed;max_request_ns=std::max(max_request_ns,request_elapsed);CHECK(first.code==0);
+   for(unsigned char byte:first.value.value()){fingerprint^=byte;fingerprint*=UINT64_C(1099511628211);}
    for(unsigned repeat=0;repeat<10;++repeat){const auto output=provider.request(r);CHECK(output.code==0 && output.value.value()==first.value.value());}
-   const auto valid=validate_bytes(first.value.value());CHECK(valid.code==0);CHECK(valid.value->envelope==first.value.value());
+   started=std::chrono::steady_clock::now();const auto valid=validate_bytes(first.value.value());
+   const auto validation_elapsed=static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-started).count());
+   validation_ns+=validation_elapsed;max_validation_ns=std::max(max_validation_ns,validation_elapsed);
+   CHECK(valid.code==0);CHECK(valid.value->envelope==first.value.value());
    CHECK(valid.value->plan==(kind==Kind::Advice?"":fixture.plan));++positives;
    const auto forged=change(first.value.value(),"proposal.1","forged.2");const auto correlation=validate_bytes(forged);
    CHECK(correlation.code==0 && correlation.value->plan==valid.value->plan); // ID grants NOTHING
+  }
+ }
+ CHECK(fingerprint==UINT64_C(0x162cbcfb525cd535)); // independently constructed JSON golden stream
+ // Typical values come from the SAME existing application catalog, not a new recipe.
+ for(uint32_t index=0;index<11;++index){
+  const auto choice=assist_experience::choice(index);
+  auto typical=assist_experience::request(d,context,index,manual::registry()[choice.tool_index],choice,42);
+  CHECK(typical.code==0);
+  for(Kind kind:{Kind::Advice,Kind::StructuredIntent}){
+   typical.value->kind=kind;auto out=provider.request(*typical.value);CHECK(out.code==0);
+   auto decoded=validate_bytes(*out.value);CHECK(decoded.code==0);
+   if(kind==Kind::Advice){CHECK(decoded.value->plan.empty());
+    const auto shown=assist_experience::presentation(*decoded.value,manual::registry().data(),manual::registry().size());
+    CHECK(shown.code==0&&shown.value->tool_index==choice.tool_index&&shown.value->values==choice.values);
+   }else CHECK(!decoded.value->plan.empty());
   }
  }
  r.kind=Kind::StructuredIntent;r.payload=reference_planner_fixtures::cases[0].input;
@@ -96,5 +122,7 @@ int main(){
  CHECK(success+busy+cancelled==600);CHECK(provider.request(r).code==13);
  CHECK(document::serialize(d).value==before.value); // original, revisions, history unchanged
  CHECK(d.operations().size()==2 && d.revisions().size()==3);
+ std::printf("Assistance admission v1 provider=reference.assistance.v1 corpus=%u typical=22 fingerprint=%016" PRIx64 " owner_bytes=%zu request_mean_ns=%" PRIu64 " request_max_ns=%" PRIu64 " validation_mean_ns=%" PRIu64 " validation_max_ns=%" PRIu64 "\n",
+  positives,fingerprint,sizeof(ReferenceProvider),request_ns/positives,max_request_ns,validation_ns/positives,max_validation_ns);
  std::printf("Assistance v1 checks=%u positives=%u deterministic repeats=10 concurrency=600 side_effects=0 no_approval_or_candidate_API\n",checks,positives);
 }

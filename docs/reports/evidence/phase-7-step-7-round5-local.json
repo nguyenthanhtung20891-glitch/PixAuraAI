@@ -1,0 +1,242 @@
+{
+  "version": 1,
+  "scope": "ROUND_5_LOCAL_ENGINEERING_EVIDENCE_NOT_EXACT_SHA_CERTIFICATION",
+  "windows_zig_debug": {
+    "corpus": 117,
+    "typical": 22,
+    "fingerprint": "162cbcfb525cd535",
+    "owner_bytes": 56,
+    "request_mean_ns": 255841,
+    "request_max_ns": 608300,
+    "validation_mean_ns": 654848,
+    "validation_max_ns": 1149400
+  },
+  "windows_allocation": {
+    "request_total_max": 23544,
+    "validation_total_max": 54564,
+    "request_calls_max": 210,
+    "accounting": "cumulative C++ requested bytes, not RSS/live peak/production lease"
+  },
+  "sanitized_linux": {
+    "corpus": 117,
+    "typical": 22,
+    "fingerprint": "162cbcfb525cd535",
+    "owner_bytes": 120,
+    "request_mean_ns": 719259,
+    "request_max_ns": 1274695,
+    "validation_mean_ns": 1790157,
+    "validation_max_ns": 3455887
+  },
+  "local_sanitizer_full_suite": {
+    "passed": 53,
+    "total": 55,
+    "status": "NOT_FULL_PASS",
+    "failed": [
+      "storage_test",
+      "storage_android_test"
+    ],
+    "root_cause": "G: v9fs ignores POSIX chmod and returns EINVAL for RENAME_NOREPLACE; see probe",
+    "no_suppression_or_retry": true
+  },
+  "filesystem_probe": [
+    "unprivileged write unexpectedly succeeded",
+    "{\"euid\": 0, \"directory_mode\": \"0o777\", \"statvfs_flag\": 1024, \"child_status\": 768, \"rename_noreplace_return\": -1, \"rename_noreplace_errno\": 22, \"directory_fsync\": \"success\"}"
+  ],
+  "source": {
+    "passed": 177,
+    "total": 177
+  },
+  "golden_fingerprint": "162cbcfb525cd535",
+  "production_source_changed": false,
+  "model_assets": [],
+  "footprint": {
+    "configuration": "actual build outputs; archive/object sizes are not linked deltas; debug symbols vary",
+    "metrics": [
+      {
+        "file": "CMakeFiles/agent_execution_release_object.dir/packages/core/src/editor_api.cpp.o",
+        "bytes": 2090840
+      },
+      {
+        "file": "CMakeFiles/agent_execution_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4640856
+      },
+      {
+        "file": "CMakeFiles/agent_execution_test.dir/packages/core/src/manual_tools.cpp.o",
+        "bytes": 1131184
+      },
+      {
+        "file": "CMakeFiles/agent_schema_release_object.dir/packages/core/src/document.cpp.o",
+        "bytes": 4640856
+      },
+      {
+        "file": "CMakeFiles/agent_schema_release_object.dir/packages/core/src/manual_tools.cpp.o",
+        "bytes": 1131184
+      },
+      {
+        "file": "CMakeFiles/agent_tools_metadata_test_object.dir/packages/core/src/document.cpp.o",
+        "bytes": 4640856
+      },
+      {
+        "file": "CMakeFiles/agent_tools_metadata_test_object.dir/packages/core/src/manual_tools.cpp.o",
+        "bytes": 1131184
+      },
+      {
+        "file": "CMakeFiles/agent_tools_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4079608
+      },
+      {
+        "file": "CMakeFiles/agent_tools_test.dir/packages/core/src/manual_tools.cpp.o",
+        "bytes": 1131184
+      },
+      {
+        "file": "CMakeFiles/assistance_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4640856
+      },
+      {
+        "file": "CMakeFiles/assistance_test.dir/packages/core/src/manual_tools.cpp.o",
+        "bytes": 1131184
+      },
+      {
+        "file": "CMakeFiles/cross_tier_replay_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4640856
+      },
+      {
+        "file": "CMakeFiles/decode_allocation_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4827096
+      },
+      {
+        "file": "CMakeFiles/decode_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4640856
+      },
+      {
+        "file": "CMakeFiles/detail_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4640856
+      },
+      {
+        "file": "CMakeFiles/document_allocation_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4827096
+      },
+      {
+        "file": "CMakeFiles/document_allocation_test.dir/packages/core/src/manual_tools.cpp.o",
+        "bytes": 1244872
+      },
+      {
+        "file": "CMakeFiles/document_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4640856
+      },
+      {
+        "file": "CMakeFiles/editor_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4827096
+      },
+      {
+        "file": "CMakeFiles/editor_test.dir/packages/core/src/editor_api.cpp.o",
+        "bytes": 2187808
+      },
+      {
+        "file": "CMakeFiles/editor_test.dir/packages/core/src/manual_tools.cpp.o",
+        "bytes": 1244872
+      },
+      {
+        "file": "CMakeFiles/evaluation_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4640856
+      },
+      {
+        "file": "CMakeFiles/geometry_execution_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4640856
+      },
+      {
+        "file": "CMakeFiles/geometry_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4640856
+      },
+      {
+        "file": "CMakeFiles/gesture_lifecycle_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4827096
+      },
+      {
+        "file": "CMakeFiles/gesture_lifecycle_test.dir/packages/core/src/manual_tools.cpp.o",
+        "bytes": 1244872
+      },
+      {
+        "file": "CMakeFiles/manual_geometry_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4640856
+      },
+      {
+        "file": "CMakeFiles/manual_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4827096
+      },
+      {
+        "file": "CMakeFiles/manual_test.dir/packages/core/src/manual_tools.cpp.o",
+        "bytes": 1244872
+      },
+      {
+        "file": "CMakeFiles/model_release_object.dir/packages/core/src/model_package.cpp.o",
+        "bytes": 1113480
+      },
+      {
+        "file": "CMakeFiles/pixaura_core.dir/packages/core/src/document.cpp.o",
+        "bytes": 4640856
+      },
+      {
+        "file": "CMakeFiles/pixaura_core.dir/packages/core/src/editor_api.cpp.o",
+        "bytes": 2302928
+      },
+      {
+        "file": "CMakeFiles/pixaura_core.dir/packages/core/src/manual_tools.cpp.o",
+        "bytes": 1131184
+      },
+      {
+        "file": "CMakeFiles/pixaura_core.dir/packages/core/src/model_files.cpp.o",
+        "bytes": 406328
+      },
+      {
+        "file": "CMakeFiles/pixaura_core.dir/packages/core/src/model_package.cpp.o",
+        "bytes": 1955976
+      },
+      {
+        "file": "CMakeFiles/preset_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4827096
+      },
+      {
+        "file": "CMakeFiles/preset_test.dir/packages/core/src/manual_tools.cpp.o",
+        "bytes": 1244872
+      },
+      {
+        "file": "CMakeFiles/preview_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4640856
+      },
+      {
+        "file": "CMakeFiles/storage_android_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4827096
+      },
+      {
+        "file": "CMakeFiles/storage_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4827096
+      },
+      {
+        "file": "CMakeFiles/tone_test.dir/packages/core/src/document.cpp.o",
+        "bytes": 4640856
+      },
+      {
+        "file": "libpixaura_core.so",
+        "bytes": 47942312
+      },
+      {
+        "file": "libpixaura_sodium.a",
+        "bytes": 7725662
+      }
+    ],
+    "assistance_symbols": [
+      {
+        "file": "CMakeFiles/agent_execution_release_object.dir/packages/core/src/editor_api.cpp.o",
+        "defined_text_symbols": 113,
+        "attributed_text_bytes": 25625
+      },
+      {
+        "file": "CMakeFiles/agent_schema_release_object.dir/packages/core/src/document.cpp.o",
+        "defined_text_symbols": 39,
+        "attributed_text_bytes": 35809
+      }
+    ],
+    "symbol_caveat": "Namespace-attributed text only; shared parser/callees excluded, weak symbols may coalesce; NOT isolated linked/package contribution. Empty on unsupported hosts."
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "production_runtime_source_changed": false,
+  "changed_files": [
+    ".gitattributes",
+    ".github/workflows/foundation.yml",
+    ".github/workflows/native-shells.yml",
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "DECISIONS.md",
+    "QUALITY_GATES.md",
+    "ROADMAP.md",
+    "docs/admission/deterministic-mvp-provider-v1.json",
+    "docs/contracts/deterministic-mvp-provider-admission-v1.md",
+    "docs/plans/phase-7-roadmap.md",
+    "docs/reports/evidence/phase-7-step-7-round5-files.json",
+    "docs/reports/evidence/phase-7-step-7-round5-local.json",
+    "docs/reports/phase-7-step-7.md",
+    "packages/core/swift/Tests/AutoProposalTests.swift",
+    "packages/core/tests/assistance_test.cpp",
+    "packages/core/tests/document_allocation_test.cpp",
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/AutoProposalTest.kt",
+    "scripts/check-android-release.py",
+    "scripts/check-apple-release.py",
+    "scripts/check-ios-shell.sh",
+    "scripts/check-model-release.mjs",
+    "scripts/model-footprint.mjs",
+    "tests/android-release-scanner.test.py",
+    "tests/apple-release-scanner.test.py",
+    "tests/deterministic-admission.test.mjs"
+  ]
+}
