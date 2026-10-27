@@ -1,7 +1,7 @@
 # Phase 7 final closure — AI-assisted MVP
 
-Current Step 8: AUTHORIZED / IN PROGRESS. Final Phase 7 closure is not yet
-certified. Phase 8 NOT STARTED. This report is audit evidence, not runtime authority.
+Current Step 8: CLOSURE CERTIFICATION PENDING. Audit implementation is independently
+certified; final Phase 7 closure is not yet certified. Phase 8 NOT STARTED. This report is audit evidence, not runtime authority.
 Starting clean main == HEAD == origin/main after fetch:
 `54dcc9292f43ab49335a99df3a4145d0279c7980`.
 Historical ignored research and probe artifacts are preserved. No research reopened.
@@ -214,3 +214,44 @@ or unobserved PASS. The external observed final engineering receipt activates
 Phase 7 CLOSED / COMPLETE / FULL PASS and Steps 1–8 COMPLETE / FULL PASS only
 after that final closure certification. Until then Phase 7 closure remains pending.
 Phase 8 NOT STARTED. STOP after Step 8.
+
+## Observed audit-SHA certification and prepared final closure
+
+Certified audit SHA: `bb5c3c4a3bd2b576c486ff1ed11e9964ae13455f`. Foundation **40499174149**
+completed/SUCCESS **7/7**; Native application shells **40499175435**
+completed/SUCCESS **3/3**. Both exact SHA, attempt 1; all ten required jobs were
+individually inspected. The [observed audit receipt](evidence/phase-7-step-8-audit-certification.json)
+records heads, attempts, names, IDs, timestamps and conclusions. No rerun-until-green.
+
+Observed audit execution: Windows native 52/52; Linux and Apple native 53/53 each;
+active ASan/UBSan 55/55 including both negative instrumentation probes; source
+180/180, zero skipped; Android both ARM native ABIs plus 47/47 emulator
+instrumentation; Swift macOS and Simulator 44/44 each; iOS app 9/9 and UI 10/10.
+Final unsigned APK scan passed: 12 native libraries, 2 DEX, 31,870,648 uncompressed
+bytes. Final unsigned Apple APP scan passed: 8 files, 2,940,223 bytes, zero model
+assets. Native-object release isolation, negative package fixtures and workflow
+lint passed. No tests weakened/skipped/optionalized, sanitizer suppression,
+timeout increase or workflow rerun. These are hosted/software observations;
+no physical-device thermal, Vulkan or Metal certification is claimed.
+
+| Workflow | Job | Job ID | Result |
+| --- | --- | --- | --- |
+| Foundation boundaries | sanitizer | 122172227443 | completed / SUCCESS |
+| Foundation boundaries | portable (windows-2025) | 122172227722 | completed / SUCCESS |
+| Foundation boundaries | apple-boundary | 122172227741 | completed / SUCCESS |
+| Foundation boundaries | workflow-lint | 122172227837 | completed / SUCCESS |
+| Foundation boundaries | android-boundary (armeabi-v7a) | 122172227838 | completed / SUCCESS |
+| Foundation boundaries | android-boundary (arm64-v8a) | 122172227962 | completed / SUCCESS |
+| Foundation boundaries | portable (ubuntu-24.04) | 122172228014 | completed / SUCCESS |
+| Native application shells | ios-app | 122172231098 | completed / SUCCESS |
+| Native application shells | android-app | 122172231215 | completed / SUCCESS |
+| Native application shells | source | 122172231312 | completed / SUCCESS |
+
+The final closure commit changes documentation/evidence only. The
+[closure inventory](evidence/phase-7-step-8-closure-files.json) lists its exact files.
+Its distinct SHA is intentionally not self-referenced before it exists. Both full
+workflows must independently pass that final SHA; only the externally observed
+engineering receipt then activates Phase 7 CLOSED / COMPLETE / FULL PASS and
+Steps 1–8 COMPLETE / FULL PASS. Until that receipt: CLOSURE CERTIFICATION PENDING.
+Phase 8 NOT STARTED. No product functionality, model, runtime, resource authority,
+approval, candidate, history or platform authority changed.

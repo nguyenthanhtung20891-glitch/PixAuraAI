@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "scope": "PHASE_7_STEP_8_DOCUMENTATION_ONLY_CLOSURE",
+  "certified_audit_sha": "bb5c3c4a3bd2b576c486ff1ed11e9964ae13455f",
+  "production_behavior_changed": false,
+  "files": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "DECISIONS.md",
+    "QUALITY_GATES.md",
+    "ROADMAP.md",
+    "docs/plans/phase-7-roadmap.md",
+    "docs/reports/evidence/phase-7-step-8-audit-certification.json",
+    "docs/reports/evidence/phase-7-step-8-closure-files.json",
+    "docs/reports/phase-7-closure-v1.json",
+    "docs/reports/phase-7-closure.md"
+  ]
+}

@@ -3,7 +3,7 @@
   "phase": 7,
   "runtime_authority": false,
   "baseline": "54dcc9292f43ab49335a99df3a4145d0279c7980",
-  "status": "AUDIT_IN_PROGRESS",
+  "status": "CLOSURE_CERTIFICATION_PENDING",
   "phase8": "NOT_STARTED",
   "provider": "reference.assistance.v1",
   "planner": "reference.deterministic.v1",
@@ -289,5 +289,123 @@
       "certified_origin": "001967ce53276a7eba4166f57f339fcbbec666d6",
       "sha256_lf": "a5d7076ab85eaeb38ec7abcc664dc939cbe0fd0c5a0dc38fa7d7b0c340a6246e"
     }
-  ]
+  ],
+  "certified_audit_sha": "bb5c3c4a3bd2b576c486ff1ed11e9964ae13455f",
+  "audit_certification": {
+    "learned_model": "NONE_REQUIRED_NONE_ADMITTED_FOR_PHASE_7_MVP",
+    "version": 1,
+    "branch": "main",
+    "runs": [
+      {
+        "id": 40499174149,
+        "name": "Foundation boundaries",
+        "attempt": 1,
+        "jobs": [
+          {
+            "id": 122172227443,
+            "name": "sanitizer",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T11:50:44Z",
+            "completed_at": "2026-10-27T11:56:25Z"
+          },
+          {
+            "id": 122172227722,
+            "name": "portable (windows-2025)",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T11:50:44Z",
+            "completed_at": "2026-10-27T12:03:07Z"
+          },
+          {
+            "id": 122172227741,
+            "name": "apple-boundary",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T11:50:45Z",
+            "completed_at": "2026-10-27T12:00:44Z"
+          },
+          {
+            "id": 122172227837,
+            "name": "workflow-lint",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T11:50:44Z",
+            "completed_at": "2026-10-27T11:50:48Z"
+          },
+          {
+            "id": 122172227838,
+            "name": "android-boundary (armeabi-v7a)",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T11:50:45Z",
+            "completed_at": "2026-10-27T11:51:51Z"
+          },
+          {
+            "id": 122172227962,
+            "name": "android-boundary (arm64-v8a)",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T11:50:44Z",
+            "completed_at": "2026-10-27T11:51:56Z"
+          },
+          {
+            "id": 122172228014,
+            "name": "portable (ubuntu-24.04)",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T11:50:44Z",
+            "completed_at": "2026-10-27T11:56:24Z"
+          }
+        ],
+        "conclusion": "success",
+        "head_sha": "bb5c3c4a3bd2b576c486ff1ed11e9964ae13455f",
+        "status": "completed"
+      },
+      {
+        "id": 40499175435,
+        "name": "Native application shells",
+        "attempt": 1,
+        "jobs": [
+          {
+            "id": 122172231098,
+            "name": "ios-app",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T11:50:45Z",
+            "completed_at": "2026-10-27T12:14:53Z"
+          },
+          {
+            "id": 122172231215,
+            "name": "android-app",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T11:50:44Z",
+            "completed_at": "2026-10-27T12:02:07Z"
+          },
+          {
+            "id": 122172231312,
+            "name": "source",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T11:50:45Z",
+            "completed_at": "2026-10-27T11:52:17Z"
+          }
+        ],
+        "conclusion": "success",
+        "head_sha": "bb5c3c4a3bd2b576c486ff1ed11e9964ae13455f",
+        "status": "completed"
+      }
+    ],
+    "observed_utc": "2026-10-27T12:16:35.2913622Z",
+    "provider": "reference.assistance.v1",
+    "label": "audit",
+    "provider_status": "ADMITTED",
+    "sha": "bb5c3c4a3bd2b576c486ff1ed11e9964ae13455f",
+    "scope": "PHASE_7_STEP_8_ONLY",
+    "working_tree": "CLEAN",
+    "runtime_authority": false,
+    "phase8": "NOT_STARTED"
+  },
+  "final_closure_activation": "Only observed final exact closure-SHA attempt-1 success on all 7 Foundation and 3 Native jobs activates Phase 7 CLOSED / COMPLETE / FULL PASS and Steps 1-8 COMPLETE / FULL PASS; until then pending"
 }
