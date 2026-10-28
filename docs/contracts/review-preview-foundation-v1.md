@@ -92,7 +92,11 @@ is reserved. BEFORE's working image is released before AFTER evaluation.
 
 Temporary display accounting reserves eight bounded RGBA fit capacities: native
 pair (2), platform pair (2), superseded platform pair pending UI release (2), current
-Manual display (1), and transfer buffer (1). PREVIEW v1 already includes one display;
+Manual display (1), and transfer buffer (1). The five new-image capacities use the
+current admitted request edge. The three old-image capacities use the existing
+editor display API maximum 1024, because they can predate a policy downgrade.
+This conservative old-image allowance is not reduced merely because new renders
+now fit a smaller edge. PREVIEW v1 already includes one display;
 that automatic component is subtracted from explicit temporary bytes to avoid
 double counting. Conservative square-fit reservation includes aspect-ratio slack.
 Existing fixed Budget v1 control overhead covers bounded Plan/snapshot/metadata

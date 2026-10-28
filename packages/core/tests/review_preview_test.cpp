@@ -86,6 +86,17 @@ int main(int argc,char** argv){CHECK(argc==3);const auto root=std::filesystem::u
  for(uint32_t fault=1;fault<=3;++fault){CHECK(pixaura_test_review_preview_control(&o.c,3,fault)==0);ticket=o.begin(proposal,plan);pixaura_review_preview_pair result{};CHECK(pixaura_review_preview_render(1,&o.c,&ticket,&result)==(fault==3?14:8));CHECK(o.dump()==source);CHECK(pixaura_test_review_preview_control(&o.c,5,0)==0);}
  CHECK(pixaura_test_review_preview_control(&o.c,3,0)==0);
  {
+  Owner pressure(root,++serial,fixture);auto p=pressure.proposal(2);auto s=pressure.plan(p);
+  auto t=pressure.begin(p,s);const auto prior=pressure.render(t);CHECK(pixaura_review_preview_release(1,&pressure.c,&prior)==0);
+  const pixaura_policy_observation observation{1,sizeof(observation),1,4,0,1,0,0,UINT64_C(536870912),2};pixaura_execution_strategy strategy{};
+  CHECK(pixaura_editor_policy_update(1,&pressure.c,&observation,&strategy)==0);CHECK(strategy.preview_edge==360);
+  CHECK(pixaura_review_preview_current(1,&pressure.c,&prior)!=0);
+  p=pressure.proposal(2);s=pressure.plan(p);t=pressure.begin(p,s);const auto next=pressure.render(t);
+  // Old platform images can still be larger than the downgraded new edge.
+  CHECK(next.admission_peak_bytes>=UINT64_C(1024)*1024*4*3);
+  CHECK(pixaura_review_preview_release(1,&pressure.c,&next)==0);
+ }
+ {
   Owner constrained(root,++serial,fixture);
   pixaura_policy_observation pressure{1,sizeof(pressure),1,1,0,1,0,0,UINT64_C(4194304),2};pixaura_execution_strategy strategy{};
   CHECK(pixaura_editor_policy_update(1,&constrained.c,&pressure,&strategy)==0);

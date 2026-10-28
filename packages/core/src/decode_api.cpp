@@ -352,10 +352,12 @@ int32_t review_raster_pair(pixaura_decode_context* c,const pixaura_decode_handle
      q.retained_bytes=retained_locked(r);q.retained_handles=static_cast<uint32_t>(r.entries.size()+r.cancellations.size());
      need(policy::admit(r.policy,&q,&admission)==0,8);need(admission.decision!=PIXAURA_BUDGET_REJECT,8);
      const uint64_t automatic_display=uint64_t(admission.preview_width)*admission.preview_height*4;
-     // Eight bounded display capacities: native pair, platform pair, previous
-     // platform pair awaiting presentation release, old Manual, transfer array.
+     // Five current-edge capacities: native pair, platform pair, transfer.
+     // Three old-display capacities: previous platform pair and Manual image.
+     // Old images can predate a pressure downgrade, so use the existing editor
+     // display API maximum (1024), not the now-smaller policy edge, for those.
      // PREVIEW v1 already charges one of the native outputs.
-     q.temporary_bytes=uint64_t(edge)*edge*4*8-automatic_display;
+     q.temporary_bytes=uint64_t(edge)*edge*4*5+UINT64_C(1024)*1024*4*3-automatic_display;
      need(policy::admit(r.policy,&q,&admission)==0,8);need(admission.decision!=PIXAURA_BUDGET_REJECT,8);
      room_locked(r,reservation+uint64_t(edge)*edge*4*2);
     }

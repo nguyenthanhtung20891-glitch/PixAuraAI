@@ -60,8 +60,10 @@ registry mutex covers occupancy snapshot, preflight and both renders, preventing
 an unleased preflight/allocate race. Counts include existing retained resources,
 one full working raster at a time, existing evaluation/geometry scratch, two native
 image handles, own cancellation, fixed existing control overhead and eight bounded
-RGBA display capacities (native pair, new platform pair, superseded presentation
-pair, current Manual image, transfer). The existing automatic PREVIEW display charge
+RGBA display capacities. Five new-image capacities use the current request edge
+(native pair, new platform pair, transfer); three old-image capacities use the
+existing 1024-pixel display API bound (superseded presentation pair, current Manual
+image), including after a pressure downgrade. The automatic PREVIEW display charge
 is subtracted from explicit temporary bytes, avoiding double counting.
 
 Platforms request existing fit bounds 512; native caps positive dimensions at 1024
@@ -98,7 +100,7 @@ Actual platform execution is reported only after observed workflows below.
 
 ## Numerical, failure and performance evidence
 
-Windows Zig 0.14.1 Debug local native preview suite: 965 assertions before final
+Windows Zig 0.14.1 Debug local native preview suite: 986 assertions before final
 platform certification; all eleven tools, 2/8 actions, nine rejected, malformed/
 unsupported/invalid parameters, exact cached bytes, stale/forged/cross-owner records,
 BUSY/no queue, cancellation/manual/undo/redo/mode/stop/external-epoch rendezvous,
@@ -119,9 +121,9 @@ Local representative six-request runs (one first + five warm), Windows Debug,
 
 | Plan | Begin mean ms | First render ms | Warm median ms | Warm p95 ms | PREVIEW admission peak bytes | Retained native pair bytes | After native release |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Exposure | 6.519 | 264.428 | 263.891 | 266.789 | 19,386,024 | 1,572,864 | 0 |
-| Exposure + contrast | 6.715 | 306.073 | 305.544 | 308.216 | 19,386,024 | 1,572,864 | 0 |
-| Crop + rotate + brightness | 6.977 | 248.615 | 259.525 | 261.474 | 19,410,600 | 1,572,864 | 0 |
+| Exposure | 7.763 | 302.744 | 289.406 | 295.425 | 28,823,208 | 1,572,864 | 0 |
+| Exposure + contrast | 7.223 | 325.323 | 327.000 | 331.359 | 28,823,208 | 1,572,864 | 0 |
+| Crop + rotate + brightness | 7.550 | 281.119 | 281.141 | 308.925 | 28,847,784 | 1,572,864 | 0 |
 
 Admission peak is the applicable conservative accounting bound including existing
 retained resources and simultaneous display allowances, not measured whole-process
@@ -211,6 +213,15 @@ gate restores the exact historical file hash after removing only this correction
 native Registry/planner/provider goldens remain exact. Persistent allocator fault
 injection and every output/history assertion remain unchanged. This corrects the
 identified exception-safety path rather than disabling MSVC iterator debugging.
+`ed33197a2e8f26d89977ddebce49242f26500638` passed all seven Foundation jobs,
+including the unchanged persistent MSVC allocation sweep and active sanitizers.
+Final implementation nevertheless requires a new exact SHA for two later scoped
+corrections: Kotlin now allocates the fixed transport packet before incrementing
+the in-flight count (so early allocation failure cannot strand close/join), and
+old display buffers retain the existing 1024-pixel allowance across pressure
+downgrades rather than being undercounted at the new smaller edge. A new native
+pressure regression raises the local preview suite to 986 checks. These corrections
+do not change the resource authority or editing/approval/history semantics.
 The initial iOS UI run passed 11/12; its transient Cancel control disappeared while
 the helper repeated a generic enabled/count query near the bounded native pause
 deadline. The test now taps the already resolved semantic element, retaining both

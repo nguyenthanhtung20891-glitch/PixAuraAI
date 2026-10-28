@@ -34,7 +34,7 @@ test('native review composition has only image ownership, exact validation and e
  for(const term of ['pixaura_editor_agent_approve','pixaura_editor_agent_execute','publish_revision','repository->commit','executeAgentPlan'])assert.ok(!api.includes(term),term);
  for(const term of ['plan==s.auto_plan','canonical==plan','pixaura_agent_tools_bind','repository->read().epoch','policy_epoch','review_bound(s)','review_ticket(s,*ticket)','!r.active','UINT64_MAX','pixaura_cancel_release'])assert.ok(api.includes(term),term);
  const raster=text('packages/core/src/decode_api.cpp').split('// BEGIN Phase 8 Step 2')[1].split('// END Phase 8 Step 2')[0];
- for(const term of ['PIXAURA_BUDGET_PREVIEW','policy::admit','evaluation::reservation','evaluation::evaluate','geometry::plan','preview::render','q.retained_bytes=retained_locked','q.requested_handles=2','edge)*edge*4*8-automatic_display','std::lock_guard<std::mutex> pixels'])assert.ok(raster.includes(term),term);
+ for(const term of ['PIXAURA_BUDGET_PREVIEW','policy::admit','evaluation::reservation','evaluation::evaluate','geometry::plan','preview::render','q.retained_bytes=retained_locked','q.requested_handles=2','edge)*edge*4*5+UINT64_C(1024)*1024*4*3-automatic_display','std::lock_guard<std::mutex> pixels'])assert.ok(raster.includes(term),term);
  for(const term of ['repository','approval','candidate','std::thread','std::async'])assert.ok(!raster.includes(term),term);
  assert.equal(m.display_capacity_count,8);assert.equal(m.ticket_bytes,56);assert.equal(m.pair_bytes,176);assert.equal(m.max_actions,8);assert.equal(m.request_plan_bytes,8192);
 });
@@ -45,6 +45,9 @@ test('both platforms expose separate semantic preview controls and native-gated 
  assert.ok(kotlin.includes('enabled = !pair.geometryChanged'));assert.ok(swift.includes('.disabled(pair.geometryChanged)'));
  const k=text('platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt'),s=text('packages/core/swift/Sources/ManualEditor.swift');
  assert.ok(k.includes('nativeReviewCurrent'));assert.ok(k.includes('installReviewPreview'));assert.ok(k.includes('assistCalls++'));
+ const transport=k.split('fun renderReviewPreview(request: ReviewPreviewRequest)')[1].split('fun installReviewPreview')[0];
+ assert.ok(transport.indexOf('ByteBuffer.allocateDirect(176)')<transport.indexOf('assistCalls++'),'transport allocation cannot strand an in-flight count');
+ assert.ok(transport.includes('finally {'));assert.ok(transport.includes('assistCalls--'));
  assert.ok(s.includes('pixaura_review_preview_current'));assert.ok(s.includes('installReviewPreview'));assert.ok(s.includes('assistCalls += 1'));
  const model=text('platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt');
  assert.ok(model.includes('reviewAttempt.get() !== attempt'));assert.ok(model.includes('reviewRequest.get() === call'));assert.ok(model.includes('reviewRendering.get()'));

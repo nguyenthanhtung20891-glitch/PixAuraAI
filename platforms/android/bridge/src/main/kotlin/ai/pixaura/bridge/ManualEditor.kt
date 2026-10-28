@@ -306,8 +306,13 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
         ReviewPreviewRequest(this, ticket.asReadOnlyBuffer(), review)
     }
     fun renderReviewPreview(request: ReviewPreviewRequest): ReviewComparison {
-        gate.withLock { checked(if (closed) 13 else if (request.owner !== this) 9 else if (assistCalls != 0 || applyingReview != null) 8 else 0, "Review preview"); assistCalls++ }
-        val packet = ByteBuffer.allocateDirect(176).order(ByteOrder.nativeOrder())
+        val packet = gate.withLock {
+            checked(if (closed) 13 else if (request.owner !== this) 9 else if (assistCalls != 0 || applyingReview != null) 8 else 0, "Review preview")
+            // Allocate transport before joining the in-flight count: an OOM here
+            // must not strand a count outside the release/join finally block.
+            val output = ByteBuffer.allocateDirect(176).order(ByteOrder.nativeOrder())
+            assistCalls++; output
+        }
         try {
             checked(nativeReviewRender(storage, request.ticket, packet), "Review preview")
             fun image(side: Int): Bitmap {
