@@ -38,7 +38,12 @@ extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeRevi
 }
 extern "C" JNIEXPORT jintArray JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeReviewImage(JNIEnv* env,jobject,jobject buffer,jobject pair,jint side){
     auto* c=storage<pixaura_editor_context>(env,buffer);auto* p=storage<pixaura_review_preview_pair>(env,pair);
-    if(!c||!p||side<0||side>1)return nullptr;const auto current=pixaura_review_preview_current(1,c,p);if(current)return nullptr;
+    if(!c||!p||side<0||side>1)return nullptr;const auto current=pixaura_review_preview_current(1,c,p);
+    if(current){
+        auto failure=env->NewIntArray(3);if(!failure)return nullptr;
+        const jint values[3]={current,0,0};env->SetIntArrayRegion(failure,0,3,values);
+        return env->ExceptionCheck()?nullptr:failure;
+    }
     const auto& m=side?p->after:p->before;if(!m.width||!m.height||m.width>1024||m.height>1024||m.image_bytes!=uint64_t(m.width)*m.height*4)return nullptr;
     auto output=env->NewIntArray(static_cast<jsize>(3+uint64_t(m.width)*m.height));if(!output)return nullptr;
     jint header[3]={0,static_cast<jint>(m.width),static_cast<jint>(m.height)};env->SetIntArrayRegion(output,0,3,header);

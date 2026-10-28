@@ -27,7 +27,14 @@ class ReviewPreviewTest {
     private val hooks = ReviewPreviewTestHooks()
     private fun waitFor(test: () -> Boolean) = compose.waitUntil(20_000, test)
     private fun owner(): ManualEditor = ManualEditorModel::class.java.getDeclaredField("owner").apply { isAccessible = true }.get(model) as ManualEditor
-    private fun tap(tag: String) { compose.onNodeWithTag(tag).performScrollTo().performClick() }
+    private fun tap(tag: String) {
+        // Chips live inside a horizontal scroller, itself inside the editor's
+        // vertical viewport. Resolve the containing row first, as in the retained
+        // mode-transition harness; scrolling only the chip can leave it offscreen.
+        if (tag.startsWith("mode-")) compose.onNodeWithTag("mode-selector").performScrollTo()
+        compose.onNodeWithTag(tag).performScrollTo().performClick()
+        if (tag.startsWith("mode-")) compose.onNodeWithTag(tag).assertIsSelected()
+    }
     private fun barrier() {
         val field = ManualEditorModel::class.java.getDeclaredField("commands").apply { isAccessible = true }
         (field.get(model) as ExecutorService).submit {}.get(10, TimeUnit.SECONDS)
@@ -90,6 +97,13 @@ class ReviewPreviewTest {
         assertTrue(editor.installReviewPreview(pair) {})
         editor.select(4); editor.update(listOf(100)); editor.action(1)
         assertFalse(editor.installReviewPreview(pair) {})
+        // The pre-copy current check must preserve the native status, rather
+        // than turning a stale/cancelled record into an allocation failure.
+        val native = ManualEditor::class.java.getDeclaredMethod("nativeReviewImage", ByteBuffer::class.java, ByteBuffer::class.java, Integer.TYPE).apply { isAccessible = true }
+        val storage = ManualEditor::class.java.getDeclaredField("storage").apply { isAccessible = true }.get(editor)
+        val packet = ManualEditor.ReviewComparison::class.java.getDeclaredField("packet").apply { isAccessible = true }.get(pair)
+        val failure = native.invoke(editor, storage, packet, 0) as IntArray
+        assertEquals(13, failure[0]); assertEquals(3, failure.size)
         val rotated = editor.prepareAutoReview(editor.requestAuto(10))
         val rotation = editor.renderReviewPreview(editor.beginReviewPreview(rotated))
         assertTrue(rotation.geometryChanged); assertTrue(editor.installReviewPreview(rotation) {})

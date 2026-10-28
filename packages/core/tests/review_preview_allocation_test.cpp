@@ -7,11 +7,17 @@
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
+#include <exception>
 #include <new>
 #include <string>
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#endif
 static thread_local int64_t fail_after=-1;
 static thread_local bool meter=false;
 static thread_local uint64_t allocated=0;
+static unsigned active_path=0;
+static int64_t active_index=-1;
 void* operator new(std::size_t bytes){if(fail_after==0)throw std::bad_alloc();if(fail_after>0)--fail_after;if(meter)allocated+=bytes;if(auto* p=std::malloc(bytes?bytes:1))return p;throw std::bad_alloc();}
 void* operator new[](std::size_t bytes){return ::operator new(bytes);}
 void operator delete(void* p) noexcept{std::free(p);}
@@ -21,7 +27,15 @@ void operator delete[](void* p,std::size_t) noexcept{std::free(p);}
 #define CHECK(x) do{if(!(x)){fail_after=-1;std::fprintf(stderr,"review allocation line=%d %s\n",__LINE__,#x);std::_Exit(1);}}while(false)
 static const uint8_t* b(const std::string& s){return reinterpret_cast<const uint8_t*>(s.data());}
 static int64_t read(void* raw,uint8_t* out,uint64_t count){auto& at=*static_cast<std::size_t*>(raw);count=std::min<uint64_t>(count,sizeof(decode_png)-at);std::memcpy(out,decode_png+at,static_cast<std::size_t>(count));at+=static_cast<std::size_t>(count);return static_cast<int64_t>(count);}
-int main(int argc,char** argv){CHECK(argc==2);const auto path=std::filesystem::u8path(argv[1])/("review-alloc-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));CHECK(std::filesystem::create_directory(path));const auto root=path.generic_string();
+int main(int argc,char** argv){
+#ifdef _MSC_VER
+ _set_error_mode(_OUT_TO_STDERR);_set_abort_behavior(0,_WRITE_ABORT_MSG|_CALL_REPORTFAULT);
+#ifdef _DEBUG
+ for(const int kind:{_CRT_WARN,_CRT_ERROR,_CRT_ASSERT}){_CrtSetReportMode(kind,_CRTDBG_MODE_FILE);_CrtSetReportFile(kind,_CRTDBG_FILE_STDERR);}
+#endif
+#endif
+ std::set_terminate([]{fail_after=-1;std::fprintf(stderr,"review allocation terminate path=%u index=%lld\n",active_path,static_cast<long long>(active_index));std::fflush(stderr);std::_Exit(1);});
+ CHECK(argc==2);const auto path=std::filesystem::u8path(argv[1])/("review-alloc-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));CHECK(std::filesystem::create_directory(path));const auto root=path.generic_string();
  const uint8_t id[]="abc00000000000000000000000000001";pixaura_editor_context c{};std::size_t at=0;
  pixaura_capability_profile profile{};CHECK(pixaura_capability_baseline(1,&profile)==0);
  const pixaura_policy_observation observation{1,sizeof(observation),1,1,0,1,0,0,0,1};pixaura_execution_strategy strategy{};
@@ -35,6 +49,8 @@ int main(int argc,char** argv){CHECK(argc==2);const auto path=std::filesystem::u
    if(path_index)CHECK(pixaura_review_preview_begin(1,&c,&proposal,bytes,count,512,512,&ticket)==0);
    pixaura_review_preview_pair pair{};std::memset(&pair,0xa5,sizeof(pair));const auto old_pair=pair;
    pixaura_review_preview_ticket output{};std::memset(&output,0xa5,sizeof(output));const auto old_ticket=output;
+   active_path=path_index;active_index=n;
+   std::fprintf(stderr,"review allocation path=%u index=%lld\n",path_index,static_cast<long long>(n));std::fflush(stderr);
    fail_after=n;allocated=0;meter=true;
    const auto status=path_index?pixaura_review_preview_render(1,&c,&ticket,&pair):pixaura_review_preview_begin(1,&c,&proposal,bytes,count,512,512,&output);
    meter=false;fail_after=-1;maximum[path_index]=std::max(maximum[path_index],allocated);

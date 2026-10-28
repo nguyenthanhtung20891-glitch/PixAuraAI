@@ -184,6 +184,20 @@ found a test-only 64-byte memcpy from a 56-byte ticket in the wrong-handle fixtu
 the negative test now copies the minimum of the two bounded POD sizes. No shipping
 overread or authority bypass was implicated; no sanitizer suppression added.
 Corrected implementation certification is pending. Local checks do not substitute
+The next SHA `ab47d7a1eb069be7ec8c5e16e82a4f538b35f3da` passed Linux, Apple,
+active ASan/UBSan, both Android native ABIs, source and workflow lint. It did not
+certify: Windows reached its unchanged workflow timeout in the new allocation
+sweep, and Android completed 51 tests with two new harness failures. The mode-chip
+helper scrolled only the nested horizontal row, leaving the containing vertical
+viewport offscreen; it now uses the retained two-level semantic scroll helper and
+asserts selection. Neither failed assertion was removed. The Windows sweep gains
+the existing fail-fast CRT/terminate reporting pattern, bounded per-case diagnostics
+and a stricter 120-second test timeout; persistent fail-at-every-new assertions are
+unchanged. Further diagnostic results must establish its actual allocation failure.
+An independent JNI review also corrected the pre-copy freshness check to transport
+the exact native stale/cancelled status instead of a null/generic allocation error;
+a stale-record transport regression verifies it. No stale pixels were installable.
+Local checks do not substitute
 for full exact-SHA Foundation 7/7 and Native shells 3/3, every required job observed.
 No Apple/Simulator test is labeled PASS before execution. Active ASan/UBSan and
 final release packages must be observed in those retained workflows.
