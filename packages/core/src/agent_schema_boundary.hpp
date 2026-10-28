@@ -74,7 +74,14 @@ static int32_t schema_work(bool bind,uint32_t version,pixaura_document_context* 
         if(request->require_canonical)require(canonical.value==std::string_view(reinterpret_cast<const char*>(input),static_cast<std::size_t>(bytes)),PIXAURA_DOCUMENT_INVALID_PROJECT);
         if(bind){
             canonical.value.pop_back(); // remove ONLY the already-verified terminal LF
-            canonical.value=String("{\"approval\":\"not_approved\",\"binding_version\":1,\"plan\":")+canonical.value+",\"registry_version\":1}\n";
+            // Chained base-string operator+ selects an MSVC debug noexcept move
+            // that allocates an iterator proxy. Keep construction/append in the
+            // existing throwing String wrapper so resource failure reaches the
+            // checked C boundary without changing a single binding byte.
+            String binding("{\"approval\":\"not_approved\",\"binding_version\":1,\"plan\":");
+            binding.append(canonical.value);
+            binding.append(",\"registry_version\":1}\n");
+            canonical.value=std::move(binding);
             require(canonical.value.size()<=PIXAURA_AGENT_TOOLS_MAX_BINDING_BYTES,PIXAURA_DOCUMENT_RESOURCE_LIMIT);
         }
         return schema_copy(canonical.value,output,capacity,required);

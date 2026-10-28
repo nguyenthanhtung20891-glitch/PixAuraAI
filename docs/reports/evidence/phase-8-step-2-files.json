@@ -17,6 +17,7 @@
     "docs/reports/phase-8-step-2-v1.json",
     "docs/reports/phase-8-step-2.md",
     "packages/core/include/pixaura/review_preview.h",
+    "packages/core/src/agent_schema_boundary.hpp",
     "packages/core/src/decode_api.cpp",
     "packages/core/src/editor_api.cpp",
     "packages/core/src/review_preview_boundary.hpp",

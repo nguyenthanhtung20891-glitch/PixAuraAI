@@ -6,7 +6,7 @@ const text=p=>fs.readFileSync(p,'utf8').replaceAll('\r\n','\n');
 const read=p=>JSON.parse(text(p));
 const hash=s=>crypto.createHash('sha256').update(s).digest('hex');
 const m=read('docs/reports/phase-8-step-2-v1.json');
-const changed=['CMakeLists.txt','packages/core/src/decode_api.cpp','packages/core/src/editor_api.cpp','packages/core/swift/Sources/ManualEditor.swift','platforms/android/app/src/main/java/ai/pixaura/app/AutoProposalPanel.kt','platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt','platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt','platforms/ios/PixAuraAI/ManualEditorModel.swift','platforms/ios/PixAuraAI/ManualEditorScreen.swift'];
+const changed=['CMakeLists.txt','packages/core/src/agent_schema_boundary.hpp','packages/core/src/decode_api.cpp','packages/core/src/editor_api.cpp','packages/core/swift/Sources/ManualEditor.swift','platforms/android/app/src/main/java/ai/pixaura/app/AutoProposalPanel.kt','platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt','platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt','platforms/ios/PixAuraAI/ManualEditorModel.swift','platforms/ios/PixAuraAI/ManualEditorScreen.swift'];
 const added=['docs/contracts/review-preview-foundation-v1.md','packages/core/include/pixaura/review_preview.h','packages/core/src/review_preview_boundary.hpp','packages/core/src/review_preview_state.hpp','packages/core/src/review_raster.hpp','platforms/android/app/src/main/java/ai/pixaura/app/ReviewPreviewPanel.kt'];
 
 test('Step 2 permits only individually bound preview integration; existing contracts and editing engines stay frozen',()=>{
@@ -20,6 +20,11 @@ test('Step 2 permits only individually bound preview integration; existing contr
  // must still be byte-identical, including admission, evaluation and preview APIs.
  const old=text('packages/core/src/decode_api.cpp').replace('#include "review_raster.hpp"\n','').replace(/\/\/ BEGIN Phase 8 Step 2 non-publication review composition\.\n[\s\S]*?\/\/ END Phase 8 Step 2 non-publication review composition\.\n/,'');
  assert.equal(hash(old),frozen.sha256['packages/core/src/decode_api.cpp']);
+ // Exact Registry binding construction, not a schema/authority change. Removing
+ // only this root-caused exception-safety correction restores the frozen bytes.
+ const binding=text('packages/core/src/agent_schema_boundary.hpp');
+ const original=binding.replace(/            \/\/ Chained base-string operator\+[\s\S]*?            canonical.value=std::move\(binding\);/, '            canonical.value=String("{\\"approval\\":\\"not_approved\\",\\"binding_version\\":1,\\"plan\\":")+canonical.value+",\\"registry_version\\":1}\\n";');
+ assert.equal(hash(original),frozen.sha256['packages/core/src/agent_schema_boundary.hpp']);
  for(const p of ['packages/core/src/evaluation.cpp','packages/core/src/geometry.cpp','packages/core/src/preview.cpp','packages/core/src/document.cpp','packages/core/src/agent_execution_boundary.hpp','packages/core/src/manual_tools.cpp','packages/core/src/budget.cpp','packages/core/src/dynamic_policy.cpp'])assert.equal(hash(text(p)),frozen.sha256[p],p);
  assert.equal(hash(text('docs/contracts/full-review-experience-v1.md')),read('docs/reports/phase-8-step-1-v1.json').contract_sha256_lf);
 });

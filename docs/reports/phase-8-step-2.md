@@ -150,7 +150,9 @@ not claimed. No existing tests weakened, skipped or optionalized.
 All frozen contracts are byte-identical, including Full Review Experience v1.
 Existing decode APIs are verified byte-identical after removing only the additive
 composition/include. Native evaluation/geometry/preview math, approval/candidate,
-document/storage/history and Schema 3 are unchanged. The historical Phase 7 inventory
+document/storage/history and Schema 3 are unchanged. The Registry binding helper
+has only the root-caused exception-safety correction documented below; its emitted
+bytes and authority remain identical. The historical Phase 7 inventory
 is preserved; governance allows only the exact per-file Step 2 before/after hashes
 and explicit additions, without a blanket runtime exemption. Source consistency's
 Swift shared-admission count changes from three to four because preview adds the
@@ -199,6 +201,16 @@ instead of hanging: persistent Begin allocation fault index 965 reaches
 std::terminate. The sweep/expectations remain unchanged; a test-only Windows SDK
 DbgHelp trace using local PDBs is added to identify the precise throwing/noexcept
 path. This is not production instrumentation or a dependency of shipping targets.
+The local-PDB trace on `a6772fe974a1800ea012583f9529581e08bcc49f` identifies
+agent_schema_boundary.hpp's Registry binding JSON concatenation (line 77). Chained
+base std::string operator+ selects an MSVC debug noexcept move that allocates an
+iterator proxy. The minimal production correction constructs a throwing String
+wrapper and appends the identical prefix/Plan/suffix before assignment. No binding
+byte, schema, registry rule, approval or execution semantic changes. The source
+gate restores the exact historical file hash after removing only this correction;
+native Registry/planner/provider goldens remain exact. Persistent allocator fault
+injection and every output/history assertion remain unchanged. This corrects the
+identified exception-safety path rather than disabling MSVC iterator debugging.
 The initial iOS UI run passed 11/12; its transient Cancel control disappeared while
 the helper repeated a generic enabled/count query near the bounded native pause
 deadline. The test now taps the already resolved semantic element, retaining both

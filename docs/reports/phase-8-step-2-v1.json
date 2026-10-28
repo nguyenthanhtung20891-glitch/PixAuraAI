@@ -13,6 +13,10 @@
       "before_sha256_lf": "01e91012b64a90ee3cac3c8e9f759ccaaae50e0385a9e1930fb5a1afaabf5e72",
       "after_sha256_lf": "df16d38d4cdf5429c1ad3b5f5994ec64637690e97cdeed5eaeab159948ce07c5"
     },
+    "packages/core/src/agent_schema_boundary.hpp": {
+      "before_sha256_lf": "49bda4e43b0b7ba37cecfb4d43d6e6ba627a92a36ee25abbfa770f9ddee42023",
+      "after_sha256_lf": "69f82f6e125250edefa1f12148d42056797f67892b164e3df2cc3da1c0255e48"
+    },
     "packages/core/src/decode_api.cpp": {
       "before_sha256_lf": "30c72c00c1b352265524113c03ea41ca5ded96a3b60af4cd51293f5ef7780c7b",
       "after_sha256_lf": "f641adaa68a1dd7258a214f4781bdd5c907b2b2dee7bcea458e67a04d22103ec"
