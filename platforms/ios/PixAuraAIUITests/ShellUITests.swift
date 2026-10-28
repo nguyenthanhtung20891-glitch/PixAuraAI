@@ -35,8 +35,12 @@ final class ShellUITests: XCTestCase {
             tap("Open Manual editor"); XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
             tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request"); tap("review-preview-request")
             if flag.contains("pause") {
-                XCTAssertTrue(app.buttons["review-preview-cancel"].waitForExistence(timeout: 20)); XCTAssertFalse(app.buttons["auto-apply"].isEnabled)
-                tap("review-preview-cancel"); XCTAssertTrue(app.staticTexts["review-preview-cancelled"].waitForExistence(timeout: 20))
+                let cancel = app.buttons["review-preview-cancel"]
+                XCTAssertTrue(cancel.waitForExistence(timeout: 20)); XCTAssertFalse(app.buttons["auto-apply"].isEnabled)
+                // Act on the already resolved semantic element. Re-running the
+                // generic enabled/count query let the bounded native rendezvous
+                // expire and remove this transient control before tap dispatch.
+                cancel.tap(); XCTAssertTrue(app.staticTexts["review-preview-cancelled"].waitForExistence(timeout: 20))
             } else { XCTAssertTrue(app.staticTexts["review-preview-failed"].waitForExistence(timeout: 20)) }
             XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
             tap("mode-manual"); XCTAssertFalse(app.staticTexts["review-after"].exists)

@@ -12,12 +12,32 @@
 #include <string>
 #ifdef _MSC_VER
 #include <crtdbg.h>
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+#include <dbghelp.h>
 #endif
 static thread_local int64_t fail_after=-1;
 static thread_local bool meter=false;
 static thread_local uint64_t allocated=0;
 static unsigned active_path=0;
 static int64_t active_index=-1;
+static void termination_trace() noexcept {
+#ifdef _MSC_VER
+ const auto process=GetCurrentProcess();SymSetOptions(SYMOPT_DEFERRED_LOADS|SYMOPT_LOAD_LINES|SYMOPT_NO_PROMPTS|SYMOPT_IGNORE_NT_SYMPATH);
+ if(SymInitialize(process,".",TRUE)){
+  void* frames[32]{};const auto count=CaptureStackBackTrace(0,32,frames,nullptr);
+  for(USHORT i=0;i<count;++i){alignas(SYMBOL_INFO) unsigned char bytes[sizeof(SYMBOL_INFO)+256]{};
+   auto* symbol=reinterpret_cast<SYMBOL_INFO*>(bytes);symbol->SizeOfStruct=sizeof(SYMBOL_INFO);symbol->MaxNameLen=255;
+   const auto address=reinterpret_cast<DWORD64>(frames[i]);DWORD64 displacement=0;
+   if(SymFromAddr(process,address,&displacement,symbol))std::fprintf(stderr,"review terminate frame=%s\n",symbol->Name);
+   IMAGEHLP_LINE64 line{};line.SizeOfStruct=sizeof(line);DWORD offset=0;
+   if(SymGetLineFromAddr64(process,address,&offset,&line))std::fprintf(stderr,"review terminate source=%s:%lu\n",line.FileName,static_cast<unsigned long>(line.LineNumber));
+  }
+  SymCleanup(process);
+ }
+#endif
+}
 void* operator new(std::size_t bytes){if(fail_after==0)throw std::bad_alloc();if(fail_after>0)--fail_after;if(meter)allocated+=bytes;if(auto* p=std::malloc(bytes?bytes:1))return p;throw std::bad_alloc();}
 void* operator new[](std::size_t bytes){return ::operator new(bytes);}
 void operator delete(void* p) noexcept{std::free(p);}
@@ -34,7 +54,7 @@ int main(int argc,char** argv){
  for(const int kind:{_CRT_WARN,_CRT_ERROR,_CRT_ASSERT}){_CrtSetReportMode(kind,_CRTDBG_MODE_FILE);_CrtSetReportFile(kind,_CRTDBG_FILE_STDERR);}
 #endif
 #endif
- std::set_terminate([]{fail_after=-1;std::fprintf(stderr,"review allocation terminate path=%u index=%lld\n",active_path,static_cast<long long>(active_index));std::fflush(stderr);std::_Exit(1);});
+ std::set_terminate([]{fail_after=-1;std::fprintf(stderr,"review allocation terminate path=%u index=%lld\n",active_path,static_cast<long long>(active_index));termination_trace();std::fflush(stderr);std::_Exit(1);});
  CHECK(argc==2);const auto path=std::filesystem::u8path(argv[1])/("review-alloc-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));CHECK(std::filesystem::create_directory(path));const auto root=path.generic_string();
  const uint8_t id[]="abc00000000000000000000000000001";pixaura_editor_context c{};std::size_t at=0;
  pixaura_capability_profile profile{};CHECK(pixaura_capability_baseline(1,&profile)==0);

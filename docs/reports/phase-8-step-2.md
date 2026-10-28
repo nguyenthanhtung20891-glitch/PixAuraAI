@@ -194,6 +194,15 @@ asserts selection. Neither failed assertion was removed. The Windows sweep gains
 the existing fail-fast CRT/terminate reporting pattern, bounded per-case diagnostics
 and a stricter 120-second test timeout; persistent fail-at-every-new assertions are
 unchanged. Further diagnostic results must establish its actual allocation failure.
+On `3d72bb4a645c703cc327ebabc4311961090ba3ad`, Windows now fails promptly
+instead of hanging: persistent Begin allocation fault index 965 reaches
+std::terminate. The sweep/expectations remain unchanged; a test-only Windows SDK
+DbgHelp trace using local PDBs is added to identify the precise throwing/noexcept
+path. This is not production instrumentation or a dependency of shipping targets.
+The initial iOS UI run passed 11/12; its transient Cancel control disappeared while
+the helper repeated a generic enabled/count query near the bounded native pause
+deadline. The test now taps the already resolved semantic element, retaining both
+loading/Apply and cancellation assertions and the existing deadlines.
 An independent JNI review also corrected the pre-copy freshness check to transport
 the exact native stale/cancelled status instead of a null/generic allocation error;
 a stale-record transport regression verifies it. No stale pixels were installable.
