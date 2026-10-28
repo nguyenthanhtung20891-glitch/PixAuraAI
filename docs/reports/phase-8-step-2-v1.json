@@ -11,7 +11,7 @@
   "changes": {
     "CMakeLists.txt": {
       "before_sha256_lf": "01e91012b64a90ee3cac3c8e9f759ccaaae50e0385a9e1930fb5a1afaabf5e72",
-      "after_sha256_lf": "87e154e98dcfe3a7581635ff84cb822016ccff8af9ebf4e318699bdd0dd69e98"
+      "after_sha256_lf": "408eba0b3ae34fac8e8a70998b6e5affb0329b56fe9a49e324e34d0fd2ef78c9"
     },
     "packages/core/src/decode_api.cpp": {
       "before_sha256_lf": "30c72c00c1b352265524113c03ea41ca5ded96a3b60af4cd51293f5ef7780c7b",
@@ -48,7 +48,7 @@
   },
   "additions": {
     "packages/core/include/pixaura/review_preview.h": "532f98c2ff4a176b211f5db6ab72cee5cc04994987d4ec243adb300e6952c2af",
-    "packages/core/src/review_preview_boundary.hpp": "a17d792c39149b6fc74c5042e1b1021422aee08e60e3884ca74385bf1f9c26bb",
+    "packages/core/src/review_preview_boundary.hpp": "6fcc8ba05f2d9dec576336d3805425dde5f9faddac05ca3288cc8345ff3e1331",
     "packages/core/src/review_preview_state.hpp": "f2bb9ee4557263da84d5bbcfd91bfcc5e3b2eb7b0fce2a1653cfacccf030e6e2",
     "packages/core/src/review_raster.hpp": "878caa93b976234be031886c44a862964d679096148ca7a73e0f6e782467c1ac",
     "platforms/android/app/src/main/java/ai/pixaura/app/ReviewPreviewPanel.kt": "1bcc21a49d6adde1b16079f579e24499c121da42c8e0c71e49d53f3febfb13c2",

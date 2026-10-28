@@ -63,14 +63,17 @@ extern "C" int32_t pixaura_review_preview_render(uint32_t version,pixaura_editor
      r.pending=false;snapshot=s.loaded.snapshot;plan=r.plan;context=s.document_identity;edge=std::min(r.width,r.height);
      check(pixaura_cancel_create(&s.raster,1,&r.cancellation));r.active=true;}
     struct CallCleanup{Service& s;~CallCleanup(){std::lock_guard<std::mutex> lock(s.gate);auto& r=s.review_preview;
-        if(r.cancellation.serial)(void)pixaura_cancel_release(&s.raster,&r.cancellation);r.cancellation={};r.active=false;}} call{s};
+        if(r.cancellation.serial){(void)pixaura_cancel_release(&s.raster,&r.cancellation);}
+        r.cancellation={};r.active=false;}} call{s};
     pixaura_decode_handle before{},after{},working{};
     struct Images{Service& s;pixaura_decode_handle &b,&a,&w;~Images(){if(w.serial)(void)pixaura_decode_release(&s.raster,&w);
-        if(b.serial)(void)pixaura_preview_release(&s.raster,&b);if(a.serial)(void)pixaura_preview_release(&s.raster,&a);}} images{s,before,after,working};
+        if(b.serial){(void)pixaura_preview_release(&s.raster,&b);}
+        if(a.serial){(void)pixaura_preview_release(&s.raster,&a);}}} images{s,before,after,working};
     review_checkpoint(s,0);
 #ifdef PIXAURA_CERTIFICATION_TESTING
     if(s.review_preview.fault==1)throw std::bad_alloc();
-    if(s.review_preview.fault==2)throw Failure{8};if(s.review_preview.fault==3)throw Failure{14};
+    if(s.review_preview.fault==2){throw Failure{8};}
+    if(s.review_preview.fault==3){throw Failure{14};}
 #endif
     auto base=good(document::replay(*snapshot,snapshot->current()));auto stack=base;
     document::Vector<document::EditOperation> added;
@@ -114,7 +117,8 @@ extern "C" int32_t pixaura_review_preview_cancel(uint32_t version,pixaura_editor
 #ifdef PIXAURA_CERTIFICATION_TESTING
 extern "C" PIXAURA_API int32_t pixaura_test_review_preview_control(pixaura_editor_context* c,uint32_t command,uint32_t value){
     try{auto& s=owner(c);auto& r=s.review_preview;
-        if(command==1)return static_cast<int32_t>(r.reached.load());if(command==2){r.resume=1;return 0;}
+        if(command==1){return static_cast<int32_t>(r.reached.load());}
+        if(command==2){r.resume=1;return 0;}
         std::lock_guard<std::mutex> lock(s.gate);
         if(command==5)return static_cast<int32_t>((r.before.serial?r.pair.before.image_bytes:0)+(r.after.serial?r.pair.after.image_bytes:0));
         require(!r.active,8);

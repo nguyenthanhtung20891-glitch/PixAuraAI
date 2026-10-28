@@ -174,8 +174,16 @@ missing exact binary allowlist entry; its hash/size/dimensions and substituted/
 unlisted negative cases are now enforced. No blanket binary exemption was added.
 The retained source suite is also required on the committed exact SHA below.
 
-Implementation SHA: not yet created. Foundation and Native application shells:
-NOT YET EXECUTED on a Step 2 SHA. Local Windows/Android checks do not substitute
+Initial implementation `b01b943cc49984476c5cc563be1b36396199fadf` failed Foundation
+40672064945 (attempt 1), so is NOT certified. GCC rejected four compact adjacent
+`if` statements under misleading-indentation/Werror; braces/newlines correct them
+without warning suppression. MSVC found the allocation clone missing shipping
+SODIUM_STATIC and the C consumer missing C11: canonical production definitions
+(excluding testing macros) are now inherited and C11 explicitly requested. ASan
+found a test-only 64-byte memcpy from a 56-byte ticket in the wrong-handle fixture;
+the negative test now copies the minimum of the two bounded POD sizes. No shipping
+overread or authority bypass was implicated; no sanitizer suppression added.
+Corrected implementation certification is pending. Local checks do not substitute
 for full exact-SHA Foundation 7/7 and Native shells 3/3, every required job observed.
 No Apple/Simulator test is labeled PASS before execution. Active ASan/UBSan and
 final release packages must be observed in those retained workflows.

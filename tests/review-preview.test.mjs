@@ -49,7 +49,9 @@ test('both platforms expose separate semantic preview controls and native-gated 
 test('preview tests and release marker rejection remain in both complete workflows',()=>{
  const c=text('CMakeLists.txt');for(const name of ['review_preview_test','review_preview_c_consumer','review_preview_allocation_test'])assert.ok(c.includes(`add_test(NAME ${name}`),name);
  assert.ok(c.includes('get_target_property(review_production_sources pixaura_core SOURCES)'));
- const defs=c.match(/target_compile_definitions\(review_preview_allocation_test PRIVATE ([^)]+)\)/)?.[1];assert.equal(defs,'PIXAURA_BUILDING');
+ const defs=c.match(/target_compile_definitions\(review_preview_allocation_test PRIVATE ([^)]+)\)/)?.[1];assert.equal(defs,'${review_production_definitions}');
+ assert.ok(c.includes('get_target_property(review_production_definitions pixaura_core COMPILE_DEFINITIONS)'));
+ assert.ok(c.includes('list(FILTER review_production_definitions EXCLUDE REGEX "^PIXAURA_.*TEST")'));
  for(const p of ['.github/workflows/foundation.yml','.github/workflows/native-shells.yml'])assert.ok(text(p).includes('tests/review-preview.test.mjs'));
  for(const marker of ['ReviewPreviewTestHooks','reviewPreviewTestControl','review-preview-test-pause','review-preview-test-failure']){
   assert.ok(text('scripts/check-android-release.py').includes(marker));assert.ok(text('scripts/check-model-release.mjs').includes(marker));assert.ok(text('tests/android-release-scanner.test.py').includes(marker));

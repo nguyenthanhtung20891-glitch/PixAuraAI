@@ -101,7 +101,7 @@ int main(int argc,char** argv){CHECK(argc==3);const auto root=std::filesystem::u
  CHECK(pixaura_review_preview_begin(1,&o.c,&proposal,b(plan),plan.size()-1,512,512,&ticket)==9);
  {
   // Preview correlation bytes are neither an editor owner nor approval/candidate.
-  pixaura_editor_context wrong{};std::memcpy(&wrong,&ticket,sizeof(wrong));uint8_t data[1024];uint64_t n=0;
+  pixaura_editor_context wrong{};std::memcpy(&wrong,&ticket,std::min(sizeof(wrong),sizeof(ticket)));uint8_t data[1024];uint64_t n=0;
   CHECK(pixaura_editor_state(&wrong,data,sizeof(data),&n)!=0);
   auto t=o.begin(proposal,plan);const auto v=o.render(t);std::array<uint8_t,4> data4{};
   CHECK(pixaura_review_preview_copy(1,&o.c,&v,2,0,data4.data(),4)==1);
