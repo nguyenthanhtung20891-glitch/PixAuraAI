@@ -3,6 +3,8 @@ import CoreGraphics
 import Darwin
 import CPixAuraCore
 #if DEBUG
+@_silgen_name("pixaura_test_review_preview_control")
+private func reviewPreviewControl(_ context: UnsafeMutablePointer<pixaura_editor_context>, _ command: UInt32, _ point: UInt32) -> Int32
 @_silgen_name("pixaura_test_agent_platform_control")
 private func agentPlatformControl(_ context: UnsafeMutablePointer<pixaura_editor_context>, _ command: UInt32, _ point: UInt32) -> Int32
 @_silgen_name("pixaura_test_assist_control")
@@ -106,6 +108,7 @@ public final class ManualEditor {
     private var cancellingReview = false
     private var attemptedAutoSerial: UInt64?
     private var displayed: CGImage?, committed: CGImage?
+    private var comparison: ReviewComparison?
     private var requestedGeneration: UInt64 = 0
     public private(set) var tools: [ManualTool] = []
     private func checked(_ status: Int32, _ boundary: String) throws {
@@ -465,6 +468,9 @@ public final class ManualEditor {
         try cancelAgentExecution()
     }
 #if DEBUG
+    public func reviewPreviewTestControl(_ command: UInt32, _ point: UInt32 = 0) -> Int32 {
+        gate.lock(); defer { gate.unlock() }; return destroyed ? -1 : reviewPreviewControl(context, command, point)
+    }
     public func reviewTestControl(_ command: UInt32, _ point: UInt32 = 0) -> Int32 {
         gate.lock(); defer { gate.unlock() }; return destroyed ? -1 : agentPlatformControl(context, command, point)
     }
@@ -479,8 +485,71 @@ public final class ManualEditor {
         return destroyed ? -1 : agentPlatformControl(context, command, point)
     }
 #endif
+    public final class ReviewPreviewRequest {
+        fileprivate let identity: String, review: AutoReview
+        fileprivate var ticket: pixaura_review_preview_ticket
+        fileprivate init(_ identity: String, _ review: AutoReview, _ ticket: pixaura_review_preview_ticket) { self.identity = identity; self.review = review; self.ticket = ticket }
+    }
+    public final class ReviewComparison {
+        fileprivate let identity: String
+        fileprivate var packet: pixaura_review_preview_pair
+        public let before: CGImage, after: CGImage, geometryChanged: Bool, dimensions: String
+        fileprivate init(_ identity: String, _ packet: pixaura_review_preview_pair, _ before: CGImage, _ after: CGImage) {
+            self.identity = identity; self.packet = packet; self.before = before; self.after = after
+            geometryChanged = packet.geometry_changed == 1
+            dimensions = "Before \(packet.before_width) × \(packet.before_height); After \(packet.after_width) × \(packet.after_height)"
+        }
+    }
+    public func beginReviewPreview(_ review: AutoReview) throws -> ReviewPreviewRequest {
+        gate.lock(); defer { gate.unlock() }
+        idle.lock(); let busy = assistCalls != 0; idle.unlock()
+        try checked(closed ? 13 : review.owner != identity || review.attempted || review.abandoned ? 9 : busy || applyingReview != nil || cancellingReview ? 8 : 0, "Review preview")
+        comparison = nil; var ticket = pixaura_review_preview_ticket(), proposal = review.proposal.packet
+        let bytes = review.canonicalBytes
+        try checked(bytes.withUnsafeBytes { pixaura_review_preview_begin(1, context, &proposal, $0.bindMemory(to: UInt8.self).baseAddress, UInt64($0.count), 512, 512, &ticket) }, "Review preview")
+        return ReviewPreviewRequest(identity, review, ticket)
+    }
+    public func renderReviewPreview(_ request: ReviewPreviewRequest) throws -> ReviewComparison {
+        gate.lock()
+        idle.lock(); let busy = assistCalls != 0; idle.unlock()
+        do { try checked(closed ? 13 : request.identity != identity ? 9 : busy || applyingReview != nil ? 8 : 0, "Review preview") }
+        catch { gate.unlock(); throw error }
+        idle.lock(); assistCalls += 1; idle.unlock(); gate.unlock()
+        var ticket = request.ticket, pair = pixaura_review_preview_pair()
+        defer {
+            _ = pixaura_review_preview_release(1, context, &pair)
+            idle.lock(); assistCalls -= 1; idle.broadcast(); idle.unlock()
+        }
+        try checked(pixaura_review_preview_render(1, context, &ticket, &pair), "Review preview")
+        func image(_ side: UInt32, _ metadata: pixaura_preview_metadata) throws -> CGImage {
+            try checked(metadata.width > 0 && metadata.height > 0 && metadata.width <= 1024 && metadata.height <= 1024 && metadata.image_bytes == UInt64(metadata.width) * UInt64(metadata.height) * 4 ? 0 : 14, "Review preview metadata")
+            var bytes = Data(count: Int(metadata.image_bytes))
+            try checked(bytes.withUnsafeMutableBytes { pixaura_review_preview_copy(1, context, &pair, side, 0, $0.bindMemory(to: UInt8.self).baseAddress, UInt64($0.count)) }, "Review preview copy")
+            guard let provider = CGDataProvider(data: bytes as CFData), let space = CGColorSpace(name: CGColorSpace.sRGB),
+                  let value = CGImage(width: Int(metadata.width), height: Int(metadata.height), bitsPerComponent: 8, bitsPerPixel: 32,
+                    bytesPerRow: Int(metadata.row_stride), space: space,
+                    bitmapInfo: CGBitmapInfo.byteOrder32Big.union(CGBitmapInfo(rawValue: CGImageAlphaInfo.last.rawValue)),
+                    provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent) else { throw ManualEditorFailure(status: 8, boundary: "Review preview") }
+            return value
+        }
+        let before = try image(0, pair.before), after = try image(1, pair.after)
+        try checked(pixaura_review_preview_current(1, context, &pair), "Review preview current")
+        return ReviewComparison(identity, pair, before, after)
+    }
+    @discardableResult public func installReviewPreview(_ value: ReviewComparison, replace: () -> Void) -> Bool {
+        guard gate.try() else { return false }; defer { gate.unlock() }
+        var pair = value.packet
+        guard !closed, value.identity == identity, pixaura_review_preview_current(1, context, &pair) == 0 else { return false }
+        comparison = value; replace(); return true
+    }
+    public func cancelReviewPreview(_ request: ReviewPreviewRequest) throws {
+        gate.lock(); defer { gate.unlock() }; var ticket = request.ticket
+        try checked(closed ? 13 : request.identity != identity ? 9 : pixaura_review_preview_cancel(1, context, &ticket), "Review preview cancellation")
+        comparison = nil
+    }
     public func close() {
         gate.lock()
+        comparison = nil
         if !closed { closed = true; _ = pixaura_editor_stop(context) }
         gate.unlock()
         idle.lock(); while renders != 0 || agentCalls != 0 || assistCalls != 0 { idle.wait() }; idle.unlock()

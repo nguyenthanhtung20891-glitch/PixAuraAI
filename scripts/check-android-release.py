@@ -4,6 +4,7 @@ import sys, zipfile
 from pathlib import PurePosixPath
 
 MARKERS = (
+    b'ReviewPreviewTestHooks', b'reviewPreviewTestControl', b'review-preview-test-pause', b'review-preview-test-failure',
     b'pixaura_test_', b'assistance_checkpoint', b'agent_checkpoint_state',
     b'AgentPlatformHooks', b'AssistTestHooks', b'AutoTestHooks',
     b'review-test-pause', b'review-test-failure', b'assist-test-pause',

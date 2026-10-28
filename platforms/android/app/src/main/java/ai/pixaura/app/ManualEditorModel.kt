@@ -31,10 +31,14 @@ data class AssistUiState(val enabled: Boolean = false, val status: AssistStatus 
     val advice: ManualEditor.AssistAdvice? = null, val inFlight: Boolean = false,
     val error: String? = null, val notice: String? = null)
 enum class AutoStatus { IDLE, REQUESTING, PROPOSAL_RECEIVED, VALIDATING, REVIEW_READY, APPROVING, EXECUTING, COMPLETED, STALE, CANCELLED, FAILED, REJECTED }
+enum class ReviewPreviewStatus { PLAN_REVIEW, PREVIEW_LOADING, PREVIEW_READY, PREVIEW_FAILED, STALE, CANCELLED }
+data class ReviewPreviewUi(val status: ReviewPreviewStatus = ReviewPreviewStatus.PLAN_REVIEW,
+    val comparison: ManualEditor.ReviewComparison? = null, val error: String? = null)
 data class AutoUiState(val enabled: Boolean = false, val status: AutoStatus = AutoStatus.IDLE,
     val choices: List<ManualEditor.AssistChoice> = emptyList(), val selected: Int = -1,
     val proposal: ManualEditor.AutoProposal? = null, val inFlight: Boolean = false, val error: String? = null,
-    val review: ManualEditor.AutoReview? = null, val receipt: ManualEditor.AgentReceipt? = null, val cancelRequested: Boolean = false)
+    val review: ManualEditor.AutoReview? = null, val receipt: ManualEditor.AgentReceipt? = null, val cancelRequested: Boolean = false,
+    val preview: ReviewPreviewUi = ReviewPreviewUi())
 
 /** Two fixed lanes, one coalesced input and one coalesced preview request.
  * Native lifecycle/history is authoritative; no platform operation/history model.
@@ -51,6 +55,9 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     private val autoEpoch = AtomicLong(0)
     private val autoActive = AtomicBoolean(false)
     private val autoApplying = AtomicBoolean(false)
+    private val reviewRendering = AtomicBoolean(false)
+    private val reviewAttempt = AtomicReference<Any?>(null)
+    private val reviewRequest = AtomicReference<Pair<ManualEditor, ManualEditor.ReviewPreviewRequest>?>(null)
     private val activeApplication = AtomicReference<Pair<ManualEditor, ManualEditor.AutoReview>?>(null)
     private val cancellingApplication = AtomicBoolean(false)
     private val autoChoicesLoading = AtomicBoolean(false)
@@ -103,6 +110,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         val next = editor.updateCapability(snapshot.observation)
         capabilityStrategy.value = next
         appliedCapabilitySequence = snapshot.observation.sequence
+        if (next.epoch != before && autoMutable.value.preview.comparison != null) cancelReviewPreview(ReviewPreviewStatus.STALE)
         return next.epoch != before
     }
     /** One fixed pending slot/runnable; coalescing retains every worsening signal.
@@ -242,6 +250,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         }
     }
     private fun invalidateAuto(reason: AutoStatus = AutoStatus.STALE) {
+        cancelReviewPreview(if (reason == AutoStatus.STALE) ReviewPreviewStatus.STALE else ReviewPreviewStatus.CANCELLED)
         nextAutoEpoch(); val hadWork = autoMutable.value.proposal != null || autoActive.get()
         activeApplication.get()?.let { cancelApplication(it) }
         autoMutable.update { it.copy(proposal = null, review = null, receipt = null, error = null, cancelRequested = false, status = if (it.enabled && hadWork) reason else AutoStatus.IDLE) }
@@ -302,7 +311,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
                         try {
                             autoMutable.update { it.copy(status = AutoStatus.VALIDATING) }
                             val review = editor.prepareAutoReview(proposal) // native freshness + exact Phase 6 validation; no approval
-                            autoMutable.update { it.copy(status = AutoStatus.REVIEW_READY, proposal = proposal, review = review, receipt = null, cancelRequested = false) }
+                            autoMutable.update { it.copy(status = AutoStatus.REVIEW_READY, proposal = proposal, review = review, receipt = null, cancelRequested = false, preview = ReviewPreviewUi()) }
                         } catch (failure: Throwable) { autoFailure(failure) }
                     }
                 }
@@ -318,7 +327,48 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
             }
         }
     }
+    fun requestReviewPreview() {
+        val ui = autoMutable.value; val review = ui.review ?: return; val editor = owner ?: return
+        if (disposed.get() || !ui.enabled || ui.status != AutoStatus.REVIEW_READY || ui.inFlight || !reviewRendering.compareAndSet(false, true)) return
+        if (!providerActive.compareAndSet(false, true)) { reviewRendering.set(false); autoMutable.update { it.copy(preview = ReviewPreviewUi(ReviewPreviewStatus.PREVIEW_FAILED, error = "Preview busy. Manual editing is available.")) }; return }
+        val attempt = Any(); reviewAttempt.set(attempt)
+        val stamp = autoEpoch.get()
+        autoMutable.update { it.copy(preview = ReviewPreviewUi(ReviewPreviewStatus.PREVIEW_LOADING)) }
+        commands.execute {
+            if (disposed.get() || owner !== editor || autoEpoch.get() != stamp || autoMutable.value.review !== review || reviewAttempt.get() !== attempt) { reviewRendering.set(false); providerActive.set(false); return@execute }
+            val request = try { editor.beginReviewPreview(review) } catch (failure: Throwable) {
+                reviewPreviewFailure(failure); reviewRendering.set(false); providerActive.set(false); return@execute
+            }
+            val call = editor to request; reviewRequest.set(call)
+            advising.execute {
+                val result = runCatching {
+                    if (reviewAttempt.get() !== attempt) { editor.cancelReviewPreview(request); throw EditorFailure(13, "Review preview") }
+                    editor.renderReviewPreview(request)
+                }
+                if (!disposed.get()) commands.execute {
+                    if (!disposed.get() && owner === editor && autoEpoch.get() == stamp && autoMutable.value.review === review && reviewRequest.get() === call && reviewAttempt.get() === attempt) {
+                        result.fold(onSuccess = { value ->
+                            if (!editor.installReviewPreview(value) { autoMutable.update { it.copy(preview = ReviewPreviewUi(ReviewPreviewStatus.PREVIEW_READY, value)) } }) reviewPreviewFailure(EditorFailure(9, "Review preview"))
+                        }, onFailure = ::reviewPreviewFailure)
+                    }
+                    reviewRendering.set(false); providerActive.set(false)
+                } else { reviewRendering.set(false); providerActive.set(false) }
+            }
+        }
+    }
+    private fun reviewPreviewFailure(failure: Throwable) {
+        val status = when ((failure as? EditorFailure)?.status) { 3, 9 -> ReviewPreviewStatus.STALE; 13 -> ReviewPreviewStatus.CANCELLED; else -> ReviewPreviewStatus.PREVIEW_FAILED }
+        autoMutable.update { it.copy(preview = ReviewPreviewUi(status, error = "Preview unavailable. No edit was applied. Manual editing and Plan inspection remain available.")) }
+    }
+    fun cancelReviewPreview(reason: ReviewPreviewStatus = ReviewPreviewStatus.CANCELLED) {
+        reviewAttempt.set(null)
+        val call = reviewRequest.getAndSet(null)
+        autoMutable.update { it.copy(preview = ReviewPreviewUi(reason)) }
+        if (call != null && !disposed.get()) commands.execute { try { call.first.cancelReviewPreview(call.second) } catch (_: Throwable) { /* stale preview has no authority */ } }
+    }
     fun applyAutoFromHuman(review: ManualEditor.AutoReview) {
+        if (reviewRendering.get() || autoMutable.value.preview.status == ReviewPreviewStatus.STALE) return
+        cancelReviewPreview()
         val ui = autoMutable.value
         if (disposed.get() || !ui.enabled || ui.status != AutoStatus.REVIEW_READY || ui.review !== review || ui.inFlight || !autoApplying.compareAndSet(false, true)) return
         if (cancellingAdvice.get() || autoCancelling.get() || cancellingApplication.get() || !providerActive.compareAndSet(false, true)) { autoApplying.set(false); return }

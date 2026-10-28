@@ -32,6 +32,7 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     private var active = 0
     private var agentCalls = 0
     private var assistCalls = 0
+    private var comparison: ReviewComparison? = null
     private var applyingReview: AutoReview? = null
     private var applyingApproval: AgentApproval? = null
     private var cancellingReview = false
@@ -284,12 +285,62 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
         } finally { gate.withLock { cancellingReview = false; agentCalls--; idle.signalAll() } }
     }
     override fun close() = gate.withLock {
+        comparison = null
         closed = true
         if (!stopped) { checked(nativeStop(storage), "Close"); stopped = true }
         while (active != 0 || agentCalls != 0 || assistCalls != 0) idle.awaitUninterruptibly()
         if (!destroyed) { checked(nativeDestroy(storage), "Close"); destroyed = true }
     }
     private external fun nativeAgentBytes(storage: ByteBuffer, mode: Int, input: ByteArray?, output: ByteBuffer): Int
+    /** Disposable display resources. No approval/candidate is present here. */
+    class ReviewPreviewRequest internal constructor(internal val owner: ManualEditor, internal val ticket: ByteBuffer, internal val review: AutoReview)
+    class ReviewComparison internal constructor(internal val owner: ManualEditor, internal val packet: ByteBuffer,
+        internal val request: ReviewPreviewRequest, val before: Bitmap, val after: Bitmap, val geometryChanged: Boolean,
+        val dimensions: String)
+    fun beginReviewPreview(review: AutoReview): ReviewPreviewRequest = gate.withLock {
+        checked(if (closed) 13 else if (review.owner !== this || review.attempted || review.abandoned) 9
+            else if (assistCalls != 0 || applyingReview != null || cancellingReview) 8 else 0, "Review preview")
+        comparison = null
+        val ticket = ByteBuffer.allocateDirect(56).order(ByteOrder.nativeOrder())
+        checked(nativeReviewBegin(storage, review.proposal.packet, review.canonicalBytes(), ticket), "Review preview")
+        ReviewPreviewRequest(this, ticket.asReadOnlyBuffer(), review)
+    }
+    fun renderReviewPreview(request: ReviewPreviewRequest): ReviewComparison {
+        gate.withLock { checked(if (closed) 13 else if (request.owner !== this) 9 else if (assistCalls != 0 || applyingReview != null) 8 else 0, "Review preview"); assistCalls++ }
+        val packet = ByteBuffer.allocateDirect(176).order(ByteOrder.nativeOrder())
+        try {
+            checked(nativeReviewRender(storage, request.ticket, packet), "Review preview")
+            fun image(side: Int): Bitmap {
+                val words = nativeReviewImage(storage, packet, side) ?: throw EditorFailure(8, "Review preview copy")
+                checked(if (words.size >= 3) words[0] else 14, "Review preview copy")
+                val width = words[1]; val height = words[2]
+                checked(if (width in 1..1024 && height in 1..1024 && words.size == 3 + width * height) 0 else 14, "Review preview copy")
+                return Bitmap.createBitmap(words, 3, width, width, height, Bitmap.Config.ARGB_8888)
+            }
+            val before = image(0); val after = image(1)
+            checked(nativeReviewCurrent(storage, packet), "Review preview current")
+            return ReviewComparison(this, packet.asReadOnlyBuffer(), request, before, after, packet.getInt(152) == 1,
+                "Before ${packet.getInt(136)} × ${packet.getInt(140)}; After ${packet.getInt(144)} × ${packet.getInt(148)}")
+        } finally {
+            nativeReviewRelease(storage, packet) // may be absent on failure; no publication authority
+            gate.withLock { assistCalls--; idle.signalAll() }
+        }
+    }
+    /** Check and actual presentation replacement share this lifecycle gate. */
+    fun installReviewPreview(value: ReviewComparison, install: () -> Unit): Boolean = gate.withLock {
+        if (closed || value.owner !== this || nativeReviewCurrent(storage, value.packet) != 0) return false
+        comparison = value; install(); true
+    }
+    fun cancelReviewPreview(request: ReviewPreviewRequest) = gate.withLock {
+        checked(if (closed) 13 else if (request.owner !== this) 9 else nativeReviewCancel(storage, request.ticket), "Review preview cancellation")
+        if (comparison?.request === request) comparison = null
+    }
+    private external fun nativeReviewBegin(storage: ByteBuffer, proposal: ByteBuffer, plan: ByteArray, ticket: ByteBuffer): Int
+    private external fun nativeReviewRender(storage: ByteBuffer, ticket: ByteBuffer, pair: ByteBuffer): Int
+    private external fun nativeReviewCurrent(storage: ByteBuffer, pair: ByteBuffer): Int
+    private external fun nativeReviewImage(storage: ByteBuffer, pair: ByteBuffer, side: Int): IntArray?
+    private external fun nativeReviewRelease(storage: ByteBuffer, pair: ByteBuffer): Int
+    private external fun nativeReviewCancel(storage: ByteBuffer, ticket: ByteBuffer): Int
     private external fun nativeAgentApprove(storage: ByteBuffer, plan: ByteArray, approval: ByteBuffer): Int
     private external fun nativeAgentTerminal(storage: ByteBuffer, approval: ByteBuffer, release: Boolean): Int
     private external fun nativeAgentExecute(storage: ByteBuffer, plan: ByteArray, approval: ByteBuffer?, receipt: ByteBuffer): Int

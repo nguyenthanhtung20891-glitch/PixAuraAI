@@ -21,6 +21,17 @@ function files(directory = root) {
 }
 
 function validateCorpusImage(relative, bytes) {
+  // Phase 8 Step 2 adds one project-owned numerical fixture, with exact identity
+  // and dimensions. This is not a general binary or image-directory exemption.
+  if (relative === 'tests/fixtures/review-preview-v1/gradient.png') {
+    assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),
+      'eb90137f56c0597b74f5e42ced84e05832e21724b0429e2ffc704621091a437b', 'numerical fixture identity mismatch');
+    assert.equal(bytes.length, 118440);
+    assert.equal(bytes.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
+    assert.equal(bytes.readUInt32BE(16), 640); assert.equal(bytes.readUInt32BE(20), 480);
+    assert.equal(bytes[24], 8); assert.equal(bytes[25], 2);
+    return;
+  }
   const sources = JSON.parse(fs.readFileSync(path.join(root, 'docs/benchmarks/natural-images-v1/sources.json'), 'utf8'));
   const photo = sources.photos.find(photo => relative === `docs/benchmarks/natural-images-v1/${photo.id}.png`);
   assert.ok(photo && photo.license === 'CC0-1.0', `${relative}: unreviewed corpus binary`);
@@ -78,7 +89,7 @@ test('source hygiene: no conflict markers, trailing spaces or missing newlines',
       continue;
     }
     if (file.endsWith('.png')) {
-      // Only pinned CC0 corpus bytes are binary; no blanket image exemption.
+      // Only individually pinned corpus/numerical bytes; no blanket exemption.
       validateCorpusImage(path.relative(root, file).split(path.sep).join('/'), fs.readFileSync(file));
       continue;
     }
@@ -97,6 +108,11 @@ test('corpus binary hygiene rejects substituted bytes and unlisted images', () =
   corrupt[corrupt.length - 1] ^= 1;
   assert.throws(() => validateCorpusImage(relative, corrupt), /identity mismatch/);
   assert.throws(() => validateCorpusImage('docs/benchmarks/natural-images-v1/unlisted.png', original), /unreviewed corpus binary/);
+  const numerical = fs.readFileSync(path.join(root, 'tests/fixtures/review-preview-v1/gradient.png'));
+  validateCorpusImage('tests/fixtures/review-preview-v1/gradient.png', numerical);
+  const changed = Buffer.from(numerical); changed[changed.length - 1] ^= 1;
+  assert.throws(() => validateCorpusImage('tests/fixtures/review-preview-v1/gradient.png', changed), /identity mismatch/);
+  assert.throws(() => validateCorpusImage('tests/fixtures/review-preview-v1/unlisted.png', numerical), /unreviewed corpus binary/);
 });
 
 test('all build systems compile the same core and boundaries have smoke probes', () => {

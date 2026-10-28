@@ -1,6 +1,50 @@
 import XCTest
 
 final class ShellUITests: XCTestCase {
+    func testReviewPreviewToggleIsNotApplyAndGeometryUsesFit() {
+        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
+        func tap(_ id: String) {
+            let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
+            let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
+            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+        }
+        tap("Open Manual editor"); XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
+        tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request")
+        tap("review-preview-request"); XCTAssertTrue(app.staticTexts["review-before"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
+        tap("review-toggle"); XCTAssertTrue(app.staticTexts["review-after"].exists)
+        tap("review-split"); XCTAssertTrue(app.sliders["review-divider"].exists)
+        tap("review-reset"); XCTAssertTrue(app.staticTexts["review-before"].exists)
+        tap("auto-apply"); XCTAssertTrue(app.staticTexts["auto-completed"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.staticTexts["Committed revisions: 2"].exists)
+        tap("mode-manual"); tap("Undo"); tap("Redo")
+        tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.rotate"); tap("auto-request")
+        tap("review-preview-request"); XCTAssertTrue(app.staticTexts["review-before"].waitForExistence(timeout: 20))
+        XCTAssertFalse(app.buttons["review-split"].isEnabled)
+        tap("review-toggle"); XCTAssertTrue(app.staticTexts["review-after"].exists)
+        XCTAssertTrue(app.staticTexts["Committed revisions: 2"].exists)
+    }
+    func testReviewPreviewCancellationFailureAndDepartureKeepManualAvailable() {
+        for flag in ["--review-preview-test-pause", "--review-preview-test-failure"] {
+            let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image", flag]; app.launch()
+            func tap(_ id: String) {
+                let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
+                let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
+                guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+            }
+            tap("Open Manual editor"); XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
+            tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request"); tap("review-preview-request")
+            if flag.contains("pause") {
+                XCTAssertTrue(app.buttons["review-preview-cancel"].waitForExistence(timeout: 20)); XCTAssertFalse(app.buttons["auto-apply"].isEnabled)
+                tap("review-preview-cancel"); XCTAssertTrue(app.staticTexts["review-preview-cancelled"].waitForExistence(timeout: 20))
+            } else { XCTAssertTrue(app.staticTexts["review-preview-failed"].waitForExistence(timeout: 20)) }
+            XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
+            tap("mode-manual"); XCTAssertFalse(app.staticTexts["review-after"].exists)
+            tap("Back to Home"); tap("Open Manual editor")
+            XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20)); XCTAssertFalse(app.buttons["review-toggle"].exists)
+            app.terminate()
+        }
+    }
     func testIntegratedModeBackgroundNavigationAndRestartNeverRestoreReviewAuthority() {
         let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
         func tap(_ id: String) {

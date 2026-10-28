@@ -45,8 +45,9 @@ internal fun AutoProposalPanel(model: ManualEditorModel, ui: EditorUiState, auto
                         Text(descriptor.parameters.zip(action.values).joinToString("; ") { (p, v) -> "${p.name} = $v (${p.unit})" }, Modifier.testTag("auto-exact-values-${action.index}"))
                     }
                     auto.review?.let { review ->
+                        ReviewPreviewPanel(model, auto.preview)
                         Text("Reviewed source: ${review.sourceRevision.take(8)}. Apply rechecks the current source.", Modifier.testTag("auto-source"))
-                        Button(onClick = { model.applyAutoFromHuman(review) }, enabled = auto.status == AutoStatus.REVIEW_READY && !auto.inFlight,
+                        Button(onClick = { model.applyAutoFromHuman(review) }, enabled = auto.status == AutoStatus.REVIEW_READY && !auto.inFlight && auto.preview.status !in listOf(ReviewPreviewStatus.PREVIEW_LOADING, ReviewPreviewStatus.STALE),
                             modifier = Modifier.testTag("auto-apply").semantics { contentDescription = "Apply this exact reviewed plan with human approval" }) { Text("Apply reviewed plan") }
                     }
                     OutlinedButton(onClick = model::dismissAuto, enabled = !auto.inFlight, modifier = Modifier.testTag("auto-dismiss")) { Text("Reject proposal") }

@@ -18,7 +18,8 @@ test('Phase 7 Step 6 lifecycle authority and cancellation admission remain coher
  const k=read('platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt');
  assert.ok(k.includes('cancellingAdvice.get() || autoCancelling.get() || cancellingApplication.get()'));
  assert.ok(k.includes('admission occupied through native validation/presentation'));
- const apple=read('platforms/ios/PixAuraAI/ManualEditorModel.swift');assert.equal(apple.split('if assistWorking || cancellingAdvice || cancellingAuto').length-1,3);
+ // Step 2 adds preview admission alongside the three unchanged AI guards.
+ const apple=read('platforms/ios/PixAuraAI/ManualEditorModel.swift');assert.equal(apple.split('if assistWorking || cancellingAdvice || cancellingAuto').length-1,4);
  assert.ok(apple.includes('worker.closeAfterOwnerRelease()'));
  assert.ok(apple.includes('func closeAfterOwnerRelease()'));
  assert.ok(apple.includes('commands.async { self.close() }'));

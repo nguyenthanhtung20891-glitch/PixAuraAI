@@ -6,6 +6,7 @@
 #include "storage_files.hpp"
 #include "sha256.hpp"
 #include "dynamic_policy.hpp"
+#include "review_raster.hpp"
 #include <map>
 #include <mutex>
 #include <cstring>
@@ -323,6 +324,65 @@ int32_t pixaura_preview_release(pixaura_decode_context* c,const pixaura_decode_h
     const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);std::lock_guard<std::mutex> publication(h.registry->cancellation_mutex);const auto& e=entry(h,handle);need(e.preview.pixels!=nullptr,3);h.registry->entries.erase(handle->serial);
 });}
 
+// BEGIN Phase 8 Step 2 non-publication review composition.
+namespace pixaura {
+int32_t review_raster_pair(pixaura_decode_context* c,const pixaura_decode_handle* original,
+ const pixaura_decode_handle* token,const evaluation::Stack& before_stack,const evaluation::Stack& after_stack,
+ const pixaura_working_limits& limits,uint32_t edge,uint64_t expected_policy,
+ pixaura_decode_handle* before_out,pixaura_decode_handle* after_out,pixaura_review_preview_pair* output){return boundary([&]{
+    need(before_out&&after_out&&output&&edge&&edge<=1024);
+    const auto h=live(c);std::shared_ptr<evaluation::Cancellation> cancel;
+    {std::lock_guard<std::mutex> fence(h.registry->cancellation_mutex);cancel=cancellation_locked(h,token);}
+    evaluation::checkpoint(cancel.get(),evaluation::Checkpoint::admission);
+    // Serialize occupancy snapshot -> preflight -> BOTH allocations. This is
+    // the existing raster mutex, not another scheduler or resource authority.
+    std::lock_guard<std::mutex> pixels(h.registry->mutex);auto& r=*h.registry;
+    evaluation::checkpoint(cancel.get(),evaluation::Checkpoint::admission);
+    const auto& source=entry(h,original).working;need(source.pixels!=nullptr,3);working::validate(limits);
+    const auto& m=source.metadata;
+    const auto bg=geometry::plan({m.width,m.height},before_stack,limits);
+    const auto ag=geometry::plan({m.width,m.height},after_stack,limits);
+    const auto reservation=std::max(evaluation::reservation(m.width,m.height,before_stack,limits),evaluation::reservation(m.width,m.height,after_stack,limits));
+    need(reservation>=m.image_bytes,8);
+    pixaura_budget_request q{};q.version=1;q.struct_size=sizeof(q);q.work_class=PIXAURA_BUDGET_PREVIEW;
+    q.bytes_per_pixel=16;q.raster_count=1;q.requested_handles=2;q.width=m.width;q.height=m.height;
+    q.scratch_bytes=reservation-m.image_bytes;q.context_limit_bytes=r.limits.context_bytes;q.preview_edge=edge;
+    pixaura_budget_result admission{};
+    {std::lock_guard<std::mutex> fence(r.cancellation_mutex);need(!r.policy_exhausted,8);need(r.policy.strategy.epoch==expected_policy,9);
+     q.retained_bytes=retained_locked(r);q.retained_handles=static_cast<uint32_t>(r.entries.size()+r.cancellations.size());
+     need(policy::admit(r.policy,&q,&admission)==0,8);need(admission.decision!=PIXAURA_BUDGET_REJECT,8);
+     const uint64_t automatic_display=uint64_t(admission.preview_width)*admission.preview_height*4;
+     // Eight bounded display capacities: native pair, platform pair, previous
+     // platform pair awaiting presentation release, old Manual, transfer array.
+     // PREVIEW v1 already charges one of the native outputs.
+     q.temporary_bytes=uint64_t(edge)*edge*4*8-automatic_display;
+     need(policy::admit(r.policy,&q,&admission)==0,8);need(admission.decision!=PIXAURA_BUDGET_REJECT,8);
+     room_locked(r,reservation+uint64_t(edge)*edge*4*2);
+    }
+    edge=std::max(admission.preview_width,admission.preview_height);need(edge&&edge<=1024,8);
+    const pixaura_preview_request fit{1,sizeof(fit),PIXAURA_PREVIEW_FIT,edge,edge,0};
+    evaluation::Observer observer=nullptr;void* observer_state=nullptr;
+#ifdef PIXAURA_PREVIEW_TESTING
+    observer=r.observer;observer_state=r.observer_state;
+#endif
+    const auto render=[&](const evaluation::Stack& stack){
+        auto evaluated=evaluation::evaluate(source,stack,limits,cancel.get(),observer,observer_state);
+        return preview::render(evaluated,fit,cancel.get(),observer,observer_state);
+    };
+    Entry b,a;b.preview=render(before_stack);a.preview=render(after_stack);
+    pixaura_review_preview_pair result{};result.before=b.preview.metadata;result.after=a.preview.metadata;
+    result.before_width=bg.summary.width;result.before_height=bg.summary.height;
+    result.after_width=ag.summary.width;result.after_height=ag.summary.height;
+    result.owned_bytes=result.before.image_bytes+result.after.image_bytes;result.admission_peak_bytes=admission.peak_bytes;
+    std::lock_guard<std::mutex> fence(r.cancellation_mutex);
+    evaluation::checkpoint(cancel.get(),evaluation::Checkpoint::publication);
+    need(r.policy.strategy.epoch==expected_policy,9);need(r.next<UINT64_MAX-1,8);
+    const auto before=insert_locked(h,std::move(b));pixaura_decode_handle after{};
+    try{after=insert_locked(h,std::move(a));}catch(...){r.entries.erase(before.serial);throw;}
+    *before_out=before;*after_out=after;*output=result;
+});}
+}
+// END Phase 8 Step 2 non-publication review composition.
 #ifdef PIXAURA_PREVIEW_TESTING
 namespace pixaura::preview {
 pixaura_decode_handle test_working(pixaura_decode_context* c,working::Image image){const auto h=live(c);std::lock_guard<std::mutex> lock(h.registry->mutex);room(*h.registry,image.metadata.image_bytes);Entry e;e.working=std::move(image);return insert(h,std::move(e));}

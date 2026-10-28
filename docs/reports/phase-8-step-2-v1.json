@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "phase": 8,
+  "step": 2,
+  "status": "AUTHORIZED_IN_PROGRESS",
+  "baseline": "7aa21dc449de5143ddf1af7998ea7e233bb691b7",
+  "runtime_authority": false,
+  "preview_publication_authority": false,
+  "step3": "NOT_STARTED",
+  "contract": "docs/contracts/review-preview-foundation-v1.md",
+  "changes": {
+    "CMakeLists.txt": {
+      "before_sha256_lf": "01e91012b64a90ee3cac3c8e9f759ccaaae50e0385a9e1930fb5a1afaabf5e72",
+      "after_sha256_lf": "87e154e98dcfe3a7581635ff84cb822016ccff8af9ebf4e318699bdd0dd69e98"
+    },
+    "packages/core/src/decode_api.cpp": {
+      "before_sha256_lf": "30c72c00c1b352265524113c03ea41ca5ded96a3b60af4cd51293f5ef7780c7b",
+      "after_sha256_lf": "f641adaa68a1dd7258a214f4781bdd5c907b2b2dee7bcea458e67a04d22103ec"
+    },
+    "packages/core/src/editor_api.cpp": {
+      "before_sha256_lf": "60e333a6e3871fc6781024bcf9bd157431d461003d75939807442f4c73371621",
+      "after_sha256_lf": "25c504cc36c1966bbb01e1364cce823086171add1bbcd03b5dc587646ca7ea3d"
+    },
+    "packages/core/swift/Sources/ManualEditor.swift": {
+      "before_sha256_lf": "72ab0ddfb45ba7ac3a55214b36a8f2dda6cd64802c20aba5f1a84c5506ba85ee",
+      "after_sha256_lf": "2612c8441a8a11f10f969750bdcae3ea797350fe08c6dd1209b229fa67af4b25"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/AutoProposalPanel.kt": {
+      "before_sha256_lf": "9aacf1f16f15328830d6d6948cddabd6981efb46a43d5a4b0d280728ffb8c044",
+      "after_sha256_lf": "ac778d710c5e4279bddc7f0d2ff4b2a7f301429c7f80a6ad8fa0263dfa7bdbfe"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt": {
+      "before_sha256_lf": "38ee97c144298ad55865f49880e58656d659455f63ee957a76f9b37d9bb3253f",
+      "after_sha256_lf": "a67fd6007ccaa3bdc5e830fc970cd69d79de5a4ecce0e9ca481cf96b8991bd6d"
+    },
+    "platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt": {
+      "before_sha256_lf": "8331e5803b29d975901c32019c668e432c89f60aa600518ceb4815ee510947db",
+      "after_sha256_lf": "b7aec82a798a60a60548d8f54661ddccde0aa35b18d346903d14b5df5b725061"
+    },
+    "platforms/ios/PixAuraAI/ManualEditorModel.swift": {
+      "before_sha256_lf": "03d2850a0d3c651f27c67eb042e75d3047bb139fb7b52966428a0d12ccb4e0dc",
+      "after_sha256_lf": "127cc3dfccc6172981e74d7a9b5e7aa8f2b306352fc0f794bbcc18fd6f97d069"
+    },
+    "platforms/ios/PixAuraAI/ManualEditorScreen.swift": {
+      "before_sha256_lf": "b1d7a5d2ee4172c9cc39db487cb2d032e034f27a99fdfaab7ae05bd4ea5bd8f7",
+      "after_sha256_lf": "7f8e8ca4d0da95842f059521bc049110753832aadd1b51f7665142db7f8d48b1"
+    }
+  },
+  "additions": {
+    "packages/core/include/pixaura/review_preview.h": "532f98c2ff4a176b211f5db6ab72cee5cc04994987d4ec243adb300e6952c2af",
+    "packages/core/src/review_preview_boundary.hpp": "a17d792c39149b6fc74c5042e1b1021422aee08e60e3884ca74385bf1f9c26bb",
+    "packages/core/src/review_preview_state.hpp": "f2bb9ee4557263da84d5bbcfd91bfcc5e3b2eb7b0fce2a1653cfacccf030e6e2",
+    "packages/core/src/review_raster.hpp": "878caa93b976234be031886c44a862964d679096148ca7a73e0f6e782467c1ac",
+    "platforms/android/app/src/main/java/ai/pixaura/app/ReviewPreviewPanel.kt": "1bcc21a49d6adde1b16079f579e24499c121da42c8e0c71e49d53f3febfb13c2",
+    "docs/contracts/review-preview-foundation-v1.md": "df8ef964b5e618a3df90d93cd9f9b0f02a6f49c9e7ba9daf61628a8725966a22"
+  },
+  "provider": "reference.assistance.v1",
+  "planner": "reference.deterministic.v1",
+  "learned_model": "NONE_REQUIRED_NONE_ADMITTED_FOR_PHASE_7_MVP",
+  "preview_kind": "RVP1",
+  "ticket_bytes": 56,
+  "pair_bytes": 176,
+  "request_plan_bytes": 8192,
+  "max_actions": 8,
+  "fit_edge": 512,
+  "native_bound": 1024,
+  "display_capacity_count": 8
+}

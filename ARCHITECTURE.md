@@ -1,5 +1,39 @@
 # System architecture
 
+<!-- phase8-step2-current -->
+## Phase 8 Step 2 - Before/After Preview Foundation
+
+Phase 7 CLOSED / COMPLETE / FULL PASS. Phase 8 Step 1 COMPLETE / FULL PASS at
+7aa21dc449de5143ddf1af7998ea7e233bb691b7: Foundation 40553987747 SUCCESS 7/7;
+Native shells 40553988252 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
+Phase 8 AUTHORIZED / IN PROGRESS. Step 2 AUTHORIZED / IN PROGRESS.
+Steps 3-6 NOT STARTED. Stop after Step 2. No editable review or Step 3 work.
+Native deterministic non-publication projection only; BEFORE is the exact bound
+current revision, AFTER PREVIEW is its disposable ordered Plan projection.
+REVIEW != APPROVAL. PREVIEW != EXECUTION. PREVIEW != REVISION.
+Exact source/Plan/owner/request/serial/repository/policy binding is rechecked before
+installation. Preview owns no approval, candidate, publication or history authority.
+Existing evaluation/geometry/display semantics and PREVIEW Budget Admission v1;
+bounded pair/copies, one request, BUSY/no queue/retry. Manual remains independent.
+Stop -> join ALL calls -> release -> destroy. Preview cancellation is preview-only.
+Toggle/split/shared bounded viewport/reset; geometry changes use honest fit/toggle.
+Explicit HUMAN Apply alone enters unchanged Phase 7 approval/candidate/execution.
+Intent/Structured Intent/Plan/Registry/Envelope/Provider/planner, approval/candidate,
+Schema 3, Manual/shared history/platform authority, Phase 4/5 and intelligence
+resource admission plus Full Review Experience v1 semantics unchanged.
+Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
+Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP. Free-form Intent v1
+uninterpreted. No model/runtime/weights/NLP/cloud/network preview or research added.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED /
+NOT SATISFIED; hosted Apple software only. Both full exact implementation-SHA and
+separate closure-SHA workflows required, every required job completed/SUCCESS.
+No old-SHA substitution, self-certification or rerun-until-green.
+See docs/contracts/review-preview-foundation-v1.md and docs/reports/phase-8-step-2.md.
+<!-- phase8-step2-history -->
+
+Earlier authority blocks are historical at their original freeze time.
+
+
 <!-- phase8-step1-current -->
 ## Phase 8 Step 1 - Review Experience Contract & Information Architecture
 

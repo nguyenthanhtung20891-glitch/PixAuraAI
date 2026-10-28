@@ -123,9 +123,10 @@ struct ManualEditorScreen: View {
                             }
                         }
                         if let review = state.review {
+                            ReviewComparisonPanel(model: model, state: state.preview)
                             Text("Reviewed source: \(review.sourceRevision.prefix(8)). Apply rechecks the current source.").accessibilityIdentifier("auto-source")
                             Button("Apply reviewed plan") { model.applyAutoFromHuman(review) }
-                                .disabled(state.inFlight || state.status != .reviewReady).accessibilityIdentifier("auto-apply")
+                                .disabled(state.inFlight || state.status != .reviewReady || state.preview.status == .previewLoading || state.preview.status == .stale).accessibilityIdentifier("auto-apply")
                                 .accessibilityHint("Explicit human approval for this exact reviewed plan")
                         }
                         Button("Reject proposal") { model.dismissAuto() }.disabled(state.inFlight).accessibilityIdentifier("auto-dismiss")
@@ -264,5 +265,69 @@ struct ManualEditorScreen: View {
         .onChange(of: model.core?.values) { values in cropDrafts = values?.map(String.init) ?? [] }
         .onChange(of: model.error) { if let error = $0 { UIAccessibility.post(notification: .announcement, argument: error) } }
         .onChange(of: model.assistance.error) { if let error = $0 { UIAccessibility.post(notification: .announcement, argument: error) } }
+    }
+}
+
+@MainActor
+private struct ReviewComparisonPanel: View {
+    @ObservedObject var model: ManualEditorModel
+    let state: ReviewPreviewUi
+    @State private var after = false
+    @State private var split = false
+    @State private var zoom = 1.0
+    @State private var panX = 0.0
+    @State private var panY = 0.0
+    @State private var divider = 0.5
+    private func reset() { after = false; split = false; zoom = 1; panX = 0; panY = 0; divider = 0.5 }
+    private func picture(_ image: CGImage, _ size: CGSize) -> some View {
+        Image(decorative: image, scale: 1, orientation: .up).resizable().aspectRatio(contentMode: .fit)
+            .frame(width: size.width, height: size.height).scaleEffect(CGFloat(zoom))
+            .offset(x: CGFloat(panX) * size.width * CGFloat(zoom - 1) / 2,
+                    y: CGFloat(panY) * size.height * CGFloat(zoom - 1) / 2)
+    }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Before / After Preview").font(.headline)
+            Text("Disposable display projection. Preview does not apply edits or guarantee Apply will succeed.").font(.caption)
+            Button("Preview reviewed plan") { model.requestReviewPreview() }
+                .disabled(state.status == .previewLoading).accessibilityIdentifier("review-preview-request")
+            if state.status == .previewLoading {
+                ProgressView("Preparing preview…").accessibilityIdentifier("review-preview-loading")
+                Button("Cancel preview") { model.cancelReviewPreview() }.accessibilityIdentifier("review-preview-cancel")
+            }
+            if let pair = state.comparison {
+                Text(split ? "Before / After Preview split" : after ? "After Preview — not committed" : "Before — bound source revision")
+                    .accessibilityIdentifier(after ? "review-after" : "review-before")
+                Text(pair.dimensions).font(.caption)
+                GeometryReader { geometry in
+                    ZStack {
+                        picture(after && !split ? pair.after : pair.before, geometry.size)
+                        if split {
+                            picture(pair.after, geometry.size).mask(alignment: .trailing) {
+                                Rectangle().frame(width: geometry.size.width * CGFloat(1 - divider))
+                            }
+                        }
+                    }.frame(width: geometry.size.width, height: geometry.size.height).clipped()
+                }.frame(height: 240).accessibilityIdentifier("review-viewport")
+                HStack {
+                    Button(after ? "Show Before" : "Show After Preview") { after.toggle(); split = false }.accessibilityIdentifier("review-toggle")
+                    Button("Split") { split.toggle() }.disabled(pair.geometryChanged).accessibilityIdentifier("review-split")
+                }
+                if pair.geometryChanged {
+                    Text("Geometry changed. Aspect-preserving fit/toggle is available; spatial split is unavailable.").font(.caption)
+                } else {
+                    if split { Slider(value: $divider, in: 0...1).accessibilityLabel("Comparison split position").accessibilityIdentifier("review-divider") }
+                    Text("Shared view zoom: \(zoom, specifier: "%.1f")×")
+                    Slider(value: $zoom, in: 1...4).accessibilityLabel("Comparison zoom").accessibilityIdentifier("review-zoom")
+                    Slider(value: $panX, in: -1...1).accessibilityLabel("Comparison horizontal pan").accessibilityIdentifier("review-pan-x")
+                    Slider(value: $panY, in: -1...1).accessibilityLabel("Comparison vertical pan").accessibilityIdentifier("review-pan-y")
+                }
+                Button("Reset comparison to fit") { reset() }.accessibilityIdentifier("review-reset")
+            }
+            if state.status == .stale { Text("Preview is stale. Request a freshly validated proposal.").accessibilityIdentifier("review-preview-stale") }
+            if state.status == .cancelled { Text("Preview cancelled. The Plan remains inspectable if current.").accessibilityIdentifier("review-preview-cancelled") }
+            if let error = state.error { Text(error).accessibilityIdentifier("review-preview-failed") }
+        }.accessibilityElement(children: .contain).accessibilityIdentifier("review-preview")
+            .onChange(of: state.comparison.map { ObjectIdentifier($0) }) { _ in reset() }
     }
 }

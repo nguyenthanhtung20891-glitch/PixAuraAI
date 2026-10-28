@@ -21,6 +21,7 @@
 #include <chrono>
 #include <thread>
 #endif
+#include "review_preview_state.hpp"
 #ifdef PIXAURA_CERTIFICATION_TESTING
 namespace pixaura::preview { void test_observer(pixaura_decode_context*,evaluation::Observer,void*); }
 #endif
@@ -54,6 +55,7 @@ struct Reader:storage::Reader {
     }
 };
 struct Service {
+    ReviewPreviewState review_preview;
     std::unique_ptr<assistance::ReferenceProvider> assist_provider;
     uint64_t assist_sequence=0,assist_repository_epoch=0;
     bool assist_active=false,assist_ready=false,assist_unavailable=false;
@@ -108,10 +110,12 @@ struct Service {
     Service(std::string_view r,std::string_view id):seed(id),root(r){}
     String fresh(){require(serial!=UINT64_MAX,8);auto s=assemble({seed,":",std::to_string(++serial)});
         storage::Sha256 hash;hash.update(byte_pointer(s),s.size());return hash.finish().substr(0,32);}
-    ~Service(){if(document.api_version)(void)pixaura_document_context_destroy(&document);
+    ~Service(){if(raster.api_version)review_preview.invalidate(raster);
+        if(document.api_version)(void)pixaura_document_context_destroy(&document);
         if(raster.api_version){(void)pixaura_preview_stop(&raster);(void)pixaura_decode_context_destroy(&raster);}}
     void ready(){require(!stopped,13);}
     void invalidate_auto() noexcept {
+        review_preview.invalidate(raster);
         auto_cancelled=true;auto_ready=false;auto_plan.clear();
         if(auto_sequence!=UINT64_MAX)++auto_sequence;
         if(auto_active&&assist_provider){try{assist_provider->cancel();}catch(...){assist_unavailable=true;}}
@@ -160,11 +164,13 @@ extern "C" int32_t pixaura_editor_policy_configure(uint32_t version,pixaura_edit
     const pixaura_capability_profile* p,const pixaura_policy_observation* o,pixaura_execution_strategy* out){return attempt([&]{
     auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);s.ready();
     check(pixaura_policy_configure(version,&s.raster,p,o,out));
+    s.review_preview.invalidate(s.raster);
 });}
 extern "C" int32_t pixaura_editor_policy_update(uint32_t version,pixaura_editor_context* c,
     const pixaura_policy_observation* o,pixaura_execution_strategy* out){return attempt([&]{
     auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);s.ready();
     check(pixaura_policy_update(version,&s.raster,o,out));
+    if(s.review_preview.policy_epoch&&s.review_preview.policy_epoch!=out->epoch)s.review_preview.invalidate(s.raster);
 });}
 extern "C" int32_t pixaura_editor_policy_query(uint32_t version,pixaura_editor_context* c,pixaura_execution_strategy* out){return attempt([&]{
     auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);s.ready();
@@ -307,7 +313,7 @@ extern "C" int32_t pixaura_editor_state(pixaura_editor_context* c,uint8_t* outpu
     *required=json.size();if(!output)return;require(capacity>=json.size(),11);std::memcpy(output,json.data(),json.size());
 });}
 extern "C" int32_t pixaura_editor_request_preview(pixaura_editor_context* c,pixaura_editor_request* out){return attempt([&]{
-    auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);s.ready();require(out);pixaura_editor_request request{};request.live=s.live;
+    auto& s=owner(c);std::lock_guard<std::mutex> lock(s.gate);s.ready();require(out);s.review_preview.invalidate(s.raster);pixaura_editor_request request{};request.live=s.live;
     if(s.selected&&!s.proposal.serial){request.gesture=s.gesture;check(pixaura_manual_preview_ticket(&s.document,&s.gesture,&s.live,&request.ticket,&request.sequence));require(request.sequence!=0,13);}
     else {check(pixaura_preview_begin(&s.raster,1,&s.approved_ticket));request.ticket=s.approved_ticket;}*out=request;
 });}
@@ -349,3 +355,4 @@ extern "C" int32_t pixaura_editor_destroy(pixaura_editor_context* c){return atte
 #include "agent_execution_boundary.hpp"
 #include "assist_experience_boundary.hpp"
 #include "auto_proposal_boundary.hpp"
+#include "review_preview_boundary.hpp"

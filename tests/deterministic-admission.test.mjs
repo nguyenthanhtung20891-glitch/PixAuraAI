@@ -47,12 +47,16 @@ test('Phase 7 closure preserves the complete frozen runtime and contract invento
  const m=read('docs/reports/phase-7-closure-v1.json');
  assert.equal(m.runtime_authority,false);assert.equal(m.baseline,'54dcc9292f43ab49335a99df3a4145d0279c7980');
  const paths=execFileSync('git',['ls-files'],{encoding:'utf8'}).trim().split('\n').filter(p=>m.roots.some(r=>p.startsWith(r))||m.exact.includes(p)||(/^(platforms\/android\/|platforms\/ios\/)/.test(p)&&/\.(gradle\.kts|toml|lockfile|pbxproj)$/.test(p))).sort();
- // Phase 8 Step 1 authorizes exactly one additive documentation contract. Every
- // original file/hash stays frozen; no runtime addition or other contract is exempt.
- assert.deepEqual(paths.filter(p=>p!=='docs/contracts/full-review-experience-v1.md'),Object.keys(m.sha256).sort(),'no unreviewed runtime/contract addition or removal');
+ // Historical Phase 7 remains immutable. Phase 8 Step 2 authorizes only the
+ // individually bound preview changes/additions; the new preview test fixes the
+ // exact allowlist and checks both sides, not a blanket runtime exemption.
+ const preview=read('docs/reports/phase-8-step-2-v1.json');
+ const added=new Set(['docs/contracts/full-review-experience-v1.md',...Object.keys(preview.additions)]);
+ assert.deepEqual(paths.filter(p=>!added.has(p)),Object.keys(m.sha256).sort(),'no unreviewed runtime/contract addition or removal');
  for(const [p,digest] of Object.entries(m.sha256)){
   const b=fs.readFileSync(p),s=b.toString('utf8');
-  assert.equal(hash(Buffer.from(s,'utf8').equals(b)?Buffer.from(s.replaceAll('\r\n','\n')):b),digest,p);
+  const change=preview.changes[p];if(change)assert.equal(change.before_sha256_lf,digest,p);
+  assert.equal(hash(Buffer.from(s,'utf8').equals(b)?Buffer.from(s.replaceAll('\r\n','\n')):b),change?.after_sha256_lf??digest,p);
  }
  for(const c of read('docs/reports/phase-6-closure-v1.json').contracts)assert.equal(hash(fs.readFileSync(c.path,'utf8').replaceAll('\r\n','\n')),c.sha256_lf,c.path);
  assert.equal(m.original_contract_freezes.length,8);

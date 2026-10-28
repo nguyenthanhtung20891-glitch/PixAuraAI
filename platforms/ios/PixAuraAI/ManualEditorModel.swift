@@ -5,6 +5,12 @@ import PixAuraCore
 
 enum AssistStatus { case idle, requesting, proposalAvailable, failed, stale, cancelled, rejected }
 enum AutoStatus { case idle, requesting, proposalReceived, validating, reviewReady, approving, executing, completed, stale, cancelled, failed, rejected }
+enum ReviewPreviewStatus { case planReview, previewLoading, previewReady, previewFailed, stale, cancelled }
+struct ReviewPreviewUi {
+    var status: ReviewPreviewStatus = .planReview
+    var comparison: ManualEditor.ReviewComparison?
+    var error: String?
+}
 struct AutoUiState {
     var enabled = false, inFlight = false
     var status: AutoStatus = .idle
@@ -15,6 +21,7 @@ struct AutoUiState {
     var receipt: ManualEditor.AgentReceipt?
     var cancelRequested = false
     var error: String?
+    var preview = ReviewPreviewUi()
 }
 struct AssistUiState {
     var enabled = false, inFlight = false
@@ -48,6 +55,7 @@ private final class EditorWorker {
             do {
                 let old = try owner.strategy()
                 let new = try owner.applyCapability(value)
+                if old.epoch != new.epoch { DispatchQueue.main.async { self.reviewInvalidated?(owner) } }
                 // A selected but untouched gesture has no accepted preview request.
                 if old.epoch != new.epoch, owner.displayedImage() != nil {
                     let state = try owner.state()
@@ -75,6 +83,9 @@ private final class EditorWorker {
     private var assistWorking = false
     private var cancellingAdvice = false
     private var cancellingAuto = false
+    private var reviewAdmission: UUID?
+    private var reviewCancelled = false
+    private var activeReviewPreview: (ManualEditor, ManualEditor.ReviewPreviewRequest)?
     private var activeAutoReview: (ManualEditor, ManualEditor.AutoReview)?
     private var latestEpoch: UInt64 = 0
     private let lock = NSLock()
@@ -88,6 +99,7 @@ private final class EditorWorker {
     var refresh: (@MainActor (UInt64, ManualEditor?, ManualEditorState?, CGImage?, String?) -> Void)?
     var candidate: (@MainActor (ManualEditor, ManualEditor.Candidate) -> Void)?
     var previewError: (@MainActor (ManualEditor, String) -> Void)?
+    var reviewInvalidated: (@MainActor (ManualEditor) -> Void)?
     private func emit(_ epoch: UInt64, _ error: String? = nil) {
         let editor = owner
         let state = try? editor?.state(), image = editor?.displayedImage()
@@ -135,6 +147,11 @@ private final class EditorWorker {
         commands.async { self.close() }
     }
     func close() {
+        #if DEBUG
+        lock.lock(); let previewToDrain = activeReviewPreview; lock.unlock()
+        if let previewToDrain { try? previewToDrain.0.cancelReviewPreview(previewToDrain.1); _ = previewToDrain.0.reviewPreviewTestControl(2) }
+        #endif
+        cancelReviewPreview()
         clearPending()
         #if DEBUG
         if let active = activeAutoReview { try? active.0.cancelAutoReview(active.1); _ = active.0.reviewTestControl(2) }
@@ -198,6 +215,47 @@ private final class EditorWorker {
             if ProcessInfo.processInfo.arguments.contains("--auto-test-pause") { _ = self.owner?.autoTestControl(2) }
             #endif
             self.lock.lock(); self.cancellingAuto = false; self.lock.unlock()
+        }
+    }
+    func cancelReviewPreview() {
+        lock.lock(); reviewCancelled = true; let active = activeReviewPreview; activeReviewPreview = nil; lock.unlock()
+        if let active { commands.async {
+            try? active.0.cancelReviewPreview(active.1)
+            #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("--review-preview-test-pause") { _ = active.0.reviewPreviewTestControl(2) }
+            #endif
+        } }
+    }
+    private func finishReviewPreview(_ result: Result<ManualEditor.ReviewComparison, Error>, admission: UUID,
+        completion: @escaping @MainActor (Result<ManualEditor.ReviewComparison, Error>) -> Void) {
+        DispatchQueue.main.async {
+            completion(result)
+            self.lock.lock()
+            if self.reviewAdmission == admission { self.assistWorking = false; self.reviewAdmission = nil }
+            self.lock.unlock()
+        }
+    }
+    func requestReviewPreview(_ review: ManualEditor.AutoReview, completion: @escaping @MainActor (Result<ManualEditor.ReviewComparison, Error>) -> Void) {
+        lock.lock()
+        if assistWorking || cancellingAdvice || cancellingAuto { lock.unlock(); DispatchQueue.main.async { completion(.failure(ManualEditorFailure(status: 8, boundary: "Review preview"))) }; return }
+        let admission = UUID(); reviewAdmission = admission; reviewCancelled = false; assistWorking = true; lock.unlock()
+        commands.async {
+            guard let editor = self.owner else { self.finishReviewPreview(.failure(ManualEditorFailure(status: 13, boundary: "Review preview")), admission: admission, completion: completion); return }
+            do {
+                self.lock.lock(); let cancelled = self.reviewCancelled; self.lock.unlock()
+                if cancelled { throw ManualEditorFailure(status: 13, boundary: "Review preview") }
+                let request = try editor.beginReviewPreview(review)
+                #if DEBUG
+                if ProcessInfo.processInfo.arguments.contains("--review-preview-test-pause") { _ = editor.reviewPreviewTestControl(0, 0) }
+                if ProcessInfo.processInfo.arguments.contains("--review-preview-test-failure") { _ = editor.reviewPreviewTestControl(3, 2) }
+                #endif
+                self.lock.lock(); let abandoned = self.reviewCancelled; if !abandoned { self.activeReviewPreview = (editor, request) }; self.lock.unlock()
+                if abandoned { try? editor.cancelReviewPreview(request); throw ManualEditorFailure(status: 13, boundary: "Review preview") }
+                self.advising.async {
+                    let result = Result { try editor.renderReviewPreview(request) }
+                    self.commands.async { self.finishReviewPreview(result, admission: admission, completion: completion) }
+                }
+            } catch { self.finishReviewPreview(.failure(error), admission: admission, completion: completion) }
         }
     }
     func applyAutoFromHuman(_ review: ManualEditor.AutoReview, epoch: UInt64,
@@ -330,6 +388,7 @@ final class ManualEditorModel: ObservableObject {
     @Published private(set) var assistance = AssistUiState()
     @Published private(set) var autoProposal = AutoUiState()
     private var autoEpoch: UInt64 = 0
+    private var reviewPreviewBusy = false
     private var loadingAutoChoices = false
     private var assistEpoch: UInt64 = 0
     private var loadingChoices = false
@@ -356,6 +415,10 @@ final class ManualEditorModel: ObservableObject {
         worker.previewError = { [weak self] editor, error in
             guard let self, self.editor === editor else { return }
             self.previewLoading = false; self.error = error
+        }
+        worker.reviewInvalidated = { [weak self] editor in
+            guard let self, self.editor === editor, self.autoProposal.preview.comparison != nil else { return }
+            self.cancelReviewPreview(.stale)
         }
     }
     deinit {
@@ -438,6 +501,7 @@ final class ManualEditorModel: ObservableObject {
         autoEpoch += 1; return autoEpoch
     }
     private func invalidateAuto(_ reason: AutoStatus = .stale) {
+        cancelReviewPreview(reason == .stale ? .stale : .cancelled)
         _ = nextAutoEpoch(); let hadWork = autoProposal.proposal != nil || autoProposal.inFlight
         autoProposal.proposal = nil; autoProposal.review = nil; autoProposal.receipt = nil; autoProposal.error = nil; autoProposal.cancelRequested = false
         autoProposal.status = autoProposal.enabled && hadWork ? reason : .idle
@@ -479,12 +543,38 @@ final class ManualEditorModel: ObservableObject {
             case .success(let (proposal, review)):
                 self.autoProposal.status = .proposalReceived
                 self.autoProposal.status = .validating // native current/Plan inspection completed in worker
-                self.autoProposal.proposal = proposal; self.autoProposal.review = review; self.autoProposal.status = .reviewReady
+                self.autoProposal.proposal = proposal; self.autoProposal.review = review; self.autoProposal.status = .reviewReady; self.autoProposal.preview = ReviewPreviewUi()
             case .failure(let error): self.autoFailure(error)
             }
         }
     }
+    func requestReviewPreview() {
+        guard autoProposal.enabled, autoProposal.status == .reviewReady, !autoProposal.inFlight,
+              !reviewPreviewBusy, let review = autoProposal.review else { return }
+        let stamp = autoEpoch
+        reviewPreviewBusy = true; autoProposal.preview = ReviewPreviewUi(status: .previewLoading)
+        worker.requestReviewPreview(review) { [weak self] result in
+            guard let self else { return }; self.reviewPreviewBusy = false
+            guard self.autoEpoch == stamp, self.autoProposal.enabled, self.autoProposal.review === review,
+                  self.autoProposal.preview.status == .previewLoading else { return }
+            switch result {
+            case .success(let value):
+                guard let editor = self.editor, editor.installReviewPreview(value, replace: {
+                    self.autoProposal.preview = ReviewPreviewUi(status: .previewReady, comparison: value)
+                }) else { self.autoProposal.preview = ReviewPreviewUi(status: .stale, error: "Preview expired. Request a freshly validated proposal."); return }
+            case .failure(let error):
+                let status: ReviewPreviewStatus
+                switch (error as? ManualEditorFailure)?.status { case 3, 9: status = .stale; case 13: status = .cancelled; default: status = .previewFailed }
+                self.autoProposal.preview = ReviewPreviewUi(status: status, error: "Preview unavailable. No edit was applied. Manual editing and Plan inspection remain available.")
+            }
+        }
+    }
+    func cancelReviewPreview(_ reason: ReviewPreviewStatus = .cancelled) {
+        autoProposal.preview = ReviewPreviewUi(status: reason); worker.cancelReviewPreview()
+    }
     func applyAutoFromHuman(_ review: ManualEditor.AutoReview) {
+        guard !reviewPreviewBusy, autoProposal.preview.status != .stale else { return }
+        cancelReviewPreview()
         guard autoProposal.enabled, autoProposal.status == .reviewReady, !autoProposal.inFlight, autoProposal.review === review, let stamp = nextAutoEpoch() else { return }
         autoProposal.status = .approving; autoProposal.inFlight = true; autoProposal.error = nil; autoProposal.cancelRequested = false
         epoch += 1
