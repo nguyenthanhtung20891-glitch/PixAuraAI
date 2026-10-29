@@ -1,6 +1,6 @@
 # Phase 8 Step 2 - Before/After Preview Foundation
 
-Status: AUTHORIZED / IN PROGRESS; implementation certification pending.
+Status: CLOSURE CERTIFICATION PENDING; implementation independently certified.
 Step 3 and Steps 4-6 NOT STARTED. This report does not certify its own SHA.
 
 ## Baseline and scope
@@ -252,3 +252,78 @@ application behavior. AndroidX documents the scheduling distinction in its
 [Compose test migration guide](https://developer.android.com/develop/ui/compose/testing/migrate-v2)
 and provides the same effectContext overload in its existing test rule API.
 The failed SHA is not rerun; the correction requires a new SHA and both full suites.
+
+## Observed implementation certification and prepared closure
+
+Certified implementation SHA `6c815338bcb63efee8fd041cf2df09e56962ac9f` passed Foundation **40819897074** (7/7)
+and Native application shells **40819897075** (3/3), exact SHA, attempt 1, all required
+jobs individually completed/SUCCESS. The [job-level implementation receipt](evidence/phase-8-step-2-implementation-certification.json)
+records head SHAs, attempts and job IDs. The failed initial SHA remains historical,
+not certified. Corrections created a new SHA; no workflow reruns or test weakening.
+
+| Workflow | Job | ID | Result |
+| --- | --- | --- | --- |
+| Foundation boundaries | workflow-lint | 123269662251 | completed / SUCCESS |
+| Foundation boundaries | android-boundary (arm64-v8a) | 123269662490 | completed / SUCCESS |
+| Foundation boundaries | portable (ubuntu-24.04) | 123269662541 | completed / SUCCESS |
+| Foundation boundaries | portable (windows-2025) | 123269662572 | completed / SUCCESS |
+| Foundation boundaries | android-boundary (armeabi-v7a) | 123269662578 | completed / SUCCESS |
+| Foundation boundaries | apple-boundary | 123269662618 | completed / SUCCESS |
+| Foundation boundaries | sanitizer | 123269662619 | completed / SUCCESS |
+| Native application shells | android-app | 123269662362 | completed / SUCCESS |
+| Native application shells | source | 123269662610 | completed / SUCCESS |
+| Native application shells | ios-app | 123269662647 | completed / SUCCESS |
+
+This documentation-only closure changes no production code, contract, test or
+workflow behavior. Its [exact inventory](evidence/phase-8-step-2-closure-files.json)
+records all closure files. Both full workflows must independently pass its new SHA.
+Only the external observed final engineering receipt activates Step 2 COMPLETE /
+FULL PASS; no self-certification or older-SHA substitution. Until that observation
+CLOSURE CERTIFICATION PENDING. Phase 8 remains IN PROGRESS; Steps 3-6 NOT STARTED.
+All stated provider/model/trust and frozen-contract boundaries remain unchanged.
+
+## Certified implementation verification results
+
+These results were read from completed job logs for the certified implementation
+SHA above; they are not inferred from older green runs.
+
+| Environment/check | Observed result |
+| --- | --- |
+| Linux native | 56/56 tests passed |
+| Windows native | 55/55 applicable tests passed |
+| Apple native | 56/56 tests passed |
+| Swift macOS / iOS Simulator | 47/47 tests on each, zero failures |
+| Active ASan/UBSan | 58/58, including both active-instrumentation probes |
+| Android instrumentation | XML: 51 tests, 0 failures, 0 errors, 0 skipped |
+| iOS app / semantic UI | 9/9 app and 12/12 UI tests, zero failures |
+| Retained local source command | 191/191, zero skipped |
+| Android final APK | Isolation PASS; 12 native libraries, 2 DEX files, 31,968,709 uncompressed bytes |
+| Apple final release package | Isolation PASS; 8 files, 3,073,887 bytes, zero model assets |
+
+Release scanner negative fixtures passed. The complete retained workflows include
+both Android native ABIs, C/C++ ABI consumers, source consistency, workflow lint,
+Manual/history/undo/redo, Agent/approval/replay and lifecycle regressions. Every
+required job was individually inspected. No workflow rerun, test weakening,
+sanitizer suppression or physical-device certification claim was used.
+
+The threat table's pending platform/package checks are now verified for this
+implementation: late-result/teardown platform tests and final native/APK/Apple
+release isolation passed. There is no unresolved A-class finding. Geometry split
+remains an explicitly authorized presentation limitation; safe fit/toggle is used.
+Final closure certification remains pending on this documentation commit's own SHA.
+
+Linux Debug CI measured the actual native preview path on the owned 640x480
+fixture, fit edge 512, first plus five warm renders:
+
+| Plan | Begin mean ms | First render ms | Warm median ms | Warm p95 ms | Admission peak bound bytes | Native pair bytes | Native bytes after release |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Exposure | 3.477 | 224.581 | 216.148 | 216.476 | 28,823,208 | 1,572,864 | 0 |
+| Exposure + contrast | 3.528 | 254.830 | 253.744 | 256.734 | 28,823,208 | 1,572,864 | 0 |
+| Crop + rotate + brightness | 3.636 | 218.741 | 217.021 | 218.888 | 28,847,784 | 1,572,864 | 0 |
+
+The admission peak is conservative simultaneously-owned resource accounting,
+including reserved old display capacity, not measured process RSS or an exact
+whole-process live allocation. Native pair ownership is measured separately;
+platform copies follow Bitmap/CGImage lifetime and are not claimed as immediate
+RSS reclamation. Hosted timings are engineering evidence, not physical-device
+battery/thermal or GPU trust certification.

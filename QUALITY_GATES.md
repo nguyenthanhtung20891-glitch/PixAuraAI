@@ -6,7 +6,13 @@
 Phase 7 CLOSED / COMPLETE / FULL PASS. Phase 8 Step 1 COMPLETE / FULL PASS at
 7aa21dc449de5143ddf1af7998ea7e233bb691b7: Foundation 40553987747 SUCCESS 7/7;
 Native shells 40553988252 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
-Phase 8 AUTHORIZED / IN PROGRESS. Step 2 AUTHORIZED / IN PROGRESS.
+Phase 8 AUTHORIZED / IN PROGRESS. Step 2 CLOSURE CERTIFICATION PENDING.
+Certified implementation SHA: `6c815338bcb63efee8fd041cf2df09e56962ac9f`.
+Foundation 40819897074 SUCCESS 7/7; Native shells 40819897075 SUCCESS 3/3;
+both exact SHA, attempt 1, every required job completed/SUCCESS.
+This separate documentation-only closure requires BOTH full workflows on its OWN
+exact SHA. Only the external observed final engineering receipt then activates
+Phase 8 Step 2 COMPLETE / FULL PASS. Until then closure certification pending.
 Steps 3-6 NOT STARTED. Stop after Step 2. No editable review or Step 3 work.
 Native deterministic non-publication projection only; BEFORE is the exact bound
 current revision, AFTER PREVIEW is its disposable ordered Plan projection.

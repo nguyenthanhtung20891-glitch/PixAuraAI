@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "scope": "PHASE_8_STEP_2_DOCUMENTATION_ONLY_CLOSURE",
+  "certified_implementation_sha": "6c815338bcb63efee8fd041cf2df09e56962ac9f",
+  "production_behavior_changed": false,
+  "files": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "DECISIONS.md",
+    "QUALITY_GATES.md",
+    "ROADMAP.md",
+    "docs/plans/phase-8-roadmap.md",
+    "docs/reports/evidence/phase-8-step-2-closure-files.json",
+    "docs/reports/evidence/phase-8-step-2-implementation-certification.json",
+    "docs/reports/phase-8-step-2-v1.json",
+    "docs/reports/phase-8-step-2.md"
+  ]
+}
