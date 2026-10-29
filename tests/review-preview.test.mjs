@@ -55,6 +55,8 @@ test('both platforms expose separate semantic preview controls and native-gated 
  for(const p of ['platforms/android/app/src/androidTest/java/ai/pixaura/app/ReviewPreviewTest.kt','packages/core/swift/Tests/ReviewPreviewTests.swift','platforms/ios/PixAuraAIUITests/ShellUITests.swift'])assert.ok(text(p).includes('reviewPreview')||text(p).includes('ReviewPreview'));
 });
 test('preview tests and release marker rejection remain in both complete workflows',()=>{
+ const assist=text('platforms/android/app/src/androidTest/java/ai/pixaura/app/AssistExperienceTest.kt');
+ assert.ok(assist.includes('effectContext = StandardTestDispatcher()'),'Assist transitions must not resume composition inline during layout');
  const c=text('CMakeLists.txt');for(const name of ['review_preview_test','review_preview_c_consumer','review_preview_allocation_test'])assert.ok(c.includes(`add_test(NAME ${name}`),name);
  assert.ok(c.includes('get_target_property(review_production_sources pixaura_core SOURCES)'));
  const defs=c.match(/target_compile_definitions\(review_preview_allocation_test PRIVATE ([^)]+)\)/)?.[1];assert.equal(defs,'${review_production_definitions}');

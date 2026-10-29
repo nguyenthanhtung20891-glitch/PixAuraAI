@@ -11,6 +11,7 @@ import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
+import kotlinx.coroutines.test.StandardTestDispatcher
 
 // Debug instrumentation only. Tests resume and join before owner destruction.
 class AssistTestHooks {
@@ -21,8 +22,11 @@ class AssistTestHooks {
     }
 }
 
+@OptIn(ExperimentalTestApi::class)
 class AssistExperienceTest {
-    @get:Rule val compose = createAndroidComposeRule<MainActivity>()
+    // Queue composition work instead of resuming it inline inside an Android
+    // measure/layout pass. Keep the same semantic actions and native assertions.
+    @get:Rule val compose = createAndroidComposeRule<MainActivity>(effectContext = StandardTestDispatcher())
     private val model get() = compose.activity.manualModel
     private val hooks = AssistTestHooks()
     private fun waitFor(predicate: () -> Boolean) = compose.waitUntil(20_000, predicate)

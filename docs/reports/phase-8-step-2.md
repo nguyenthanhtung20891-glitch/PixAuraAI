@@ -238,3 +238,17 @@ After implementation certification a separate documentation-only closure must pa
 both full workflows on its own exact SHA. Only the external observed final receipt
 activates Step 2 COMPLETE / FULL PASS. No older SHA, self-certification or
 rerun-until-green. Stop after Step 2.
+
+On `d2f2d23b5f845c32508faf2c902dc96fdcecc3c5`, Foundation 40682947476
+completed SUCCESS 7/7, attempt 1; iOS and source jobs in Native shells 40682947372
+also succeeded. Android stopped at 13/51 during the retained Assist navigation test:
+Compose threw `performMeasureAndLayout called during measure layout` on the main
+thread before the preview tests ran. This SHA is not fully certified. The scoped
+harness correction uses the pinned Compose rule's `effectContext` overload with
+`StandardTestDispatcher`, queuing composition work rather than resuming it inline.
+All semantic actions, assertions and deadlines remain intact. This addresses test
+scheduling reentrancy; it does not claim a production editing defect or change
+application behavior. AndroidX documents the scheduling distinction in its
+[Compose test migration guide](https://developer.android.com/develop/ui/compose/testing/migrate-v2)
+and provides the same effectContext overload in its existing test rule API.
+The failed SHA is not rerun; the correction requires a new SHA and both full suites.

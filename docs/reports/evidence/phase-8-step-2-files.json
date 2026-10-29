@@ -28,6 +28,7 @@
     "packages/core/tests/review_preview_allocation_test.cpp",
     "packages/core/tests/review_preview_c_consumer.c",
     "packages/core/tests/review_preview_test.cpp",
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/AssistExperienceTest.kt",
     "platforms/android/app/src/androidTest/java/ai/pixaura/app/ReviewPreviewTest.kt",
     "platforms/android/app/src/main/java/ai/pixaura/app/AutoProposalPanel.kt",
     "platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt",
