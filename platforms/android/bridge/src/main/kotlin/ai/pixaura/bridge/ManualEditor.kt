@@ -233,8 +233,33 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     }
     fun cancelAuto() = gate.withLock { checked(if (closed) 13 else nativeAutoCancel(storage), "Auto proposal") }
     /** Presentation owns this immutable reviewed plan, never an approval token. */
+    data class ReviewParameter(val name: String, val unit: String, val raw: Int, val minimum: Int, val maximum: Int, val neutral: Int)
+    data class ReviewAction(val index: Int, val toolId: String, val label: String, val operationVersion: Int,
+        val parameterVersion: Int, val geometry: Boolean, val parameters: List<ReviewParameter>)
+    class PlanInspection internal constructor(internal val packet: ByteBuffer, val actions: List<ReviewAction>, val warnings: Int)
+    private fun describeReview(proposal: AutoProposal, plan: AgentPlan): PlanInspection {
+        val p = ByteBuffer.allocateDirect(4808).order(ByteOrder.nativeOrder())
+        checked(nativeInspection(storage, proposal.packet, plan.canonicalBytes(), p), "Plan inspection")
+        val count = p.getInt(12)
+        checked(if (p.getInt(0) == 1 && p.getInt(4) == 4808 && p.getInt(8) == 0x52494e31 && count in 1..8 && p.getInt(20) == 1 && p.getInt(16) in 0..3) 0 else 14, "Plan inspection")
+        fun text(at: Int, capacity: Int): String {
+            val bytes = ByteArray(capacity) { p.get(at + it) }; val n = bytes.indexOf(0)
+            checked(if (n in 1 until capacity && bytes.take(n).all { it in 32..126 }) 0 else 14, "Inspection text")
+            return bytes.copyOf(n).toString(Charsets.US_ASCII)
+        }
+        val actions = List(count) { i -> val at = 456 + i * 544; val n = p.getInt(at + 16)
+            checked(if (p.getInt(at) == i && n in 1..4 && p.getInt(at + 8) == 1 && p.getInt(at + 12) == 1 && p.getInt(at + 20) in 0..1 && p.getInt(at + 24) in listOf(0, 2) && p.getInt(at + 28) == 0) 0 else 14, "Inspection action")
+            ReviewAction(i, text(at + 32, 32), text(at + 64, 32), p.getInt(at + 8), p.getInt(at + 12), p.getInt(at + 20) == 1,
+                java.util.Collections.unmodifiableList(List(n) { j -> val v = at + 96 + j * 112
+                    ReviewParameter(text(v, 32), text(v + 32, 64), p.getInt(v + 96), p.getInt(v + 100), p.getInt(v + 104), p.getInt(v + 108)) }))
+        }
+        return PlanInspection(p.asReadOnlyBuffer(), java.util.Collections.unmodifiableList(actions), p.getInt(16))
+    }
+    private external fun nativeInspection(storage: ByteBuffer, proposal: ByteBuffer, plan: ByteArray, packet: ByteBuffer): Int
+    private external fun nativeInspectionCurrent(storage: ByteBuffer, packet: ByteBuffer): Int
+    private external fun nativeInspectionPreview(storage: ByteBuffer, packet: ByteBuffer, preview: ByteBuffer): Int
     class AutoReview internal constructor(internal val owner: ManualEditor, internal val proposal: AutoProposal,
-        internal val plan: AgentPlan, val sourceRevision: String) {
+        internal val plan: AgentPlan, val sourceRevision: String, val inspection: PlanInspection) {
         internal var attempted = false
         internal var abandoned = false
         fun canonicalBytes(): ByteArray = plan.canonicalBytes()
@@ -244,7 +269,11 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
         checked(if (applyingReview != null || cancellingReview) 8 else 0, "Auto review")
         checked(if (proposal.packet.duplicate().order(ByteOrder.nativeOrder()).getLong(56) == attemptedAutoSerial) 15 else 0, "Auto review")
         val plan = validateAgentPlan(inspectAuto(proposal))
-        AutoReview(this, proposal, plan, state().revisionId)
+        AutoReview(this, proposal, plan, state().revisionId, describeReview(proposal, plan))
+    }
+    fun inspectReview(review: AutoReview): PlanInspection = gate.withLock {
+        checked(if (closed) 13 else if (review.owner !== this || review.abandoned || review.attempted) 9 else nativeInspectionCurrent(storage, review.inspection.packet), "Plan inspection current")
+        review.inspection
     }
     /** ONLY the explicit review Apply action may invoke this trusted boundary. */
     fun applyAutoFromHuman(review: AutoReview, onExecuting: () -> Unit = {}): AgentReceipt {
@@ -300,6 +329,7 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     fun beginReviewPreview(review: AutoReview): ReviewPreviewRequest = gate.withLock {
         checked(if (closed) 13 else if (review.owner !== this || review.attempted || review.abandoned) 9
             else if (assistCalls != 0 || applyingReview != null || cancellingReview) 8 else 0, "Review preview")
+        inspectReview(review)
         comparison = null
         val ticket = ByteBuffer.allocateDirect(56).order(ByteOrder.nativeOrder())
         checked(nativeReviewBegin(storage, review.proposal.packet, review.canonicalBytes(), ticket), "Review preview")
@@ -334,6 +364,7 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     /** Check and actual presentation replacement share this lifecycle gate. */
     fun installReviewPreview(value: ReviewComparison, install: () -> Unit): Boolean = gate.withLock {
         if (closed || value.owner !== this || nativeReviewCurrent(storage, value.packet) != 0) return false
+        if (nativeInspectionPreview(storage, value.request.review.inspection.packet, value.packet) != 0) return false
         comparison = value; install(); true
     }
     fun cancelReviewPreview(request: ReviewPreviewRequest) = gate.withLock {

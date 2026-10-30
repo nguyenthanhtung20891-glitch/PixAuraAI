@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "phase": 8,
+  "step": 3,
+  "status": "AUTHORIZED_IN_PROGRESS",
+  "baseline": "b3d40ae0327d904c8f67995646b249fd95ecfa26",
+  "runtime_authority": false,
+  "editing_authority": false,
+  "step4": "NOT_STARTED",
+  "contract": "docs/contracts/plan-inspection-action-review-v1.md",
+  "record_bytes": 4808,
+  "action_bytes": 544,
+  "parameter_bytes": 112,
+  "max_actions": 8,
+  "max_parameters": 4,
+  "max_plan_bytes": 8192,
+  "provider": "reference.assistance.v1",
+  "planner": "reference.deterministic.v1",
+  "changes": {
+    "CMakeLists.txt": {
+      "before_sha256_lf": "df16d38d4cdf5429c1ad3b5f5994ec64637690e97cdeed5eaeab159948ce07c5",
+      "after_sha256_lf": "436bfc1a8d7a3e3b1567c3420f9fbb79f73864b9694b9a9b8b4ed567c83789c1"
+    },
+    "packages/core/src/editor_api.cpp": {
+      "before_sha256_lf": "25c504cc36c1966bbb01e1364cce823086171add1bbcd03b5dc587646ca7ea3d",
+      "after_sha256_lf": "d2f9c13d26af105f6693a109db642ffcfa94a454e5915ac60dc421d19fa1898d"
+    },
+    "packages/core/swift/Sources/ManualEditor.swift": {
+      "before_sha256_lf": "2612c8441a8a11f10f969750bdcae3ea797350fe08c6dd1209b229fa67af4b25",
+      "after_sha256_lf": "2ffc5be63ce92b9aeed8f6d9d3504e16612e350adb35bec985ae0b5c0de3a344"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/AutoProposalPanel.kt": {
+      "before_sha256_lf": "ac778d710c5e4279bddc7f0d2ff4b2a7f301429c7f80a6ad8fa0263dfa7bdbfe",
+      "after_sha256_lf": "24a1f2a3fa1c37acf1ac95d0c012c9e34332aba7712b782b296da70e9e7a34e2"
+    },
+    "platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt": {
+      "before_sha256_lf": "ff031a26eb00590480ec646144bca018c346640755757f19023ca082ca48dae3",
+      "after_sha256_lf": "6c8baf748d4f975d14e343d7baf2518ee8cc0619d23dcaabd7e7655ac91a2ef2"
+    },
+    "platforms/android/native/editor_bridge.cpp": {
+      "before_sha256_lf": "151d14d5d382216594d6aab8e9d468aa4904bcd244db22e9efe6d8e73214f592",
+      "after_sha256_lf": "c06f0b62031055ea5012827a82983645678281a683820780357ccd95f14409a5"
+    },
+    "platforms/ios/PixAuraAI/ManualEditorModel.swift": {
+      "before_sha256_lf": "127cc3dfccc6172981e74d7a9b5e7aa8f2b306352fc0f794bbcc18fd6f97d069",
+      "after_sha256_lf": "f81ea67fe1b6a66d965d769a9a58690ad34134d777c79e9fef9b72ddda9854ed"
+    },
+    "platforms/ios/PixAuraAI/ManualEditorScreen.swift": {
+      "before_sha256_lf": "7f8e8ca4d0da95842f059521bc049110753832aadd1b51f7665142db7f8d48b1",
+      "after_sha256_lf": "ff0d4d4506ec02983db80d0b386dc06c815d30e501326155081242bbb0a1cf61"
+    }
+  },
+  "additions": {
+    "docs/contracts/plan-inspection-action-review-v1.md": "a2232b333a547126c6067965ce9f856fb2583a70edf49f08a8226e4f1e6aa063",
+    "packages/core/include/pixaura/review_inspection.h": "12d16f287920f9d29d92396c015789e05408c9fde1a9940d924e6073533775bb",
+    "packages/core/src/review_inspection_boundary.hpp": "444eb9d89dc3c38cf7059f6c171cf539b75b5b2b14c52fcc1ab6ff04d7b0a862",
+    "platforms/android/app/src/main/java/ai/pixaura/app/PlanInspectionPanel.kt": "f72ce96a5e175ab7a296f61d9740316afc6f4b78ac8dcdbd55119ce8d63e6831"
+  }
+}

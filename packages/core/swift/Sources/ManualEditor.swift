@@ -407,13 +407,51 @@ public final class ManualEditor {
         try checked(status, "Auto proposal"); return bytes
     }
     public func cancelAuto() throws { gate.lock(); defer { gate.unlock() }; try checked(closed ? 13 : pixaura_editor_auto_cancel(1, context), "Auto proposal") }
+    public struct ReviewParameter {
+        public let name: String, unit: String
+        public let raw: Int32, minimum: Int32, maximum: Int32, neutral: Int32
+    }
+    public struct ReviewAction {
+        public let index: Int, toolID: String, label: String
+        public let operationVersion: UInt32, parameterVersion: UInt32
+        public let geometry: Bool, parameters: [ReviewParameter]
+    }
+    public struct PlanInspection {
+        fileprivate let packet: pixaura_review_inspection
+        public let actions: [ReviewAction], warnings: UInt32
+    }
+    private func describeReviewLocked(_ proposal: AutoProposal, _ plan: AgentPlan) throws -> PlanInspection {
+        var p = pixaura_review_inspection(), source = proposal.packet
+        try checked(plan.canonicalBytes.withUnsafeBytes { pixaura_review_inspect(1, context, &source, $0.bindMemory(to: UInt8.self).baseAddress, UInt64($0.count), &p) }, "Plan inspection")
+        try checked(p.api_version == 1 && p.struct_size == 4808 && p.kind == 0x52494e31 && (1...8).contains(p.action_count) && p.registry_version == 1 && p.warnings <= 3 ? 0 : 14, "Plan inspection")
+        func text<T>(_ value: T) throws -> String {
+            try withUnsafeBytes(of: value) { raw in
+                guard let n = raw.firstIndex(of: 0), n > 0, raw.prefix(n).allSatisfy({ $0 >= 32 && $0 <= 126 }) else { throw ManualEditorFailure(status: 14, boundary: "Inspection text") }
+                return String(decoding: raw.prefix(n), as: UTF8.self)
+            }
+        }
+        let count = Int(p.action_count)
+        let actions: [ReviewAction] = try withUnsafeBytes(of: p.actions) { raw in
+            try raw.bindMemory(to: pixaura_review_action.self).prefix(count).enumerated().map { i, a in
+                try checked(a.index == UInt32(i) && (1...4).contains(a.parameter_count) && a.operation_version == 1 && a.parameter_version == 1 && a.geometry_changed <= 1 && (a.warnings == 0 || a.warnings == 2) && a.reserved == 0 ? 0 : 14, "Inspection action")
+                let parameters: [ReviewParameter] = try withUnsafeBytes(of: a.parameters) { values in
+                    try values.bindMemory(to: pixaura_review_parameter.self).prefix(Int(a.parameter_count)).map { v in
+                        ReviewParameter(name: try text(v.name), unit: try text(v.unit), raw: v.raw_value, minimum: v.minimum, maximum: v.maximum, neutral: v.neutral)
+                    }
+                }
+                return ReviewAction(index: i, toolID: try text(a.tool_id), label: try text(a.label), operationVersion: a.operation_version, parameterVersion: a.parameter_version, geometry: a.geometry_changed == 1, parameters: parameters)
+            }
+        }
+        return PlanInspection(packet: p, actions: actions, warnings: p.warnings)
+    }
     public final class AutoReview {
         fileprivate let owner: String, proposal: AutoProposal, plan: AgentPlan
         public let sourceRevision: String
+        public let inspection: PlanInspection
         public var canonicalBytes: Data { plan.canonicalBytes }
         fileprivate var attempted = false, abandoned = false
-        fileprivate init(_ owner: String, _ proposal: AutoProposal, _ plan: AgentPlan, _ source: String) {
-            self.owner = owner; self.proposal = proposal; self.plan = plan; sourceRevision = source
+        fileprivate init(_ owner: String, _ proposal: AutoProposal, _ plan: AgentPlan, _ source: String, _ inspection: PlanInspection) {
+            self.owner = owner; self.proposal = proposal; self.plan = plan; sourceRevision = source; self.inspection = inspection
         }
     }
     public func prepareAutoReview(_ proposal: AutoProposal) throws -> AutoReview {
@@ -422,7 +460,12 @@ public final class ManualEditor {
         try checked(applyingReview != nil || cancellingReview ? 8 : 0, "Auto review")
         try checked(attemptedAutoSerial == proposal.packet.request_serial ? 15 : 0, "Auto review")
         let plan = AgentPlan(try agentBytesLocked(2, inspectAutoLocked(proposal)))
-        return AutoReview(identity, proposal, plan, try stateLocked().revisionID)
+        return AutoReview(identity, proposal, plan, try stateLocked().revisionID, try describeReviewLocked(proposal, plan))
+    }
+    public func inspectReview(_ review: AutoReview) throws -> PlanInspection {
+        gate.lock(); defer { gate.unlock() }; var packet = review.inspection.packet
+        try checked(closed ? 13 : review.owner != identity || review.attempted || review.abandoned ? 9 : pixaura_review_inspection_current(1, context, &packet), "Plan inspection current")
+        return review.inspection
     }
     /// ONLY explicit review Apply may call this trusted application boundary.
     public func applyAutoFromHuman(_ review: AutoReview, onExecuting: () -> Void = {}) throws -> AgentReceipt {
@@ -477,6 +520,21 @@ public final class ManualEditor {
     public func autoTestControl(_ command: UInt32, _ value: UInt32 = 0) -> Int32 {
         gate.lock(); defer { gate.unlock() }; return destroyed ? -1 : PixAuraCoreAutoControl(context, command, value)
     }
+    // Certification transport ONLY: existing kind-3 provider and all validators.
+    // No approval or executor. Entire method absent from release compilation.
+    public func inspectionCandidateTest(_ bytes: Data) throws -> AutoProposal {
+        gate.lock(); defer { gate.unlock() }
+        try checked(closed ? 13 : 0, "Inspection test candidate")
+        var request = pixaura_auto_request(); request.api_version = 1; request.struct_size = UInt32(MemoryLayout.size(ofValue: request)); request.kind = 3
+        var value = pixaura_auto_proposal()
+        try checked(bytes.withUnsafeBytes { pixaura_editor_auto_request(1, context, &request, $0.bindMemory(to: UInt8.self).baseAddress, UInt64($0.count), &value) }, "Inspection test candidate")
+        try checked(value.action_count > 0 && value.action_count <= 8 ? 0 : 14, "Inspection test candidate")
+        let actions = withUnsafeBytes(of: value.actions) { raw in raw.bindMemory(to: pixaura_auto_action.self).prefix(Int(value.action_count)).enumerated().map { i, a in
+            AssistChoice(index: i, toolIndex: Int(a.tool_index), values: Array([a.values.0, a.values.1, a.values.2, a.values.3].prefix(Int(a.parameter_count))))
+        } }
+        func id<T>(_ v: T) -> String { withUnsafeBytes(of: v) { String(decoding: $0.prefix { $0 != 0 }, as: UTF8.self) } }
+        return AutoProposal(owner: identity, packet: value, actions: actions, proposalID: id(value.proposal_id), providerID: id(value.provider_id))
+    }
     public func adviceTestControl(_ command: UInt32, _ value: UInt32 = 0) -> Int32 {
         gate.lock(); defer { gate.unlock() }; return destroyed ? -1 : assistTestControl(context, command, value)
     }
@@ -492,10 +550,11 @@ public final class ManualEditor {
     }
     public final class ReviewComparison {
         fileprivate let identity: String
+        fileprivate let review: AutoReview
         fileprivate var packet: pixaura_review_preview_pair
         public let before: CGImage, after: CGImage, geometryChanged: Bool, dimensions: String
-        fileprivate init(_ identity: String, _ packet: pixaura_review_preview_pair, _ before: CGImage, _ after: CGImage) {
-            self.identity = identity; self.packet = packet; self.before = before; self.after = after
+        fileprivate init(_ identity: String, _ packet: pixaura_review_preview_pair, _ before: CGImage, _ after: CGImage, _ review: AutoReview) {
+            self.identity = identity; self.packet = packet; self.before = before; self.after = after; self.review = review
             geometryChanged = packet.geometry_changed == 1
             dimensions = "Before \(packet.before_width) × \(packet.before_height); After \(packet.after_width) × \(packet.after_height)"
         }
@@ -504,6 +563,8 @@ public final class ManualEditor {
         gate.lock(); defer { gate.unlock() }
         idle.lock(); let busy = assistCalls != 0; idle.unlock()
         try checked(closed ? 13 : review.owner != identity || review.attempted || review.abandoned ? 9 : busy || applyingReview != nil || cancellingReview ? 8 : 0, "Review preview")
+        var inspection = review.inspection.packet
+        try checked(pixaura_review_inspection_current(1, context, &inspection), "Plan inspection current")
         comparison = nil; var ticket = pixaura_review_preview_ticket(), proposal = review.proposal.packet
         let bytes = review.canonicalBytes
         try checked(bytes.withUnsafeBytes { pixaura_review_preview_begin(1, context, &proposal, $0.bindMemory(to: UInt8.self).baseAddress, UInt64($0.count), 512, 512, &ticket) }, "Review preview")
@@ -534,12 +595,14 @@ public final class ManualEditor {
         }
         let before = try image(0, pair.before), after = try image(1, pair.after)
         try checked(pixaura_review_preview_current(1, context, &pair), "Review preview current")
-        return ReviewComparison(identity, pair, before, after)
+        return ReviewComparison(identity, pair, before, after, request.review)
     }
     @discardableResult public func installReviewPreview(_ value: ReviewComparison, replace: () -> Void) -> Bool {
         guard gate.try() else { return false }; defer { gate.unlock() }
         var pair = value.packet
         guard !closed, value.identity == identity, pixaura_review_preview_current(1, context, &pair) == 0 else { return false }
+        var inspection = value.review.inspection.packet
+        guard pixaura_review_inspection_preview(1, context, &inspection, &pair) == 0 else { return false }
         comparison = value; replace(); return true
     }
     public func cancelReviewPreview(_ request: ReviewPreviewRequest) throws {

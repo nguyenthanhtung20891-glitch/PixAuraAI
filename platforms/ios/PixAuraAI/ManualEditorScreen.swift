@@ -113,17 +113,10 @@ struct ManualEditorScreen: View {
                 if let proposal = state.proposal {
                     VStack(alignment: .leading, spacing: 6) {
                         Text(state.status == .reviewReady ? "Ready for human approval" : "Reviewed plan").font(.headline)
-                        Text("\(proposal.actions.count) planned action(s). " + (state.status == .reviewReady ? "Human approval required; proposal creation applied nothing." : "Awaiting the authoritative native publication result."))
-                        ForEach(proposal.actions, id: \.index) { action in
-                            if model.tools.indices.contains(action.toolIndex) {
-                                let descriptor = model.tools[action.toolIndex]
-                                Text("\(action.index + 1). \(descriptor.name): \(adviceSetting(descriptor, action.values))")
-                                Text(zip(descriptor.parameters, action.values).map { parameter, value in "\(parameter.name) = \(value) (\(parameter.unit))" }.joined(separator: "; "))
-                                    .accessibilityIdentifier("auto-exact-values-\(action.index)")
-                            }
-                        }
                         if let review = state.review {
+                            Text("Context: AI Auto-Edit; \(String(describing: state.status)). Provider \(proposal.providerID) (informational only). Planner reference.deterministic.v1.").accessibilityIdentifier("review-context")
                             ReviewComparisonPanel(model: model, state: state.preview)
+                            PlanInspectionPanel(inspection: review.inspection)
                             Text("Reviewed source: \(review.sourceRevision.prefix(8)). Apply rechecks the current source.").accessibilityIdentifier("auto-source")
                             Button("Apply reviewed plan") { model.applyAutoFromHuman(review) }
                                 .disabled(state.inFlight || state.status != .reviewReady || state.preview.status == .previewLoading || state.preview.status == .stale).accessibilityIdentifier("auto-apply")
@@ -141,8 +134,12 @@ struct ManualEditorScreen: View {
                     Text("Edit applied. Ordinary revision \(receipt.resultingRevision.prefix(8)). Undo is available in Manual.").accessibilityIdentifier("auto-completed")
                 }
                 if state.status == .cancelled { Text("Proposal cancelled. Nothing was applied.").accessibilityIdentifier("auto-cancelled") }
-                if state.status == .stale { Text("Proposal expired after an editing change.").accessibilityIdentifier("auto-stale") }
+                if state.status == .stale {
+                    Text("Plan inspection stale. Request a new review.").accessibilityIdentifier("review-inspection-stale")
+                    Text("Proposal expired after an editing change.").accessibilityIdentifier("auto-stale")
+                }
                 if let error = state.error { Text(error).accessibilityIdentifier("auto-error") }
+                if state.status == .failed { Text("Plan inspection unavailable. No actionable review; request a new proposal explicitly.").accessibilityIdentifier("review-inspection-unsupported") }
             }.frame(maxWidth: .infinity, alignment: .leading)
         }.accessibilityIdentifier("auto-panel")
     }
@@ -329,5 +326,34 @@ private struct ReviewComparisonPanel: View {
             if let error = state.error { Text(error).accessibilityIdentifier("review-preview-failed") }
         }.accessibilityElement(children: .contain).accessibilityIdentifier("review-preview")
             .onChange(of: state.comparison.map { ObjectIdentifier($0) }) { _ in reset() }
+    }
+}
+
+// Read-only native records; labels never become execution identities.
+private struct PlanInspectionPanel: View {
+    let inspection: ManualEditor.PlanInspection
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("\(inspection.actions.count) planned action(s). Human approval required; inspection applied nothing.").accessibilityIdentifier("review-plan-count")
+            if inspection.warnings & 1 != 0 {
+                Text("Multiple actions execute in this exact order. Order matters.").accessibilityIdentifier("review-order-warning")
+            }
+            ForEach(inspection.actions, id: \.index) { action in
+                let identity = "\(action.toolID); operation v\(action.operationVersion); parameters v\(action.parameterVersion)"
+                let exact = action.parameters.map { "\($0.name) = \($0.raw) (\($0.unit))" }.joined(separator: "; ")
+                let details = action.parameters.map { "\($0.name): range \($0.minimum) to \($0.maximum); reference \($0.neutral)" }.joined(separator: "; ")
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Action \(action.index + 1) of \(inspection.actions.count): \(action.label)")
+                    Text(identity)
+                    Text(exact).accessibilityIdentifier("auto-exact-values-\(action.index)")
+                    Text(details).accessibilityIdentifier("review-action-detail-\(action.index)")
+                    if action.geometry {
+                        Text("Geometry change: dimensions or orientation may change. Use fit/toggle comparison.").accessibilityIdentifier("review-geometry-warning-\(action.index)")
+                    }
+                }.accessibilityElement(children: .contain)
+                    .accessibilityLabel("Action \(action.index + 1) of \(inspection.actions.count): \(action.label); \(identity); \(exact); \(details); \(action.geometry ? "Geometry change" : "No geometry change")")
+                    .accessibilityIdentifier("review-action-\(action.index)")
+            }
+        }.accessibilityElement(children: .contain).accessibilityIdentifier("review-action-list")
     }
 }

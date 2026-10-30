@@ -44,7 +44,9 @@ test('Phase 7 Step 5 review uses only explicit human Apply and retained native a
  const kotlin=read('platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt'),swift=read('packages/core/swift/Sources/ManualEditor.swift');
  for(const s of [kotlin,swift])for(const marker of ['prepareAutoReview','applyAutoFromHuman','cancelAutoReview','attemptedAutoSerial','applyingApproval','sourceRevision','canonicalBytes','cancelAgentExecution'])assert.ok(s.includes(marker),marker);
  for(const [p,call] of [['platforms/android/app/src/main/java/ai/pixaura/app/AutoProposalPanel.kt','model.applyAutoFromHuman(review)'],['platforms/ios/PixAuraAI/ManualEditorScreen.swift','model.applyAutoFromHuman(review)']]){
-  const s=read(p);assert.equal(s.split(call).length-1,1);for(const id of ['auto-apply','auto-execution-cancel','auto-completed','auto-source','auto-exact-values-'])assert.ok(s.includes(id),p+id);
+  const s=read(p);assert.equal(s.split(call).length-1,1);for(const id of ['auto-apply','auto-execution-cancel','auto-completed','auto-source'])assert.ok(s.includes(id),p+id);
+  const inspection=p.endsWith('.kt')?read('platforms/android/app/src/main/java/ai/pixaura/app/PlanInspectionPanel.kt'):s;
+  assert.ok(inspection.includes('auto-exact-values-'),p+' exact native inspection values');
   assert.doesNotMatch(s,/approveAgentPlan|executeAgentPlan|pixaura_editor_agent_|\.commit\(/);
  }
  for(const p of ['platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt','platforms/ios/PixAuraAI/ManualEditorModel.swift']){

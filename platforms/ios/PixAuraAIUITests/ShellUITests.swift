@@ -1,6 +1,47 @@
 import XCTest
 
 final class ShellUITests: XCTestCase {
+    func testPlanInspectionAllElevenExactValuesAndReadOnlyAccessibility() {
+        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
+        func tap(_ id: String) {
+            let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
+            let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
+            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+        }
+        tap("Open Manual editor"); tap("mode-auto")
+        let cases = [("brightness","milli_linear = 100 (thousandths_linear_white)"), ("contrast","milli_stops = 250 (thousandths_log2_contrast_slope)"), ("exposure","milli_ev = 500 (thousandths_exposure_stop)"), ("highlights","milli_ev = -500 (thousandths_highlight_exposure_stop)"), ("saturation","milli_ratio = 1200 (thousandths_chroma_multiplier)"), ("shadows","milli_ev = 500 (thousandths_shadow_exposure_stop)"), ("temperature","kelvin = 7000 (daylight_white_kelvin)"), ("blur","milli_strength = 250 (thousandths_fixed_kernel_blend)"), ("sharpen","milli_amount = 250 (thousandths_fixed_kernel_unsharp)"), ("crop","x_ppm = 100000 (millionths_current_extent)"), ("rotate","quarter_turns = 1 (clockwise_quarter_turns)")]
+        for (tool, exact) in cases {
+            tap("auto-goal"); tap("auto-goal-pixaura.\(tool)"); tap("auto-request")
+            let row = app.descendants(matching: .any).matching(identifier: "review-action-0").firstMatch
+            XCTAssertTrue(row.waitForExistence(timeout: 20)); XCTAssertTrue(row.label.contains("Action 1 of 1:")); XCTAssertTrue(row.label.contains("pixaura.\(tool)")); XCTAssertTrue(row.label.contains(exact), row.label)
+            XCTAssertTrue(app.staticTexts["review-action-detail-0"].exists)
+            XCTAssertEqual(row.descendants(matching: .button).count, 0); XCTAssertEqual(row.descendants(matching: .slider).count, 0)
+            if tool == "crop" || tool == "rotate" { XCTAssertTrue(row.label.contains("Geometry change")) }
+            XCTAssertTrue(app.staticTexts["review-plan-count"].label.contains("1 planned action(s)."))
+            XCTAssertTrue(app.buttons["review-preview-request"].exists); XCTAssertTrue(app.buttons["auto-apply"].exists)
+            XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
+        }
+        tap("mode-manual"); XCTAssertFalse(app.buttons["auto-apply"].exists)
+    }
+    func testPlanInspectionMultiActionOrderUsesExactRawValuesAndSamePreview() {
+        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image", "--inspection-test-multi"]; app.launch()
+        func tap(_ id: String) {
+            let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
+            let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
+            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+        }
+        tap("Open Manual editor"); tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request")
+        let count = app.staticTexts["review-plan-count"]; XCTAssertTrue(count.waitForExistence(timeout: 20)); XCTAssertTrue(count.label.contains("3 planned action(s)."))
+        for (i, exact) in ["milli_ev = 101 (thousandths_exposure_stop)","milli_linear = -123 (thousandths_linear_white)","quarter_turns = 1 (clockwise_quarter_turns)"].enumerated() {
+            let row = app.descendants(matching: .any).matching(identifier: "review-action-\(i)").firstMatch
+            XCTAssertTrue(row.exists); XCTAssertTrue(row.label.contains("Action \(i+1) of 3:")); XCTAssertTrue(row.label.contains(exact), row.label)
+        }
+        XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "review-action-3").firstMatch.exists)
+        XCTAssertTrue(app.staticTexts["review-order-warning"].exists)
+        tap("review-preview-request"); XCTAssertTrue(app.staticTexts["review-before"].waitForExistence(timeout: 20)); XCTAssertFalse(app.buttons["review-split"].isEnabled)
+        XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists); XCTAssertTrue(app.buttons["auto-apply"].exists)
+        tap("auto-dismiss"); XCTAssertFalse(app.buttons["auto-apply"].exists); XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
+    }
     func testReviewPreviewToggleIsNotApplyAndGeometryUsesFit() {
         let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
         func tap(_ id: String) {

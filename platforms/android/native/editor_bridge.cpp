@@ -3,6 +3,7 @@
 #include "pixaura/assist.h"
 #include "pixaura/auto_proposal.h"
 #include "pixaura/review_preview.h"
+#include "pixaura/review_inspection.h"
 #include <cstring>
 #include <vector>
 #include <algorithm>
@@ -17,6 +18,19 @@ int64_t read(void* raw,uint8_t* output,uint64_t capacity){auto& r=*static_cast<I
 }
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeAssistSize(JNIEnv*,jobject){return sizeof(pixaura_assist_advice);}
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeAutoSize(JNIEnv*,jobject){return sizeof(pixaura_auto_proposal);}
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeInspection(JNIEnv* env,jobject,jobject buffer,jobject proposal,jbyteArray plan,jobject result){
+    auto* c=storage<pixaura_editor_context>(env,buffer);auto* p=storage<pixaura_auto_proposal>(env,proposal);auto* out=storage<pixaura_review_inspection>(env,result);
+    if(!c||!p||!out||!plan)return 1;const auto n=env->GetArrayLength(plan);if(n<=0||n>8192)return 8;
+    uint8_t input[8192];env->GetByteArrayRegion(plan,0,n,reinterpret_cast<jbyte*>(input));if(env->ExceptionCheck())return 1;
+    return pixaura_review_inspect(1,c,p,input,static_cast<uint64_t>(n),out);
+}
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeInspectionCurrent(JNIEnv* env,jobject,jobject buffer,jobject packet){
+    auto* c=storage<pixaura_editor_context>(env,buffer);auto* p=storage<pixaura_review_inspection>(env,packet);return c&&p?pixaura_review_inspection_current(1,c,p):1;
+}
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeInspectionPreview(JNIEnv* env,jobject,jobject buffer,jobject packet,jobject preview){
+    auto* c=storage<pixaura_editor_context>(env,buffer);auto* p=storage<pixaura_review_inspection>(env,packet);auto* pair=storage<pixaura_review_preview_pair>(env,preview);
+    return c&&p&&pair?pixaura_review_inspection_preview(1,c,p,pair):1;
+}
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeReviewBegin(JNIEnv* env,jobject,jobject buffer,jobject proposal,jbyteArray plan,jobject ticket){
     auto* c=storage<pixaura_editor_context>(env,buffer);auto* p=storage<pixaura_auto_proposal>(env,proposal);auto* t=storage<pixaura_review_preview_ticket>(env,ticket);
     if(!c||!p||!t||!plan)return 1;const auto n=env->GetArrayLength(plan);if(n<=0||n>8192)return 8;
@@ -72,6 +86,12 @@ extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeAuto
     auto* c=storage<pixaura_editor_context>(env,buffer);return c?pixaura_editor_auto_cancel(1,c):1;
 }
 #ifdef PIXAURA_CERTIFICATION_TESTING
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_app_InspectionTestHooks_nativeCandidate(JNIEnv* env,jobject,jobject buffer,jbyteArray plan,jobject output){
+    auto* c=storage<pixaura_editor_context>(env,buffer);auto* out=storage<pixaura_auto_proposal>(env,output);
+    if(!c||!out||!plan)return 1;const auto n=env->GetArrayLength(plan);if(n<=0||n>8192)return 8;
+    uint8_t input[8192];env->GetByteArrayRegion(plan,0,n,reinterpret_cast<jbyte*>(input));if(env->ExceptionCheck())return 1;
+    const pixaura_auto_request request{1,sizeof(request),0,3};return pixaura_editor_auto_request(1,c,&request,input,static_cast<uint64_t>(n),out);
+}
 extern "C" int32_t pixaura_test_review_preview_control(pixaura_editor_context*,uint32_t,uint32_t);
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_app_ReviewPreviewTestHooks_nativeControl(JNIEnv* env,jobject,jobject buffer,jint command,jint value){
     auto* c=storage<pixaura_editor_context>(env,buffer);return c?pixaura_test_review_preview_control(c,static_cast<uint32_t>(command),static_cast<uint32_t>(value)):1;

@@ -39,13 +39,10 @@ internal fun AutoProposalPanel(model: ManualEditorModel, ui: EditorUiState, auto
             auto.proposal?.let { proposal ->
                 Column(Modifier.testTag("auto-ready"), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(if (auto.status == AutoStatus.REVIEW_READY) "Ready for human approval" else "Reviewed plan", style = MaterialTheme.typography.titleSmall)
-                    Text("${proposal.actions.size} planned action(s). " + if (auto.status == AutoStatus.REVIEW_READY) "Human approval required; proposal creation applied nothing." else "Awaiting the authoritative native publication result.")
-                    for (action in proposal.actions) ui.tools.firstOrNull { it.index == action.toolIndex }?.let { descriptor ->
-                        Text("${action.index + 1}. ${descriptor.name}: ${adviceSetting(descriptor, action.values)}")
-                        Text(descriptor.parameters.zip(action.values).joinToString("; ") { (p, v) -> "${p.name} = $v (${p.unit})" }, Modifier.testTag("auto-exact-values-${action.index}"))
-                    }
                     auto.review?.let { review ->
+                        Text("Context: AI Auto-Edit; ${auto.status}. Provider ${proposal.providerId} (informational only). Planner reference.deterministic.v1.", Modifier.testTag("review-context"))
                         ReviewPreviewPanel(model, auto.preview)
+                        PlanInspectionPanel(review.inspection)
                         Text("Reviewed source: ${review.sourceRevision.take(8)}. Apply rechecks the current source.", Modifier.testTag("auto-source"))
                         Button(onClick = { model.applyAutoFromHuman(review) }, enabled = auto.status == AutoStatus.REVIEW_READY && !auto.inFlight && auto.preview.status !in listOf(ReviewPreviewStatus.PREVIEW_LOADING, ReviewPreviewStatus.STALE),
                             modifier = Modifier.testTag("auto-apply").semantics { contentDescription = "Apply this exact reviewed plan with human approval" }) { Text("Apply reviewed plan") }
@@ -63,8 +60,12 @@ internal fun AutoProposalPanel(model: ManualEditorModel, ui: EditorUiState, auto
             }
             if (auto.status == AutoStatus.REJECTED) Text("Proposal dismissed. Nothing was applied.", Modifier.testTag("auto-rejected"))
             if (auto.status == AutoStatus.CANCELLED) Text("Proposal cancelled. Nothing was applied.", Modifier.testTag("auto-cancelled"))
-            if (auto.status == AutoStatus.STALE) Text("Proposal expired after an editing change.", Modifier.testTag("auto-stale"))
+            if (auto.status == AutoStatus.STALE) {
+                Text("Plan inspection stale. Request a new review.", Modifier.testTag("review-inspection-stale"))
+                Text("Proposal expired after an editing change.", Modifier.testTag("auto-stale"))
+            }
             auto.error?.let { Text(it, Modifier.testTag("auto-error").semantics { liveRegion = LiveRegionMode.Assertive }) }
+            if (auto.status == AutoStatus.FAILED) Text("Plan inspection unavailable. No actionable review; request a new proposal explicitly.", Modifier.testTag("review-inspection-unsupported"))
         }
     }
 }

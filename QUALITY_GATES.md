@@ -1,5 +1,42 @@
 # Quality gates and promotion policy
 
+<!-- phase8-step3-current -->
+## Phase 8 Step 3 - Plan Inspection & Action Review
+
+Phase 7 CLOSED / COMPLETE / FULL PASS. Phase 8 Steps 1-2 COMPLETE / FULL PASS.
+Step 2 closure b3d40ae0327d904c8f67995646b249fd95ecfa26: Foundation 40914672598
+SUCCESS 7/7; Native shells 40914672662 SUCCESS 3/3, exact SHA, attempt 1,
+every required job completed/SUCCESS. Phase 8 AUTHORIZED / IN PROGRESS.
+Step 3 AUTHORIZED / IN PROGRESS. Steps 4-6 NOT STARTED. Stop after Step 3.
+Read-only native Plan inspection: exact canonical Plan/source/review binding,
+Registry-owned identities/versions/names/raw integers/units/bounds/reference,
+exact 1-8 action order/count; no hidden/rounded/repaired/substituted action.
+Preview/inspection association rechecked natively before actual installation.
+Stale/unknown/forged/cross-owner data fails closed. No silent refresh/retry/replan.
+No editable review, value changes, removal, reorder or restore controls.
+REVIEW != APPROVAL. PREVIEW != EXECUTION. PREVIEW != REVISION.
+Inspection owns no approval/candidate/publication/history authority. Schema 3 unchanged.
+Explicit HUMAN Apply alone uses unchanged exact binding/single-use approval and
+private candidate/execution/publication; at most one ordinary revision/shared history.
+Manual independent; same native authority on Android/Apple. Stop -> join ALL calls
+-> destroy, existing owner/epoch fencing. Bounded metadata, no image/cache/worker.
+All frozen Phase 7, Full Review Experience v1, Review Preview Foundation v1,
+Intent/Structured Intent/Plan/Registry/Envelope/Provider/planner, approval/candidate,
+Manual/history/platform and Phase 4/5/intelligence resource semantics unchanged.
+Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
+Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP. Free-form Intent v1
+uninterpreted; no model/runtime/weights/NLP/cloud/network or research added.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED /
+NOT SATISFIED; hosted Apple software only. Both exact implementation-SHA and
+separate closure-SHA full workflows required; every required job SUCCESS.
+No older-SHA substitution, self-certification or rerun-until-green.
+See docs/contracts/plan-inspection-action-review-v1.md and docs/reports/phase-8-step-3.md.
+<!-- phase8-step3-history -->
+
+Earlier sections are historical at their original freeze time; current Step 3
+authority and observed receipts supersede their phase-relative status.
+
+
 <!-- phase8-step2-current -->
 ## Phase 8 Step 2 - Before/After Preview Foundation
 

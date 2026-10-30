@@ -303,7 +303,16 @@ private final class EditorWorker {
             if ProcessInfo.processInfo.arguments.contains("--auto-test-failure") { _ = editor.autoTestControl(3, 2) }
             #endif
             self.advising.async {
-                let result = Result { try editor.requestAuto(index) }
+                let result = Result {
+                    #if DEBUG
+                    if ProcessInfo.processInfo.arguments.contains("--inspection-test-multi") {
+                        let binding = String(decoding: try editor.agentBinding(), as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
+                        let actions = "{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":101},\"tool_id\":\"pixaura.exposure\"},{\"action_index\":1,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_linear\":-123},\"tool_id\":\"pixaura.brightness\"},{\"action_index\":2,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"quarter_turns\":1},\"tool_id\":\"pixaura.rotate\"}"
+                        return try editor.inspectionCandidateTest(Data("{\"actions\":[\(actions)],\"binding\":\(binding),\"plan_version\":1}\n".utf8))
+                    }
+                    #endif
+                    return try editor.requestAuto(index)
+                }
                 self.commands.async {
                     let checked: Result<(ManualEditor.AutoProposal, ManualEditor.AutoReview), Error> = Result {
                         guard self.owner === editor else { throw ManualEditorFailure(status: 9, boundary: "Auto proposal") }

@@ -1,5 +1,6 @@
 // Independently compiled shipping sources; replacement allocator never ships.
 #include "pixaura/review_preview.h"
+#include "pixaura/review_inspection.h"
 #include "../../../tests/fixtures/decode/fixtures.h"
 #include <algorithm>
 #include <chrono>
@@ -79,6 +80,19 @@ int main(int argc,char** argv){
     CHECK(pixaura_review_preview_cancel(1,&c,&ticket)==0);complete=true;std::printf("Review allocation path=%u failures=%u cumulative_requested_max=%llu\n",path_index,failures,static_cast<unsigned long long>(maximum[path_index]));break;}
    CHECK(status==8);CHECK(std::memcmp(&pair,&old_pair,sizeof(pair))==0);CHECK(std::memcmp(&output,&old_ticket,sizeof(output))==0);++failures;
    if(path_index)CHECK(pixaura_review_preview_cancel(1,&c,&ticket)==0);
+  }
+  CHECK(complete);
+ }
+ // Additive inspection sweep in the same independent shipping-source clone.
+ // Existing exhaustive Begin/Render loops and their assertions remain intact.
+ {bool complete=false;uint64_t peak=0;unsigned failures=0;
+  for(int64_t n=0;n<4096;++n){pixaura_review_inspection output{};std::memset(&output,0xa5,sizeof(output));const auto old=output;
+   active_path=2;active_index=n;fail_after=n;allocated=0;meter=true;
+   const auto status=pixaura_review_inspect(1,&c,&proposal,bytes,count,&output);
+   meter=false;fail_after=-1;peak=std::max(peak,allocated);CHECK(state()==stable);
+   if(!status){CHECK(failures>0);CHECK(pixaura_review_inspection_current(1,&c,&output)==0);complete=true;
+    std::printf("Inspection allocation failures=%u cumulative_requested_max=%llu record_bytes=%zu retained_native_bytes=0\n",failures,static_cast<unsigned long long>(peak),sizeof(output));break;}
+   CHECK(status==8);CHECK(std::memcmp(&output,&old,sizeof(output))==0);++failures;
   }
   CHECK(complete);
  }

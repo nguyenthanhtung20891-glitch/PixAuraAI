@@ -6,6 +6,10 @@ const text=p=>fs.readFileSync(p,'utf8').replaceAll('\r\n','\n');
 const read=p=>JSON.parse(text(p));
 const hash=s=>crypto.createHash('sha256').update(s).digest('hex');
 const m=read('docs/reports/phase-8-step-2-v1.json');
+// Certified Step 2 remains unchanged. Step 3 may extend only individually pinned
+// presentation integrations; its own gate fixes the exact allowlist and hashes.
+const inspection=read('docs/reports/phase-8-step-3-v1.json');
+function currentHash(p,expected){const next=inspection.changes[p];if(next)assert.equal(next.before_sha256_lf,expected,p);assert.equal(hash(text(p)),next?.after_sha256_lf??expected,p);}
 const changed=['CMakeLists.txt','packages/core/src/agent_schema_boundary.hpp','packages/core/src/decode_api.cpp','packages/core/src/editor_api.cpp','packages/core/swift/Sources/ManualEditor.swift','platforms/android/app/src/main/java/ai/pixaura/app/AutoProposalPanel.kt','platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt','platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt','platforms/ios/PixAuraAI/ManualEditorModel.swift','platforms/ios/PixAuraAI/ManualEditorScreen.swift'];
 const added=['docs/contracts/review-preview-foundation-v1.md','packages/core/include/pixaura/review_preview.h','packages/core/src/review_preview_boundary.hpp','packages/core/src/review_preview_state.hpp','packages/core/src/review_raster.hpp','platforms/android/app/src/main/java/ai/pixaura/app/ReviewPreviewPanel.kt'];
 
@@ -14,8 +18,8 @@ test('Step 2 permits only individually bound preview integration; existing contr
  assert.equal(m.preview_publication_authority,false);assert.equal(m.runtime_authority,false);assert.equal(m.step3,'NOT_STARTED');
  assert.deepEqual(Object.keys(m.changes).sort(),changed.sort());assert.deepEqual(Object.keys(m.additions).sort(),added.sort());
  const frozen=read('docs/reports/phase-7-closure-v1.json');
- for(const [p,v] of Object.entries(m.changes)){assert.equal(v.before_sha256_lf,frozen.sha256[p],p);assert.equal(hash(text(p)),v.after_sha256_lf,p);}
- for(const [p,v] of Object.entries(m.additions))assert.equal(hash(text(p)),v,p);
+ for(const [p,v] of Object.entries(m.changes)){assert.equal(v.before_sha256_lf,frozen.sha256[p],p);currentHash(p,v.after_sha256_lf);}
+ for(const [p,v] of Object.entries(m.additions))currentHash(p,v);
  // Remove only the new orchestration include/block: all prior decode functions
  // must still be byte-identical, including admission, evaluation and preview APIs.
  const old=text('packages/core/src/decode_api.cpp').replace('#include "review_raster.hpp"\n','').replace(/\/\/ BEGIN Phase 8 Step 2 non-publication review composition\.\n[\s\S]*?\/\/ END Phase 8 Step 2 non-publication review composition\.\n/,'');

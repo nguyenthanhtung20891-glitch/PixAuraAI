@@ -22,7 +22,7 @@ class ReleaseScanner(unittest.TestCase):
                     z.writestr('lib/arm64-v8a/libpixaura_core.so',b'ELF owned fixture')
                     if extra: z.writestr(*extra)
             write();self.assertEqual(scanner.scan(apk)['dex_files'],1)
-            for marker in (b'ReviewPreviewTestHooks', b'reviewPreviewTestControl', b'review-preview-test-pause', b'review-preview-test-failure'):
+            for marker in (b'InspectionTestHooks', b'inspectionCandidateTest', b'inspection-test-multi', b'ReviewPreviewTestHooks', b'reviewPreviewTestControl', b'review-preview-test-pause', b'review-preview-test-failure'):
                 for member in ('classes2.dex', 'lib/arm64-v8a/test.so', 'resources.arsc'):
                     write((member, marker))
                     with self.assertRaises(ValueError): scanner.scan(apk)

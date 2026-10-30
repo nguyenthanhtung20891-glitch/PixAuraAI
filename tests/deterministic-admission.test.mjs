@@ -51,12 +51,14 @@ test('Phase 7 closure preserves the complete frozen runtime and contract invento
  // individually bound preview changes/additions; the new preview test fixes the
  // exact allowlist and checks both sides, not a blanket runtime exemption.
  const preview=read('docs/reports/phase-8-step-2-v1.json');
- const added=new Set(['docs/contracts/full-review-experience-v1.md',...Object.keys(preview.additions)]);
+ const inspection=read('docs/reports/phase-8-step-3-v1.json');
+ const added=new Set(['docs/contracts/full-review-experience-v1.md',...Object.keys(preview.additions),...Object.keys(inspection.additions)]);
  assert.deepEqual(paths.filter(p=>!added.has(p)),Object.keys(m.sha256).sort(),'no unreviewed runtime/contract addition or removal');
  for(const [p,digest] of Object.entries(m.sha256)){
   const b=fs.readFileSync(p),s=b.toString('utf8');
   const change=preview.changes[p];if(change)assert.equal(change.before_sha256_lf,digest,p);
-  assert.equal(hash(Buffer.from(s,'utf8').equals(b)?Buffer.from(s.replaceAll('\r\n','\n')):b),change?.after_sha256_lf??digest,p);
+  const before=change?.after_sha256_lf??digest;const next=inspection.changes[p];if(next)assert.equal(next.before_sha256_lf,before,p);
+  assert.equal(hash(Buffer.from(s,'utf8').equals(b)?Buffer.from(s.replaceAll('\r\n','\n')):b),next?.after_sha256_lf??before,p);
  }
  for(const c of read('docs/reports/phase-6-closure-v1.json').contracts)assert.equal(hash(fs.readFileSync(c.path,'utf8').replaceAll('\r\n','\n')),c.sha256_lf,c.path);
  assert.equal(m.original_contract_freezes.length,8);
