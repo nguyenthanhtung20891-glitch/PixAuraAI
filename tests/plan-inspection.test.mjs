@@ -23,6 +23,9 @@ test('native description uses exact existing Plan Registry and source authority 
  assert.equal(m.record_bytes,4808);assert.equal(m.action_bytes,544);assert.equal(m.parameter_bytes,112);assert.equal(m.max_actions,8);assert.equal(m.max_parameters,4);assert.equal(m.max_plan_bytes,8192);
 });
 test('platform review presents exact raw units and order with no action editing controls',()=>{
+ const androidPanel=text('platforms/android/app/src/main/java/ai/pixaura/app/PlanInspectionPanel.kt');
+ assert.ok(androidPanel.includes('contentDescription = spoken.joinToString'));assert.ok(!androidPanel.includes('mergeDescendants = true'));
+ assert.doesNotMatch(text('platforms/android/app/src/androidTest/java/ai/pixaura/app/PlanInspectionTest.kt'),/onNodeWithTag\("(?:auto-exact-values|review-action-detail|review-geometry-warning)[^"]*",\s*useUnmergedTree/);
  for(const p of ['platforms/android/app/src/main/java/ai/pixaura/app/PlanInspectionPanel.kt','platforms/ios/PixAuraAI/ManualEditorScreen.swift']){
   const panel=text(p).split(p.endsWith('.kt')?'internal fun PlanInspectionPanel':'private struct PlanInspectionPanel')[1];assert.ok(panel);
   for(const id of ['review-action-list','review-plan-count','review-action-','review-action-detail-','review-geometry-warning-','auto-exact-values-'])assert.ok(panel.includes(id),p+id);

@@ -54,6 +54,6 @@
     "docs/contracts/plan-inspection-action-review-v1.md": "a2232b333a547126c6067965ce9f856fb2583a70edf49f08a8226e4f1e6aa063",
     "packages/core/include/pixaura/review_inspection.h": "12d16f287920f9d29d92396c015789e05408c9fde1a9940d924e6073533775bb",
     "packages/core/src/review_inspection_boundary.hpp": "444eb9d89dc3c38cf7059f6c171cf539b75b5b2b14c52fcc1ab6ff04d7b0a862",
-    "platforms/android/app/src/main/java/ai/pixaura/app/PlanInspectionPanel.kt": "f72ce96a5e175ab7a296f61d9740316afc6f4b78ac8dcdbd55119ce8d63e6831"
+    "platforms/android/app/src/main/java/ai/pixaura/app/PlanInspectionPanel.kt": "2790794dfaae8f28d429384005e428f0ed459cd665eb87ec4fcfd6188323e4b7"
   }
 }

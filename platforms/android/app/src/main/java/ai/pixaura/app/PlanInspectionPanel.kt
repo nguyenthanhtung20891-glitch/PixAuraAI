@@ -16,12 +16,22 @@ internal fun PlanInspectionPanel(inspection: ManualEditor.PlanInspection) {
         Text("${inspection.actions.size} planned action(s). Human approval required; inspection applied nothing.", Modifier.testTag("review-plan-count"))
         if (inspection.warnings and 1 != 0) Text("Multiple actions execute in this exact order. Order matters.", Modifier.testTag("review-order-warning"))
         for (action in inspection.actions) {
-            Column(Modifier.testTag("review-action-${action.index}").semantics(mergeDescendants = true) {}) {
-                Text("Action ${action.index + 1} of ${inspection.actions.size}: ${action.label}")
-                Text("${action.toolId}; operation v${action.operationVersion}; parameters v${action.parameterVersion}")
-                Text(action.parameters.joinToString("; ") { "${it.name} = ${it.raw} (${it.unit})" }, Modifier.testTag("auto-exact-values-${action.index}"))
-                Text(action.parameters.joinToString("; ") { "${it.name}: range ${it.minimum} to ${it.maximum}; reference ${it.neutral}" }, Modifier.testTag("review-action-detail-${action.index}"))
-                if (action.geometry) Text("Geometry change: dimensions or orientation may change. Use fit/toggle comparison.", Modifier.testTag("review-geometry-warning-${action.index}"))
+            val position = "Action ${action.index + 1} of ${inspection.actions.size}: ${action.label}"
+            val identity = "${action.toolId}; operation v${action.operationVersion}; parameters v${action.parameterVersion}"
+            val exact = action.parameters.joinToString("; ") { "${it.name} = ${it.raw} (${it.unit})" }
+            val detail = action.parameters.joinToString("; ") { "${it.name}: range ${it.minimum} to ${it.maximum}; reference ${it.neutral}" }
+            val warning = "Geometry change: dimensions or orientation may change. Use fit/toggle comparison."
+            val spoken = if (action.geometry) listOf(position, identity, exact, detail, warning) else listOf(position, identity, exact, detail)
+            // Keep exact-value/detail nodes addressable in the default semantics
+            // tree while exposing the complete row to accessibility services.
+            Column(Modifier.testTag("review-action-${action.index}").semantics {
+                contentDescription = spoken.joinToString("; ")
+            }) {
+                Text(position)
+                Text(identity)
+                Text(exact, Modifier.testTag("auto-exact-values-${action.index}"))
+                Text(detail, Modifier.testTag("review-action-detail-${action.index}"))
+                if (action.geometry) Text(warning, Modifier.testTag("review-geometry-warning-${action.index}"))
             }
         }
     }

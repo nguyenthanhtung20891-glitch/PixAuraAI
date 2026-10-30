@@ -58,10 +58,11 @@ class PlanInspectionTest {
             assertEquals(choice.values, a.parameters.map { it.raw })
             compose.onNodeWithTag("review-action-list").assertExists()
             compose.onNodeWithTag("review-plan-count").assertTextContains("1 planned action(s).", substring = true)
-            compose.onNodeWithTag("review-action-0").performScrollTo().assertIsDisplayed().assertTextContains("Action 1 of 1: ${a.label}")
-            compose.onNodeWithTag("auto-exact-values-0", useUnmergedTree = true).assertTextEquals(a.parameters.joinToString("; ") { "${it.name} = ${it.raw} (${it.unit})" })
-            compose.onNodeWithTag("review-action-detail-0", useUnmergedTree = true).assertExists()
-            if (a.geometry) compose.onNodeWithTag("review-geometry-warning-0", useUnmergedTree = true).assertExists()
+            compose.onNodeWithTag("review-action-0").performScrollTo().assertIsDisplayed().assertContentDescriptionContains("Action 1 of 1: ${a.label}", substring = true)
+            compose.onNodeWithText("Action 1 of 1: ${a.label}").assertExists()
+            compose.onNodeWithTag("auto-exact-values-0").assertTextEquals(a.parameters.joinToString("; ") { "${it.name} = ${it.raw} (${it.unit})" })
+            compose.onNodeWithTag("review-action-detail-0").assertExists()
+            if (a.geometry) compose.onNodeWithTag("review-geometry-warning-0").assertExists()
             compose.onNodeWithTag("review-preview-request").assertExists(); compose.onNodeWithTag("auto-apply").assertExists()
             compose.onNodeWithTag("review-action-0").assert(hasClickAction().not())
             assertEquals(source, owner.state().revisionId); assertEquals(1, owner.state().revisionCount)
@@ -83,8 +84,9 @@ class PlanInspectionTest {
         compose.runOnUiThread { mutable.value = mutable.value.copy(status = AutoStatus.REVIEW_READY, proposal = proposal, review = review, inFlight = false) }
         compose.onNodeWithTag("review-plan-count").assertTextContains("8 planned action(s).", substring = true)
         for (i in 0..7) {
-            compose.onNodeWithTag("review-action-$i").performScrollTo().assertIsDisplayed().assertTextContains("Action ${i+1} of 8: Exposure")
-            compose.onNodeWithTag("auto-exact-values-$i", useUnmergedTree = true).assertTextEquals("milli_ev = ${101+i} (thousandths_exposure_stop)")
+            compose.onNodeWithTag("review-action-$i").performScrollTo().assertIsDisplayed().assertContentDescriptionContains("Action ${i+1} of 8: Exposure", substring = true)
+            compose.onNodeWithText("Action ${i+1} of 8: Exposure").assertExists()
+            compose.onNodeWithTag("auto-exact-values-$i").assertTextEquals("milli_ev = ${101+i} (thousandths_exposure_stop)")
         }
         compose.onNodeWithTag("review-action-8").assertDoesNotExist(); compose.onNodeWithTag("review-order-warning").assertExists()
         tap("review-preview-request"); waitFor { model.autoProposal.value.preview.status == ReviewPreviewStatus.PREVIEW_READY }

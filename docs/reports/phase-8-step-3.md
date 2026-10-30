@@ -177,3 +177,14 @@ Local checks are development evidence, not substitutes for exact-SHA workflows:
 
 All existing frozen contracts/engines and Step 1/2 certified records remain intact.
 Implementation and separate closure certification are still required. No Step 4.
+
+Initial implementation `4311c0c8c305a87596f4d9c3dc1857fa07a6e165` is NOT fully
+certified. Native shells 41015038330, attempt 1, completed Android instrumentation
+with 52/53 passing and one retained AutoReviewTest failure. Its exact-value finder
+could see `auto-exact-values-0` only in the unmerged tree: the new action row's
+`mergeDescendants=true` hid that child tag in the default semantics tree. The raw
+value itself was correct; both new inspection tests passed. The correction keeps
+row accessibility text while preserving individually addressable raw/detail nodes.
+The old assertion is unchanged, and new inspection tests now require default-tree
+access too. No timeouts, approval behavior or tool semantics changed. The failed
+SHA is not rerun; a corrected SHA must pass both complete workflows independently.
