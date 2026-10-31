@@ -1,6 +1,6 @@
 # Phase 8 Step 3 - Plan Inspection & Action Review
 
-Status: AUTHORIZED / IN PROGRESS; implementation certification pending.
+Status: CLOSURE CERTIFICATION PENDING; implementation independently certified.
 Steps 4-6 NOT STARTED. No editable review. This report does not certify its own SHA.
 
 ## Baseline and authority
@@ -188,3 +188,77 @@ row accessibility text while preserving individually addressable raw/detail node
 The old assertion is unchanged, and new inspection tests now require default-tree
 access too. No timeouts, approval behavior or tool semantics changed. The failed
 SHA is not rerun; a corrected SHA must pass both complete workflows independently.
+
+## Observed implementation certification and prepared closure
+
+Certified implementation SHA `b7534c95b70ec28fa3fe5b57a56e893b0f3bf090` passed Foundation **41017493178** (7/7)
+and Native application shells **41017493082** (3/3), exact SHA, attempt 1, all required
+jobs individually completed/SUCCESS. The [job-level implementation receipt](evidence/phase-8-step-3-implementation-certification.json)
+records head SHAs, attempts and job IDs. Any superseded attempts remain historical,
+and are not certified by these runs. No workflow reruns or test weakening.
+
+| Workflow | Job | ID | Result |
+| --- | --- | --- | --- |
+| Foundation boundaries | sanitizer | 123937015613 | completed / SUCCESS |
+| Foundation boundaries | apple-boundary | 123937015617 | completed / SUCCESS |
+| Foundation boundaries | portable (windows-2025) | 123937015641 | completed / SUCCESS |
+| Foundation boundaries | android-boundary (arm64-v8a) | 123937015662 | completed / SUCCESS |
+| Foundation boundaries | workflow-lint | 123937015669 | completed / SUCCESS |
+| Foundation boundaries | portable (ubuntu-24.04) | 123937015688 | completed / SUCCESS |
+| Foundation boundaries | android-boundary (armeabi-v7a) | 123937015726 | completed / SUCCESS |
+| Native application shells | ios-app | 123937015271 | completed / SUCCESS |
+| Native application shells | android-app | 123937015521 | completed / SUCCESS |
+| Native application shells | source | 123937015625 | completed / SUCCESS |
+
+This documentation-only closure changes no production code, contract, test or
+workflow behavior. Its [exact inventory](evidence/phase-8-step-3-closure-files.json)
+records all closure files. Both full workflows must independently pass its new SHA.
+Only the external observed final engineering receipt activates Step 3 COMPLETE /
+FULL PASS; no self-certification or older-SHA substitution. Until that observation
+CLOSURE CERTIFICATION PENDING. Phase 8 remains IN PROGRESS; Steps 4-6 NOT STARTED.
+All stated provider/model/trust and frozen-contract boundaries remain unchanged.
+
+## Certified implementation results
+
+All entries below were inspected on corrected implementation
+`b7534c95b70ec28fa3fe5b57a56e893b0f3bf090`; initial-SHA successes do not certify it.
+
+| Gate/environment | Observed result |
+| --- | --- |
+| Foundation 41017493178 | attempt 1, 7/7 required jobs completed/SUCCESS |
+| Native shells 41017493082 | attempt 1, 3/3 required jobs completed/SUCCESS |
+| Windows native | 57/57 applicable tests |
+| Linux / Apple native | 58/58 on each |
+| Swift macOS / iOS Simulator | 49/49 on each, zero failures |
+| Active ASan/UBSan | 60/60, including both active-instrumentation probes |
+| Native inspection | 1524 checks, eleven tools, exact order/raw/units and zero authority effects |
+| Android instrumentation XML | 53 tests, 0 failures, 0 errors, 0 skipped |
+| iOS app / semantic UI | 9/9 app, 14/14 UI, zero failures |
+| Android final APK | isolation PASS: 12 native libraries, 2 DEX files, 32,003,240 uncompressed bytes |
+| Apple final package | isolation PASS: 8 files, 3,155,575 bytes, zero model assets |
+
+The retained AutoReviewTest exact-value assertion passed unchanged. Inspection
+fields/details are accessible in the default semantics tree; row summaries and
+individual identifiers coexist. All eleven tool values and representative multi-
+action order, geometry warnings, preview association and read-only controls passed
+actual platform tests. Release scanners and negative packaged-content fixtures
+passed. No test was weakened, skipped or made optional. No workflow was rerun.
+
+Linux Debug CI measured 100 identical extractions per case: one action mean
+**1.366 ms**, eight actions mean **1.818 ms**. Each record is **4808 bytes**, with
+**zero retained native inspection bytes** and **zero image bytes**. The independent
+persistent-allocation sweep recovered 426 Linux failures (maximum cumulative
+requested bytes 54,540) and 2449 MSVC debug failures (117,607 cumulative requested
+bytes), preserving outputs and ordinary document state. These cumulative totals
+are not peak live memory, process RSS or a production/mobile resource lease.
+
+Security disposition: no unresolved A-class finding. The granular Android
+accessibility regression was corrected without changing the retained assertion
+or any native authority. Geometry spatial comparison retains the authorized
+Step 2 fit/toggle limitation. Optional friendly localization and physical thermal/
+accelerator evidence are not claimed. No new editing, approval, candidate,
+publication, Schema 3, history or resource-contract semantics were introduced.
+
+This is observed implementation certification only. Final Step 3 closure still
+requires BOTH complete workflows on this separate documentation commit's own SHA.
+Steps 4-6 remain NOT STARTED.
