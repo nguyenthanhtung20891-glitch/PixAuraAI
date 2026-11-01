@@ -49,7 +49,9 @@ test('complete retained workflows run new native/platform/allocation tests witho
  assert.ok(c.includes('if(NOT pixaura_test STREQUAL "review_edit_allocation_test")'));
  assert.ok(text('.github/workflows/foundation.yml').includes('--verbose --parallel 2'));
  const sweep=text('packages/core/tests/review_edit_allocation_test.cpp');for(const t of ['kind<5','n<16384','status==8','std::memcmp(&output,&sentinel','state()==stable','cumulative_requested_max'])assert.ok(sweep.includes(t),t);
- for(const t of ['std::array<std::thread,4>','thread_local int64_t fail_after','n=worker','n+=4','last-first<4','failures)==static_cast<uint64_t>(first)','worker.join()'])assert.ok(sweep.includes(t),t);
+ for(const t of ['thread_local int64_t fail_after','n=worker','n+=4','restore.operation=4','session.state==1','inspection.plan_sha256'])assert.ok(sweep.includes(t),t);
+ const runner=text('tests/review-edit-allocation-runner.mjs');
+ for(const t of ['Promise.allSettled','length:4','execFile(executable,[root,String(worker)]','last-first<4','assert.equal(failures,first)','failures,(first-worker)/4'])assert.ok(runner.includes(t),t);
 });
 test('current Step 4 authority preserves certified Step 3 and requires fresh exact-SHA implementation and closure',()=>{
  for(const p of ['AGENTS.md','ARCHITECTURE.md','DECISIONS.md','QUALITY_GATES.md','ROADMAP.md','docs/plans/phase-8-roadmap.md']){

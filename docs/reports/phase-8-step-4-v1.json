@@ -18,7 +18,7 @@
   "changes": {
     "CMakeLists.txt": {
       "before_sha256_lf": "436bfc1a8d7a3e3b1567c3420f9fbb79f73864b9694b9a9b8b4ed567c83789c1",
-      "after_sha256_lf": "b641383869785ca8123e8469c4e21cdd9362d17f1e91042e7ff01e4e6b98800d"
+      "after_sha256_lf": "46da97f723cdccba987782ef3fb5b510656167c83df91f1a78e0f643f3a36546"
     },
     "packages/core/src/editor_api.cpp": {
       "before_sha256_lf": "d2f9c13d26af105f6693a109db642ffcfa94a454e5915ac60dc421d19fa1898d",

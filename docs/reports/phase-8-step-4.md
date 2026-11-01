@@ -108,6 +108,21 @@ test, workflow timeout or production worker/concurrency semantics changed.
 
 ## Frozen scope
 
+`c49e986c5424d0c30ed3fa790181ed2436b14760` passed all three Native shell jobs
+(41267798068, attempt 1), including both new iOS UI scenarios. Foundation
+41267798102 passed six jobs but Windows reached the unchanged job limit. The
+new allocation sweep passed every index; its four threads contend on the MSVC
+debug CRT heap and repeatedly reconstructed provider/inspection fixtures outside
+the injected operation. Scheduling overlap alone did not remove that cost.
+The correction isolates the four residue partitions into child processes with
+independent CRT heaps. It builds each original fixture once and uses explicit
+native Restore between failed edit attempts, checking the original Plan hash and
+ORIGINAL state before the next injection. Every injected operation, failure
+index, atomic output assertion and unchanged-document assertion remains. Parent
+aggregation joins all children and proves a contiguous complete failure prefix.
+MSVC debug iterator/heap checks, sanitizer settings and timeouts are unchanged.
+Only test tooling changes; fresh exact-SHA certification remains mandatory.
+
 Initial Native shells 41264078710 failed iOS UI tests: the new editable-review
 controls were absent from semantic queries (`review-edit-down-0` and the raw
 value field). All 51 Swift package and 9 app tests passed; the 16 UI tests had

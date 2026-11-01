@@ -41,6 +41,7 @@
     "tests/deterministic-admission.test.mjs",
     "tests/helpers/review-edit-hashes.mjs",
     "tests/plan-inspection.test.mjs",
+    "tests/review-edit-allocation-runner.mjs",
     "tests/review-edit.test.mjs",
     "tests/review-preview.test.mjs"
   ]
