@@ -1,7 +1,7 @@
 # Phase 8 Step 4 — Editable Review Before Apply
 
-Status: AUTHORIZED / IN PROGRESS. Implementation and independent closure
-certification pending. Step 5 NOT STARTED. No unexecuted gate is PASS.
+Status: CLOSURE CERTIFICATION PENDING. Implementation independently certified;
+final closure certification pending. Step 5 NOT STARTED. No unexecuted gate is PASS.
 
 ## Certified baseline
 
@@ -165,3 +165,106 @@ reference.deterministic.v1 unchanged. Learned model NONE REQUIRED / NONE ADMITTE
 FOR PHASE 7 MVP. No models/weights/runtime/NLP/cloud/network or research added.
 CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED /
 NOT SATISFIED. Stop after Step 4. Step 5 NOT STARTED.
+
+## Observed implementation certification and prepared closure
+
+Certified implementation SHA `c52acdbc4f3d8ea1f3c4cd9701bbefbd97e6b07d` passed Foundation **41282050822** (7/7)
+and Native application shells **41282050935** (3/3), exact SHA, attempt 1, all required
+jobs individually completed/SUCCESS. The [job-level receipt](evidence/phase-8-step-4-implementation-certification.json)
+records exact SHAs, attempts, job IDs and conclusions. The initial failed/cancelled
+SHA is not certified by these results. No workflow reruns or test weakening.
+
+| Workflow | Job | ID | Result |
+| --- | --- | --- | --- |
+| Foundation boundaries | apple-boundary | 124775781734 | completed / SUCCESS |
+| Foundation boundaries | android-boundary (arm64-v8a) | 124775781836 | completed / SUCCESS |
+| Foundation boundaries | workflow-lint | 124775781840 | completed / SUCCESS |
+| Foundation boundaries | portable (windows-2025) | 124775781854 | completed / SUCCESS |
+| Foundation boundaries | sanitizer | 124775781892 | completed / SUCCESS |
+| Foundation boundaries | portable (ubuntu-24.04) | 124775781922 | completed / SUCCESS |
+| Foundation boundaries | android-boundary (armeabi-v7a) | 124775781938 | completed / SUCCESS |
+| Native application shells | source | 124775782089 | completed / SUCCESS |
+| Native application shells | android-app | 124775782221 | completed / SUCCESS |
+| Native application shells | ios-app | 124775782320 | completed / SUCCESS |
+
+This separate documentation-only closure changes no production behavior, contract,
+test or workflow. Its [exact inventory](evidence/phase-8-step-4-closure-files.json)
+records every closure file. Both full workflows must independently pass its own
+new SHA. Only externally observed final closure-SHA success activates Step 4
+COMPLETE / FULL PASS. Until then CLOSURE CERTIFICATION PENDING. Phase 8 remains
+IN PROGRESS; Steps 5-6 NOT STARTED. All frozen authority and trust states remain.
+
+## Verified implementation software evidence
+
+All evidence below belongs to `c52acdbc4f3d8ea1f3c4cd9701bbefbd97e6b07d`, not an older implementation.
+Linux 61/61 native tests; Windows MSVC 60/60; Apple 61/61 native tests and 51/51
+Swift package tests on hosted Apple environments; active ASan/UBSan 63/63.
+Native review-edit assertions: 2,217, all eleven tools, one/two/eight actions,
+crop/quarter-turn/mixed geometry, forged targets, stale/owner/epoch boundaries,
+BUSY, stop/join/destroy, allocation atomicity, and ordinary edited-Plan Apply.
+The source/governance suite contains 201 tests, with zero failures/skips.
+Android instrumentation XML proves 55 tests, zero failures/errors/skips. Android
+exercises raw draft gating, new inspection, reorder/remove/restore, NO_ACTIONS,
+stale captured control events, explicit Apply and exactly one ordinary revision.
+Apple app tests 9/9 and UI tests 16/16 pass; both new edit UI scenarios retain
+semantic target/hittability assertions. Swift additionally edits all eleven tools
+and rejects stale captured bridge events without changing the current successor.
+
+### Resource and performance observations
+
+No image allocation, raster execution, model/session, new worker pool or review
+undo stack is required. Fixed ABI sizes: ticket 136, request 776, result 480 bytes.
+Native owner state is implementation-dependent (536 bytes Linux, 544 MSVC debug);
+original/current Plan content is bounded to 8,192 bytes each. Allocator capacity
+can remain bounded until owner teardown. Input drafts are at most 32 fields of
+11 characters each; draft state conveys no Plan or approval authority.
+
+| Host | Actions | Value mean ms | Remove mean ms | Move mean ms | Restore mean ms | Repeats/operation |
+| --- | --- | --- | --- | --- | --- | --- |
+| linux | 1 | 11.681 | 9.480 | 8.499 | 4.200 | 20 |
+| linux | 2 | 11.822 | 10.246 | 9.401 | 4.990 | 20 |
+| linux | 8 | 8.134 | 7.958 | 7.984 | 5.155 | 20 |
+| windows | 1 | 18.438 | 13.486 | 17.896 | 13.219 | 20 |
+| windows | 2 | 20.092 | 17.568 | 17.763 | 12.618 | 20 |
+| windows | 8 | 27.409 | 26.508 | 30.487 | 18.591 | 20 |
+
+| Host | Begin failures | Value failures | Remove failures | Move failures | Restore failures | Maximum cumulative requested bytes |
+| --- | --- | --- | --- | --- | --- | --- |
+| linux | 427 | 1175 | 788 | 1175 | 719 | 153647 |
+| windows | 2452 | 6759 | 4925 | 6759 | 4205 | 324069 |
+
+Each allocator prefix is checked without gaps/sampling; all child processes are
+joined. Cumulative allocation requests are NOT peak live ownership, process RSS,
+a production lease or a new resource ceiling. Timings include hosted/debug
+software and are not physical-device battery/thermal or GPU certification.
+
+### Final release isolation, privacy and security
+
+- Android final release isolation PASS {'native_libraries': 12, 'dex_files': 2, 'uncompressed_bytes': 32065904}
+- Apple final release isolation PASS {'files': 8, 'bytes': 3286935, 'model_assets': 0}
+
+Retained negative packaged-content fixtures remain active. No certification edit
+injector, approval bypass, hidden executor, research provider or model asset ships.
+All review editing stays local, without network, cloud, telemetry, remote
+validation or persisted review drafts. Schema 3 and ordinary history are unchanged.
+
+| Threat | Protection / observed result |
+| --- | --- |
+| A: old Plan mutation | immutable old bytes, separate fully validated candidate; PASS |
+| B: old approval reuse | existing unused approval revoked; A rejected, HUMAN B commits once; PASS |
+| C: old preview | native current/association and platform epoch reject old pair; PASS |
+| D: old inspection | current check fails, new native inspection regenerated; PASS |
+| E/F: forged action/parameter | full trusted target and exact parameter identity; PASS |
+| G: clamping | invalid raw value rejected, no replacement/clamp; PASS |
+| H: reorder bypass | complete canonical/Registry/geometry validation; PASS |
+| I: empty execution | NO_ACTIONS has no Plan/Apply/Preview; PASS |
+| J: restore ABA | equal bytes still fresh native review/ticket identity; PASS |
+| K: stale source | source/serial/owner/context/repository binding; PASS |
+| L: competing edits | one try-lock admission, BUSY, no queue/retry; PASS |
+| M: platform mismatch | native identity-bound events and regenerated native inspection; PASS |
+| N: hidden authority | edit produces no approval/candidate/execution/revision; PASS |
+
+No unresolved new A/B/C finding remains in the tested Step 4 scope. Existing
+physical-device/accelerator limitations remain explicitly deferred; hosted Apple
+does not satisfy DH-APPLE-METAL-01. No tests/warnings/sanitizer options/timeouts
+were weakened and no workflow was rerun. Phase 8 Steps 5-6 remain NOT STARTED.

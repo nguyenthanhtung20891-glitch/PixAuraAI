@@ -6,7 +6,13 @@
 Phase 7 CLOSED / COMPLETE / FULL PASS. Phase 8 Steps 1-3 COMPLETE / FULL PASS.
 Step 3 closure 2610ea2ed49ce2b6eb574ca14f60e0fde00adb67: Foundation 41189538699 SUCCESS 7/7;
 Native shells 41189538626 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
-Phase 8 AUTHORIZED / IN PROGRESS. Step 4 AUTHORIZED / IN PROGRESS.
+Phase 8 AUTHORIZED / IN PROGRESS. Step 4 CLOSURE CERTIFICATION PENDING.
+Certified implementation SHA: `c52acdbc4f3d8ea1f3c4cd9701bbefbd97e6b07d`.
+Foundation 41282050822 SUCCESS 7/7; Native shells 41282050935 SUCCESS 3/3;
+both exact SHA, attempt 1, every required job completed/SUCCESS.
+This separate documentation-only closure requires BOTH full workflows on its OWN
+exact SHA. Only the external observed final engineering receipt then activates
+Phase 8 Step 4 COMPLETE / FULL PASS. Until then closure certification pending.
 Steps 5-6 NOT STARTED. Stop after Step 4. No result/history review integration.
 Already-reviewed Plan immutable. Bounded native CHANGE_VALUE / REMOVE_ACTION /
 MOVE_ACTION / RESTORE_ORIGINAL -> NEW complete candidate -> existing full native
@@ -137,7 +143,7 @@ editable review, UI/bridge or editing authority implementation. Stop after Step 
 | 1 | Review Experience Contract & Information Architecture | COMPLETE / FULL PASS |
 | 2 | Before/After Preview Foundation | COMPLETE / FULL PASS |
 | 3 | Plan Inspection & Action Review | COMPLETE / FULL PASS |
-| 4 | Editable Review Before Apply | AUTHORIZED / IN PROGRESS |
+| 4 | Editable Review Before Apply | CLOSURE CERTIFICATION PENDING |
 | 5 | History / Result Review Integration | NOT STARTED |
 | 6 | Cross-Platform Polish & Phase 8 Closure | NOT STARTED |
 
