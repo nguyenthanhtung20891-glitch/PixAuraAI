@@ -357,18 +357,19 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
             }
         }
     }
-    fun editReview(operation: Int, action: Int = 0, parameter: Int = 0, value: Int = 0, destination: Int = 0) {
+    fun editReview(operation: Int, action: Int = 0, parameter: Int = 0, value: Int = 0, destination: Int = 0, expectedIdentity: String) {
         val ui = autoMutable.value; val editor = owner ?: return
         if (disposed.get() || !ui.enabled || ui.status !in listOf(AutoStatus.REVIEW_READY, AutoStatus.NO_ACTIONS, AutoStatus.EDIT_FAILED) || ui.inFlight || reviewRendering.get() || autoApplying.get()) return
+        if ((ui.review?.reviewIdentity ?: ui.editSession?.bindingIdentity) != expectedIdentity) return
         if (!reviewEditing.compareAndSet(false, true)) return
-        val stamp = autoEpoch.get()
+        val stamp = nextAutoEpoch() ?: run { reviewEditing.set(false); return }
         autoMutable.update { it.copy(inFlight = true, error = null) }
         commands.execute {
             try {
                 if (disposed.get() || owner !== editor || autoEpoch.get() != stamp) return@execute
                 val session = ui.editSession ?: editor.beginReviewEditing(ui.review ?: throw EditorFailure(9, "Review edit"))
                 try {
-                    val fresh = editor.editReview(session, operation, action, parameter, value, destination)
+                    val fresh = editor.editReview(session, expectedIdentity, operation, action, parameter, value, destination)
                     if (!disposed.get() && owner === editor && autoEpoch.get() == stamp) autoMutable.update {
                         it.copy(status = if (fresh == null) AutoStatus.NO_ACTIONS else AutoStatus.REVIEW_READY,
                             review = fresh, editSession = session, preview = ReviewPreviewUi(), error = null)
@@ -386,8 +387,8 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
                         else -> "Internal or unknown native failure"
                     }
                     if (!disposed.get() && owner === editor && autoEpoch.get() == stamp) autoMutable.update {
-                        it.copy(status = if (session.review == null) AutoStatus.EDIT_FAILED else AutoStatus.REVIEW_READY, review = session.review, editSession = session,
-                            preview = if (session.review == null) ReviewPreviewUi() else it.preview,
+                        it.copy(status = AutoStatus.EDIT_FAILED, review = null, editSession = session,
+                            preview = ReviewPreviewUi(),
                             error = "$reason ($code). Restore original or request a new review. No document edit was applied by this request.")
                     }
                 }

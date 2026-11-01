@@ -260,6 +260,10 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     private external fun nativeInspectionPreview(storage: ByteBuffer, packet: ByteBuffer, preview: ByteBuffer): Int
     class AutoReview internal constructor(internal val owner: ManualEditor, internal val proposal: AutoProposal,
         internal val plan: AgentPlan, val sourceRevision: String, val inspection: PlanInspection) {
+        /** Immutable native context/request serial, never an object address. */
+        val reviewIdentity: String = proposal.packet.duplicate().order(ByteOrder.nativeOrder()).let { p ->
+            "review:" + ByteArray(32) { p.get(24 + it) }.toString(Charsets.US_ASCII) + ":" + p.getLong(56).toULong().toString()
+        }
         internal var attempted = false
         internal var abandoned = false
         fun canonicalBytes(): ByteArray = plan.canonicalBytes()
@@ -283,6 +287,11 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
             internal set(value) { lock.withLock { field = value } }
         internal var nativeState = state
         val state get() = lock.withLock { if (review == null && nativeState != 3) 4 else nativeState }
+        val bindingIdentity get() = lock.withLock {
+            review?.reviewIdentity ?: packet.duplicate().order(ByteOrder.nativeOrder()).let { p ->
+                "edit:" + ByteArray(32) { p.get(56 + it) }.toString(Charsets.US_ASCII) + ":" + p.getLong(32).toULong().toString() + ":" + state
+            }
+        }
     }
     private fun editBuffer(bytes: Int) = ByteBuffer.allocateDirect(bytes).order(ByteOrder.nativeOrder())
     private fun copyEditBytes(from: ByteBuffer, at: Int, to: ByteBuffer, offset: Int, count: Int) {
@@ -300,10 +309,11 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
         ReviewEditSession(this, result.asReadOnlyBuffer(), review, 1)
     }
     /** Exact raw integer request only; native Registry and full Plan validation decide. */
-    fun editReview(session: ReviewEditSession, operation: Int, action: Int = 0, parameter: Int = 0,
+    fun editReview(session: ReviewEditSession, expectedIdentity: String, operation: Int, action: Int = 0, parameter: Int = 0,
         value: Int = 0, destination: Int = 0): AutoReview? = editAdmission {
         checked(if (closed) 13 else if (session.owner !== this) 9 else if (applyingReview != null || cancellingReview || assistCalls != 0) 8 else 0, "Review edit")
         session.lock.withLock edit@ {
+        checked(if (session.bindingIdentity == expectedIdentity) 0 else 9, "Review edit binding")
         val old = session.review
         checked(if (old?.attempted == true || old?.abandoned == true) 9 else 0, "Review edit")
         val request = editBuffer(776); request.putInt(0, 1); request.putInt(4, 776); request.putInt(8, operation)

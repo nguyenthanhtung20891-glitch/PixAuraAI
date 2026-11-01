@@ -583,3 +583,13 @@ foreach(pixaura_target IN LISTS pixaura_targets)
         endforeach()
     endif()
 endforeach()
+
+# The new exhaustive edit-allocation executable owns unique per-worker roots.
+# It may overlap the retained suite, whose tests remain mutually serialized.
+# No test, injection index, sanitizer option or timeout is removed or relaxed.
+get_property(pixaura_registered_tests DIRECTORY PROPERTY TESTS)
+foreach(pixaura_test IN LISTS pixaura_registered_tests)
+    if(NOT pixaura_test STREQUAL "review_edit_allocation_test")
+        set_property(TEST ${pixaura_test} APPEND PROPERTY RESOURCE_LOCK pixaura_retained_suite)
+    endif()
+endforeach()

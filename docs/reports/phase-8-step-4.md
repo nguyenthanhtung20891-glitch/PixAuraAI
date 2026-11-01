@@ -108,6 +108,26 @@ test, workflow timeout or production worker/concurrency semantics changed.
 
 ## Frozen scope
 
+Second implementation `541b4d45ceccf3ddb70e397befd61abbb3438131` is NOT certified.
+Foundation 41265990347 again reached the existing Windows job limit. The new
+allocation sweep passed in 305.10 seconds, but serial scheduling still delayed
+the retained editor suite. All non-allocation tests now share a CTest resource
+lock; Foundation runs two slots, allowing only the isolated new allocation
+executable (unique temporary roots) to overlap the mutually serialized retained
+suite. Every registered test and injection index remains required. No timeout,
+warning, sanitizer option or retained assertion changes. Native 41265990349 is
+historical evidence only. Neither workflow is rerun.
+
+Inspection identified two presentation binding gaps before final certification:
+Swift widget draft identity used recyclable object addresses, and a late control
+event could resolve its target from a newer mutable session. Both platforms now
+carry immutable native review identities with each displayed control, check them
+at model admission and again under the bridge session lock, and use native
+identity for draft state. Failure never adopts a newer review implicitly. Swift
+and Android regression assertions reject stale captured events while preserving
+the current successor; Restore has a fresh identity even for equal Plan bytes.
+These corrections alter neither native Plan validation nor HUMAN Apply semantics.
+
 All earlier contract semantics, Schema 3, approval/candidate/publication, shared
 history/Manual and resource authorities unchanged. Existing approval revocation
 state is reused, not redesigned. Provider reference.assistance.v1 ADMITTED; planner

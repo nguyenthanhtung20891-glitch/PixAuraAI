@@ -95,6 +95,15 @@ remain the sole route to at most one ordinary revision. No approval is inherited
 
 ## Platforms, lifecycle and resources
 
+Every edit control captures the immutable native context/request-serial identity
+of the review it displayed. Models reject mismatched events before dispatch;
+bridges recheck the captured identity under the session lock before constructing
+the native request. NO_ACTIONS/failure recovery captures the native edit ticket
+identity instead. A callback never reads a newer mutable session to reinterpret
+an older action index. Input draft/widget identity uses native review identity,
+never a recyclable object address. Successful edits advance the presentation
+epoch; failed requests expose no approvable review or silently adopted successor.
+
 Kotlin/Swift decode fixed native results and regenerate inspection from the new
 Plan. They do not parse/encode Plan JSON, infer tool rules, patch action rows,
 reorder native storage or reconstruct a Registry. Separate accessible controls

@@ -46,6 +46,12 @@ class ReviewEditTest {
         compose.onNodeWithTag("review-edit-draft-0-0").assertExists()
         tap("review-edit-change-0-0"); settled()
         val edited = requireNotNull(model.autoProposal.value.review)
+        assertNotEquals(original.reviewIdentity, edited.reviewIdentity)
+        compose.runOnUiThread { model.editReview(2, expectedIdentity = original.reviewIdentity) }; barrier()
+        assertSame(edited, model.autoProposal.value.review)
+        val session = requireNotNull(model.autoProposal.value.editSession)
+        try { owner.editReview(session, original.reviewIdentity, 2); fail("stale captured event accepted") } catch (failure: EditorFailure) { assertEquals(9, failure.status) }
+        assertSame(edited, session.review); assertEquals(1, owner.inspectReview(edited).actions.size)
         assertNotSame(original, edited); assertEquals(123, edited.inspection.actions[0].parameters[0].raw); assertArrayEquals(bytes, original.canonicalBytes())
         compose.onNodeWithTag("auto-exact-values-0").assertTextContains("milli_ev = 123", substring = true)
         compose.onNodeWithTag("review-edit-state").assertTextContains("EDITED", substring = true)

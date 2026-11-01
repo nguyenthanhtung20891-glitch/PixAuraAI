@@ -331,7 +331,7 @@ private final class EditorWorker {
         // Existing manual-tool navigation only; no values, preview or Apply.
         try owner.select(choice.toolIndex); try owner.cancelAdvice()
     }
-    func editReview(_ existing: ManualEditor.ReviewEditSession?, review: ManualEditor.AutoReview?, operation: UInt32,
+    func editReview(_ existing: ManualEditor.ReviewEditSession?, review: ManualEditor.AutoReview?, expectedIdentity: String, operation: UInt32,
         action: UInt32, parameter: UInt32, value: Int32, destination: UInt32,
         completion: @escaping @MainActor (ManualEditor.ReviewEditSession?, Result<ManualEditor.AutoReview?, Error>) -> Void) {
         lock.lock()
@@ -346,7 +346,7 @@ private final class EditorWorker {
                     session = try editor.beginReviewEditing(review)
                 }
                 guard let session else { throw ManualEditorFailure(status: 14, boundary: "Review edit") }
-                return try editor.editReview(session, operation: operation, action: action, parameter: parameter, value: value, destination: destination)
+                return try editor.editReview(session, expectedIdentity: expectedIdentity, operation: operation, action: action, parameter: parameter, value: value, destination: destination)
             }
             self.lock.lock(); self.assistWorking = false; self.lock.unlock()
             let completedSession = session
@@ -601,12 +601,13 @@ final class ManualEditorModel: ObservableObject {
             }
         }
     }
-    func editReview(_ operation: UInt32, action: UInt32 = 0, parameter: UInt32 = 0, value: Int32 = 0, destination: UInt32 = 0) {
+    func editReview(_ operation: UInt32, action: UInt32 = 0, parameter: UInt32 = 0, value: Int32 = 0, destination: UInt32 = 0, expectedIdentity: String) {
         guard autoProposal.enabled, [AutoStatus.reviewReady, .noActions, .editFailed].contains(autoProposal.status), !autoProposal.inFlight,
             !reviewPreviewBusy, autoProposal.preview.status != .stale else { return }
-        let stamp = autoEpoch
+        guard (autoProposal.review?.reviewIdentity ?? autoProposal.editSession?.bindingIdentity) == expectedIdentity,
+            let stamp = nextAutoEpoch() else { return }
         autoProposal.inFlight = true; autoProposal.error = nil
-        worker.editReview(autoProposal.editSession, review: autoProposal.review, operation: operation, action: action,
+        worker.editReview(autoProposal.editSession, review: autoProposal.review, expectedIdentity: expectedIdentity, operation: operation, action: action,
             parameter: parameter, value: value, destination: destination) { [weak self] session, result in
             guard let self, self.autoEpoch == stamp, self.autoProposal.enabled else { return }
             self.autoProposal.inFlight = false
@@ -614,9 +615,9 @@ final class ManualEditorModel: ObservableObject {
             switch result {
             case .success(let review): self.autoProposal.status = review == nil ? .noActions : .reviewReady; self.autoProposal.review = review; self.autoProposal.preview = ReviewPreviewUi()
             case .failure(let error):
-                self.autoProposal.review = session?.review
-                self.autoProposal.status = session?.review == nil ? .editFailed : .reviewReady
-                if session?.review == nil { self.autoProposal.preview = ReviewPreviewUi() }
+                self.autoProposal.review = nil
+                self.autoProposal.status = .editFailed
+                self.autoProposal.preview = ReviewPreviewUi()
                 let code = (error as? ManualEditorFailure)?.status ?? 14
                 let reason: String
                 switch code {

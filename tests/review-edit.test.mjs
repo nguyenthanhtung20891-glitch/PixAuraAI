@@ -28,19 +28,24 @@ test('platform edit controls propose raw integers and render new native inspecti
   const s=text(p);for(const t of ['beginReviewEditing','editReview','session.review','abandoned = true','prepareAutoReview'])assert.ok(s.includes(t),p+t);
   const body=s.split(p.endsWith('.kt')?'fun editReview(':'public func editReview(')[1].split(p.endsWith('.kt')?'private external fun nativeEditBegin':'/// ONLY explicit review Apply')[0];
   assert.doesNotMatch(body,/JSONSerialization|JSONObject|JSONEncoder|approveAgent|executeAgent|Slider|roundToInt/);
+  assert.ok(body.includes('session.bindingIdentity == expectedIdentity'),p+' stale event fence');
+  assert.ok(s.includes('reviewIdentity'),p+' native identity');
  }
  for(const p of ['platforms/android/app/src/main/java/ai/pixaura/app/ReviewEditPanel.kt','platforms/ios/PixAuraAI/ManualEditorScreen.swift']){
   const s=text(p);for(const id of ['review-edit-value-','review-edit-change-','review-edit-remove-','review-edit-up-','review-edit-down-','review-edit-restore','review-edit-state'])assert.ok(s.includes(id),p+id);
   for(const t of ['NO_ACTIONS','EDIT_FAILED','ORIGINAL','EDITED','not document undo'])assert.ok(s.includes(t),p+t);
  }
  assert.ok(text('platforms/android/app/src/main/java/ai/pixaura/app/AutoProposalPanel.kt').includes('drafts.isEmpty() && auto.status'));
- assert.ok(text('platforms/ios/PixAuraAI/ManualEditorScreen.swift').includes('reviewDraftIdentity == ObjectIdentifier(review) && !reviewDrafts.isEmpty'));
+ assert.ok(text('platforms/ios/PixAuraAI/ManualEditorScreen.swift').includes('reviewDraftIdentity == review.reviewIdentity && !reviewDrafts.isEmpty'));
  for(const p of ['platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt','platforms/ios/PixAuraAI/ManualEditorModel.swift'])for(const label of ['Invalid owner, session or edit request','Unsupported edit','Invalid resulting Plan','Invalid value or complete Plan parameters','Busy or allocation/resource unavailable','Stale review','Cancelled or owner stopped','Internal or unknown native failure','No document edit was applied by this request.'])assert.ok(text(p).includes(label),p+label);
 });
 test('complete retained workflows run new native/platform/allocation tests without shipping new hooks',()=>{
  for(const p of ['.github/workflows/foundation.yml','.github/workflows/native-shells.yml'])assert.ok(text(p).includes('tests/review-edit.test.mjs'));
  for(const p of ['packages/core/tests/review_edit_test.cpp','packages/core/tests/review_edit_allocation_test.cpp','packages/core/swift/Tests/ReviewEditTests.swift','platforms/android/app/src/androidTest/java/ai/pixaura/app/ReviewEditTest.kt'])assert.ok(text(p).includes('edit')||text(p).includes('Edit'));
  const c=text('CMakeLists.txt');for(const t of ['add_test(NAME review_edit_test','add_test(NAME review_edit_allocation_test','${review_production_sources}'])assert.ok(c.includes(t),t);
+ assert.ok(c.includes('APPEND PROPERTY RESOURCE_LOCK pixaura_retained_suite'));
+ assert.ok(c.includes('if(NOT pixaura_test STREQUAL "review_edit_allocation_test")'));
+ assert.ok(text('.github/workflows/foundation.yml').includes('--verbose --parallel 2'));
  const sweep=text('packages/core/tests/review_edit_allocation_test.cpp');for(const t of ['kind<5','n<16384','status==8','std::memcmp(&output,&sentinel','state()==stable','cumulative_requested_max'])assert.ok(sweep.includes(t),t);
  for(const t of ['std::array<std::thread,4>','thread_local int64_t fail_after','n=worker','n+=4','last-first<4','failures)==static_cast<uint64_t>(first)','worker.join()'])assert.ok(sweep.includes(t),t);
 });

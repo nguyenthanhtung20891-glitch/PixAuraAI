@@ -447,11 +447,14 @@ public final class ManualEditor {
     public final class AutoReview {
         fileprivate let owner: String, proposal: AutoProposal, plan: AgentPlan
         public let sourceRevision: String
+        public let reviewIdentity: String
         public let inspection: PlanInspection
         public var canonicalBytes: Data { plan.canonicalBytes }
         fileprivate var attempted = false, abandoned = false
         fileprivate init(_ owner: String, _ proposal: AutoProposal, _ plan: AgentPlan, _ source: String, _ inspection: PlanInspection) {
             self.owner = owner; self.proposal = proposal; self.plan = plan; sourceRevision = source; self.inspection = inspection
+            let context = withUnsafeBytes(of: proposal.packet.context_id) { String(decoding: $0, as: UTF8.self) }
+            reviewIdentity = "review:" + context + ":" + String(proposal.packet.request_serial)
         }
     }
     public func prepareAutoReview(_ proposal: AutoProposal) throws -> AutoReview {
@@ -477,6 +480,12 @@ public final class ManualEditor {
             set { lock.lock(); defer { lock.unlock() }; currentReview = newValue }
         }
         public var state: UInt32 { lock.lock(); defer { lock.unlock() }; return currentReview == nil && packet.state != 3 ? 4 : packet.state }
+        public var bindingIdentity: String {
+            lock.lock(); defer { lock.unlock() }
+            if let currentReview { return currentReview.reviewIdentity }
+            let context = withUnsafeBytes(of: packet.ticket.context_id) { String(decoding: $0, as: UTF8.self) }
+            return "edit:" + context + ":" + String(packet.ticket.serial) + ":" + String(state)
+        }
         fileprivate init(_ owner: String, _ packet: pixaura_review_edit_result, _ review: AutoReview) { self.owner = owner; self.packet = packet; currentReview = review }
     }
     public func beginReviewEditing(_ review: AutoReview) throws -> ReviewEditSession {
@@ -489,12 +498,13 @@ public final class ManualEditor {
         try checked(result.api_version == 1 && result.struct_size == 480 && result.state == 1 ? 0 : 14, "Review edit result")
         return ReviewEditSession(identity, result, review)
     }
-    public func editReview(_ session: ReviewEditSession, operation: UInt32, action: UInt32 = 0,
+    public func editReview(_ session: ReviewEditSession, expectedIdentity: String, operation: UInt32, action: UInt32 = 0,
         parameter: UInt32 = 0, value: Int32 = 0, destination: UInt32 = 0) throws -> AutoReview? {
         guard gate.try() else { throw ManualEditorFailure(status: 8, boundary: "Review edit busy") }; defer { gate.unlock() }
         idle.lock(); let busy = assistCalls != 0; idle.unlock()
         try checked(closed ? 13 : session.owner != identity ? 9 : busy || applyingReview != nil || cancellingReview ? 8 : 0, "Review edit")
         session.lock.lock(); defer { session.lock.unlock() }
+        try checked(session.bindingIdentity == expectedIdentity ? 0 : 9, "Review edit binding")
         let old = session.review
         try checked(old?.attempted == true || old?.abandoned == true ? 9 : 0, "Review edit")
         var request = pixaura_review_edit_request(); request.api_version = 1; request.struct_size = UInt32(MemoryLayout.size(ofValue: request))
