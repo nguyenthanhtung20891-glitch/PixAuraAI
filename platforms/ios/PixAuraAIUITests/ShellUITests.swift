@@ -5,7 +5,9 @@ final class ShellUITests: XCTestCase {
         let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
-            XCTAssertTrue(query.firstMatch.waitForExistence(timeout: 20)); query.firstMatch.tap()
+            XCTAssertTrue(query.firstMatch.waitForExistence(timeout: 20))
+            for _ in 0..<8 where !query.firstMatch.isHittable { app.scrollViews["review-scroll"].swipeUp() }
+            XCTAssertTrue(query.firstMatch.isHittable); query.firstMatch.tap()
         }
         func text(_ id: String, contains value: String) {
             let e = app.staticTexts[id]
@@ -16,6 +18,8 @@ final class ShellUITests: XCTestCase {
         text("auto-exact-values-0", contains: "milli_ev = 500")
         tap("review-preview-request"); XCTAssertTrue(app.staticTexts["review-before"].waitForExistence(timeout: 20))
         let field = app.textFields["review-edit-value-0-0"]; XCTAssertTrue(field.exists); XCTAssertTrue(field.label.contains("allowed -5000 to 5000"))
+        for _ in 0..<8 where !field.isHittable { app.scrollViews["review-scroll"].swipeUp() }
+        XCTAssertTrue(field.isHittable)
         field.tap(); field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: (field.value as? String ?? "").count) + "123")
         XCTAssertFalse(app.buttons["auto-apply"].isEnabled); XCTAssertTrue(app.staticTexts["review-edit-draft-0-0"].exists)
         tap("review-edit-change-0-0"); text("auto-exact-values-0", contains: "milli_ev = 123"); text("review-edit-state", contains: "EDITED")
@@ -30,7 +34,9 @@ final class ShellUITests: XCTestCase {
         let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image", "--inspection-test-multi"]; app.launch()
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
-            XCTAssertTrue(query.firstMatch.waitForExistence(timeout: 20)); query.firstMatch.tap()
+            XCTAssertTrue(query.firstMatch.waitForExistence(timeout: 20))
+            for _ in 0..<8 where !query.firstMatch.isHittable { app.scrollViews["review-scroll"].swipeUp() }
+            XCTAssertTrue(query.firstMatch.isHittable); query.firstMatch.tap()
         }
         func text(_ id: String, _ value: String) {
             let e = app.staticTexts[id]; let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in e.exists && e.label.contains(value) }, object: nil)

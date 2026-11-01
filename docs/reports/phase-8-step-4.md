@@ -108,6 +108,19 @@ test, workflow timeout or production worker/concurrency semantics changed.
 
 ## Frozen scope
 
+Initial Native shells 41264078710 failed iOS UI tests: the new editable-review
+controls were absent from semantic queries (`review-edit-down-0` and the raw
+value field). All 51 Swift package and 9 app tests passed; the 16 UI tests had
+four assertion failures in the two new scenarios. The new controls container
+lacked the explicit accessibility containment used by the retained inspection
+panel, and the growing review was hosted in a non-scrolling vertical layout.
+The correction adds explicit child containment and a bounded review ScrollView;
+the two new UI scenarios reveal semantic targets within that scroll surface and
+assert hittability before tapping. Original assertions/timeouts remain intact.
+There is no coordinate-only Apply test or alternate event path. The immutable
+identity correction `ff512bef6759196daa03c5488f0c18b8de5f829e` also remains
+superseded evidence, not certification of this later correction.
+
 Second implementation `541b4d45ceccf3ddb70e397befd61abbb3438131` is NOT certified.
 Foundation 41265990347 again reached the existing Windows job limit. The new
 allocation sweep passed in 305.10 seconds, but serial scheduling still delayed

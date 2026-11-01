@@ -167,7 +167,10 @@ struct ManualEditorScreen: View {
                 }
             }.accessibilityIdentifier("mode-selector")
             if model.assistance.enabled { assistPanel }
-            if model.autoProposal.enabled { autoPanel }
+            if model.autoProposal.enabled {
+                ScrollView { autoPanel }
+                    .accessibilityIdentifier("review-scroll")
+            }
             if let notice = model.assistance.notice { Text(notice).accessibilityIdentifier("assist-notice") }
             Button("Open JPEG or PNG") { picking = true }.disabled(model.busy)
             Group {
@@ -387,7 +390,7 @@ private struct ReviewEditPanel: View {
             if state.editSession != nil {
                 Button("Restore original review content — not document undo") { if let binding { model.editReview(4, expectedIdentity: binding) } }.disabled(!enabled).accessibilityIdentifier("review-edit-restore")
             }
-        }.accessibilityIdentifier("review-edit-controls")
+        }.accessibilityElement(children: .contain).accessibilityIdentifier("review-edit-controls")
     }
 }
 private struct PlanInspectionPanel: View {

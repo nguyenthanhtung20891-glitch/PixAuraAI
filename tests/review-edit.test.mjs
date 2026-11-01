@@ -37,6 +37,8 @@ test('platform edit controls propose raw integers and render new native inspecti
  }
  assert.ok(text('platforms/android/app/src/main/java/ai/pixaura/app/AutoProposalPanel.kt').includes('drafts.isEmpty() && auto.status'));
  assert.ok(text('platforms/ios/PixAuraAI/ManualEditorScreen.swift').includes('reviewDraftIdentity == review.reviewIdentity && !reviewDrafts.isEmpty'));
+ assert.ok(text('platforms/ios/PixAuraAI/ManualEditorScreen.swift').includes('accessibilityElement(children: .contain).accessibilityIdentifier("review-edit-controls")'));
+ assert.ok(text('platforms/ios/PixAuraAI/ManualEditorScreen.swift').includes('ScrollView { autoPanel }'));
  for(const p of ['platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt','platforms/ios/PixAuraAI/ManualEditorModel.swift'])for(const label of ['Invalid owner, session or edit request','Unsupported edit','Invalid resulting Plan','Invalid value or complete Plan parameters','Busy or allocation/resource unavailable','Stale review','Cancelled or owner stopped','Internal or unknown native failure','No document edit was applied by this request.'])assert.ok(text(p).includes(label),p+label);
 });
 test('complete retained workflows run new native/platform/allocation tests without shipping new hooks',()=>{
