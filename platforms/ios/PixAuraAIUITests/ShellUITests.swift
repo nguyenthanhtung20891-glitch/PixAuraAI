@@ -1,12 +1,18 @@
 import XCTest
 
 final class ShellUITests: XCTestCase {
+    private func revealReview(_ element: XCUIElement, in app: XCUIApplication) {
+        let scroll = app.scrollViews["review-scroll"]
+        guard scroll.exists else { return }
+        for _ in 0..<8 where !element.isHittable { scroll.swipeUp() }
+        for _ in 0..<8 where !element.isHittable { scroll.swipeDown() }
+    }
     func testEditableReviewValueNoActionsRestoreAndExplicitApply() {
         let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
+            revealReview(query.firstMatch, in: app)
             XCTAssertTrue(query.firstMatch.waitForExistence(timeout: 20))
-            for _ in 0..<8 where !query.firstMatch.isHittable { app.scrollViews["review-scroll"].swipeUp() }
             XCTAssertTrue(query.firstMatch.isHittable); query.firstMatch.tap()
         }
         func text(_ id: String, contains value: String) {
@@ -17,8 +23,8 @@ final class ShellUITests: XCTestCase {
         tap("Open Manual editor"); tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request")
         text("auto-exact-values-0", contains: "milli_ev = 500")
         tap("review-preview-request"); XCTAssertTrue(app.staticTexts["review-before"].waitForExistence(timeout: 20))
-        let field = app.textFields["review-edit-value-0-0"]; XCTAssertTrue(field.exists); XCTAssertTrue(field.label.contains("allowed -5000 to 5000"))
-        for _ in 0..<8 where !field.isHittable { app.scrollViews["review-scroll"].swipeUp() }
+        let field = app.textFields["review-edit-value-0-0"]; revealReview(field, in: app)
+        XCTAssertTrue(field.exists); XCTAssertTrue(field.label.contains("allowed -5000 to 5000"))
         XCTAssertTrue(field.isHittable)
         field.tap(); field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: (field.value as? String ?? "").count) + "123")
         XCTAssertFalse(app.buttons["auto-apply"].isEnabled); XCTAssertTrue(app.staticTexts["review-edit-draft-0-0"].exists)
@@ -34,8 +40,8 @@ final class ShellUITests: XCTestCase {
         let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image", "--inspection-test-multi"]; app.launch()
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
+            revealReview(query.firstMatch, in: app)
             XCTAssertTrue(query.firstMatch.waitForExistence(timeout: 20))
-            for _ in 0..<8 where !query.firstMatch.isHittable { app.scrollViews["review-scroll"].swipeUp() }
             XCTAssertTrue(query.firstMatch.isHittable); query.firstMatch.tap()
         }
         func text(_ id: String, _ value: String) {

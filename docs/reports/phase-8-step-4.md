@@ -116,7 +116,9 @@ lacked the explicit accessibility containment used by the retained inspection
 panel, and the growing review was hosted in a non-scrolling vertical layout.
 The correction adds explicit child containment and a bounded review ScrollView;
 the two new UI scenarios reveal semantic targets within that scroll surface and
-assert hittability before tapping. Original assertions/timeouts remain intact.
+assert hittability before tapping. Bounded bidirectional scrolling reveals targets
+before asserting existence and can reach Apply above the editing controls.
+Original assertions/timeouts remain intact.
 There is no coordinate-only Apply test or alternate event path. The immutable
 identity correction `ff512bef6759196daa03c5488f0c18b8de5f829e` also remains
 superseded evidence, not certification of this later correction.
