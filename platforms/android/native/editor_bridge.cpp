@@ -4,6 +4,7 @@
 #include "pixaura/auto_proposal.h"
 #include "pixaura/review_preview.h"
 #include "pixaura/review_inspection.h"
+#include "pixaura/review_edit.h"
 #include <cstring>
 #include <vector>
 #include <algorithm>
@@ -17,6 +18,18 @@ int64_t read(void* raw,uint8_t* output,uint64_t capacity){auto& r=*static_cast<I
     r.env->GetByteArrayRegion(r.buffer,0,n,reinterpret_cast<jbyte*>(output));return r.env->ExceptionCheck()?-1:n;}
 }
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeAssistSize(JNIEnv*,jobject){return sizeof(pixaura_assist_advice);}
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeEditBegin(JNIEnv* env,jobject,jobject buffer,jobject description,jobject output){
+    auto* c=storage<pixaura_editor_context>(env,buffer);auto* d=storage<pixaura_review_inspection>(env,description);auto* out=storage<pixaura_review_edit_result>(env,output);
+    return c&&d&&out?pixaura_review_edit_begin(1,c,d,out):1;
+}
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeEdit(JNIEnv* env,jobject,jobject buffer,jobject request,jobject output){
+    auto* c=storage<pixaura_editor_context>(env,buffer);auto* r=storage<pixaura_review_edit_request>(env,request);auto* out=storage<pixaura_review_edit_result>(env,output);
+    return c&&r&&out?pixaura_review_edit(1,c,r,out):1;
+}
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeEditCurrent(JNIEnv* env,jobject,jobject buffer,jobject ticket,jobject output){
+    auto* c=storage<pixaura_editor_context>(env,buffer);auto* t=storage<pixaura_review_edit_ticket>(env,ticket);auto* out=storage<pixaura_review_edit_result>(env,output);
+    return c&&t&&out?pixaura_review_edit_current(1,c,t,out):1;
+}
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeAutoSize(JNIEnv*,jobject){return sizeof(pixaura_auto_proposal);}
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeInspection(JNIEnv* env,jobject,jobject buffer,jobject proposal,jbyteArray plan,jobject result){
     auto* c=storage<pixaura_editor_context>(env,buffer);auto* p=storage<pixaura_auto_proposal>(env,proposal);auto* out=storage<pixaura_review_inspection>(env,result);

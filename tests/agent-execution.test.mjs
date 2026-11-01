@@ -18,8 +18,13 @@ test('Phase 7 Step 6 lifecycle authority and cancellation admission remain coher
  const k=read('platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt');
  assert.ok(k.includes('cancellingAdvice.get() || autoCancelling.get() || cancellingApplication.get()'));
  assert.ok(k.includes('admission occupied through native validation/presentation'));
- // Step 2 adds preview admission alongside the three unchanged AI guards.
- const apple=read('platforms/ios/PixAuraAI/ManualEditorModel.swift');assert.equal(apple.split('if assistWorking || cancellingAdvice || cancellingAuto').length-1,4);
+ // Step 4 adds one independently guarded metadata edit call. Preserve the four
+ // retained provider/preview/Apply guards after removing only that new method.
+ const apple=read('platforms/ios/PixAuraAI/ManualEditorModel.swift');
+ const editWorker=apple.match(/    func editReview\(_ existing:[\s\S]*?(?=\n    func update\()/)?.[0];assert.ok(editWorker);
+ assert.equal(editWorker.split('if assistWorking || cancellingAdvice || cancellingAuto').length-1,1);
+ assert.ok(editWorker.includes('assistWorking = true'));assert.ok(editWorker.includes('self.assistWorking = false'));
+ assert.equal(apple.replace(editWorker,'').split('if assistWorking || cancellingAdvice || cancellingAuto').length-1,4);
  assert.ok(apple.includes('worker.closeAfterOwnerRelease()'));
  assert.ok(apple.includes('func closeAfterOwnerRelease()'));
  assert.ok(apple.includes('commands.async { self.close() }'));

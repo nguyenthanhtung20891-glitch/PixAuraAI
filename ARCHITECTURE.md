@@ -1,5 +1,43 @@
 # System architecture
 
+<!-- phase8-step4-current -->
+## Phase 8 Step 4 - Editable Review Before Apply
+
+Phase 7 CLOSED / COMPLETE / FULL PASS. Phase 8 Steps 1-3 COMPLETE / FULL PASS.
+Step 3 closure 2610ea2ed49ce2b6eb574ca14f60e0fde00adb67: Foundation 41189538699 SUCCESS 7/7;
+Native shells 41189538626 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
+Phase 8 AUTHORIZED / IN PROGRESS. Step 4 AUTHORIZED / IN PROGRESS.
+Steps 5-6 NOT STARTED. Stop after Step 4. No result/history review integration.
+Already-reviewed Plan immutable. Bounded native CHANGE_VALUE / REMOVE_ACTION /
+MOVE_ACTION / RESTORE_ORIGINAL -> NEW complete candidate -> existing full native
+canonical Plan/Registry/geometry/resource validation -> NEW Plan/review identity.
+Old review/inspection/preview retired; admitted failure never revives eligibility.
+Restore equal bytes still gets NEW identity. NO_ACTIONS is not executable.
+No clamp, silent rebase, UI-only reorder/row patch, retry, replan or auto-preview.
+EDIT != APPROVAL. REVIEW != APPROVAL. PREVIEW != EXECUTION. Schema 3 unchanged.
+Explicit HUMAN Apply unchanged: exact final Plan, single-use approval/private
+candidate/execution/publication, at most one ordinary revision/shared history.
+Manual independent. Native authority on both platforms; typed bounded transport.
+One edit at a time, BUSY/no queue. Ephemeral original/current only, no review undo
+stack, persistent draft, image allocation, new worker/cache or editing engine.
+Stop -> join ALL calls -> destroy; existing owner/epoch fencing remains.
+All frozen Phase 7, Full Review Experience v1, Preview Foundation v1, Plan
+Inspection v1, Intent/Structured Intent/Plan/Registry/Envelope/Provider/planner,
+approval/candidate, Manual/history/platform and resource semantics unchanged.
+Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
+Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP. Free-form Intent v1
+uninterpreted; no model/runtime/weights/NLP/cloud/network or research added.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED /
+NOT SATISFIED; hosted Apple software only. Both exact implementation-SHA and
+separate closure-SHA full workflows required; every required job SUCCESS.
+No older-SHA substitution, self-certification or rerun-until-green.
+See docs/contracts/editable-review-before-apply-v1.md and docs/reports/phase-8-step-4.md.
+<!-- phase8-step4-history -->
+
+Earlier sections retain historical freeze-time authority; current Step 4 authority
+and externally observed receipts supersede their phase-relative status.
+
+
 <!-- phase8-step3-current -->
 ## Phase 8 Step 3 - Plan Inspection & Action Review
 

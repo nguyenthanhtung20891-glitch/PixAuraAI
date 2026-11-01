@@ -275,6 +275,75 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
         checked(if (closed) 13 else if (review.owner !== this || review.abandoned || review.attempted) 9 else nativeInspectionCurrent(storage, review.inspection.packet), "Plan inspection current")
         review.inspection
     }
+    class ReviewEditSession internal constructor(internal val owner: ManualEditor, internal var packet: ByteBuffer,
+        review: AutoReview?, state: Int) {
+        internal val lock = ReentrantLock()
+        var review: AutoReview? = review
+            get() = lock.withLock { field }
+            internal set(value) { lock.withLock { field = value } }
+        internal var nativeState = state
+        val state get() = lock.withLock { if (review == null && nativeState != 3) 4 else nativeState }
+    }
+    private fun editBuffer(bytes: Int) = ByteBuffer.allocateDirect(bytes).order(ByteOrder.nativeOrder())
+    private fun copyEditBytes(from: ByteBuffer, at: Int, to: ByteBuffer, offset: Int, count: Int) {
+        repeat(count) { to.put(offset + it, from.get(at + it)) }
+    }
+    private inline fun <T> editAdmission(block: () -> T): T {
+        if (!gate.tryLock()) throw EditorFailure(8, "Review edit busy")
+        try { return block() } finally { gate.unlock() }
+    }
+    fun beginReviewEditing(review: AutoReview): ReviewEditSession = editAdmission {
+        inspectReview(review)
+        checked(if (applyingReview != null || cancellingReview || assistCalls != 0) 8 else 0, "Review edit")
+        val result = editBuffer(480); checked(nativeEditBegin(storage, review.inspection.packet, result), "Review edit begin")
+        checked(if (result.getInt(0) == 1 && result.getInt(4) == 480 && result.getInt(8) == 1) 0 else 14, "Review edit result")
+        ReviewEditSession(this, result.asReadOnlyBuffer(), review, 1)
+    }
+    /** Exact raw integer request only; native Registry and full Plan validation decide. */
+    fun editReview(session: ReviewEditSession, operation: Int, action: Int = 0, parameter: Int = 0,
+        value: Int = 0, destination: Int = 0): AutoReview? = editAdmission {
+        checked(if (closed) 13 else if (session.owner !== this) 9 else if (applyingReview != null || cancellingReview || assistCalls != 0) 8 else 0, "Review edit")
+        session.lock.withLock edit@ {
+        val old = session.review
+        checked(if (old?.attempted == true || old?.abandoned == true) 9 else 0, "Review edit")
+        val request = editBuffer(776); request.putInt(0, 1); request.putInt(4, 776); request.putInt(8, operation)
+        request.putInt(12, action); request.putInt(16, parameter); request.putInt(20, destination); request.putInt(24, value)
+        copyEditBytes(session.packet, 16, request, 32, 136)
+        if (operation != 4) {
+            val data = old?.inspection
+            if (data != null && action in data.actions.indices) {
+                copyEditBytes(data.packet, 456 + action * 544, request, 232, 544)
+                copyEditBytes(data.packet, 456 + action * 544 + 32, request, 168, 32)
+                if (operation == 1 && parameter in data.actions[action].parameters.indices)
+                    copyEditBytes(data.packet, 456 + action * 544 + 96 + parameter * 112, request, 200, 32)
+            }
+        }
+        val result = editBuffer(480); val status = nativeEdit(storage, request, result)
+        if (status != 0) {
+            val ticket = editBuffer(136); copyEditBytes(session.packet, 16, ticket, 0, 136)
+            old?.abandoned = true; session.review = null; comparison = null
+            if (nativeEditCurrent(storage, ticket, result) == 0 && result.getInt(0) == 1 && result.getInt(4) == 480 && result.getInt(8) in 1..4) {
+                session.nativeState = result.getInt(8); session.packet = result.asReadOnlyBuffer()
+            }
+            checked(status, "Review edit")
+        }
+        old?.abandoned = true; comparison = null; session.review = null
+        checked(if (result.getInt(0) == 1 && result.getInt(4) == 480 && result.getInt(8) in 1..3) 0 else 14, "Review edit result")
+        session.packet = result.asReadOnlyBuffer(); session.nativeState = result.getInt(8)
+        if (session.state == 3) return@edit null
+        val packet = editBuffer(328); copyEditBytes(result, 152, packet, 0, 328)
+        val count = packet.getInt(8); checked(if (count in 1..8 && packet.getInt(0) == 1 && packet.getInt(4) == 328) 0 else 14, "Edited review")
+        val actions = List(count) { i -> val at = 136 + i * 24; val n = packet.getInt(at + 4)
+            checked(if (n in 1..4) 0 else 14, "Edited review")
+            AssistChoice(i, packet.getInt(at), List(n) { packet.getInt(at + 8 + it * 4) }) }
+        fun id(at: Int) = ByteArray(32) { packet.get(at + it) }.takeWhile { it != 0.toByte() }.toByteArray().toString(Charsets.US_ASCII)
+        val proposal = AutoProposal(this, packet.asReadOnlyBuffer(), actions, id(72), id(104))
+        val review = prepareAutoReview(proposal); session.review = review; review
+        }
+    }
+    private external fun nativeEditBegin(storage: ByteBuffer, description: ByteBuffer, result: ByteBuffer): Int
+    private external fun nativeEdit(storage: ByteBuffer, request: ByteBuffer, result: ByteBuffer): Int
+    private external fun nativeEditCurrent(storage: ByteBuffer, ticket: ByteBuffer, result: ByteBuffer): Int
     /** ONLY the explicit review Apply action may invoke this trusted boundary. */
     fun applyAutoFromHuman(review: AutoReview, onExecuting: () -> Unit = {}): AgentReceipt {
         val approval = gate.withLock {

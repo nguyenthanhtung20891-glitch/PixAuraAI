@@ -16,6 +16,8 @@ struct ManualEditorScreen: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var picking = false
     @State private var category = "geometry"
+    @State private var reviewDraftIdentity: ObjectIdentifier?
+    @State private var reviewDrafts: Set<String> = []
     @State private var cropDrafts: [String] = []
     @State private var formatError: String?
     private let categories = [("geometry", "Geometry"), ("tone_color", "Tone/Color"), ("detail", "Detail"), ("filters_presets", "Filters/Presets")]
@@ -112,15 +114,21 @@ struct ManualEditorScreen: View {
                 }
                 if let proposal = state.proposal {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(state.status == .reviewReady ? "Ready for human approval" : "Reviewed plan").font(.headline)
+                        Text(state.status == .noActions || state.status == .editFailed ? "No executable review — restore original or request a new proposal" : state.status == .reviewReady ? "Ready for human approval" : "Reviewed plan").font(.headline)
                         if let review = state.review {
                             Text("Context: AI Auto-Edit; \(String(describing: state.status)). Provider \(proposal.providerID) (informational only). Planner reference.deterministic.v1.").accessibilityIdentifier("review-context")
                             ReviewComparisonPanel(model: model, state: state.preview)
                             PlanInspectionPanel(inspection: review.inspection)
                             Text("Reviewed source: \(review.sourceRevision.prefix(8)). Apply rechecks the current source.").accessibilityIdentifier("auto-source")
                             Button("Apply reviewed plan") { model.applyAutoFromHuman(review) }
-                                .disabled(state.inFlight || state.status != .reviewReady || state.preview.status == .previewLoading || state.preview.status == .stale).accessibilityIdentifier("auto-apply")
+                                .disabled((reviewDraftIdentity == ObjectIdentifier(review) && !reviewDrafts.isEmpty) || state.inFlight || state.status != .reviewReady || state.preview.status == .previewLoading || state.preview.status == .stale).accessibilityIdentifier("auto-apply")
                                 .accessibilityHint("Explicit human approval for this exact reviewed plan")
+                        }
+                        ReviewEditPanel(model: model, state: state) { review, key, dirty in
+                            guard model.autoProposal.review === review else { return }
+                            let id = ObjectIdentifier(review)
+                            if reviewDraftIdentity != id { reviewDraftIdentity = id; reviewDrafts = [] }
+                            if dirty { reviewDrafts.insert(key) } else { reviewDrafts.remove(key) }
                         }
                         Button("Reject proposal") { model.dismissAuto() }.disabled(state.inFlight).accessibilityIdentifier("auto-dismiss")
                     }.accessibilityElement(children: .contain).accessibilityIdentifier("auto-ready")
@@ -330,6 +338,56 @@ private struct ReviewComparisonPanel: View {
 }
 
 // Read-only native records; labels never become execution identities.
+private struct ReviewValueControl: View {
+    let model: ManualEditorModel
+    let action: Int, parameter: Int, label: String, enabled: Bool
+    let raw: Int32, onDraft: (Bool) -> Void
+    @State private var text: String
+    init(model: ManualEditorModel, action: Int, parameter: Int, label: String, raw: Int32, enabled: Bool, onDraft: @escaping (Bool) -> Void) {
+        self.model = model; self.action = action; self.parameter = parameter; self.label = label; self.enabled = enabled; self.raw = raw; self.onDraft = onDraft; _text = State(initialValue: String(raw))
+    }
+    var body: some View {
+        TextField(label, text: Binding(get: { text }, set: { if $0.count <= 11 { text = $0; onDraft(Int32($0) != raw) } }))
+            .keyboardType(.numbersAndPunctuation).disabled(!enabled).accessibilityLabel(label).accessibilityIdentifier("review-edit-value-\(action)-\(parameter)")
+        if Int32(text) != raw { Text("Unvalidated input — Validate value or revert this field before Apply.").accessibilityIdentifier("review-edit-draft-\(action)-\(parameter)") }
+        Button("Validate value for action \(action + 1)") { if let raw = Int32(text) { model.editReview(1, action: UInt32(action), parameter: UInt32(parameter), value: raw) } }
+            .disabled(!enabled || Int32(text) == nil).accessibilityIdentifier("review-edit-change-\(action)-\(parameter)")
+    }
+}
+private struct ReviewEditPanel: View {
+    let model: ManualEditorModel, state: AutoUiState
+    let onDraft: (ManualEditor.AutoReview, String, Bool) -> Void
+    private var editable: Bool { [AutoStatus.reviewReady, .noActions, .editFailed].contains(state.status) }
+    private var enabled: Bool { editable && !state.inFlight && state.preview.status != .previewLoading && state.preview.status != .stale }
+    private var dirty: String {
+        switch state.editSession?.state { case 2: return "EDITED"; case 3: return "NO_ACTIONS — nothing to apply"; case 4: return "EDIT_FAILED — restore required"; default: return "ORIGINAL" }
+    }
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(dirty).accessibilityIdentifier("review-edit-state")
+            if editable && state.inFlight { Text("Validating review edit…").accessibilityIdentifier("review-edit-loading") }
+            if let review = state.review {
+                ForEach(Array(review.inspection.actions.enumerated()), id: \.offset) { index, action in
+                    ForEach(Array(action.parameters.enumerated()), id: \.offset) { parameterIndex, parameter in
+                        ReviewValueControl(model: model, action: index, parameter: parameterIndex,
+                            label: "Requested raw integer for Action \(index + 1) of \(review.inspection.actions.count): \(action.label), \(parameter.name); canonical value \(parameter.raw) \(parameter.unit), allowed \(parameter.minimum) to \(parameter.maximum)", raw: parameter.raw, enabled: enabled,
+                            onDraft: { onDraft(review, "\(index)-\(parameterIndex)", $0) })
+                    }
+                    Button("Remove action \(index + 1): \(action.label)") { model.editReview(2, action: UInt32(index)) }.disabled(!enabled).accessibilityIdentifier("review-edit-remove-\(index)")
+                    if index > 0 {
+                        Button("Move action \(index + 1): \(action.label) to position \(index)") { model.editReview(3, action: UInt32(index), destination: UInt32(index - 1)) }.disabled(!enabled).accessibilityIdentifier("review-edit-up-\(index)")
+                    }
+                    if index + 1 < review.inspection.actions.count {
+                        Button("Move action \(index + 1): \(action.label) to position \(index + 2)") { model.editReview(3, action: UInt32(index), destination: UInt32(index + 1)) }.disabled(!enabled).accessibilityIdentifier("review-edit-down-\(index)")
+                    }
+                }.id(ObjectIdentifier(review))
+            }
+            if state.editSession != nil {
+                Button("Restore original review content — not document undo") { model.editReview(4) }.disabled(!enabled).accessibilityIdentifier("review-edit-restore")
+            }
+        }.accessibilityIdentifier("review-edit-controls")
+    }
+}
 private struct PlanInspectionPanel: View {
     let inspection: ManualEditor.PlanInspection
     var body: some View {

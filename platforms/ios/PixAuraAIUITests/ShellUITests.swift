@@ -1,6 +1,51 @@
 import XCTest
 
 final class ShellUITests: XCTestCase {
+    func testEditableReviewValueNoActionsRestoreAndExplicitApply() {
+        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
+        func tap(_ id: String) {
+            let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
+            XCTAssertTrue(query.firstMatch.waitForExistence(timeout: 20)); query.firstMatch.tap()
+        }
+        func text(_ id: String, contains value: String) {
+            let e = app.staticTexts[id]
+            let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in e.exists && e.label.contains(value) }, object: nil)
+            XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 20), .completed)
+        }
+        tap("Open Manual editor"); tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request")
+        text("auto-exact-values-0", contains: "milli_ev = 500")
+        tap("review-preview-request"); XCTAssertTrue(app.staticTexts["review-before"].waitForExistence(timeout: 20))
+        let field = app.textFields["review-edit-value-0-0"]; XCTAssertTrue(field.exists); XCTAssertTrue(field.label.contains("allowed -5000 to 5000"))
+        field.tap(); field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: (field.value as? String ?? "").count) + "123")
+        XCTAssertFalse(app.buttons["auto-apply"].isEnabled); XCTAssertTrue(app.staticTexts["review-edit-draft-0-0"].exists)
+        tap("review-edit-change-0-0"); text("auto-exact-values-0", contains: "milli_ev = 123"); text("review-edit-state", contains: "EDITED")
+        XCTAssertFalse(app.staticTexts["review-before"].exists); XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
+        tap("review-edit-remove-0"); text("review-edit-state", contains: "NO_ACTIONS")
+        XCTAssertFalse(app.buttons["auto-apply"].exists); XCTAssertFalse(app.buttons["review-preview-request"].exists)
+        tap("review-edit-restore"); text("auto-exact-values-0", contains: "milli_ev = 500"); text("review-edit-state", contains: "ORIGINAL")
+        XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
+        tap("auto-apply"); XCTAssertTrue(app.staticTexts["auto-completed"].waitForExistence(timeout: 20)); XCTAssertTrue(app.staticTexts["Committed revisions: 2"].exists)
+    }
+    func testEditableReviewReorderRemoveAndRestoreRebuildExactInspection() {
+        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image", "--inspection-test-multi"]; app.launch()
+        func tap(_ id: String) {
+            let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
+            XCTAssertTrue(query.firstMatch.waitForExistence(timeout: 20)); query.firstMatch.tap()
+        }
+        func text(_ id: String, _ value: String) {
+            let e = app.staticTexts[id]; let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in e.exists && e.label.contains(value) }, object: nil)
+            XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 20), .completed)
+        }
+        tap("Open Manual editor"); tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request")
+        text("review-plan-count", "3 planned action(s).")
+        tap("review-edit-down-0"); text("auto-exact-values-0", "milli_linear = -123")
+        tap("review-edit-remove-2"); text("review-plan-count", "2 planned action(s).")
+        XCTAssertFalse(app.staticTexts["review-geometry-warning-2"].exists)
+        tap("review-edit-restore"); text("review-plan-count", "3 planned action(s).")
+        text("auto-exact-values-0", "milli_ev = 101"); text("auto-exact-values-2", "quarter_turns = 1")
+        XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
+        tap("auto-dismiss"); XCTAssertFalse(app.buttons["auto-apply"].exists)
+    }
     func testPlanInspectionAllElevenExactValuesAndReadOnlyAccessibility() {
         let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
         func tap(_ id: String) {

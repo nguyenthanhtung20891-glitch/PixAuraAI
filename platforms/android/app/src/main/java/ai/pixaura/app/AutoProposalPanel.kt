@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 internal fun AutoProposalPanel(model: ManualEditorModel, ui: EditorUiState, auto: AutoUiState) {
     var choosing by remember { mutableStateOf(false) }
+    var drafts by remember(auto.review) { mutableStateOf(emptySet<String>()) }
     val choice = auto.choices.firstOrNull { it.index == auto.selected }
     val tool = choice?.let { value -> ui.tools.firstOrNull { it.index == value.toolIndex } }
     Card(Modifier.fillMaxWidth().testTag("auto-panel")) {
@@ -38,15 +39,16 @@ internal fun AutoProposalPanel(model: ManualEditorModel, ui: EditorUiState, auto
             }
             auto.proposal?.let { proposal ->
                 Column(Modifier.testTag("auto-ready"), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(if (auto.status == AutoStatus.REVIEW_READY) "Ready for human approval" else "Reviewed plan", style = MaterialTheme.typography.titleSmall)
+                    Text(if (auto.status in listOf(AutoStatus.NO_ACTIONS, AutoStatus.EDIT_FAILED)) "No executable review — restore original or request a new proposal" else if (auto.status == AutoStatus.REVIEW_READY) "Ready for human approval" else "Reviewed plan", style = MaterialTheme.typography.titleSmall)
                     auto.review?.let { review ->
                         Text("Context: AI Auto-Edit; ${auto.status}. Provider ${proposal.providerId} (informational only). Planner reference.deterministic.v1.", Modifier.testTag("review-context"))
                         ReviewPreviewPanel(model, auto.preview)
                         PlanInspectionPanel(review.inspection)
                         Text("Reviewed source: ${review.sourceRevision.take(8)}. Apply rechecks the current source.", Modifier.testTag("auto-source"))
-                        Button(onClick = { model.applyAutoFromHuman(review) }, enabled = auto.status == AutoStatus.REVIEW_READY && !auto.inFlight && auto.preview.status !in listOf(ReviewPreviewStatus.PREVIEW_LOADING, ReviewPreviewStatus.STALE),
+                        Button(onClick = { model.applyAutoFromHuman(review) }, enabled = drafts.isEmpty() && auto.status == AutoStatus.REVIEW_READY && !auto.inFlight && auto.preview.status !in listOf(ReviewPreviewStatus.PREVIEW_LOADING, ReviewPreviewStatus.STALE),
                             modifier = Modifier.testTag("auto-apply").semantics { contentDescription = "Apply this exact reviewed plan with human approval" }) { Text("Apply reviewed plan") }
                     }
+                    ReviewEditPanel(model, auto) { key, dirty -> drafts = if (dirty) drafts + key else drafts - key }
                     OutlinedButton(onClick = model::dismissAuto, enabled = !auto.inFlight, modifier = Modifier.testTag("auto-dismiss")) { Text("Reject proposal") }
                 }
             }

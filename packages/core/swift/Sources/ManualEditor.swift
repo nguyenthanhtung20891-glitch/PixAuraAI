@@ -467,6 +467,72 @@ public final class ManualEditor {
         try checked(closed ? 13 : review.owner != identity || review.attempted || review.abandoned ? 9 : pixaura_review_inspection_current(1, context, &packet), "Plan inspection current")
         return review.inspection
     }
+    public final class ReviewEditSession {
+        fileprivate let owner: String
+        fileprivate let lock = NSRecursiveLock()
+        fileprivate var packet: pixaura_review_edit_result
+        private var currentReview: AutoReview?
+        public fileprivate(set) var review: AutoReview? {
+            get { lock.lock(); defer { lock.unlock() }; return currentReview }
+            set { lock.lock(); defer { lock.unlock() }; currentReview = newValue }
+        }
+        public var state: UInt32 { lock.lock(); defer { lock.unlock() }; return currentReview == nil && packet.state != 3 ? 4 : packet.state }
+        fileprivate init(_ owner: String, _ packet: pixaura_review_edit_result, _ review: AutoReview) { self.owner = owner; self.packet = packet; currentReview = review }
+    }
+    public func beginReviewEditing(_ review: AutoReview) throws -> ReviewEditSession {
+        guard gate.try() else { throw ManualEditorFailure(status: 8, boundary: "Review edit busy") }; defer { gate.unlock() }
+        _ = try inspectReview(review)
+        idle.lock(); let busy = assistCalls != 0; idle.unlock()
+        try checked(busy || applyingReview != nil || cancellingReview ? 8 : 0, "Review edit")
+        var description = review.inspection.packet, result = pixaura_review_edit_result()
+        try checked(pixaura_review_edit_begin(1, context, &description, &result), "Review edit begin")
+        try checked(result.api_version == 1 && result.struct_size == 480 && result.state == 1 ? 0 : 14, "Review edit result")
+        return ReviewEditSession(identity, result, review)
+    }
+    public func editReview(_ session: ReviewEditSession, operation: UInt32, action: UInt32 = 0,
+        parameter: UInt32 = 0, value: Int32 = 0, destination: UInt32 = 0) throws -> AutoReview? {
+        guard gate.try() else { throw ManualEditorFailure(status: 8, boundary: "Review edit busy") }; defer { gate.unlock() }
+        idle.lock(); let busy = assistCalls != 0; idle.unlock()
+        try checked(closed ? 13 : session.owner != identity ? 9 : busy || applyingReview != nil || cancellingReview ? 8 : 0, "Review edit")
+        session.lock.lock(); defer { session.lock.unlock() }
+        let old = session.review
+        try checked(old?.attempted == true || old?.abandoned == true ? 9 : 0, "Review edit")
+        var request = pixaura_review_edit_request(); request.api_version = 1; request.struct_size = UInt32(MemoryLayout.size(ofValue: request))
+        request.operation = operation; request.ticket = session.packet.ticket; request.action_index = action; request.parameter_index = parameter; request.destination = destination; request.raw_value = value
+        if operation != 4, let old, Int(action) < old.inspection.actions.count {
+            let target = withUnsafeBytes(of: old.inspection.packet.actions) { $0.bindMemory(to: pixaura_review_action.self)[Int(action)] }
+            request.tool_id = target.tool_id
+            request.expected_action = target
+            if operation == 1, parameter < target.parameter_count {
+                request.parameter_name = withUnsafeBytes(of: target.parameters) { $0.bindMemory(to: pixaura_review_parameter.self)[Int(parameter)].name }
+            }
+        }
+        var result = pixaura_review_edit_result()
+        let status = pixaura_review_edit(1, context, &request, &result)
+        if status != 0 {
+            var ticket = session.packet.ticket
+            old?.abandoned = true; session.review = nil; comparison = nil
+            if pixaura_review_edit_current(1, context, &ticket, &result) == 0 && result.api_version == 1 && result.struct_size == 480 && (1...4).contains(result.state) {
+                session.packet = result
+            }
+            try checked(status, "Review edit")
+        }
+        old?.abandoned = true; session.review = nil; comparison = nil
+        try checked(result.api_version == 1 && result.struct_size == 480 && (1...3).contains(result.state) ? 0 : 14, "Review edit result")
+        session.packet = result
+        if result.state == 3 { return nil }
+        let packet = result.review
+        try checked(packet.api_version == 1 && packet.struct_size == 328 && (1...8).contains(packet.action_count) ? 0 : 14, "Edited review")
+        let actions: [AssistChoice] = try withUnsafeBytes(of: packet.actions) { raw in
+            try raw.bindMemory(to: pixaura_auto_action.self).prefix(Int(packet.action_count)).enumerated().map { i, a in
+                try checked((1...4).contains(a.parameter_count) ? 0 : 14, "Edited review")
+                return AssistChoice(index: i, toolIndex: Int(a.tool_index), values: Array([a.values.0, a.values.1, a.values.2, a.values.3].prefix(Int(a.parameter_count))))
+            }
+        }
+        func text<T>(_ value: T) -> String { withUnsafeBytes(of: value) { String(decoding: $0.prefix { $0 != 0 }, as: UTF8.self) } }
+        let proposal = AutoProposal(owner: identity, packet: packet, actions: actions, proposalID: text(packet.proposal_id), providerID: text(packet.provider_id))
+        let review = try prepareAutoReview(proposal); session.review = review; return review
+    }
     /// ONLY explicit review Apply may call this trusted application boundary.
     public func applyAutoFromHuman(_ review: AutoReview, onExecuting: () -> Void = {}) throws -> AgentReceipt {
         var approval: AgentApproval?

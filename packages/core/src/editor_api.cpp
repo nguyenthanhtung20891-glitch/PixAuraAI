@@ -23,6 +23,7 @@
 #include <thread>
 #endif
 #include "review_preview_state.hpp"
+#include "review_edit_state.hpp"
 #ifdef PIXAURA_CERTIFICATION_TESTING
 namespace pixaura::preview { void test_observer(pixaura_decode_context*,evaluation::Observer,void*); }
 #endif
@@ -56,6 +57,7 @@ struct Reader:storage::Reader {
     }
 };
 struct Service {
+    ReviewEditState review_edit;
     ReviewPreviewState review_preview;
     std::unique_ptr<assistance::ReferenceProvider> assist_provider;
     uint64_t assist_sequence=0,assist_repository_epoch=0;
@@ -116,6 +118,7 @@ struct Service {
         if(raster.api_version){(void)pixaura_preview_stop(&raster);(void)pixaura_decode_context_destroy(&raster);}}
     void ready(){require(!stopped,13);}
     void invalidate_auto() noexcept {
+        review_edit.abandon();
         review_preview.invalidate(raster);
         auto_cancelled=true;auto_ready=false;auto_plan.clear();
         if(auto_sequence!=UINT64_MAX)++auto_sequence;
@@ -358,3 +361,4 @@ extern "C" int32_t pixaura_editor_destroy(pixaura_editor_context* c){return atte
 #include "auto_proposal_boundary.hpp"
 #include "review_preview_boundary.hpp"
 #include "review_inspection_boundary.hpp"
+#include "review_edit_boundary.hpp"

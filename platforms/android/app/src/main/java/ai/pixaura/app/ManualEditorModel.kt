@@ -30,7 +30,7 @@ data class AssistUiState(val enabled: Boolean = false, val status: AssistStatus 
     val choices: List<ManualEditor.AssistChoice> = emptyList(), val selected: Int = -1,
     val advice: ManualEditor.AssistAdvice? = null, val inFlight: Boolean = false,
     val error: String? = null, val notice: String? = null)
-enum class AutoStatus { IDLE, REQUESTING, PROPOSAL_RECEIVED, VALIDATING, REVIEW_READY, APPROVING, EXECUTING, COMPLETED, STALE, CANCELLED, FAILED, REJECTED }
+enum class AutoStatus { IDLE, REQUESTING, PROPOSAL_RECEIVED, VALIDATING, REVIEW_READY, NO_ACTIONS, EDIT_FAILED, APPROVING, EXECUTING, COMPLETED, STALE, CANCELLED, FAILED, REJECTED }
 enum class ReviewPreviewStatus { PLAN_REVIEW, PREVIEW_LOADING, PREVIEW_READY, PREVIEW_FAILED, STALE, CANCELLED }
 data class ReviewPreviewUi(val status: ReviewPreviewStatus = ReviewPreviewStatus.PLAN_REVIEW,
     val comparison: ManualEditor.ReviewComparison? = null, val error: String? = null)
@@ -38,12 +38,13 @@ data class AutoUiState(val enabled: Boolean = false, val status: AutoStatus = Au
     val choices: List<ManualEditor.AssistChoice> = emptyList(), val selected: Int = -1,
     val proposal: ManualEditor.AutoProposal? = null, val inFlight: Boolean = false, val error: String? = null,
     val review: ManualEditor.AutoReview? = null, val receipt: ManualEditor.AgentReceipt? = null, val cancelRequested: Boolean = false,
-    val preview: ReviewPreviewUi = ReviewPreviewUi())
+    val preview: ReviewPreviewUi = ReviewPreviewUi(), val editSession: ManualEditor.ReviewEditSession? = null)
 
 /** Two fixed lanes, one coalesced input and one coalesced preview request.
  * Native lifecycle/history is authoritative; no platform operation/history model.
  */
 class ManualEditorModel(application: Application) : AndroidViewModel(application) {
+    private val reviewEditing = AtomicBoolean(false)
     private val commands = Executors.newSingleThreadExecutor()
     private val rendering = Executors.newSingleThreadExecutor()
     private val advising = Executors.newSingleThreadExecutor()
@@ -253,7 +254,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         cancelReviewPreview(if (reason == AutoStatus.STALE) ReviewPreviewStatus.STALE else ReviewPreviewStatus.CANCELLED)
         nextAutoEpoch(); val hadWork = autoMutable.value.proposal != null || autoActive.get()
         activeApplication.get()?.let { cancelApplication(it) }
-        autoMutable.update { it.copy(proposal = null, review = null, receipt = null, error = null, cancelRequested = false, status = if (it.enabled && hadWork) reason else AutoStatus.IDLE) }
+        autoMutable.update { it.copy(proposal = null, review = null, editSession = null, receipt = null, error = null, cancelRequested = false, status = if (it.enabled && hadWork) reason else AutoStatus.IDLE) }
         if (hadWork && !disposed.get() && autoCancelling.compareAndSet(false, true)) commands.execute {
             try { owner?.cancelAuto() } catch (_: Throwable) { /* no editing authority */ }
             finally { autoCancelling.set(false) }
@@ -292,7 +293,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
             8 -> "Provider busy or resources limited. Manual editing is available."
             else -> "Proposal could not be validated. Nothing was applied."
         }
-        autoMutable.update { it.copy(status = state, error = text, proposal = null, review = null) }
+        autoMutable.update { it.copy(status = state, error = text, proposal = null, review = null, editSession = null) }
     }
     fun requestAuto() {
         val ui = autoMutable.value
@@ -301,7 +302,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         autoActive.set(true)
         val editor = owner; val stamp = nextAutoEpoch()
         if (editor == null || stamp == null) { autoActive.set(false); providerActive.set(false); return }
-        autoMutable.update { it.copy(status = AutoStatus.REQUESTING, proposal = null, review = null, receipt = null, error = null, inFlight = true) }
+        autoMutable.update { it.copy(status = AutoStatus.REQUESTING, proposal = null, review = null, editSession = null, receipt = null, error = null, inFlight = true) }
         advising.execute {
             try {
                 val proposal = editor.requestAuto(ui.choices[ui.selected].index)
@@ -311,7 +312,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
                         try {
                             autoMutable.update { it.copy(status = AutoStatus.VALIDATING) }
                             val review = editor.prepareAutoReview(proposal) // native freshness + exact Phase 6 validation; no approval
-                            autoMutable.update { it.copy(status = AutoStatus.REVIEW_READY, proposal = proposal, review = review, receipt = null, cancelRequested = false, preview = ReviewPreviewUi()) }
+                            autoMutable.update { it.copy(status = AutoStatus.REVIEW_READY, proposal = proposal, review = review, editSession = null, receipt = null, cancelRequested = false, preview = ReviewPreviewUi()) }
                         } catch (failure: Throwable) { autoFailure(failure) }
                     }
                 }
@@ -356,6 +357,33 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
             }
         }
     }
+    fun editReview(operation: Int, action: Int = 0, parameter: Int = 0, value: Int = 0, destination: Int = 0) {
+        val ui = autoMutable.value; val editor = owner ?: return
+        if (disposed.get() || !ui.enabled || ui.status !in listOf(AutoStatus.REVIEW_READY, AutoStatus.NO_ACTIONS, AutoStatus.EDIT_FAILED) || ui.inFlight || reviewRendering.get() || autoApplying.get()) return
+        if (!reviewEditing.compareAndSet(false, true)) return
+        val stamp = autoEpoch.get()
+        autoMutable.update { it.copy(inFlight = true, error = null) }
+        commands.execute {
+            try {
+                if (disposed.get() || owner !== editor || autoEpoch.get() != stamp) return@execute
+                val session = ui.editSession ?: editor.beginReviewEditing(ui.review ?: throw EditorFailure(9, "Review edit"))
+                try {
+                    val fresh = editor.editReview(session, operation, action, parameter, value, destination)
+                    if (!disposed.get() && owner === editor && autoEpoch.get() == stamp) autoMutable.update {
+                        it.copy(status = if (fresh == null) AutoStatus.NO_ACTIONS else AutoStatus.REVIEW_READY,
+                            review = fresh, editSession = session, preview = ReviewPreviewUi(), error = null)
+                    }
+                } catch (failure: Throwable) {
+                    if (!disposed.get() && owner === editor && autoEpoch.get() == stamp) autoMutable.update {
+                        it.copy(status = if (session.review == null) AutoStatus.EDIT_FAILED else AutoStatus.REVIEW_READY, review = session.review, editSession = session,
+                            preview = if (session.review == null) ReviewPreviewUi() else it.preview,
+                            error = "Review edit rejected (${(failure as? EditorFailure)?.status ?: 14}). Restore original or request a new review; nothing was applied.")
+                    }
+                }
+            } catch (failure: Throwable) { if (!disposed.get() && autoEpoch.get() == stamp) autoFailure(failure) }
+            finally { reviewEditing.set(false); if (!disposed.get() && autoEpoch.get() == stamp) autoMutable.update { it.copy(inFlight = false) } }
+        }
+    }
     private fun reviewPreviewFailure(failure: Throwable) {
         val status = when ((failure as? EditorFailure)?.status) { 3, 9 -> ReviewPreviewStatus.STALE; 13 -> ReviewPreviewStatus.CANCELLED; else -> ReviewPreviewStatus.PREVIEW_FAILED }
         autoMutable.update { it.copy(preview = ReviewPreviewUi(status, error = "Preview unavailable. No edit was applied. Manual editing and Plan inspection remain available.")) }
@@ -385,10 +413,10 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
                 // publication may have won cancellation; never undo it implicitly.
                 if (owner === editor) { try { preview(); refresh() } catch (failure: Throwable) { refresh(message(failure)) } }
                 if (!disposed.get() && owner === editor && autoEpoch.get() == stamp && autoMutable.value.enabled) {
-                    result.fold(onSuccess = { receipt -> autoMutable.update { it.copy(status = AutoStatus.COMPLETED, receipt = receipt, proposal = null, review = null, error = null) } },
+                    result.fold(onSuccess = { receipt -> autoMutable.update { it.copy(status = AutoStatus.COMPLETED, receipt = receipt, proposal = null, review = null, editSession = null, error = null) } },
                         onFailure = { failure ->
                             if (autoMutable.value.cancelRequested && (failure as? EditorFailure)?.status in listOf(13, 15))
-                                autoMutable.update { it.copy(status = AutoStatus.CANCELLED, proposal = null, review = null, error = "Execution cancelled before publication.") }
+                                autoMutable.update { it.copy(status = AutoStatus.CANCELLED, proposal = null, review = null, editSession = null, error = "Execution cancelled before publication.") }
                             else {
                                 autoFailure(failure)
                                 if ((failure as? EditorFailure)?.status !in listOf(3, 9, 13)) autoMutable.update { it.copy(error = "Execution did not report completion. Check history before requesting a fresh proposal.") }

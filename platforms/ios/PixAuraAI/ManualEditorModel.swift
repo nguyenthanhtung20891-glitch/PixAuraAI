@@ -4,7 +4,7 @@ import CoreGraphics
 import PixAuraCore
 
 enum AssistStatus { case idle, requesting, proposalAvailable, failed, stale, cancelled, rejected }
-enum AutoStatus { case idle, requesting, proposalReceived, validating, reviewReady, approving, executing, completed, stale, cancelled, failed, rejected }
+enum AutoStatus { case idle, requesting, proposalReceived, validating, reviewReady, noActions, editFailed, approving, executing, completed, stale, cancelled, failed, rejected }
 enum ReviewPreviewStatus { case planReview, previewLoading, previewReady, previewFailed, stale, cancelled }
 struct ReviewPreviewUi {
     var status: ReviewPreviewStatus = .planReview
@@ -18,6 +18,7 @@ struct AutoUiState {
     var selected = -1
     var proposal: ManualEditor.AutoProposal?
     var review: ManualEditor.AutoReview?
+    var editSession: ManualEditor.ReviewEditSession?
     var receipt: ManualEditor.AgentReceipt?
     var cancelRequested = false
     var error: String?
@@ -330,6 +331,28 @@ private final class EditorWorker {
         // Existing manual-tool navigation only; no values, preview or Apply.
         try owner.select(choice.toolIndex); try owner.cancelAdvice()
     }
+    func editReview(_ existing: ManualEditor.ReviewEditSession?, review: ManualEditor.AutoReview?, operation: UInt32,
+        action: UInt32, parameter: UInt32, value: Int32, destination: UInt32,
+        completion: @escaping @MainActor (ManualEditor.ReviewEditSession?, Result<ManualEditor.AutoReview?, Error>) -> Void) {
+        lock.lock()
+        if assistWorking || cancellingAdvice || cancellingAuto { lock.unlock(); DispatchQueue.main.async { completion(existing, .failure(ManualEditorFailure(status: 8, boundary: "Review edit"))) }; return }
+        assistWorking = true; lock.unlock()
+        commands.async {
+            var session = existing
+            let result = Result<ManualEditor.AutoReview?, Error> {
+                guard let editor = self.owner else { throw ManualEditorFailure(status: 13, boundary: "Review edit") }
+                if session == nil {
+                    guard let review else { throw ManualEditorFailure(status: 9, boundary: "Review edit") }
+                    session = try editor.beginReviewEditing(review)
+                }
+                guard let session else { throw ManualEditorFailure(status: 14, boundary: "Review edit") }
+                return try editor.editReview(session, operation: operation, action: action, parameter: parameter, value: value, destination: destination)
+            }
+            self.lock.lock(); self.assistWorking = false; self.lock.unlock()
+            let completedSession = session
+            DispatchQueue.main.async { completion(completedSession, result) }
+        }
+    }
     func update(_ values: [Int32], editID: String, epoch: UInt64) {
         lock.lock(); latestValues = (editID, values, epoch)
         let schedule = !updating; updating = true; lock.unlock()
@@ -512,7 +535,7 @@ final class ManualEditorModel: ObservableObject {
     private func invalidateAuto(_ reason: AutoStatus = .stale) {
         cancelReviewPreview(reason == .stale ? .stale : .cancelled)
         _ = nextAutoEpoch(); let hadWork = autoProposal.proposal != nil || autoProposal.inFlight
-        autoProposal.proposal = nil; autoProposal.review = nil; autoProposal.receipt = nil; autoProposal.error = nil; autoProposal.cancelRequested = false
+        autoProposal.proposal = nil; autoProposal.review = nil; autoProposal.editSession = nil; autoProposal.receipt = nil; autoProposal.error = nil; autoProposal.cancelRequested = false
         autoProposal.status = autoProposal.enabled && hadWork ? reason : .idle
         if hadWork { worker.cancelAuto() }
     }
@@ -540,11 +563,11 @@ final class ManualEditorModel: ObservableObject {
         case 8: autoProposal.status = .failed; autoProposal.error = "Provider busy or resources limited. Manual editing is available."
         default: autoProposal.status = .failed; autoProposal.error = "Proposal could not be validated. Nothing was applied."
         }
-        autoProposal.proposal = nil; autoProposal.review = nil
+        autoProposal.proposal = nil; autoProposal.review = nil; autoProposal.editSession = nil
     }
     func requestAuto() {
         guard autoProposal.enabled, !autoProposal.inFlight, autoProposal.choices.indices.contains(autoProposal.selected), let stamp = nextAutoEpoch() else { return }
-        autoProposal.inFlight = true; autoProposal.status = .requesting; autoProposal.proposal = nil; autoProposal.review = nil; autoProposal.receipt = nil; autoProposal.error = nil
+        autoProposal.inFlight = true; autoProposal.status = .requesting; autoProposal.proposal = nil; autoProposal.review = nil; autoProposal.editSession = nil; autoProposal.receipt = nil; autoProposal.error = nil
         worker.requestAuto(autoProposal.choices[autoProposal.selected].index) { [weak self] result in
             guard let self else { return }; self.autoProposal.inFlight = false
             guard self.autoEpoch == stamp, self.autoProposal.enabled else { return }
@@ -578,6 +601,26 @@ final class ManualEditorModel: ObservableObject {
             }
         }
     }
+    func editReview(_ operation: UInt32, action: UInt32 = 0, parameter: UInt32 = 0, value: Int32 = 0, destination: UInt32 = 0) {
+        guard autoProposal.enabled, [AutoStatus.reviewReady, .noActions, .editFailed].contains(autoProposal.status), !autoProposal.inFlight,
+            !reviewPreviewBusy, autoProposal.preview.status != .stale else { return }
+        let stamp = autoEpoch
+        autoProposal.inFlight = true; autoProposal.error = nil
+        worker.editReview(autoProposal.editSession, review: autoProposal.review, operation: operation, action: action,
+            parameter: parameter, value: value, destination: destination) { [weak self] session, result in
+            guard let self, self.autoEpoch == stamp, self.autoProposal.enabled else { return }
+            self.autoProposal.inFlight = false
+            self.autoProposal.editSession = session
+            switch result {
+            case .success(let review): self.autoProposal.status = review == nil ? .noActions : .reviewReady; self.autoProposal.review = review; self.autoProposal.preview = ReviewPreviewUi()
+            case .failure(let error):
+                self.autoProposal.review = session?.review
+                self.autoProposal.status = session?.review == nil ? .editFailed : .reviewReady
+                if session?.review == nil { self.autoProposal.preview = ReviewPreviewUi() }
+                self.autoProposal.error = "Review edit rejected (\((error as? ManualEditorFailure)?.status ?? 14)). Restore original or request a new review; nothing was applied."
+            }
+        }
+    }
     func cancelReviewPreview(_ reason: ReviewPreviewStatus = .cancelled) {
         autoProposal.preview = ReviewPreviewUi(status: reason); worker.cancelReviewPreview()
     }
@@ -592,7 +635,7 @@ final class ManualEditorModel: ObservableObject {
         }) { [weak self] result in
             guard let self else { return }; self.autoProposal.inFlight = false
             guard self.autoEpoch == stamp, self.autoProposal.enabled else { return }
-            self.autoProposal.proposal = nil; self.autoProposal.review = nil
+            self.autoProposal.proposal = nil; self.autoProposal.review = nil; self.autoProposal.editSession = nil
             switch result {
             case .success(let receipt): self.autoProposal.receipt = receipt; self.autoProposal.status = .completed; self.autoProposal.error = nil
             case .failure(let error):
