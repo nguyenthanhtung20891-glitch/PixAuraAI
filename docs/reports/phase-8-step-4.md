@@ -77,6 +77,35 @@ No unresolved A-class issue is known before certification; this is not a PASS
 claim for unexecuted Apple/instrumentation/exact-SHA gates. Host-only memory,
 latency, localization and physical accelerator limits are not overclaimed.
 
+## Initial implementation certification failure and correction
+
+Initial implementation `b84eecd5410ae89b6d77db99cb41a5b64d6a0113` is NOT certified.
+Foundation 41264078856, attempt 1, failed its Linux portable job while compiling
+the new review_edit_test.cpp: GCC diagnosed a copied range-loop pair and misleading
+one-line if/while indentation under the retained -Werror policy. The correction
+uses a const reference and explicit braces/lines, preserving every assertion and
+ordering. No compiler warning, test, sanitizer, timeout or job was weakened.
+Native shells 41264078710 and any initial successes remain historical evidence,
+not certification for a corrected SHA. No workflow is rerun.
+
+The corrected implementation also makes the already-frozen native error categories
+explicit in equivalent Android/Apple presentation: invalid request/owner, unsupported
+edit, invalid resulting Plan/parameters, stale, busy/resource, stopped/cancelled,
+and unknown/internal failure. It claims no document application from an edit error.
+No tool, Plan, approval, execution, publication, history or resource semantics change.
+The corrected SHA must independently pass BOTH complete workflows.
+
+The same initial Foundation Windows job reached its unchanged 15-minute limit
+while retained editor tests were still running. The added independent allocation
+sweep had passed all five paths but consumed 442.17 seconds (MSVC debug failure
+counts 2451/6756/4922/6756/4203). This is NOT a completed Windows-suite PASS.
+The correction partitions only the new sweep's indices by residue across four
+independent test editors, following the existing editor_test bounded-worker
+pattern. Allocator/diagnostic controls are thread-local; all workers stop/destroy
+their owners and are joined. Assertions prove every index before first success
+was exercised exactly once, without gaps/sampling. No bound, assertion, retained
+test, workflow timeout or production worker/concurrency semantics changed.
+
 ## Frozen scope
 
 All earlier contract semantics, Schema 3, approval/candidate/publication, shared

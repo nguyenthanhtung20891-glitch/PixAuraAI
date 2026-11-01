@@ -34,7 +34,7 @@
     },
     "platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt": {
       "before_sha256_lf": "a67fd6007ccaa3bdc5e830fc970cd69d79de5a4ecce0e9ca481cf96b8991bd6d",
-      "after_sha256_lf": "95675966a99386df93ed09c0e58b87aff32641e295f0d7e542e59774e1fe67cd"
+      "after_sha256_lf": "3640fb373285f09f5b5151d96537d8223341e955a99fb02beb8d030188c63a75"
     },
     "platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt": {
       "before_sha256_lf": "6c8baf748d4f975d14e343d7baf2518ee8cc0619d23dcaabd7e7655ac91a2ef2",
@@ -46,7 +46,7 @@
     },
     "platforms/ios/PixAuraAI/ManualEditorModel.swift": {
       "before_sha256_lf": "f81ea67fe1b6a66d965d769a9a58690ad34134d777c79e9fef9b72ddda9854ed",
-      "after_sha256_lf": "b94c9eb9ef8e9d02667a89c6fa1f27285b7002e1e8b974940bc13fbc9d7f2ae6"
+      "after_sha256_lf": "06933f896ccf70397d8daaba6b51d6d9ba69d918b4b650edd68ebce2c255cd6b"
     },
     "platforms/ios/PixAuraAI/ManualEditorScreen.swift": {
       "before_sha256_lf": "ff0d4d4506ec02983db80d0b386dc06c815d30e501326155081242bbb0a1cf61",

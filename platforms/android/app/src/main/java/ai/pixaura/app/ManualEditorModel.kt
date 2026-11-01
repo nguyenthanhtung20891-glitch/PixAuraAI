@@ -374,10 +374,21 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
                             review = fresh, editSession = session, preview = ReviewPreviewUi(), error = null)
                     }
                 } catch (failure: Throwable) {
+                    val code = (failure as? EditorFailure)?.status ?: 14
+                    val reason = when (code) {
+                        1, 3 -> "Invalid owner, session or edit request"
+                        2, 5 -> "Unsupported edit"
+                        6 -> "Invalid resulting Plan"
+                        7 -> "Invalid value or complete Plan parameters"
+                        8 -> "Busy or allocation/resource unavailable"
+                        9 -> "Stale review"
+                        13 -> "Cancelled or owner stopped"
+                        else -> "Internal or unknown native failure"
+                    }
                     if (!disposed.get() && owner === editor && autoEpoch.get() == stamp) autoMutable.update {
                         it.copy(status = if (session.review == null) AutoStatus.EDIT_FAILED else AutoStatus.REVIEW_READY, review = session.review, editSession = session,
                             preview = if (session.review == null) ReviewPreviewUi() else it.preview,
-                            error = "Review edit rejected (${(failure as? EditorFailure)?.status ?: 14}). Restore original or request a new review; nothing was applied.")
+                            error = "$reason ($code). Restore original or request a new review. No document edit was applied by this request.")
                     }
                 }
             } catch (failure: Throwable) { if (!disposed.get() && autoEpoch.get() == stamp) autoFailure(failure) }

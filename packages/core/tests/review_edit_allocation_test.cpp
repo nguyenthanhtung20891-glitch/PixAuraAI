@@ -1,4 +1,6 @@
 #include "pixaura/review_edit.h"
+#include <array>
+#include <thread>
 // Independently compiled shipping sources; replacement allocator never ships.
 #include "pixaura/review_preview.h"
 #include "pixaura/review_inspection.h"
@@ -22,8 +24,8 @@
 static thread_local int64_t fail_after=-1;
 static thread_local bool meter=false;
 static thread_local uint64_t allocated=0;
-static unsigned active_path=0;
-static int64_t active_index=-1;
+static thread_local unsigned active_path=0;
+static thread_local int64_t active_index=-1;
 static void termination_trace() noexcept {
 #ifdef _MSC_VER
  const auto process=GetCurrentProcess();SymSetOptions(SYMOPT_DEFERRED_LOADS|SYMOPT_LOAD_LINES|SYMOPT_NO_PROMPTS|SYMOPT_IGNORE_NT_SYMPATH);
@@ -51,13 +53,19 @@ static const uint8_t* b(const std::string& s){return reinterpret_cast<const uint
 static int64_t read(void* raw,uint8_t* out,uint64_t count){auto& at=*static_cast<std::size_t*>(raw);count=std::min<uint64_t>(count,sizeof(decode_png)-at);std::memcpy(out,decode_png+at,static_cast<std::size_t>(count));at+=static_cast<std::size_t>(count);return static_cast<int64_t>(count);}
 int main(int argc,char** argv){
  std::set_terminate([]{fail_after=-1;std::fprintf(stderr,"edit allocation terminate path=%u index=%lld\n",active_path,static_cast<long long>(active_index));termination_trace();std::_Exit(1);});
- CHECK(argc==2);const auto path=std::filesystem::u8path(argv[1])/("edit-alloc-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));CHECK(std::filesystem::create_directory(path));const auto root=path.generic_string();
- const uint8_t id[]="abc00000000000000000000000000002";pixaura_editor_context c{};std::size_t at=0;
+ CHECK(argc==2);const auto path=std::filesystem::u8path(argv[1])/("edit-alloc-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));CHECK(std::filesystem::create_directory(path));
+ struct Stats {std::array<int64_t,5> first{};std::array<uint64_t,5> maximum{};std::array<unsigned,5> failures{};};
+ std::array<Stats,4> results{};std::array<std::thread,4> workers;
+ for(unsigned worker=0;worker<workers.size();++worker){workers[worker]=std::thread([&,worker]{
+ const auto directory=path/std::to_string(worker);CHECK(std::filesystem::create_directory(directory));const auto worker_root=directory.generic_string();
+ char id[33];std::snprintf(id,sizeof(id),"%032x",950000u+worker);pixaura_editor_context c{};std::size_t at=0;
  pixaura_capability_profile profile{};CHECK(pixaura_capability_baseline(1,&profile)==0);const pixaura_policy_observation observation{1,sizeof(observation),1,1,0,1,0,0,0,1};pixaura_execution_strategy strategy{};
- CHECK(pixaura_editor_open_policy(1,&c,b(root),root.size(),id,32,read,&at,sizeof(decode_png),&profile,&observation,&strategy)==0);
+ CHECK(pixaura_editor_open_policy(1,&c,b(worker_root),worker_root.size(),reinterpret_cast<const uint8_t*>(id),32,read,&at,sizeof(decode_png),&profile,&observation,&strategy)==0);
  const auto state=[&]{uint8_t bytes[1024];uint64_t n=0;CHECK(pixaura_editor_state(&c,bytes,sizeof(bytes),&n)==0);return std::string(reinterpret_cast<char*>(bytes),static_cast<std::size_t>(n));};const auto stable=state();
  for(unsigned kind=0;kind<5;++kind){bool complete=false;uint64_t maximum=0;unsigned failures=0;
-  for(int64_t n=0;n<16384;++n){pixaura_auto_proposal proposal{};const pixaura_auto_request auto_request{1,sizeof(auto_request),2,2};CHECK(pixaura_editor_auto_request(1,&c,&auto_request,nullptr,0,&proposal)==0);
+  // Exact residue partition: every failure index is still injected, once.
+  // Allocator controls and each editor/document are local to this worker.
+  for(int64_t n=worker;n<16384;n+=4){pixaura_auto_proposal proposal{};const pixaura_auto_request auto_request{1,sizeof(auto_request),2,2};CHECK(pixaura_editor_auto_request(1,&c,&auto_request,nullptr,0,&proposal)==0);
    uint8_t bytes[8192];uint64_t count=0;CHECK(pixaura_editor_auto_plan(1,&c,&proposal,bytes,sizeof(bytes),&count)==0);pixaura_review_inspection inspection{};CHECK(pixaura_review_inspect(1,&c,&proposal,bytes,count,&inspection)==0);
    pixaura_review_edit_result session{};if(kind)CHECK(pixaura_review_edit_begin(1,&c,&inspection,&session)==0);
    pixaura_review_edit_request request{};request.api_version=1;request.struct_size=sizeof(request);request.operation=kind;request.ticket=session.ticket;
@@ -66,12 +74,21 @@ int main(int argc,char** argv){
    active_path=kind;active_index=n;fail_after=n;meter=true;allocated=0;
    const auto status=kind?pixaura_review_edit(1,&c,&request,&output):pixaura_review_edit_begin(1,&c,&inspection,&output);
    meter=false;fail_after=-1;maximum=std::max(maximum,allocated);CHECK(state()==stable);
-   if(!status){CHECK(failures>0);CHECK(output.api_version==1);complete=true;std::printf("Edit allocation operation=%u failures=%u cumulative_requested_max=%llu result_bytes=%zu\n",kind,failures,static_cast<unsigned long long>(maximum),sizeof(output));break;}
+   if(!status){CHECK(failures>0);CHECK(output.api_version==1);complete=true;results[worker].first[kind]=n;break;}
    CHECK(status==8);CHECK(std::memcmp(&output,&sentinel,sizeof(output))==0);++failures;
    if(kind){pixaura_review_edit_result current{};CHECK(pixaura_review_edit_current(1,&c,&session.ticket,&current)==0);
     if(current.state==4)CHECK(pixaura_editor_auto_current(1,&c,&proposal)!=0);
    }
-  }CHECK(complete);
+  }CHECK(complete);results[worker].maximum[kind]=maximum;results[worker].failures[kind]=failures;
  }
- CHECK(pixaura_editor_stop(&c)==0);CHECK(pixaura_editor_destroy(&c)==0);std::puts("Edit allocation: outputs atomic; ordinary document/history unchanged; no image resources");
+ CHECK(pixaura_editor_stop(&c)==0);CHECK(pixaura_editor_destroy(&c)==0);
+ });}
+ for(auto& worker:workers){worker.join();}
+ for(unsigned kind=0;kind<5;++kind){int64_t first=INT64_MAX,last=0;uint64_t maximum=0;unsigned failures=0;
+  for(const auto& r:results){first=std::min(first,r.first[kind]);last=std::max(last,r.first[kind]);maximum=std::max(maximum,r.maximum[kind]);failures+=r.failures[kind];}
+  // Prove that all indices [0,first_success) failed, with no gap or sampling.
+  CHECK(last-first<4);CHECK(static_cast<uint64_t>(failures)==static_cast<uint64_t>(first));
+  std::printf("Edit allocation operation=%u failures=%u cumulative_requested_max=%llu result_bytes=%zu workers=4 contiguous_prefix=%lld\n",kind,failures,static_cast<unsigned long long>(maximum),sizeof(pixaura_review_edit_result),static_cast<long long>(first));
+ }
+ std::puts("Edit allocation: outputs atomic; ordinary document/history unchanged; no image resources; every failure index retained");
 }

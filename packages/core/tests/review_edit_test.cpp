@@ -81,7 +81,7 @@ int main(int argc,char** argv){CHECK(argc==2);const auto root=std::filesystem::u
   if(count>1){auto forged=request(e,1);forged.action_index=1;forged.raw_value=123;forged.expected_action=r.actions[0];std::memcpy(forged.tool_id,r.actions[0].tool_id,32);std::memcpy(forged.parameter_name,r.actions[0].parameters[0].name,32);pixaura_review_edit_result next{};
    CHECK(pixaura_review_edit(1,&o.c,&forged,&next)==3);auto restore=request(e,4);CHECK(pixaura_review_edit(1,&o.c,&restore,&next)==0);e=next;r=inspect(o,e.review,o.plan(e.review));
   }
-  for(const auto positions:{std::pair<uint32_t,uint32_t>{0,count-1},{count-1,0}}){auto q=request(e,3);q.action_index=positions.first;q.destination=positions.second;q.expected_action=r.actions[q.action_index];std::memcpy(q.tool_id,r.actions[q.action_index].tool_id,32);
+  for(const auto& positions:{std::pair<uint32_t,uint32_t>{0,count-1},{count-1,0}}){auto q=request(e,3);q.action_index=positions.first;q.destination=positions.second;q.expected_action=r.actions[q.action_index];std::memcpy(q.tool_id,r.actions[q.action_index].tool_id,32);
    pixaura_review_edit_result next{};const auto value=r.actions[q.action_index].parameters[0].raw_value;CHECK(pixaura_review_edit(1,&o.c,&q,&next)==0);e=next;r=inspect(o,e.review,o.plan(e.review));CHECK(r.actions[q.destination].parameters[0].raw_value==value);
   }
   CHECK(o.plan(e.review)==bytes);
@@ -107,10 +107,19 @@ int main(int argc,char** argv){CHECK(argc==2);const auto root=std::filesystem::u
  }
  for(unsigned scenario=0;scenario<13;++scenario){Owner o(root,++serial,fixture);const auto p=o.proposal(2);const auto bytes=o.plan(p);const auto r=inspect(o,p,bytes);pixaura_review_edit_result e{};CHECK(pixaura_review_edit_begin(1,&o.c,&r,&e)==0);
   auto q=request(e,1);q.raw_value=101;q.expected_action=r.actions[0];std::memcpy(q.tool_id,r.actions[0].tool_id,32);std::memcpy(q.parameter_name,r.actions[0].parameters[0].name,32);
-  if(scenario==0)q.action_index=8;if(scenario==1)q.parameter_index=4;if(scenario==2)q.tool_id[0]='X';if(scenario==3)q.parameter_name[0]='X';
-  if(scenario==4)q.operation=999;if(scenario==5)q.reserved=1;if(scenario==6)q.api_version=2;if(scenario==7)q.ticket.serial++;
-  if(scenario==8)o.manual();if(scenario==9){o.manual();CHECK(pixaura_editor_action(&o.c,2)==0);}if(scenario==10)CHECK(pixaura_test_agent_external_session(&o.c)==0);
-  if(scenario==11)CHECK(pixaura_editor_auto_cancel(1,&o.c)==0);if(scenario==12)CHECK(pixaura_editor_stop(&o.c)==0);
+  if(scenario==0){q.action_index=8;}
+  if(scenario==1){q.parameter_index=4;}
+  if(scenario==2){q.tool_id[0]='X';}
+  if(scenario==3){q.parameter_name[0]='X';}
+  if(scenario==4){q.operation=999;}
+  if(scenario==5){q.reserved=1;}
+  if(scenario==6){q.api_version=2;}
+  if(scenario==7){q.ticket.serial++;}
+  if(scenario==8){o.manual();}
+  if(scenario==9){o.manual();CHECK(pixaura_editor_action(&o.c,2)==0);}
+  if(scenario==10){CHECK(pixaura_test_agent_external_session(&o.c)==0);}
+  if(scenario==11){CHECK(pixaura_editor_auto_cancel(1,&o.c)==0);}
+  if(scenario==12){CHECK(pixaura_editor_stop(&o.c)==0);}
   const auto before=scenario==12?std::string{}:o.dump();pixaura_review_edit_result output{};std::memset(&output,0xa5,sizeof(output));const auto sentinel=output;
   CHECK(pixaura_review_edit(1,&o.c,&q,&output)!=0);CHECK(std::memcmp(&output,&sentinel,sizeof(output))==0);if(scenario!=12)CHECK(o.dump()==before);
  }
@@ -134,7 +143,8 @@ int main(int argc,char** argv){CHECK(argc==2);const auto root=std::filesystem::u
   EditPause pause;CHECK(pixaura_test_agent_execution_checkpoint(&o.c,edit_pause,&pause)==0);int code=-1,stopped=-1,destroyed=-1;
   std::thread call([&]{code=pixaura_review_edit(1,&o.c,&q,&out);});while(!pause.reached.load())std::this_thread::yield();
   std::atomic<bool> stopping{false};std::thread teardown([&]{stopping=true;stopped=pixaura_editor_stop(&o.c);call.join();destroyed=pixaura_editor_destroy(&o.c);});
-  while(!stopping.load())std::this_thread::yield();pause.resume=true;teardown.join();CHECK(code==0&&stopped==0&&destroyed==0);o.destroyed=true;
+  while(!stopping.load()){std::this_thread::yield();}
+  pause.resume=true;teardown.join();CHECK(code==0&&stopped==0&&destroyed==0);o.destroyed=true;
   CHECK(pixaura_review_edit_current(1,&o.c,&out.ticket,&e)!=0);
  }
  std::printf("Review edit ownership state_bytes=%zu original_plan_bound=8192 existing_current_plan_bound=8192 review_undo_entries=0 image_bytes=0\n",sizeof(pixaura::ReviewEditState));

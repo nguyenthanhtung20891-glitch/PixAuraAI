@@ -617,7 +617,19 @@ final class ManualEditorModel: ObservableObject {
                 self.autoProposal.review = session?.review
                 self.autoProposal.status = session?.review == nil ? .editFailed : .reviewReady
                 if session?.review == nil { self.autoProposal.preview = ReviewPreviewUi() }
-                self.autoProposal.error = "Review edit rejected (\((error as? ManualEditorFailure)?.status ?? 14)). Restore original or request a new review; nothing was applied."
+                let code = (error as? ManualEditorFailure)?.status ?? 14
+                let reason: String
+                switch code {
+                case 1, 3: reason = "Invalid owner, session or edit request"
+                case 2, 5: reason = "Unsupported edit"
+                case 6: reason = "Invalid resulting Plan"
+                case 7: reason = "Invalid value or complete Plan parameters"
+                case 8: reason = "Busy or allocation/resource unavailable"
+                case 9: reason = "Stale review"
+                case 13: reason = "Cancelled or owner stopped"
+                default: reason = "Internal or unknown native failure"
+                }
+                self.autoProposal.error = "\(reason) (\(code)). Restore original or request a new review. No document edit was applied by this request."
             }
         }
     }
