@@ -84,10 +84,20 @@ Hosted Windows portable ctest on this SHA finished inside the 30-minute ceiling
 CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED /
 NOT SATISFIED.
 
-This separate documentation-only closure changes no production behavior, contract
-or workflow. Its [exact inventory](evidence/phase-8-step-5-closure-files.json)
-records every closure file. The result-review governance check now accepts the
-closure-pending manifest, the same shape used by earlier Phase 8 steps. Both full
-workflows must independently pass this closure's own new SHA. Only an externally
-observed final closure-SHA success activates Step 5 COMPLETE / FULL PASS. Until
-then CLOSURE CERTIFICATION PENDING. Phase 8 remains IN PROGRESS. Step 6 NOT STARTED.
+This corrective closure changes no production behavior, contract or workflow.
+Its [exact inventory](evidence/phase-8-step-5-closure-files.json) records every
+closure file. The result-review governance check now accepts the closure-pending
+manifest, the same shape used by earlier Phase 8 steps. The assist cancellation
+UI test taps the already matched button coordinate so a second accessibility
+snapshot cannot time out after the button was found. Both full workflows must
+independently pass this closure's own new SHA. Only an externally observed final
+closure-SHA success activates Step 5 COMPLETE / FULL PASS. Until then
+CLOSURE CERTIFICATION PENDING. Phase 8 remains IN PROGRESS. Step 6 NOT STARTED.
+
+Closure candidate `7b6004e2f991aeba4f8722e8052af24e96032695` is not certified.
+Foundation 41680897092 succeeded 7/7 and Native source plus android-app succeeded,
+but ios-app 126073928913 failed one unchanged assist UI tap: the cancel button
+had already matched, then XCTest's second query snapshot timed out. The same
+app bytes passed ios-app 126041046097 on the implementation SHA, and this
+candidate's result-review UI test passed. That candidate is retained evidence,
+not closure certification.

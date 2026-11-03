@@ -314,7 +314,9 @@ final class ShellUITests: XCTestCase {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
             guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }
-            query.firstMatch.tap()
+            // The matched button is already the single enabled control. A second
+            // full-tree query inside tap() timed out on a loaded simulator.
+            query.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         }
         tap("Open Manual editor")
         XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))

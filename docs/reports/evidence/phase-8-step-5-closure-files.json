@@ -14,6 +14,7 @@
     "docs/reports/evidence/phase-8-step-5-implementation-certification.json",
     "docs/reports/phase-8-step-5-v1.json",
     "docs/reports/phase-8-step-5.md",
+    "platforms/ios/PixAuraAIUITests/ShellUITests.swift",
     "tests/result-review.test.mjs"
   ]
 }
