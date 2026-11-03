@@ -1,5 +1,21 @@
 # Quality gates and promotion policy
 
+<!-- phase8-closed-current -->
+## Phase 8 - observed closure
+
+Phase 8 CLOSED / COMPLETE / FULL PASS.
+Step 6 closure 029f84eaa86f3e5a8bffc696a6abd10f9477ae2a: Foundation 41709039261
+SUCCESS 7/7; Native shells 41709039298 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
+Step 6 implementation eb47353f3088b5d3f42b01b6e5e6b01791d297ba: Foundation 41701559434
+SUCCESS 7/7; Native shells 41701559457 SUCCESS 3/3.
+Step 5 closure dd6ac8f342232929fa505f62f29a6db3c17f23e5. Step 5 implementation
+f3d1318a8e04ebbc0e724832c2ed723bab408e0c.
+RESULT REVIEW != NEW HISTORY. Schema 3 unchanged. HUMAN Apply unchanged.
+Provider reference.assistance.v1 ADMITTED. Planner reference.deterministic.v1.
+Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+The MVP gap audit is docs/reports/mvp-readiness-gap-audit.md. Phase 9 export is not started.
+<!-- phase8-closed-history -->
 <!-- phase8-step6-current -->
 ## Phase 8 Step 6 - Cross-Platform Polish and Phase 8 Closure
 

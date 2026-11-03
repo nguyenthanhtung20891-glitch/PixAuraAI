@@ -10,6 +10,7 @@ test('observed Step 5 closure activates COMPLETE and Step 6 stays unclosed', () 
   assert.equal(prior.sha, 'dd6ac8f342232929fa505f62f29a6db3c17f23e5');
   assert.equal(prior.label, 'closure');
   assert.equal(prior.runtime_authority, false);
+  assert.equal(prior.phase8, 'IN_PROGRESS');
   assert.equal(prior.step6, 'NOT_STARTED');
   for (const [i, run] of prior.runs.entries()) {
     assert.equal(run.head_sha, prior.sha);
@@ -47,4 +48,17 @@ test('both platforms keep preview, restore, and committed result distinct', () =
   assert.ok(text('scripts/check-model-release.mjs').includes('review-test-pause'));
   for (const p of ['.github/workflows/foundation.yml', '.github/workflows/native-shells.yml']) assert.ok(text(p).includes('tests/phase-8-polish.test.mjs'), p);
   assert.ok(text('docs/reports/phase-8-step-6.md').includes('No unresolved A-class blocker'));
+  const closed = read('docs/reports/evidence/phase-8-step-6-closure-certification.json');
+  assert.equal(closed.sha, '029f84eaa86f3e5a8bffc696a6abd10f9477ae2a');
+  assert.equal(closed.label, 'closure');
+  assert.equal(closed.phase8, 'CLOSED_COMPLETE_FULL_PASS');
+  for (const [i, run] of closed.runs.entries()) {
+    assert.equal(run.head_sha, closed.sha);
+    assert.equal(run.attempt, 1);
+    assert.equal(run.conclusion, 'success');
+    assert.equal(run.jobs.length, i ? 3 : 7);
+    for (const job of run.jobs) assert.equal(job.conclusion, 'success');
+  }
+  assert.ok(text('docs/reports/mvp-readiness-gap-audit.md').includes('BLOCKING MVP'));
+  assert.ok(text('AGENTS.md').split('<!-- phase8-closed-current -->')[1].includes('Phase 8 CLOSED / COMPLETE / FULL PASS'));
 });
