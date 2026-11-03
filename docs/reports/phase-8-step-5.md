@@ -101,3 +101,9 @@ had already matched, then XCTest's second query snapshot timed out. The same
 app bytes passed ios-app 126041046097 on the implementation SHA, and this
 candidate's result-review UI test passed. That candidate is retained evidence,
 not closure certification.
+
+Closure candidate `5d729bdd808773fb1f2019eb008aef90fd79f651` is not certified.
+Foundation 41689964230 succeeded 7/7, and Native source plus android-app succeeded,
+but ios-app 126105637252 was cancelled with no steps: the hosted macOS runner was
+not acquired. That is runner capacity, not a test result. The candidate is retained
+evidence, not closure certification.
