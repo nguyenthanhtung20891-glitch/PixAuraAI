@@ -5,7 +5,9 @@ const m=read('docs/reports/phase-8-step-5-v1.json');
 const changes=['CMakeLists.txt','packages/core/src/editor_api.cpp','packages/core/swift/Sources/ManualEditor.swift','platforms/android/app/src/main/java/ai/pixaura/app/AutoProposalPanel.kt','platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt','platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt','platforms/android/native/editor_bridge.cpp','platforms/ios/PixAuraAI/ManualEditorModel.swift','platforms/ios/PixAuraAI/ManualEditorScreen.swift'];
 const additions=['docs/contracts/result-review-v1.md','packages/core/include/pixaura/result_review.h','packages/core/src/result_review_boundary.hpp','platforms/android/app/src/main/java/ai/pixaura/app/ResultReviewPanel.kt'];
 test('Step 5 reads ordinary history and freezes the certified Step 4 engines',()=>{
- assert.equal(m.baseline,'479562255b29cfa263c6de81e9ac8bfdc933dadc');assert.equal(m.step,5);assert.equal(m.status,'AUTHORIZED_IN_PROGRESS');
+ assert.equal(m.baseline,'479562255b29cfa263c6de81e9ac8bfdc933dadc');assert.equal(m.step,5);
+ if(m.status==='CLOSURE_CERTIFICATION_PENDING'){assert.equal(m.certified_implementation_sha,'f3d1318a8e04ebbc0e724832c2ed723bab408e0c');for(const [i,r] of m.implementation_certification.runs.entries()){assert.equal(r.head_sha,m.certified_implementation_sha);assert.equal(r.attempt,1);assert.equal(r.conclusion,'success');assert.equal(r.status,'completed');assert.equal(r.jobs.length,i?3:7);for(const j of r.jobs)assert.equal(j.conclusion,'success');}}
+ else assert.equal(m.status,'AUTHORIZED_IN_PROGRESS');
  assert.equal(m.runtime_authority,false);assert.equal(m.editing_authority,false);assert.equal(m.history_authority,false);assert.equal(m.step6,'NOT_STARTED');
  assert.deepEqual(Object.keys(m.changes).sort(),changes.sort());assert.deepEqual(Object.keys(m.additions).sort(),additions.sort());
  const prior=read('docs/reports/phase-8-step-4-v1.json');
@@ -58,7 +60,7 @@ test('observed Step 4 closure activates COMPLETE and Step 5 stays pending its ow
   assert.ok(old.includes('Steps 5-6 NOT STARTED'),p);
  }
  assert.ok(text('docs/plans/phase-8-roadmap.md').includes('| 4 | Editable Review Before Apply | COMPLETE / FULL PASS |'));
- assert.ok(text('docs/plans/phase-8-roadmap.md').includes('| 5 | History / Result Review Integration | AUTHORIZED / IN PROGRESS |'));
+ assert.ok(text('docs/plans/phase-8-roadmap.md').includes('| 5 | History / Result Review Integration | CLOSURE CERTIFICATION PENDING |'));
  assert.ok(text('docs/reports/phase-8-step-5.md').includes('RESULT REVIEW != NEW HISTORY'));
  assert.ok(text('docs/contracts/result-review-v1.md').includes('BEFORE RESULT'));
 });

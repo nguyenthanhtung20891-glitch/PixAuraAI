@@ -7,6 +7,12 @@ Phase 7 CLOSED / COMPLETE / FULL PASS. Phase 8 Steps 1-4 COMPLETE / FULL PASS.
 Step 4 closure 479562255b29cfa263c6de81e9ac8bfdc933dadc: Foundation 41284220812
 SUCCESS 7/7; Native shells 41284220803 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
 Phase 8 AUTHORIZED / IN PROGRESS. Step 5 CLOSURE CERTIFICATION PENDING.
+Certified implementation SHA: `f3d1318a8e04ebbc0e724832c2ed723bab408e0c`.
+Foundation 41671578661 SUCCESS 7/7; Native shells 41671579055 SUCCESS 3/3;
+both exact SHA, attempt 1, every required job completed/SUCCESS.
+This separate documentation-only closure requires BOTH full workflows on its OWN
+exact SHA. Only the external observed final engineering receipt then activates
+Phase 8 Step 5 COMPLETE / FULL PASS. Until then closure certification pending.
 RESULT REVIEW != NEW HISTORY. Successful Apply publishes one ordinary revision through
 existing approval, private candidate, deterministic editor and shared history.
 Result Review reads that revision. BEFORE RESULT is the previous committed revision.
