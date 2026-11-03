@@ -153,7 +153,7 @@ class AssistExperienceTest {
         }
         resume.start(); compose.activityRule.scenario.recreate(); resume.join()
         assertTrue("old owner stopped before native request resumed", stopped.get())
-        waitFor { model.state.value.image != null && !model.state.value.busy && !model.assistance.value.inFlight }
+        waitFor { model.state.value.image != null && !model.state.value.busy && !model.assistance.value.inFlight && model.state.value.core?.revisionCount == 2 }
         assertFalse(model.assistance.value.enabled); assertNull(model.assistance.value.advice)
         assertEquals(2, model.state.value.core!!.revisionCount)
     }

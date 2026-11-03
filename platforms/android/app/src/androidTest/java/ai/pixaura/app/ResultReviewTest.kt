@@ -1,6 +1,8 @@
 package ai.pixaura.app
 
 import ai.pixaura.bridge.*
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
@@ -8,7 +10,6 @@ import java.io.File
 import java.util.UUID
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Rule
@@ -16,7 +17,9 @@ import org.junit.Test
 
 @OptIn(ExperimentalTestApi::class)
 class ResultReviewTest {
-    @get:Rule val compose = createAndroidComposeRule<MainActivity>(effectContext = StandardTestDispatcher())
+    // The real UI looper must deliver ordinary-history updates. A paused test
+    // dispatcher keeps the first "Committed result" composition forever.
+    @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private val model get() = compose.activity.manualModel
     private fun waitFor(test: () -> Boolean) = compose.waitUntil(20_000, test)
     private fun editor() = ManualEditorModel::class.java.getDeclaredField("owner").apply { isAccessible = true }.get(model) as ManualEditor
@@ -46,15 +49,31 @@ class ResultReviewTest {
         }
         compose.waitForIdle()
         assertEquals(2, editor().state().revisionCount); assertEquals(result.previous, editor().state().revisionId)
-        compose.onNodeWithTag("result-label").performScrollTo().assertTextContains("stale")
+        assertLabelContains("stale")
         tap("result-redo"); waitFor {
             val review = model.autoProposal.value.result
             review?.state == 1 && review.canUndo && review.live == result.result
         }
         compose.waitForIdle()
-        compose.onNodeWithTag("result-label").performScrollTo().assertTextContains("Committed result")
+        assertLabelContains("Committed result")
         assertEquals(2, editor().state().revisionCount); assertEquals(result.result, editor().state().revisionId)
         tap("result-back"); waitFor { !model.autoProposal.value.enabled && model.autoProposal.value.result == null }
         compose.onNodeWithTag("result-review").assertDoesNotExist()
+    }
+    private fun assertLabelContains(expected: String) {
+        val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(20)
+        var seen = ""
+        while (System.nanoTime() < deadline) {
+            compose.waitForIdle()
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            seen = compose.onAllNodesWithTag("result-label").fetchSemanticsNodes().joinToString(" | ") { node ->
+                val text = node.config.getOrNull(SemanticsProperties.Text)?.joinToString { it.text }.orEmpty()
+                val spoken = node.config.getOrNull(SemanticsProperties.ContentDescription)?.joinToString().orEmpty()
+                "$text / $spoken"
+            }
+            if (seen.contains(expected)) return
+            Thread.sleep(50)
+        }
+        fail("result label '$seen' did not contain '$expected'")
     }
 }
