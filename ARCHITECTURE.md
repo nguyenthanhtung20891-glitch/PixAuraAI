@@ -1,5 +1,22 @@
 # System architecture
 
+<!-- phase8-step6-current -->
+## Phase 8 Step 6 - Cross-Platform Polish and Phase 8 Closure
+
+Phase 7 CLOSED / COMPLETE / FULL PASS. Phase 8 Steps 1-5 COMPLETE / FULL PASS.
+Step 5 closure dd6ac8f342232929fa505f62f29a6db3c17f23e5: Foundation 41693690260
+SUCCESS 7/7; Native shells 41693690048 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
+Phase 8 AUTHORIZED / IN PROGRESS. Step 6 AUTHORIZED / IN PROGRESS.
+RESULT REVIEW != NEW HISTORY. Preview is not a committed result. Restore original
+review content is not document Undo. Undo document and Redo document use ordinary
+history. This step adds no history class, approval, execution, or raster engine.
+Schema 3 unchanged. HUMAN Apply unchanged. Provider reference.assistance.v1 ADMITTED;
+planner reference.deterministic.v1. Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+Hosted Apple software only. Step 6 is not COMPLETE until its implementation SHA and a
+separate closure SHA each pass both workflows. Phase 8 is not CLOSED.
+See docs/reports/phase-8-step-6.md.
+<!-- phase8-step6-history -->
 <!-- phase8-step5-current -->
 ## Phase 8 Step 5 - History / Result Review Integration
 

@@ -60,7 +60,7 @@ test('observed Step 4 closure activates COMPLETE and Step 5 stays pending its ow
   assert.ok(old.includes('Steps 5-6 NOT STARTED'),p);
  }
  assert.ok(text('docs/plans/phase-8-roadmap.md').includes('| 4 | Editable Review Before Apply | COMPLETE / FULL PASS |'));
- assert.ok(text('docs/plans/phase-8-roadmap.md').includes('| 5 | History / Result Review Integration | CLOSURE CERTIFICATION PENDING |'));
+ assert.ok(text('docs/plans/phase-8-roadmap.md').includes('| 5 | History / Result Review Integration | COMPLETE / FULL PASS |'));
  assert.ok(text('docs/reports/phase-8-step-5.md').includes('RESULT REVIEW != NEW HISTORY'));
  assert.ok(text('docs/contracts/result-review-v1.md').includes('BEFORE RESULT'));
 });
