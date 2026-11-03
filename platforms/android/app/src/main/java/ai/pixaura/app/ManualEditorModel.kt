@@ -468,6 +468,11 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         invalidateAuto(AutoStatus.CANCELLED); autoMutable.update { it.copy(status = if (it.enabled) AutoStatus.CANCELLED else AutoStatus.IDLE) }
     }
     fun dismissAuto() { if (autoMutable.value.status == AutoStatus.COMPLETED) return; if (autoApplying.get()) { cancelAuto(); return }; invalidateAuto(AutoStatus.REJECTED); autoMutable.update { it.copy(status = if (it.enabled) AutoStatus.REJECTED else AutoStatus.IDLE) } }
+    private fun command(block: () -> Unit) {
+        if (disposed.get()) return
+        mutable.value = mutable.value.copy(busy = true, error = null)
+        commands.execute { try { block(); refresh() } catch (e: Throwable) { refresh(message(e)) } }
+    }
     private fun presentResult(review: ManualEditor.ResultReview, showing: String = "", image: Bitmap? = null) = ResultReviewUi(
         review.state, review.documentId, review.previousRevision, review.resultRevision, review.liveRevision, review.revisionCount,
         review.geometryChanged, review.canUndo, review.canRedo, review.publicationVisible, showing, image)
@@ -495,11 +500,6 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
             val editor = owner ?: return@command
             refreshResult(editor)
         }
-    }
-    private fun command(block: () -> Unit) {
-        if (disposed.get()) return
-        mutable.value = mutable.value.copy(busy = true, error = null)
-        commands.execute { try { block(); refresh() } catch (e: Throwable) { refresh(message(e)) } }
     }
     fun openLast() = command {
         if (owner == null) {

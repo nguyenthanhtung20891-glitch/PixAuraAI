@@ -30,7 +30,7 @@
     },
     "platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt": {
       "before_sha256_lf": "1510b708c55414a2b0c9ef1070929ce0a9e0b885e5e61a3a951a6abaefc9a476",
-      "after_sha256_lf": "40eb931f0d05c9f0a5feb0aff1e61a6520276df1fa7840ba3810a41c60e76571"
+      "after_sha256_lf": "f98e711b7cf6aca2d6d6108c89067f279a3f9c7e1ccddc2d5ab0435c91a5db5b"
     },
     "platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt": {
       "before_sha256_lf": "16f1adb9c9f24ed1db33be325ed858129a9ea24ffdc540384a10416565a0d964",
