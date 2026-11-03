@@ -11,6 +11,19 @@ struct ReviewPreviewUi {
     var comparison: ManualEditor.ReviewComparison?
     var error: String?
 }
+struct ResultReviewUi {
+    var state: UInt32 = 0
+    var documentID = "", previous = "", result = "", live = ""
+    var count: UInt32 = 0
+    var geometryChanged = false, canUndo = false, canRedo = false, publicationVisible = false
+    var showing = ""
+    var image: CGImage?
+    init(_ review: ManualEditor.ResultReview, showing: String = "", image: CGImage? = nil) {
+        state = review.state; documentID = review.documentID; previous = review.previous; result = review.result; live = review.live
+        count = review.count; geometryChanged = review.geometryChanged; canUndo = review.canUndo; canRedo = review.canRedo
+        publicationVisible = review.publicationVisible; self.showing = showing; self.image = image
+    }
+}
 struct AutoUiState {
     var enabled = false, inFlight = false
     var status: AutoStatus = .idle
@@ -23,6 +36,7 @@ struct AutoUiState {
     var cancelRequested = false
     var error: String?
     var preview = ReviewPreviewUi()
+    var result: ResultReviewUi?
 }
 struct AssistUiState {
     var enabled = false, inFlight = false
@@ -142,6 +156,14 @@ private final class EditorWorker {
         if action == 1, let final { try owner?.update(final.1, editID: final.0) }
         try owner?.action(action)
         if action != 4 { try preview() }
+    }
+    func resultReview(_ receipt: ManualEditor.AgentReceipt?) throws -> ManualEditor.ResultReview {
+        guard let owner else { throw ManualEditorFailure(status: 13, boundary: "Result review") }
+        return try owner.resultReview(receipt)
+    }
+    func renderResult(_ review: ManualEditor.ResultReview, revision: String) throws -> CGImage {
+        guard let owner else { throw ManualEditorFailure(status: 13, boundary: "Result review") }
+        return try owner.renderResult(review, revision: revision)
     }
     func closeAfterOwnerRelease() {
         // Same nonisolated owner-lane scheduling as send/cancel; never join on UI.
@@ -420,6 +442,8 @@ final class ManualEditorModel: ObservableObject {
     @Published private(set) var assistance = AssistUiState()
     @Published private(set) var autoProposal = AutoUiState()
     private var autoEpoch: UInt64 = 0
+    private var resultReceipt: ManualEditor.AgentReceipt?
+    private var applyBaseline: String?
     private var reviewPreviewBusy = false
     private var loadingAutoChoices = false
     private var assistEpoch: UInt64 = 0
@@ -535,6 +559,7 @@ final class ManualEditorModel: ObservableObject {
     private func invalidateAuto(_ reason: AutoStatus = .stale) {
         cancelReviewPreview(reason == .stale ? .stale : .cancelled)
         _ = nextAutoEpoch(); let hadWork = autoProposal.proposal != nil || autoProposal.inFlight
+        resultReceipt = nil; autoProposal.result = nil
         autoProposal.proposal = nil; autoProposal.review = nil; autoProposal.editSession = nil; autoProposal.receipt = nil; autoProposal.error = nil; autoProposal.cancelRequested = false
         autoProposal.status = autoProposal.enabled && hadWork ? reason : .idle
         if hadWork { worker.cancelAuto() }
@@ -641,7 +666,7 @@ final class ManualEditorModel: ObservableObject {
         guard !reviewPreviewBusy, autoProposal.preview.status != .stale else { return }
         cancelReviewPreview()
         guard autoProposal.enabled, autoProposal.status == .reviewReady, !autoProposal.inFlight, autoProposal.review === review, let stamp = nextAutoEpoch() else { return }
-        autoProposal.status = .approving; autoProposal.inFlight = true; autoProposal.error = nil; autoProposal.cancelRequested = false
+        autoProposal.status = .approving; autoProposal.inFlight = true; autoProposal.error = nil; autoProposal.cancelRequested = false; applyBaseline = core?.revisionID
         epoch += 1
         worker.applyAutoFromHuman(review, epoch: epoch, onExecuting: { [weak self] in
             guard let self, self.autoEpoch == stamp, self.autoProposal.enabled else { return }; self.autoProposal.status = .executing
@@ -650,14 +675,11 @@ final class ManualEditorModel: ObservableObject {
             guard self.autoEpoch == stamp, self.autoProposal.enabled else { return }
             self.autoProposal.proposal = nil; self.autoProposal.review = nil; self.autoProposal.editSession = nil
             switch result {
-            case .success(let receipt): self.autoProposal.receipt = receipt; self.autoProposal.status = .completed; self.autoProposal.error = nil
+            case .success(let receipt):
+                self.resultReceipt = receipt; self.autoProposal.receipt = receipt; self.autoProposal.status = .completed; self.autoProposal.error = nil
+                self.refreshResult(receipt)
             case .failure(let error):
-                if self.autoProposal.cancelRequested && [13, 15].contains((error as? ManualEditorFailure)?.status ?? 14) {
-                    self.autoProposal.status = .cancelled; self.autoProposal.error = "Execution cancelled before publication."
-                } else {
-                    self.autoFailure(error)
-                    if ![3, 9, 13].contains((error as? ManualEditorFailure)?.status ?? 14) { self.autoProposal.error = "Execution did not report completion. Check history before requesting a fresh proposal." }
-                }
+                self.reconcileFailedApply(error)
             }
         }
     }
@@ -680,6 +702,49 @@ final class ManualEditorModel: ObservableObject {
     func select(_ index: Int) { invalidateAdvice(); send { try $0.select(index) } }
     func update(_ values: [Int32]) { invalidateAdvice(); guard let core else { return }; epoch += 1; previewLoading = true; worker.update(values, editID: core.editID, epoch: epoch) }
     func action(_ action: UInt32) { invalidateAdvice(); send { try $0.action(action) } }
+    private func refreshResult(_ receipt: ManualEditor.AgentReceipt?) {
+        send { worker in
+            let review = try worker.resultReview(receipt)
+            DispatchQueue.main.async { [weak self] in self?.autoProposal.result = ResultReviewUi(review) }
+        }
+    }
+    private func reconcileFailedApply(_ error: Error) {
+        let before = applyBaseline
+        send { worker in
+            let review = try? worker.resultReview(nil)
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                let published = review?.live.isEmpty == false && review?.live != before
+                if self.autoProposal.cancelRequested && [13, 15].contains((error as? ManualEditorFailure)?.status ?? 14) && !published {
+                    self.autoProposal.status = .cancelled; self.autoProposal.error = "Execution cancelled before publication."; self.autoProposal.result = nil
+                } else {
+                    self.autoFailure(error)
+                    if published, let review { self.autoProposal.result = ResultReviewUi(review); self.autoProposal.error = "Outcome unconfirmed. Ordinary history remains authoritative." }
+                    else if ![3, 9, 13].contains((error as? ManualEditorFailure)?.status ?? 14) { self.autoProposal.error = "Execution did not report completion. Check history before requesting a fresh proposal." }
+                }
+            }
+        }
+    }
+    func showResult(previous: Bool) {
+        let receipt = resultReceipt
+        send { worker in
+            let review = try worker.resultReview(receipt)
+            let id = previous ? review.previous : (review.result.isEmpty ? review.live : review.result)
+            let image = id.isEmpty ? nil : try worker.renderResult(review, revision: id)
+            DispatchQueue.main.async { [weak self] in self?.autoProposal.result = ResultReviewUi(review, showing: previous ? "previous" : "current", image: image) }
+        }
+    }
+    func undoResult() { resultHistory(2) }
+    func redoResult() { resultHistory(3) }
+    func backToEditing() { setAutoMode(false) }
+    private func resultHistory(_ action: UInt32) {
+        let receipt = resultReceipt
+        send { worker in
+            try worker.action(action)
+            let review = try worker.resultReview(receipt)
+            DispatchQueue.main.async { [weak self] in self?.autoProposal.result = ResultReviewUi(review) }
+        }
+    }
     func interrupt() { invalidateAdvice(.cancelled); send { try $0.action(4) } }
     func close() { setAutoMode(false); setAssistMode(false); send { $0.close() } }
     func retryPreview() { previewLoading = true; send { try $0.retry() } }

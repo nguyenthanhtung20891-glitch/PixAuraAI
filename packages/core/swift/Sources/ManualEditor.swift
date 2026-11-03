@@ -586,6 +586,61 @@ public final class ManualEditor {
         if let approval { var token = approval.token; _ = pixaura_editor_agent_revoke(1, context, &token) }
         try cancelAgentExecution()
     }
+    public struct ResultReview {
+        public let state, count: UInt32
+        public let documentID, previous, result, live: String
+        public let geometryChanged, canUndo, canRedo, publicationVisible, hasPrevious: Bool
+        fileprivate let packet: pixaura_result_review
+        fileprivate init(_ packet: pixaura_result_review) {
+            self.packet = packet; state = packet.state; count = packet.revision_count
+            geometryChanged = packet.geometry_changed != 0
+            hasPrevious = packet.flags & 1 != 0; canUndo = packet.flags & 2 != 0
+            canRedo = packet.flags & 4 != 0; publicationVisible = packet.flags & 8 != 0
+            func text(_ value: UnsafeRawBufferPointer) -> String { String(decoding: Data(value.prefix { $0 != 0 }), as: UTF8.self) }
+            var copy = packet
+            documentID = withUnsafeBytes(of: &copy.document_id, text)
+            previous = withUnsafeBytes(of: &copy.previous_revision, text)
+            result = withUnsafeBytes(of: &copy.result_revision, text)
+            live = withUnsafeBytes(of: &copy.live_revision, text)
+        }
+    }
+    private func nativeReceipt(_ receipt: AgentReceipt) -> pixaura_agent_execution_receipt {
+        var raw = pixaura_agent_execution_receipt()
+        withUnsafeMutableBytes(of: &raw) { buffer in
+            buffer.storeBytes(of: UInt32(1), toByteOffset: 0, as: UInt32.self)
+            buffer.storeBytes(of: UInt32(MemoryLayout<pixaura_agent_execution_receipt>.size), toByteOffset: 4, as: UInt32.self)
+            buffer.storeBytes(of: UInt32(1), toByteOffset: 8, as: UInt32.self)
+            func copy(_ text: String, _ offset: Int) { Array(text.utf8).withUnsafeBytes { buffer.baseAddress!.advanced(by: offset).copyMemory(from: $0.baseAddress!, byteCount: $0.count) } }
+            copy(receipt.planSHA256, 16); copy(receipt.sourceRevision, 80); copy(receipt.resultingRevision, 112)
+        }
+        return raw
+    }
+    /// Reads ordinary history. A nil receipt reports history without claiming Apply success.
+    public func resultReview(_ receipt: AgentReceipt?) throws -> ResultReview {
+        gate.lock(); defer { gate.unlock() }
+        try checked(closed ? 13 : 0, "Result review")
+        var out = pixaura_result_review()
+        if let receipt { var native = nativeReceipt(receipt); try checked(pixaura_result_review_query(1, context, &native, &out), "Result review") }
+        else { try checked(pixaura_result_review_query(1, context, nil, &out), "Result review") }
+        return ResultReview(out)
+    }
+    public func renderResult(_ review: ResultReview, revision: String) throws -> CGImage {
+        let id = Array(revision.utf8); guard id.count == 32 else { throw ManualEditorFailure(status: 1, boundary: "Result review") }
+        gate.lock(); defer { gate.unlock() }
+        try checked(closed ? 13 : 0, "Result review")
+        var binding = review.packet, width: UInt32 = 0, height: UInt32 = 0
+        var bytes = Data(count: 256 * 256 * 4)
+        try checked(id.withUnsafeBytes { revisionPointer in bytes.withUnsafeMutableBytes { raw in
+            pixaura_result_review_render(1, context, &binding, revisionPointer.bindMemory(to: CChar.self).baseAddress, 256, 256, raw.bindMemory(to: UInt8.self).baseAddress, UInt64(raw.count), &width, &height)
+        } }, "Result review")
+        try checked(width > 0 && height > 0 && width <= 256 && height <= 256 ? 0 : 14, "Result review")
+        let count = Int(width) * Int(height) * 4
+        guard let provider = CGDataProvider(data: Data(bytes.prefix(count)) as CFData), let space = CGColorSpace(name: CGColorSpace.sRGB),
+              let image = CGImage(width: Int(width), height: Int(height), bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: Int(width) * 4, space: space,
+                bitmapInfo: CGBitmapInfo.byteOrder32Big.union(CGBitmapInfo(rawValue: CGImageAlphaInfo.last.rawValue)),
+                provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent) else { throw ManualEditorFailure(status: 8, boundary: "Result review") }
+        return image
+    }
 #if DEBUG
     public func reviewPreviewTestControl(_ command: UInt32, _ point: UInt32 = 0) -> Int32 {
         gate.lock(); defer { gate.unlock() }; return destroyed ? -1 : reviewPreviewControl(context, command, point)

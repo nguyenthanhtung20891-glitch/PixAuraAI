@@ -62,6 +62,7 @@ internal fun AutoProposalPanel(model: ManualEditorModel, ui: EditorUiState, auto
             if (auto.status == AutoStatus.COMPLETED && auto.receipt != null) {
                 Text("Edit applied. Ordinary revision ${auto.receipt.resultingRevision.take(8)}. Undo is available in Manual.", Modifier.testTag("auto-completed").semantics { liveRegion = LiveRegionMode.Polite })
             }
+            auto.result?.let { ResultReviewPanel(model, it) }
             if (auto.status == AutoStatus.REJECTED) Text("Proposal dismissed. Nothing was applied.", Modifier.testTag("auto-rejected"))
             if (auto.status == AutoStatus.CANCELLED) Text("Proposal cancelled. Nothing was applied.", Modifier.testTag("auto-cancelled"))
             if (auto.status == AutoStatus.STALE) {

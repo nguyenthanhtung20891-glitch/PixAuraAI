@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import crypto from 'node:crypto';
-import {reviewEditHash,withoutReviewEditIntegration} from './helpers/review-edit-hashes.mjs';
+import {resultReviewHash,reviewEditHash,withoutReviewEditIntegration} from './helpers/review-edit-hashes.mjs';
 const text=p=>fs.readFileSync(p,'utf8').replaceAll('\r\n','\n'),read=p=>JSON.parse(text(p));
 const hash=s=>crypto.createHash('sha256').update(s).digest('hex');
 const m=read('docs/reports/phase-8-step-3-v1.json');
@@ -9,7 +9,7 @@ test('Step 3 is exact bounded additive inspection, preserving certified Step 2 a
  assert.equal(m.baseline,'b3d40ae0327d904c8f67995646b249fd95ecfa26');assert.equal(m.step,3);assert.equal(m.runtime_authority,false);assert.equal(m.editing_authority,false);assert.equal(m.step4,'NOT_STARTED');
  assert.deepEqual(Object.keys(m.changes).sort(),changed.sort());assert.deepEqual(Object.keys(m.additions).sort(),added.sort());
  const prior=read('docs/reports/phase-8-step-2-v1.json');
- for(const [p,c] of Object.entries(m.changes)){assert.match(c.before_sha256_lf,/^[a-f0-9]{64}$/);assert.equal(hash(text(p)),reviewEditHash(p,c.after_sha256_lf),p);if(prior.changes[p])assert.equal(c.before_sha256_lf,prior.changes[p].after_sha256_lf,p);}
+ for(const [p,c] of Object.entries(m.changes)){assert.match(c.before_sha256_lf,/^[a-f0-9]{64}$/);assert.equal(hash(text(p)),resultReviewHash(p,reviewEditHash(p,c.after_sha256_lf)),p);if(prior.changes[p])assert.equal(c.before_sha256_lf,prior.changes[p].after_sha256_lf,p);}
  for(const [p,h] of Object.entries(m.additions))assert.equal(hash(text(p)),h,p);
  const editor=withoutReviewEditIntegration(text('packages/core/src/editor_api.cpp')).replace('#include "pixaura/review_inspection.h"\n','').replace('#include "review_inspection_boundary.hpp"\n','');assert.equal(hash(editor),m.changes['packages/core/src/editor_api.cpp'].before_sha256_lf);
  const frozen=read('docs/reports/phase-7-closure-v1.json');

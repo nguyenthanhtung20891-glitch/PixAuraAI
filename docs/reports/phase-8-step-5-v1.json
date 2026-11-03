@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "phase": 8,
+  "step": 5,
+  "status": "AUTHORIZED_IN_PROGRESS",
+  "baseline": "479562255b29cfa263c6de81e9ac8bfdc933dadc",
+  "runtime_authority": false,
+  "editing_authority": false,
+  "history_authority": false,
+  "step6": "NOT_STARTED",
+  "provider": "reference.assistance.v1",
+  "planner": "reference.deterministic.v1",
+  "struct_bytes": 152,
+  "changes": {
+    "CMakeLists.txt": {
+      "before_sha256_lf": "46da97f723cdccba987782ef3fb5b510656167c83df91f1a78e0f643f3a36546",
+      "after_sha256_lf": "ff77ddf542097d356f4cf2c2a6a9df830978d42c8b929bf94f4c3e4e475a4f71"
+    },
+    "packages/core/src/editor_api.cpp": {
+      "before_sha256_lf": "a77bebf24ca2d0b714f8bae8a18af3da93f2bc4022f03367a626b6b9d00b6d1a",
+      "after_sha256_lf": "c736b601863b1435281c77eb3dfac16ad085fbb500cfe9770996c3d58bf45746"
+    },
+    "packages/core/swift/Sources/ManualEditor.swift": {
+      "before_sha256_lf": "cc806b3a998c3d30fd3c85c2287621bed525bfef6bbe1cb14653cea8aecfd39f",
+      "after_sha256_lf": "f3ecb5009a0608b9dc01f448da8d0b500504b9f243133461ec7ee6e284096a3a"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/AutoProposalPanel.kt": {
+      "before_sha256_lf": "e501c7ddef278e18235d9f4c89763148368ed80de39dd044832c62ed193b7577",
+      "after_sha256_lf": "e33bb9a0c6ecd1eb7d20e825d5228d54f018884801efe674af7a146cb3a4f45c"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt": {
+      "before_sha256_lf": "1510b708c55414a2b0c9ef1070929ce0a9e0b885e5e61a3a951a6abaefc9a476",
+      "after_sha256_lf": "40eb931f0d05c9f0a5feb0aff1e61a6520276df1fa7840ba3810a41c60e76571"
+    },
+    "platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt": {
+      "before_sha256_lf": "16f1adb9c9f24ed1db33be325ed858129a9ea24ffdc540384a10416565a0d964",
+      "after_sha256_lf": "86d2151590b247ce003ad8427df7d482cce39a5e4b60069977c07c7c586b8047"
+    },
+    "platforms/android/native/editor_bridge.cpp": {
+      "before_sha256_lf": "609faabc399f00a38d9955082a6eee05792e5181965ebfcd8d039321a719b957",
+      "after_sha256_lf": "3eb2a097264e420a0a9a627664910a68593f87a2120bbb5531d8643703725997"
+    },
+    "platforms/ios/PixAuraAI/ManualEditorModel.swift": {
+      "before_sha256_lf": "05dc7cad2b00bf46bc76666fd267e11c3d80945ab10f2efb01e79218c8f8e83d",
+      "after_sha256_lf": "e2dbd0480287e563865dc15ea1cbe692dcbc98c75dc67570905299b8b845917e"
+    },
+    "platforms/ios/PixAuraAI/ManualEditorScreen.swift": {
+      "before_sha256_lf": "3c1d5f108444cb0c02d9e44caef1d2ecb4cdca1a314499596cda7f4fab843cad",
+      "after_sha256_lf": "adb70a373e15e72bfa9128362164fed501ba854576e8990dab981f0b884e8f77"
+    }
+  },
+  "additions": {
+    "docs/contracts/result-review-v1.md": "47a76f42972532a06db10832fd16992ba4fe692c62c9c9ac58e95453e916bd5f",
+    "packages/core/include/pixaura/result_review.h": "c704225cc0a23ad8ddd8c47640998e0a9b602e02eb7d0ae4367192ee0e2a24bf",
+    "packages/core/src/result_review_boundary.hpp": "4bb28080e4d9a464c4dbb335c5cff0eaec98d6e0eddf237a7e95495284fd917a",
+    "platforms/android/app/src/main/java/ai/pixaura/app/ResultReviewPanel.kt": "b73826be62849ee31f80bde8b0c84d944121c55e82947885eb0f90594ba0251e"
+  },
+  "human_apply_bodies": {
+    "platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt": {
+      "start": "    fun applyAutoFromHuman(",
+      "end": "    fun cancelAutoReview(",
+      "sha256_lf": "5dfee7c6a7907e455e0bdfdde5346b3c2ed55faa72a8bc3e715a8e5598945313"
+    },
+    "packages/core/swift/Sources/ManualEditor.swift": {
+      "start": "    public func applyAutoFromHuman(",
+      "end": "    public func cancelAutoReview(",
+      "sha256_lf": "57df1a95499612687359244feed94c940c3762225fb63bc41f9cdde011337909"
+    }
+  }
+}

@@ -4,6 +4,7 @@
 #include "pixaura/agent.h"
 #include "pixaura/geometry.h"
 #include "pixaura/review_inspection.h"
+#include "pixaura/result_review.h"
 #include "storage.hpp"
 #include "storage_files.hpp"
 #include "sha256.hpp"
@@ -362,3 +363,4 @@ extern "C" int32_t pixaura_editor_destroy(pixaura_editor_context* c){return atte
 #include "review_preview_boundary.hpp"
 #include "review_inspection_boundary.hpp"
 #include "review_edit_boundary.hpp"
+#include "result_review_boundary.hpp"

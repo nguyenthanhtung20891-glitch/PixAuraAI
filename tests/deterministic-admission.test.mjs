@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import {execFileSync} from 'node:child_process';
-import {reviewEditHash} from './helpers/review-edit-hashes.mjs';
+import {resultReviewHash,reviewEditHash} from './helpers/review-edit-hashes.mjs';
 const read=p=>JSON.parse(fs.readFileSync(p,'utf8'));
 const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
 const canonical=v=>JSON.stringify(v,(_,x)=>x&&typeof x==='object'&&!Array.isArray(x)?Object.fromEntries(Object.entries(x).sort(([a],[b])=>a<b?-1:a>b?1:0)):x)+'\n';
@@ -54,13 +54,14 @@ test('Phase 7 closure preserves the complete frozen runtime and contract invento
  const preview=read('docs/reports/phase-8-step-2-v1.json');
  const inspection=read('docs/reports/phase-8-step-3-v1.json');
  const editing=read('docs/reports/phase-8-step-4-v1.json');
- const added=new Set(['docs/contracts/full-review-experience-v1.md',...Object.keys(preview.additions),...Object.keys(inspection.additions),...Object.keys(editing.additions)]);
+ const result=read('docs/reports/phase-8-step-5-v1.json');
+ const added=new Set(['docs/contracts/full-review-experience-v1.md',...Object.keys(preview.additions),...Object.keys(inspection.additions),...Object.keys(editing.additions),...Object.keys(result.additions)]);
  assert.deepEqual(paths.filter(p=>!added.has(p)),Object.keys(m.sha256).sort(),'no unreviewed runtime/contract addition or removal');
  for(const [p,digest] of Object.entries(m.sha256)){
   const b=fs.readFileSync(p),s=b.toString('utf8');
   const change=preview.changes[p];if(change)assert.equal(change.before_sha256_lf,digest,p);
   const before=change?.after_sha256_lf??digest;const next=inspection.changes[p];if(next)assert.equal(next.before_sha256_lf,before,p);
-  assert.equal(hash(Buffer.from(s,'utf8').equals(b)?Buffer.from(s.replaceAll('\r\n','\n')):b),reviewEditHash(p,next?.after_sha256_lf??before),p);
+  assert.equal(hash(Buffer.from(s,'utf8').equals(b)?Buffer.from(s.replaceAll('\r\n','\n')):b),resultReviewHash(p,reviewEditHash(p,next?.after_sha256_lf??before)),p);
  }
  for(const c of read('docs/reports/phase-6-closure-v1.json').contracts)assert.equal(hash(fs.readFileSync(c.path,'utf8').replaceAll('\r\n','\n')),c.sha256_lf,c.path);
  assert.equal(m.original_contract_freezes.length,8);

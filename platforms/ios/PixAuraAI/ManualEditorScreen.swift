@@ -141,6 +141,7 @@ struct ManualEditorScreen: View {
                 if state.status == .completed, let receipt = state.receipt {
                     Text("Edit applied. Ordinary revision \(receipt.resultingRevision.prefix(8)). Undo is available in Manual.").accessibilityIdentifier("auto-completed")
                 }
+                if let result = state.result { ResultReviewPanel(model: model, result: result) }
                 if state.status == .cancelled { Text("Proposal cancelled. Nothing was applied.").accessibilityIdentifier("auto-cancelled") }
                 if state.status == .stale {
                     Text("Plan inspection stale. Request a new review.").accessibilityIdentifier("review-inspection-stale")
@@ -391,6 +392,43 @@ private struct ReviewEditPanel: View {
                 Button("Restore original review content — not document undo") { if let binding { model.editReview(4, expectedIdentity: binding) } }.disabled(!enabled).accessibilityIdentifier("review-edit-restore")
             }
         }.accessibilityElement(children: .contain).accessibilityIdentifier("review-edit-controls")
+    }
+}
+private struct ResultReviewPanel: View {
+    let model: ManualEditorModel
+    let result: ResultReviewUi
+    private var label: String {
+        switch result.state {
+        case 1: return "Committed result"
+        case 2: return "Result review is stale. Ordinary history changed."
+        case 3: return "Outcome unconfirmed. Ordinary history remains authoritative."
+        case 4: return "Receipt revision is absent from ordinary history."
+        default: return "No committed result."
+        }
+    }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Committed result").font(.headline)
+            Text(label).accessibilityIdentifier("result-label")
+            Text("Ordinary history revision \(result.live.prefix(8)). Count \(result.count).").accessibilityIdentifier("result-revision")
+            if result.geometryChanged { Text("Geometry changed. Fitted comparison is not a pixel-aligned split.").accessibilityIdentifier("result-geometry") }
+            if let image = result.image {
+                Image(decorative: image, scale: 1).resizable().scaledToFit().frame(maxHeight: 180)
+                    .accessibilityLabel(result.showing == "previous" ? "Previous committed revision" : "Current committed result")
+                    .accessibilityIdentifier("result-viewport")
+            }
+            HStack {
+                Button("Previous") { model.showResult(previous: true) }.disabled(result.previous.isEmpty).accessibilityIdentifier("result-previous")
+                Button("Current Result") { model.showResult(previous: false) }.accessibilityIdentifier("result-current")
+            }
+            HStack {
+                Button("Undo document") { model.undoResult() }.disabled(!result.canUndo).accessibilityIdentifier("result-undo")
+                Button("Redo document") { model.redoResult() }.disabled(!result.canRedo).accessibilityIdentifier("result-redo")
+            }
+            Button("Back to editing") { model.backToEditing() }.accessibilityIdentifier("result-back")
+        }.accessibilityElement(children: .contain)
+            .accessibilityLabel("\(label) Previous \(result.previous.isEmpty ? "none" : result.previous). Current \(result.live). Count \(result.count).")
+            .accessibilityIdentifier("result-review")
     }
 }
 private struct PlanInspectionPanel: View {

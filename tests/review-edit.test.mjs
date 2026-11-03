@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import crypto from 'node:crypto';
-import {withoutReviewEditIntegration} from './helpers/review-edit-hashes.mjs';
+import {resultReviewHash,withoutReviewEditIntegration} from './helpers/review-edit-hashes.mjs';
 const text=p=>fs.readFileSync(p,'utf8').replaceAll('\r\n','\n'),read=p=>JSON.parse(text(p)),hash=s=>crypto.createHash('sha256').update(s).digest('hex');
 const m=read('docs/reports/phase-8-step-4-v1.json');
 test('Step 4 permits only exact bounded review-layer changes and freezes all prior engines',()=>{
@@ -7,7 +7,7 @@ test('Step 4 permits only exact bounded review-layer changes and freezes all pri
  const changes=['CMakeLists.txt','packages/core/src/editor_api.cpp','packages/core/swift/Sources/ManualEditor.swift','platforms/android/app/src/main/java/ai/pixaura/app/AutoProposalPanel.kt','platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt','platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt','platforms/android/native/editor_bridge.cpp','platforms/ios/PixAuraAI/ManualEditorModel.swift','platforms/ios/PixAuraAI/ManualEditorScreen.swift'];
  const additions=['docs/contracts/editable-review-before-apply-v1.md','packages/core/include/pixaura/review_edit.h','packages/core/src/review_edit_state.hpp','packages/core/src/review_edit_boundary.hpp','platforms/android/app/src/main/java/ai/pixaura/app/ReviewEditPanel.kt'];
  assert.deepEqual(Object.keys(m.changes).sort(),changes.sort());assert.deepEqual(Object.keys(m.additions).sort(),additions.sort());
- for(const [p,c] of Object.entries(m.changes)){assert.match(c.before_sha256_lf,/^[a-f0-9]{64}$/);assert.equal(hash(text(p)),c.after_sha256_lf,p);}
+ for(const [p,c] of Object.entries(m.changes)){assert.match(c.before_sha256_lf,/^[a-f0-9]{64}$/);assert.equal(hash(text(p)),resultReviewHash(p,c.after_sha256_lf),p);}
  for(const [p,c] of Object.entries(m.additions))assert.equal(hash(text(p)),c,p);
  assert.equal(hash(withoutReviewEditIntegration(text('packages/core/src/editor_api.cpp'))),m.changes['packages/core/src/editor_api.cpp'].before_sha256_lf);
  const old=read('docs/reports/phase-8-step-3-v1.json');for(const p of ['packages/core/include/pixaura/review_inspection.h','packages/core/src/review_inspection_boundary.hpp','docs/contracts/plan-inspection-action-review-v1.md'])assert.equal(hash(text(p)),old.additions[p],p);

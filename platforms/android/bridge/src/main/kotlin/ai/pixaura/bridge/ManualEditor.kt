@@ -354,6 +354,8 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     private external fun nativeEditBegin(storage: ByteBuffer, description: ByteBuffer, result: ByteBuffer): Int
     private external fun nativeEdit(storage: ByteBuffer, request: ByteBuffer, result: ByteBuffer): Int
     private external fun nativeEditCurrent(storage: ByteBuffer, ticket: ByteBuffer, result: ByteBuffer): Int
+    private external fun nativeResultQuery(storage: ByteBuffer, receipt: ByteBuffer?, result: ByteBuffer): Int
+    private external fun nativeResultRender(storage: ByteBuffer, review: ByteBuffer, revision: ByteArray): IntArray?
     /** ONLY the explicit review Apply action may invoke this trusted boundary. */
     fun applyAutoFromHuman(review: AutoReview, onExecuting: () -> Unit = {}): AgentReceipt {
         val approval = gate.withLock {
@@ -391,6 +393,45 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
             if (approval != null) nativeAgentTerminal(storage, approval.token, false)
             cancelAgentExecution()
         } finally { gate.withLock { cancellingReview = false; agentCalls--; idle.signalAll() } }
+    }
+    class ResultReview internal constructor(internal val buffer: ByteBuffer) {
+        private fun ordered() = buffer.duplicate().order(ByteOrder.nativeOrder())
+        private fun identity(offset: Int): String {
+            val bytes = ByteArray(32); val view = ordered(); view.position(offset); view.get(bytes)
+            if (bytes[0] == 0.toByte()) return ""
+            return String(bytes, Charsets.US_ASCII)
+        }
+        val state: Int get() = ordered().getInt(8)
+        val flags: Int get() = ordered().getInt(12)
+        val documentId: String get() = identity(16)
+        val previousRevision: String get() = identity(48)
+        val resultRevision: String get() = identity(80)
+        val liveRevision: String get() = identity(112)
+        val revisionCount: Int get() = ordered().getInt(144)
+        val geometryChanged: Boolean get() = ordered().getInt(148) != 0
+        val hasPrevious: Boolean get() = flags and 1 != 0
+        val canUndo: Boolean get() = flags and 2 != 0
+        val canRedo: Boolean get() = flags and 4 != 0
+        val publicationVisible: Boolean get() = flags and 8 != 0
+    }
+    /** History observation only. A null receipt cannot invent Apply success. */
+    fun resultReview(receipt: AgentReceipt?): ResultReview = gate.withLock {
+        checked(if (closed) 13 else 0, "Result review")
+        val out = ByteBuffer.allocateDirect(152).order(ByteOrder.nativeOrder())
+        checked(nativeResultQuery(storage, receipt?.buffer, out), "Result review")
+        ResultReview(out)
+    }
+    fun renderResult(review: ResultReview, revision: String): Bitmap {
+        val id = revision.toByteArray(Charsets.US_ASCII)
+        checked(if (id.size == 32) 0 else 1, "Result review")
+        val pixels = gate.withLock {
+            checked(if (closed) 13 else 0, "Result review")
+            checkNotNull(nativeResultRender(storage, review.buffer, id))
+        }
+        checked(pixels[0], "Result review")
+        val width = pixels[1]; val height = pixels[2]
+        checked(if (width in 1..256 && height in 1..256) 0 else 14, "Result review")
+        return Bitmap.createBitmap(pixels, 3, width, width, height, Bitmap.Config.ARGB_8888)
     }
     override fun close() = gate.withLock {
         comparison = null

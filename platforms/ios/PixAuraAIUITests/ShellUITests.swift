@@ -218,6 +218,28 @@ final class ShellUITests: XCTestCase {
         tap("mode-manual"); tap("Undo"); tap("Redo"); revisions(3)
         guard changeExposure() else { return }; tap("Apply"); revisions(4)
     }
+    func testResultReviewUsesOrdinaryUndoRedoAndLeavesEditing() {
+        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
+        func tap(_ id: String) {
+            let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
+            let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
+            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+        }
+        tap("Open Manual editor"); XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
+        tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request"); tap("auto-apply")
+        XCTAssertTrue(app.staticTexts["auto-completed"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.staticTexts["result-label"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.staticTexts["result-label"].label.contains("Committed result"))
+        XCTAssertTrue(app.staticTexts["Committed revisions: 2"].waitForExistence(timeout: 20))
+        app.scrollViews["review-scroll"].swipeUp()
+        tap("result-previous"); XCTAssertTrue(app.images["result-viewport"].waitForExistence(timeout: 20))
+        tap("result-current"); XCTAssertTrue(app.images["result-viewport"].waitForExistence(timeout: 20))
+        tap("result-undo"); XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.staticTexts["result-label"].label.contains("stale"))
+        tap("result-redo"); XCTAssertTrue(app.staticTexts["Committed revisions: 2"].waitForExistence(timeout: 20))
+        tap("result-back"); XCTAssertTrue(app.buttons["mode-manual"].waitForExistence(timeout: 20))
+        XCTAssertFalse(app.descendants(matching: .any)["result-review"].exists)
+    }
     func testReviewCancelModeDepartureAndFailurePreserveManualEditing() {
         for flag in ["--review-test-pause", "--review-test-failure"] {
             let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image", flag]; app.launch()

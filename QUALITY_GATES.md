@@ -1,5 +1,28 @@
 # Quality gates and promotion policy
 
+<!-- phase8-step5-current -->
+## Phase 8 Step 5 - History / Result Review Integration
+
+Phase 7 CLOSED / COMPLETE / FULL PASS. Phase 8 Steps 1-4 COMPLETE / FULL PASS.
+Step 4 closure 479562255b29cfa263c6de81e9ac8bfdc933dadc: Foundation 41284220812
+SUCCESS 7/7; Native shells 41284220803 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
+Phase 8 AUTHORIZED / IN PROGRESS. Step 5 CLOSURE CERTIFICATION PENDING.
+RESULT REVIEW != NEW HISTORY. Successful Apply publishes one ordinary revision through
+existing approval, private candidate, deterministic editor and shared history.
+Result Review reads that revision. BEFORE RESULT is the previous committed revision.
+AFTER RESULT is the current committed revision. Preview buffers are not result authority.
+Undo and Redo use existing history and refresh from native truth. Branch-after-undo,
+manual edit and source switch invalidate the old result review. A transport error after
+publication refreshes ordinary history and does not claim zero revisions. No automatic
+retry or automatic undo. No AI revision class. No Result Review branch class.
+Schema 3 unchanged. HUMAN Apply unchanged. Provider reference.assistance.v1 ADMITTED;
+planner reference.deterministic.v1. Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.
+Provider has no approval, candidate, execution, document, history or publication authority.
+UI is not execution authority. CPU VALIDATED; Vulkan/Metal UNKNOWN.
+DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED; hosted Apple software only.
+Step 6 NOT STARTED. No Step 7. Stop after Step 5.
+See docs/contracts/result-review-v1.md and docs/reports/phase-8-step-5.md.
+<!-- phase8-step5-history -->
 <!-- phase8-step4-current -->
 ## Phase 8 Step 4 - Editable Review Before Apply
 
