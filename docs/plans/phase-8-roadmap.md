@@ -6,7 +6,14 @@
 Phase 7 CLOSED / COMPLETE / FULL PASS. Phase 8 Steps 1-5 COMPLETE / FULL PASS.
 Step 5 closure dd6ac8f342232929fa505f62f29a6db3c17f23e5: Foundation 41693690260
 SUCCESS 7/7; Native shells 41693690048 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
-Phase 8 AUTHORIZED / IN PROGRESS. Step 6 AUTHORIZED / IN PROGRESS.
+Phase 8 AUTHORIZED / IN PROGRESS. Step 6 CLOSURE CERTIFICATION PENDING.
+Certified implementation SHA: `eb47353f3088b5d3f42b01b6e5e6b01791d297ba`.
+Foundation 41701559434 SUCCESS 7/7; Native shells 41701559457 SUCCESS 3/3;
+both exact SHA, attempt 1, every required job completed/SUCCESS.
+This separate documentation-only closure requires BOTH full workflows on its OWN
+exact SHA. Only the external observed final engineering receipt then activates
+Phase 8 Step 6 COMPLETE / FULL PASS and Phase 8 CLOSED. Until then closure
+certification pending.
 RESULT REVIEW != NEW HISTORY. Preview is not a committed result. Restore original
 review content is not document Undo. Undo document and Redo document use ordinary
 history. This step adds no history class, approval, execution, or raster engine.
@@ -191,7 +198,7 @@ editable review, UI/bridge or editing authority implementation. Stop after Step 
 | 3 | Plan Inspection & Action Review | COMPLETE / FULL PASS |
 | 4 | Editable Review Before Apply | COMPLETE / FULL PASS |
 | 5 | History / Result Review Integration | COMPLETE / FULL PASS |
-| 6 | Cross-Platform Polish & Phase 8 Closure | AUTHORIZED / IN PROGRESS |
+| 6 | Cross-Platform Polish & Phase 8 Closure | CLOSURE CERTIFICATION PENDING |
 
 1. Freeze [Full Review Experience v1](../contracts/full-review-experience-v1.md):
    information architecture, ephemeral session, presentation states, binding,

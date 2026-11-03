@@ -1,8 +1,14 @@
 # Phase 8 Step 6 — Cross-Platform Polish and Phase 8 Closure
 
-Status: AUTHORIZED / IN PROGRESS. This audit changes no editing authority.
-Step 6 is not COMPLETE / FULL PASS until its own implementation SHA and a later
-documentation-only closure SHA each pass both full workflows. Phase 8 is not CLOSED.
+Status: CLOSURE CERTIFICATION PENDING. Implementation independently certified;
+final closure certification pending. Phase 8 is not CLOSED. No unexecuted gate is PASS.
+
+Certified implementation SHA `eb47353f3088b5d3f42b01b6e5e6b01791d297ba` passed
+Foundation **41701559434** (7/7) and Native application shells **41701559457**
+(3/3), exact SHA, attempt 1, every required job completed/SUCCESS. The job-level
+receipt is `docs/reports/evidence/phase-8-step-6-implementation-certification.json`.
+This documentation-only closure must pass both workflows on its own SHA before
+Step 6 or Phase 8 can be marked complete.
 
 ## Observed Step 5 closure
 

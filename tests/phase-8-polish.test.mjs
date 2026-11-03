@@ -22,13 +22,13 @@ test('observed Step 5 closure activates COMPLETE and Step 6 stays unclosed', () 
   for (const p of files) {
     const current = text(p).split('<!-- phase8-step6-current -->')[1]?.split('<!-- phase8-step6-history -->')[0];
     assert.ok(current, p);
-    for (const term of ['Steps 1-5 COMPLETE / FULL PASS', 'Step 6 AUTHORIZED / IN PROGRESS', 'dd6ac8f342232929fa505f62f29a6db3c17f23e5', '41693690260', '41693690048', 'Schema 3 unchanged', 'HUMAN Apply unchanged', 'reference.assistance.v1 ADMITTED', 'reference.deterministic.v1', 'NONE REQUIRED / NONE ADMITTED', 'Vulkan/Metal UNKNOWN', 'NOT WAIVED', 'NOT SATISFIED', 'RESULT REVIEW != NEW HISTORY']) assert.ok(current.includes(term), p + term);
+    for (const term of ['Steps 1-5 COMPLETE / FULL PASS', 'Step 6 CLOSURE CERTIFICATION PENDING', 'eb47353f3088b5d3f42b01b6e5e6b01791d297ba', '41701559434', '41701559457', 'dd6ac8f342232929fa505f62f29a6db3c17f23e5', '41693690260', '41693690048', 'Schema 3 unchanged', 'HUMAN Apply unchanged', 'reference.assistance.v1 ADMITTED', 'reference.deterministic.v1', 'NONE REQUIRED / NONE ADMITTED', 'Vulkan/Metal UNKNOWN', 'NOT WAIVED', 'NOT SATISFIED', 'RESULT REVIEW != NEW HISTORY']) assert.ok(current.includes(term), p + term);
     const old = text(p).split('<!-- phase8-step5-current -->')[1]?.split('<!-- phase8-step5-history -->')[0];
     assert.ok(old.includes('Step 5 CLOSURE CERTIFICATION PENDING'), p);
   }
   const plan = text('docs/plans/phase-8-roadmap.md');
   assert.ok(plan.includes('| 5 | History / Result Review Integration | COMPLETE / FULL PASS |'));
-  assert.ok(plan.includes('| 6 | Cross-Platform Polish & Phase 8 Closure | AUTHORIZED / IN PROGRESS |'));
+  assert.ok(plan.includes('| 6 | Cross-Platform Polish & Phase 8 Closure | CLOSURE CERTIFICATION PENDING |'));
 });
 
 test('both platforms keep preview, restore, and committed result distinct', () => {
