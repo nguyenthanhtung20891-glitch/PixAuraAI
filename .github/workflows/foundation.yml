@@ -21,7 +21,10 @@ jobs:
       matrix:
         os: [ubuntu-24.04, windows-2025]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
+    # Windows debug editor_test passed in 380s on 2026-11-03 (216s on 2026-11-01).
+    # The retained suite no longer finishes inside 15 minutes. Linux ctest of the
+    # same suite passed in 94s. This ceiling is not an assertion change.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
       - run: node --version

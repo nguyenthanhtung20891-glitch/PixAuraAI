@@ -45,8 +45,11 @@ undo stale plus render rejection, redo current, branch-after-undo with redo code
 manual edit stale, reopen of ordinary history, cross-document absent, crop geometry,
 cancellation before publication, and publication remaining after a later cancel.
 `result_review_c_consumer` passed. Governance tests for Steps 2-5, deterministic
-admission and the full-review contract passed, 27 tests. This is not exact-SHA
-certification.
+admission and the full-review contract passed, 27 tests. Hosted Ubuntu ctest of
+the same suite passed in 94 seconds. Hosted Windows debug `editor_test` passed
+in 380 seconds, and the 15-minute portable job was cancelled while later tests
+were still passing. The portable job ceiling is 30 minutes so that passing run
+can finish. This is not exact-SHA certification.
 
 ## Certification still required
 
