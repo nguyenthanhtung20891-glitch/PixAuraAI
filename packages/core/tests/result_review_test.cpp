@@ -36,7 +36,8 @@ struct Owner{
  pixaura_agent_approval approve(const std::string& p){pixaura_agent_approval a{};pixaura_agent_execution_request r{1,sizeof(r),1,0,{0,0,0,0}};CHECK(pixaura_editor_agent_approve(1,&c,&r,bytes(p),p.size(),&a)==0);return a;}
  int execute(const std::string& p,const pixaura_agent_approval* a,pixaura_agent_execution_receipt* receipt=nullptr){pixaura_agent_execution_request r{1,sizeof(r),1,0,{0,0,0,0}};
   pixaura_agent_execution_receipt out;std::memset(&out,0xa5,sizeof(out));const auto sentinel=out;const auto code=pixaura_editor_agent_execute(1,&c,&r,a,bytes(p),p.size(),receipt?receipt:&out);
-  if(code&&!receipt)CHECK(std::memcmp(&out,&sentinel,sizeof(out))==0);return code;}
+  if(code&&!receipt){CHECK(std::memcmp(&out,&sentinel,sizeof(out))==0);}
+  return code;}
 };
 static std::string exposure(){return std::string("{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":5000},\"tool_id\":\"pixaura.exposure\"}],\"binding\":{},\"plan_version\":1}\n");}
 static std::string crop(){return std::string("{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":500000,\"width_ppm\":500000,\"x_ppm\":0,\"y_ppm\":0},\"tool_id\":\"pixaura.crop\"}],\"binding\":{},\"plan_version\":1}\n");}
@@ -112,7 +113,7 @@ int main(int argc,char** argv){
  {Owner o(parent,++serial);const auto before=o.document();const auto p=o.plan(exposure());auto a=o.approve(p);
   CHECK(pixaura_test_agent_platform_control(&o.c,0,1)==0);std::atomic<int> result{-1};std::thread worker([&]{result=o.execute(p,&a);});
   const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(10);
-  while(pixaura_test_agent_platform_control(&o.c,1,0)==0&&std::chrono::steady_clock::now()<deadline)std::this_thread::yield();
+  while(pixaura_test_agent_platform_control(&o.c,1,0)==0&&std::chrono::steady_clock::now()<deadline){std::this_thread::yield();}
   CHECK(pixaura_test_agent_platform_control(&o.c,1,0)==1);CHECK(pixaura_editor_agent_cancel(1,&o.c)==0);CHECK(pixaura_test_agent_platform_control(&o.c,2,0)==0);worker.join();
   CHECK(result==13);CHECK(o.document()==before);auto none=query(o,nullptr);CHECK(none.state==PIXAURA_RESULT_NONE&&none.revision_count==1);
   const auto fake=forged();auto absent=query(o,&fake);CHECK(absent.state==PIXAURA_RESULT_ABSENT&&absent.revision_count==1);CHECK(pixaura_editor_agent_release(1,&o.c,&a)==0);

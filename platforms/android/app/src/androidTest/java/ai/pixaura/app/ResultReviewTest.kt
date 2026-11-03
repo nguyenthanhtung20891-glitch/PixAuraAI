@@ -35,15 +35,16 @@ class ResultReviewTest {
         tap("auto-apply"); waitFor { model.autoProposal.value.status == AutoStatus.COMPLETED && model.autoProposal.value.result != null }
         val result = requireNotNull(model.autoProposal.value.result)
         assertEquals(1, result.state); assertEquals(2, result.count); assertTrue(result.publicationVisible)
-        assertEquals(2, editor().state().revisionCount)
+        assertEquals(2, editor().state().revisionCount); assertEquals(result.result, editor().state().revisionId)
         compose.onNodeWithTag("result-label").performScrollTo().assertTextContains("Committed result")
         compose.onNodeWithTag("auto-completed").assertExists()
         tap("result-previous"); waitFor { model.autoProposal.value.result?.showing == "previous" && model.autoProposal.value.result?.image != null }
         tap("result-current"); waitFor { model.autoProposal.value.result?.showing == "current" && model.autoProposal.value.result?.image != null }
-        tap("result-undo"); waitFor { model.autoProposal.value.result?.state == 2 && model.autoProposal.value.result?.canRedo == true }
-        assertEquals(1, editor().state().revisionCount)
-        tap("result-redo"); waitFor { model.autoProposal.value.result?.state == 1 && model.autoProposal.value.result?.canUndo == true }
-        assertEquals(2, editor().state().revisionCount)
+        tap("result-undo"); waitFor { model.autoProposal.value.result?.state == 2 && model.autoProposal.value.result?.canRedo == true && model.autoProposal.value.result?.live == result.previous }
+        assertEquals(2, editor().state().revisionCount); assertEquals(result.previous, editor().state().revisionId)
+        compose.onNodeWithTag("result-label").performScrollTo().assertTextContains("stale")
+        tap("result-redo"); waitFor { model.autoProposal.value.result?.state == 1 && model.autoProposal.value.result?.canUndo == true && model.autoProposal.value.result?.live == result.result }
+        assertEquals(2, editor().state().revisionCount); assertEquals(result.result, editor().state().revisionId)
         tap("result-back"); waitFor { !model.autoProposal.value.enabled && model.autoProposal.value.result == null }
         compose.onNodeWithTag("result-review").assertDoesNotExist()
     }
