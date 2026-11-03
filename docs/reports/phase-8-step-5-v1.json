@@ -53,7 +53,7 @@
     "docs/contracts/result-review-v1.md": "47a76f42972532a06db10832fd16992ba4fe692c62c9c9ac58e95453e916bd5f",
     "packages/core/include/pixaura/result_review.h": "c704225cc0a23ad8ddd8c47640998e0a9b602e02eb7d0ae4367192ee0e2a24bf",
     "packages/core/src/result_review_boundary.hpp": "6821107bc0aaef5bd62e4f4b3614a7f14d6d97f874628b7c478f7cfe0c05e933",
-    "platforms/android/app/src/main/java/ai/pixaura/app/ResultReviewPanel.kt": "b73826be62849ee31f80bde8b0c84d944121c55e82947885eb0f90594ba0251e"
+    "platforms/android/app/src/main/java/ai/pixaura/app/ResultReviewPanel.kt": "062538e1331616b279fb2267c556a3b9718e57b999bb6d3d05f6a7dcf335fcb6"
   },
   "human_apply_bodies": {
     "platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt": {

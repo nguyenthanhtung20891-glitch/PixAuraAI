@@ -19,33 +19,35 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 internal fun ResultReviewPanel(model: ManualEditorModel, result: ResultReviewUi) {
-    val label = when (result.state) {
+    val observed = model.autoProposal.collectAsStateWithLifecycle().value.result ?: result
+    val label = when (observed.state) {
         1 -> "Committed result"
         2 -> "Result review is stale. Ordinary history changed."
         3 -> "Outcome unconfirmed. Ordinary history remains authoritative."
         4 -> "Receipt revision is absent from ordinary history."
         else -> "No committed result."
     }
-    val spoken = "$label Previous ${result.previous.ifEmpty { "none" }}. Current ${result.live}. Count ${result.count}."
+    val spoken = "$label Previous ${observed.previous.ifEmpty { "none" }}. Current ${observed.live}. Count ${observed.count}."
     Column(Modifier.fillMaxWidth().testTag("result-review"), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text("Committed result", style = MaterialTheme.typography.titleSmall)
         Text(label, Modifier.testTag("result-label").semantics { contentDescription = spoken; liveRegion = LiveRegionMode.Polite })
-        Text("Ordinary history revision ${result.live.take(8)}. Count ${result.count}.", Modifier.testTag("result-revision"))
-        if (result.geometryChanged) Text("Geometry changed. Fitted comparison is not a pixel-aligned split.", Modifier.testTag("result-geometry"))
-        result.image?.let {
-            val caption = if (result.showing == "previous") "Previous committed revision" else "Current committed result"
+        Text("Ordinary history revision ${observed.live.take(8)}. Count ${observed.count}.", Modifier.testTag("result-revision"))
+        if (observed.geometryChanged) Text("Geometry changed. Fitted comparison is not a pixel-aligned split.", Modifier.testTag("result-geometry"))
+        observed.image?.let {
+            val caption = if (observed.showing == "previous") "Previous committed revision" else "Current committed result"
             Image(it.asImageBitmap(), caption, Modifier.fillMaxWidth().height(180.dp).testTag("result-viewport"), contentScale = ContentScale.Fit)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = { model.showResult(true) }, enabled = result.previous.isNotEmpty(), modifier = Modifier.testTag("result-previous")) { Text("Previous") }
+            OutlinedButton(onClick = { model.showResult(true) }, enabled = observed.previous.isNotEmpty(), modifier = Modifier.testTag("result-previous")) { Text("Previous") }
             OutlinedButton(onClick = { model.showResult(false) }, modifier = Modifier.testTag("result-current")) { Text("Current Result") }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = model::undoResult, enabled = result.canUndo, modifier = Modifier.testTag("result-undo").semantics { contentDescription = "Undo document" }) { Text("Undo document") }
-            OutlinedButton(onClick = model::redoResult, enabled = result.canRedo, modifier = Modifier.testTag("result-redo").semantics { contentDescription = "Redo document" }) { Text("Redo document") }
+            OutlinedButton(onClick = model::undoResult, enabled = observed.canUndo, modifier = Modifier.testTag("result-undo").semantics { contentDescription = "Undo document" }) { Text("Undo document") }
+            OutlinedButton(onClick = model::redoResult, enabled = observed.canRedo, modifier = Modifier.testTag("result-redo").semantics { contentDescription = "Redo document" }) { Text("Redo document") }
         }
         OutlinedButton(onClick = model::backToEditing, modifier = Modifier.testTag("result-back")) { Text("Back to editing") }
     }
