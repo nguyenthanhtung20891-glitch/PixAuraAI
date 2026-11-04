@@ -32,6 +32,16 @@ job `126671553099` was cancelled without a runner. Sanitizer, workflow lint, and
 both Android boundary jobs succeeded. Native shells run `41857947568` also failed
 and is not certification. The correction is a new SHA.
 
+## Unacquired Apple runners
+
+`61ec322ffc4ef102af045a3acf17d660ec9300ef` is not certified. Every non-Apple
+job succeeded on attempt 1. Foundation `41862714321`: workflow-lint, sanitizer,
+Ubuntu, Windows, and both Android ABIs succeeded. `apple-boundary` job
+`126688656496` was cancelled with no steps because the hosted runner was not
+acquired. Native shells `41862714682`: source and android-app succeeded.
+`ios-app` job `126688657635` was cancelled the same way. This is runner
+capacity, not a contract failure. The failed SHA is not rerun.
+
 ## Certification still required
 
 This commit must pass Foundation boundaries and Native application shells on its
