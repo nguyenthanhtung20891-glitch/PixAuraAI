@@ -44,13 +44,59 @@ static Encoded encode(Owner& o,pixaura_export_request request,uint64_t capacity=
 }
 static pixaura::document::Snapshot snap(const std::string& manifest){auto parsed=pixaura::document::deserialize(manifest,std::string(32,'a'));CHECK(parsed.code==0);return parsed.value;}
 static bool chunk(const std::vector<uint8_t>& p,const char* type){
- if(p.size()<8||std::memcmp(p.data(),"\x89PNG\r\n\x1a\n",8)!=0)return false;std::size_t i=8;bool seen=false;
- while(i+12<=p.size()){const uint32_t len=(uint32_t)p[i]<<24|(uint32_t)p[i+1]<<16|(uint32_t)p[i+2]<<8|p[i+3];if(i+12+len>p.size())return false;
-  if(std::memcmp(p.data()+i+4,type,4)==0)seen=true;if(std::memcmp(p.data()+i+4,"IEND",4)==0)return seen;i+=12+static_cast<std::size_t>(len);}return false;}
+    if(p.size()<8||std::memcmp(p.data(),"\x89PNG\r\n\x1a\n",8)!=0){
+        return false;
+    }
+    std::size_t i=8;
+    bool seen=false;
+    while(i+12<=p.size()){
+        const uint32_t len=(uint32_t)p[i]<<24|(uint32_t)p[i+1]<<16|(uint32_t)p[i+2]<<8|p[i+3];
+        if(i+12+len>p.size()){
+            return false;
+        }
+        if(std::memcmp(p.data()+i+4,type,4)==0){
+            seen=true;
+        }
+        if(std::memcmp(p.data()+i+4,"IEND",4)==0){
+            return seen;
+        }
+        i+=12+static_cast<std::size_t>(len);
+    }
+    return false;
+}
 static bool jpeg_app1(const std::vector<uint8_t>& p){
- if(p.size()<4||p[0]!=0xff||p[1]!=0xd8)return true;std::size_t i=2;
- while(i+3<p.size()&&p[i]==0xff){while(i<p.size()&&p[i]==0xff)++i;if(i>=p.size())return true;const auto marker=p[i++];if(marker==0xd9||marker==0xda)return false;if(marker>=0xd0&&marker<=0xd9)continue;if(i+1>=p.size())return true;
-  const auto len=(static_cast<std::size_t>(p[i])<<8)|p[i+1];if(len<2||i+len>p.size())return true;if(marker==0xe1)return true;i+=len;}return true;}
+    if(p.size()<4||p[0]!=0xff||p[1]!=0xd8){
+        return true;
+    }
+    std::size_t i=2;
+    while(i+3<p.size()&&p[i]==0xff){
+        while(i<p.size()&&p[i]==0xff){
+            ++i;
+        }
+        if(i>=p.size()){
+            return true;
+        }
+        const auto marker=p[i++];
+        if(marker==0xd9||marker==0xda){
+            return false;
+        }
+        if(marker>=0xd0&&marker<=0xd9){
+            continue;
+        }
+        if(i+1>=p.size()){
+            return true;
+        }
+        const auto len=(static_cast<std::size_t>(p[i])<<8)|p[i+1];
+        if(len<2||i+len>p.size()){
+            return true;
+        }
+        if(marker==0xe1){
+            return true;
+        }
+        i+=len;
+    }
+    return true;
+}
 static std::string exposure(){return std::string("{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":5000},\"tool_id\":\"pixaura.exposure\"}],\"binding\":{},\"plan_version\":1}\n");}
 static std::string geometry(){return std::string("{\"actions\":[{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"height_ppm\":500000,\"width_ppm\":500000,\"x_ppm\":0,\"y_ppm\":0},\"tool_id\":\"pixaura.crop\"},{\"action_index\":1,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"quarter_turns\":1},\"tool_id\":\"pixaura.rotate\"}],\"binding\":{},\"plan_version\":1}\n");}
 int main(int argc,char** argv){

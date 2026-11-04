@@ -20,6 +20,7 @@ void export_retract(Service& s){
 }
 bool export_hex(const char* value){for(int i=0;i<32;++i){const auto c=value[i];if(!((c>='0'&&c<='9')||(c>='a'&&c<='f')))return false;}return true;}
 void export_fail(uint32_t* state,uint32_t terminal,int32_t code){if(state)*state=terminal;throw Failure{code};}
+}
 extern "C" int32_t pixaura_export_bind(uint32_t version,pixaura_editor_context* c,pixaura_export_request* request){return attempt([&]{
     require(version==1,2);require(request,1);
     execution_ranges({{c,sizeof(*c),alignof(pixaura_editor_context)},{request,sizeof(*request),alignof(pixaura_export_request)}});
@@ -94,4 +95,3 @@ extern "C" int32_t pixaura_export_encode(uint32_t version,pixaura_editor_context
     std::memcpy(output,encoded.data(),written);
     *bytes=written;*width=metadata.width;*height=metadata.height;*state=PIXAURA_EXPORT_SUCCEEDED;terminal.commit=true;
 });}
-}

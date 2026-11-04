@@ -41,6 +41,6 @@
   },
   "additions": {
     "packages/core/include/pixaura/export.h": "e994484943f77435f19c0ab4c9ddac5fc114ce2819e56bdb896c5d54bb309c10",
-    "packages/core/src/export_boundary.hpp": "78a167e596f5271d840b51fbaa7edd93d3ca1a39fd96f9b60a184c7178230d20"
+    "packages/core/src/export_boundary.hpp": "8879d0437f24852b1879b8a81f720657625a63d396a9c672ed8e80d0192bf795"
   }
 }

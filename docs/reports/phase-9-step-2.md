@@ -48,4 +48,10 @@ committed revision, JPEG quality, PNG identity and chunk privacy, stale epoch,
 busy overlap, cancellation, and stop. `export_c_consumer` checks the request
 layout and version rejection.
 
+`14330b8057105095a8cf8a9749ecd40af87c0250` is not certified. Foundation
+`41924079674` failed: GCC rejected misleading indentation in the export test,
+and MSVC did not export the encode symbols while their definitions sat inside
+the anonymous namespace. The definitions now match the other boundaries and
+stand at file scope. That SHA is not rerun.
+
 Step 2 exact-SHA certification is not claimed in this commit.
