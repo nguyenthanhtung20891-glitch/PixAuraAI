@@ -1,5 +1,22 @@
 # System architecture
 
+<!-- phase9-step2-current -->
+## Phase 9 Step 2 - Native Deterministic Export Engine
+
+Phase 9 AUTHORIZED / IN PROGRESS. Step 1 COMPLETE / FULL PASS.
+Step 1 closure 49ddb7fc9ebc8173e716a9cd3f8a25d18564b3ab: Foundation 41911149886
+SUCCESS 7/7; Native shells 41911149642 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
+Step 1 implementation 64c01c1fba688ff266951ce2eb608982331323f8: Foundation 41876428603
+SUCCESS 7/7; Native shells 41876428763 SUCCESS 3/3.
+Step 2 AUTHORIZED / IN PROGRESS. EXPORT IS NOT A REVISION. EXPORT IS NOT AN APPROVAL. EXPORT IS NOT AN EDIT.
+One committed revision is validated, evaluated, and encoded with the existing preview renderer.
+No new revision, approval, candidate, history mutation, or Assistance Provider call.
+Schema 3 unchanged. HUMAN Apply unchanged. Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
+Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+Steps 3-6 NOT STARTED. No Phase 10.
+<!-- phase9-step2-history -->
+
 <!-- phase9-step1-current -->
 ## Phase 9 Step 1 - Export Contract and Authority
 

@@ -113,3 +113,53 @@ int32_t pixaura_codec_inflate(const uint8_t* input,size_t n,uint8_t* out,size_t 
     else status=b.status?b.status:(z.avail_out==0?LIMIT:MALFORMED);
     inflateEnd(&z);return status;
 }
+typedef struct JpegOut { struct jpeg_destination_mgr pub; uint8_t* out; size_t cap,used; Budget* budget; } JpegOut;
+typedef struct JpegEncode { Budget budget; struct jpeg_compress_struct codec; jmp_buf jump; } JpegEncode;
+static void jpeg_out_init(j_compress_ptr c){JpegOut* d=(JpegOut*)c->dest;d->pub.next_output_byte=d->out;d->pub.free_in_buffer=d->cap;}
+static boolean jpeg_out_empty(j_compress_ptr c){((JpegOut*)c->dest)->budget->status=LIMIT;jpeg_fail((j_common_ptr)c);return FALSE;}
+static void jpeg_out_term(j_compress_ptr c){JpegOut* d=(JpegOut*)c->dest;d->used=d->cap-d->pub.free_in_buffer;}
+int32_t pixaura_codec_encode_jpeg(const uint8_t* rgba,uint32_t w,uint32_t h,int quality,uint8_t* out,size_t cap,size_t* written,size_t scratch){
+    JpegEncode* s;JpegError e;JpegOut dest;uint8_t* row;int32_t status=0;uint32_t y;
+    if(!rgba||!out||!written||!w||!h||quality<1||quality>100||cap<64)return LIMIT;
+    if(scratch<sizeof(JpegEncode)+((size_t)w*3))return LIMIT;
+    s=(JpegEncode*)calloc(1,sizeof(JpegEncode));if(!s)return LIMIT;
+    s->budget.limit=scratch-sizeof(JpegEncode);s->budget.fail_after=-1;
+    row=(uint8_t*)take(&s->budget,(size_t)w*3);if(!row){free(s);return LIMIT;}
+    memset(&e,0,sizeof(e));jpeg_std_error(&e.base);e.base.error_exit=jpeg_fail;e.base.emit_message=jpeg_warning;e.jump=&s->jump;e.budget=&s->budget;
+    s->codec.err=&e.base;s->codec.client_data=&s->budget;
+    if(setjmp(s->jump)){status=s->budget.status?s->budget.status:MALFORMED;goto done;}
+    jpeg_create_compress(&s->codec);
+    memset(&dest,0,sizeof(dest));dest.pub.init_destination=jpeg_out_init;dest.pub.empty_output_buffer=jpeg_out_empty;dest.pub.term_destination=jpeg_out_term;dest.out=out;dest.cap=cap;dest.budget=&s->budget;s->codec.dest=&dest.pub;
+    s->codec.image_width=w;s->codec.image_height=h;s->codec.input_components=3;s->codec.in_color_space=JCS_RGB;
+    jpeg_set_defaults(&s->codec);jpeg_set_quality(&s->codec,quality,TRUE);s->codec.dct_method=JDCT_ISLOW;s->codec.optimize_coding=FALSE;
+    jpeg_start_compress(&s->codec,TRUE);
+    for(y=0;y<h;++y){const uint8_t* src=rgba+(size_t)y*w*4;uint32_t x;JSAMPROW scan=row;
+        for(x=0;x<w;++x){const uint32_t a=src[x*4+3];uint32_t c;for(c=0;c<3;++c)row[x*3+c]=(uint8_t)((src[x*4+c]*a+255u*(255u-a)+127u)/255u);}
+        if(jpeg_write_scanlines(&s->codec,&scan,1)!=1){status=MALFORMED;goto done;}}
+    jpeg_finish_compress(&s->codec);*written=dest.used;if(!*written)status=MALFORMED;
+done:
+    jpeg_destroy_compress(&s->codec);drop(&s->budget,row);if(s->budget.live!=0&&!status)status=MISMATCH;free(s);return status;
+}
+typedef struct EncodePng { Budget budget;uint8_t* out;size_t cap,used;png_structp codec;png_infop info;jmp_buf jump; } EncodePng;
+static void epng_fail(png_structp p,png_const_charp msg){EncodePng* s=(EncodePng*)png_get_error_ptr(p);(void)msg;if(!s->budget.status)s->budget.status=MALFORMED;longjmp(s->jump,1);}
+static png_voidp epng_take(png_structp p,png_alloc_size_t n){return take(&((EncodePng*)png_get_mem_ptr(p))->budget,(size_t)n);}
+static void epng_drop(png_structp p,png_voidp v){drop(&((EncodePng*)png_get_mem_ptr(p))->budget,v);}
+static void epng_write(png_structp p,png_bytep data,png_size_t n){EncodePng* s=(EncodePng*)png_get_io_ptr(p);if(n>s->cap-s->used){s->budget.status=LIMIT;epng_fail(p,"cap");return;}memcpy(s->out+s->used,data,n);s->used+=n;}
+int32_t pixaura_codec_encode_png(const uint8_t* rgba,uint32_t w,uint32_t h,uint8_t* out,size_t cap,size_t* written,size_t scratch){
+    EncodePng* s;int32_t status=0;uint32_t y;
+    if(!rgba||!out||!written||!w||!h||cap<64)return LIMIT;
+    if(scratch<sizeof(EncodePng))return LIMIT;
+    s=(EncodePng*)calloc(1,sizeof(EncodePng));if(!s)return LIMIT;
+    s->budget.limit=scratch-sizeof(EncodePng);s->budget.fail_after=-1;s->out=out;s->cap=cap;
+    if(setjmp(s->jump)){status=s->budget.status?s->budget.status:MALFORMED;goto done;}
+    s->codec=png_create_write_struct_2(PNG_LIBPNG_VER_STRING,s,epng_fail,epng_fail,s,epng_take,epng_drop);if(!s->codec){status=LIMIT;goto done;}
+    s->info=png_create_info_struct(s->codec);if(!s->info){status=LIMIT;goto done;}
+    png_set_write_fn(s->codec,s,epng_write,NULL);
+    png_set_IHDR(s->codec,s->info,w,h,8,PNG_COLOR_TYPE_RGB_ALPHA,PNG_INTERLACE_NONE,PNG_COMPRESSION_TYPE_BASE,PNG_FILTER_TYPE_BASE);
+    png_set_filter(s->codec,0,PNG_FILTER_NONE);png_set_compression_level(s->codec,6);
+    png_write_info(s->codec,s->info);
+    for(y=0;y<h;++y){png_bytep row=(png_bytep)(rgba+(size_t)y*w*4);png_write_row(s->codec,row);}
+    png_write_end(s->codec,s->info);*written=s->used;if(!*written)status=MALFORMED;
+done:
+    png_destroy_write_struct(&s->codec,&s->info);if(s->budget.live!=0&&!status)status=MISMATCH;free(s);return status;
+}

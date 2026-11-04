@@ -109,6 +109,10 @@ set(PIXAURA_PNG_SOURCES
     packages/core/vendor/codecs/png/pngrutil.c
     packages/core/vendor/codecs/png/pngset.c
     packages/core/vendor/codecs/png/pngtrans.c
+    packages/core/vendor/codecs/png/pngwrite.c
+    packages/core/vendor/codecs/png/pngwio.c
+    packages/core/vendor/codecs/png/pngwtran.c
+    packages/core/vendor/codecs/png/pngwutil.c
 )
 set(PIXAURA_ZLIB_SOURCES
     packages/core/vendor/codecs/zlib/adler32.c
@@ -117,4 +121,6 @@ set(PIXAURA_ZLIB_SOURCES
     packages/core/vendor/codecs/zlib/inffast.c
     packages/core/vendor/codecs/zlib/inftrees.c
     packages/core/vendor/codecs/zlib/zutil.c
+    packages/core/vendor/codecs/zlib/deflate.c
+    packages/core/vendor/codecs/zlib/trees.c
 )
