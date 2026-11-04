@@ -62,6 +62,14 @@ Native shells `41872559742` succeeded for source and android-app. `ios-app`
 job `126723293831` was cancelled with no steps. The NDK unpack error did not
 recur. The failed SHA is not rerun.
 
+## Closure Apple boundary still unacquired
+
+`c43e58155c7bd08d407098b3fd21614703540005` is not certified. Foundation
+`41903535185` succeeded for every job except `apple-boundary` `126831980968`,
+which was cancelled with no steps. Native shells `41903535189` succeeded 3/3,
+including `ios-app` `126831983493`. The editable-review waiter did not fail
+again. This SHA is not rerun.
+
 ## Closure iOS UI observation
 
 `cc798c64d5d98662966d77e1356874bad4f8916b` is not certified. Foundation
