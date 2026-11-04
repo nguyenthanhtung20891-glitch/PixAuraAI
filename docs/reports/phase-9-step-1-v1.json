@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "phase": 9,
+  "step": 1,
+  "status": "AUTHORIZED_IN_PROGRESS",
+  "baseline": "45d121a2e0dd2fce8e925d3e36b3289a696c136a",
+  "phase8_closure_sha": "029f84eaa86f3e5a8bffc696a6abd10f9477ae2a",
+  "runtime_authority": false,
+  "editing_authority": false,
+  "history_authority": false,
+  "step2": "NOT_STARTED",
+  "provider": "reference.assistance.v1",
+  "planner": "reference.deterministic.v1",
+  "formats": ["jpeg", "png"],
+  "icc_preserved": false,
+  "location_metadata_copied": false
+}

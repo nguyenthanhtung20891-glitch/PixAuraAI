@@ -1,5 +1,18 @@
 # Quality gates and promotion policy
 
+<!-- phase9-step1-current -->
+## Phase 9 Step 1 - Export Contract and Authority
+
+Phase 8 CLOSED / COMPLETE / FULL PASS at closure 029f84eaa86f3e5a8bffc696a6abd10f9477ae2a:
+Foundation 41709039261 SUCCESS 7/7; Native shells 41709039298 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
+Phase 9 AUTHORIZED / IN PROGRESS. Step 1 AUTHORIZED / IN PROGRESS.
+EXPORT IS NOT A REVISION. EXPORT IS NOT AN APPROVAL. Export reads one committed revision through existing evaluation and preview rendering.
+Schema 3 unchanged. HUMAN Apply unchanged. Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
+Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+Steps 2-6 NOT STARTED. No Phase 10. See docs/contracts/export-file-lifecycle-v1.md and docs/adr/0023-export-is-a-projection.md.
+<!-- phase9-step1-history -->
+
 <!-- phase8-closed-current -->
 ## Phase 8 - observed closure
 
