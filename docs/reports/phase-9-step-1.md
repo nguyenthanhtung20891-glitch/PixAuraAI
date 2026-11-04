@@ -42,6 +42,17 @@ acquired. Native shells `41862714682`: source and android-app succeeded.
 `ios-app` job `126688657635` was cancelled the same way. This is runner
 capacity, not a contract failure. The failed SHA is not rerun.
 
+## Infrastructure on the following SHA
+
+`68edee8332fd17672e6bc9f87d28dd83ffb436a3` is not certified. Foundation
+`41869181560` succeeded for workflow-lint, sanitizer, Ubuntu, Windows, and
+armeabi-v7a. `android-boundary` arm64-v8a job `126711238879` failed while
+sdkmanager unpacked NDK 28.2.13676358: "Error on ZipFile unknown archive."
+That download is not a contract result. `apple-boundary` job `126711239374`
+was cancelled with no steps. Native shells `41869181518` succeeded for source
+and android-app. `ios-app` job `126711239100` was cancelled with no steps.
+Neither failure is rerun on this SHA.
+
 ## Certification still required
 
 This commit must pass Foundation boundaries and Native application shells on its
