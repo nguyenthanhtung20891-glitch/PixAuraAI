@@ -53,6 +53,15 @@ was cancelled with no steps. Native shells `41869181518` succeeded for source
 and android-app. `ios-app` job `126711239100` was cancelled with no steps.
 Neither failure is rerun on this SHA.
 
+## Apple runners still unacquired
+
+`c46695ef588cb768a240039a34edf65eb6d0c531` is not certified. Foundation
+`41872559838` succeeded for workflow-lint, sanitizer, Ubuntu, Windows, and both
+Android ABIs. `apple-boundary` job `126723295130` was cancelled with no steps.
+Native shells `41872559742` succeeded for source and android-app. `ios-app`
+job `126723293831` was cancelled with no steps. The NDK unpack error did not
+recur. The failed SHA is not rerun.
+
 ## Certification still required
 
 This commit must pass Foundation boundaries and Native application shells on its
