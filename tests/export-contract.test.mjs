@@ -11,7 +11,8 @@ test('Phase 9 Step 1 freezes export as a projection and leaves the engine unstar
   const m = read('docs/reports/phase-9-step-1-v1.json');
   assert.equal(m.baseline, '45d121a2e0dd2fce8e925d3e36b3289a696c136a');
   assert.equal(m.phase8_closure_sha, '029f84eaa86f3e5a8bffc696a6abd10f9477ae2a');
-  assert.equal(m.status, 'AUTHORIZED_IN_PROGRESS');
+  assert.equal(m.status, 'CLOSURE_CERTIFICATION_PENDING');
+  assert.equal(m.certified_implementation_sha, '64c01c1fba688ff266951ce2eb608982331323f8');
   assert.equal(m.runtime_authority, false);
   assert.equal(m.editing_authority, false);
   assert.equal(m.history_authority, false);
@@ -26,10 +27,24 @@ test('Phase 9 Step 1 freezes export as a projection and leaves the engine unstar
   for (const p of files) {
     const s = text(p).split('<!-- phase9-step1-current -->')[1]?.split('<!-- phase9-step1-history -->')[0];
     assert.ok(s, p);
-    for (const term of ['Phase 8 CLOSED / COMPLETE / FULL PASS', '029f84eaa86f3e5a8bffc696a6abd10f9477ae2a', '41709039261', '41709039298', 'Step 1 AUTHORIZED / IN PROGRESS', 'Steps 2-6 NOT STARTED', 'EXPORT IS NOT A REVISION', 'Schema 3 unchanged', 'HUMAN Apply unchanged', 'reference.assistance.v1 ADMITTED', 'reference.deterministic.v1', 'NONE REQUIRED / NONE ADMITTED', 'Vulkan/Metal UNKNOWN', 'NOT WAIVED', 'NOT SATISFIED']) assert.ok(s.includes(term), p + term);
+    for (const term of ['Phase 8 CLOSED / COMPLETE / FULL PASS', '029f84eaa86f3e5a8bffc696a6abd10f9477ae2a', '41709039261', '41709039298', 'Step 1 CLOSURE CERTIFICATION PENDING', '64c01c1fba688ff266951ce2eb608982331323f8', '41876428603', '41876428763', 'Steps 2-6 NOT STARTED', 'EXPORT IS NOT A REVISION', 'Schema 3 unchanged', 'HUMAN Apply unchanged', 'reference.assistance.v1 ADMITTED', 'reference.deterministic.v1', 'NONE REQUIRED / NONE ADMITTED', 'Vulkan/Metal UNKNOWN', 'NOT WAIVED', 'NOT SATISFIED']) assert.ok(s.includes(term), p + term);
   }
   const plan = text('docs/plans/phase-9-roadmap.md');
-  assert.ok(plan.includes('| 1 | Export Contract and Authority | AUTHORIZED / IN PROGRESS |'));
+  assert.ok(plan.includes('| 1 | Export Contract and Authority | CLOSURE CERTIFICATION PENDING |'));
+  const receipt = read('docs/reports/evidence/phase-9-step-1-implementation-certification.json');
+  assert.equal(receipt.sha, '64c01c1fba688ff266951ce2eb608982331323f8');
+  assert.equal(receipt.label, 'implementation');
+  assert.equal(receipt.step1, 'CLOSURE_CERTIFICATION_PENDING');
+  assert.equal(receipt.step2, 'NOT_STARTED');
+  assert.equal(receipt.runs.length, 2);
+  assert.equal(receipt.runs[0].jobs.length, 7);
+  assert.equal(receipt.runs[1].jobs.length, 3);
+  for (const run of receipt.runs) {
+    assert.equal(run.head_sha, receipt.sha);
+    assert.equal(run.attempt, 1);
+    assert.equal(run.conclusion, 'success');
+    for (const job of run.jobs) assert.equal(job.conclusion, 'success');
+  }
   assert.ok(plan.includes('| 6 | End-to-end Certification and Phase Closure | NOT STARTED |'));
   for (const p of ['.github/workflows/foundation.yml', '.github/workflows/native-shells.yml']) assert.ok(text(p).includes('tests/export-contract.test.mjs'), p);
 });

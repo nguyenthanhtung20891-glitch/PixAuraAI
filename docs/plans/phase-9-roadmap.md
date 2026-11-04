@@ -5,7 +5,12 @@
 
 Phase 8 CLOSED / COMPLETE / FULL PASS at closure 029f84eaa86f3e5a8bffc696a6abd10f9477ae2a:
 Foundation 41709039261 SUCCESS 7/7; Native shells 41709039298 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
-Phase 9 AUTHORIZED / IN PROGRESS. Step 1 AUTHORIZED / IN PROGRESS.
+Phase 9 AUTHORIZED / IN PROGRESS. Step 1 CLOSURE CERTIFICATION PENDING.
+Certified implementation SHA: `64c01c1fba688ff266951ce2eb608982331323f8`.
+Foundation 41876428603 SUCCESS 7/7; Native shells 41876428763 SUCCESS 3/3;
+both exact SHA, attempt 1, every required job completed/SUCCESS.
+This separate documentation-only closure requires BOTH full workflows on its OWN
+exact SHA. Until that observed receipt, Step 1 is not COMPLETE / FULL PASS.
 EXPORT IS NOT A REVISION. EXPORT IS NOT AN APPROVAL. Export reads one committed revision through existing evaluation and preview rendering.
 Schema 3 unchanged. HUMAN Apply unchanged. Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
 Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.
@@ -15,7 +20,7 @@ Steps 2-6 NOT STARTED. No Phase 10. See docs/contracts/export-file-lifecycle-v1.
 
 | Step | Official scope | Current authorization |
 | --- | --- | --- |
-| 1 | Export Contract and Authority | AUTHORIZED / IN PROGRESS |
+| 1 | Export Contract and Authority | CLOSURE CERTIFICATION PENDING |
 | 2 | Native Deterministic Export Engine | NOT STARTED |
 | 3 | Android Save and Share | NOT STARTED |
 | 4 | Apple Save and Share | NOT STARTED |

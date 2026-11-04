@@ -62,8 +62,11 @@ Native shells `41872559742` succeeded for source and android-app. `ios-app`
 job `126723293831` was cancelled with no steps. The NDK unpack error did not
 recur. The failed SHA is not rerun.
 
-## Certification still required
+## Observed implementation certification
 
-This commit must pass Foundation boundaries and Native application shells on its
-own SHA. A later documentation-only closure must pass both workflows again.
-Until those observed results exist, Step 1 is not COMPLETE / FULL PASS.
+`64c01c1fba688ff266951ce2eb608982331323f8` passed both workflows on attempt 1.
+Foundation `41876428603` succeeded 7/7, including `apple-boundary` job
+`126736960376`. Native shells `41876428763` succeeded 3/3, including `ios-app`
+job `126736959363`. Earlier SHAs are not substitutes. This documentation-only
+closure still needs both workflows on its own SHA. Step 1 is not
+COMPLETE / FULL PASS until that receipt is observed. Steps 2-6 are not started.
