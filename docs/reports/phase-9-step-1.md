@@ -62,6 +62,15 @@ Native shells `41872559742` succeeded for source and android-app. `ios-app`
 job `126723293831` was cancelled with no steps. The NDK unpack error did not
 recur. The failed SHA is not rerun.
 
+## Closure SHA waiting on Apple foundation
+
+`24c60762196c65eeda1bccfd768fa9a7da413407` is not the closure certification.
+Foundation `41886001859` succeeded for workflow-lint, sanitizer, Ubuntu, Windows,
+and both Android ABIs. `apple-boundary` job `126770509706` was cancelled with
+no steps. Native shells `41886001710` succeeded 3/3, including `ios-app` job
+`126770509840`. Native success does not certify the foundation workflow. This
+SHA is not rerun.
+
 ## Observed implementation certification
 
 `64c01c1fba688ff266951ce2eb608982331323f8` passed both workflows on attempt 1.
