@@ -1,8 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import crypto from 'node:crypto';
 const text = p => fs.readFileSync(p, 'utf8').replaceAll('\r\n', '\n');
 const read = p => JSON.parse(text(p));
+const hash = p => crypto.createHash('sha256').update(text(p)).digest('hex');
 const files = ['AGENTS.md', 'ARCHITECTURE.md', 'DECISIONS.md', 'QUALITY_GATES.md', 'ROADMAP.md', 'docs/plans/phase-8-roadmap.md', 'docs/plans/phase-9-roadmap.md'];
 
 test('Phase 9 Step 1 freezes export as a projection and leaves the engine unstarted', () => {
@@ -14,6 +16,7 @@ test('Phase 9 Step 1 freezes export as a projection and leaves the engine unstar
   assert.equal(m.editing_authority, false);
   assert.equal(m.history_authority, false);
   assert.equal(m.step2, 'NOT_STARTED');
+  for (const [p, digest] of Object.entries(m.additions)) assert.equal(hash(p), digest, p);
   assert.equal(m.icc_preserved, false);
   assert.equal(m.location_metadata_copied, false);
   const contract = text('docs/contracts/export-file-lifecycle-v1.md');

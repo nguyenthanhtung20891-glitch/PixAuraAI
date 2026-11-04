@@ -18,6 +18,14 @@ Output is the display-oriented 8-bit sRGB raster. Orientation is already applied
 
 Android and Apple choose the user destination. Native code returns caller-owned encoded bytes and does not publish them.
 
+## Alternatives
+
+A new codec dependency was rejected because libjpeg-turbo and libpng are already vendored with reviewed licenses and checksums. Platform encoders were rejected because they would split pixel and metadata policy. Writing a new encoder was rejected because it would add an unreviewed attack surface. Copying original metadata, including location, was rejected because the export must not leak GPS through an unexamined container copy.
+
 ## Consequences
 
-ADR 0011 remains the decode authority. Historical documents stay historical. Physical device, Vulkan, and Metal trust are unchanged.
+ADR 0011 remains the decode authority. Historical documents stay historical. Physical device, Vulkan, and Metal trust are unchanged. The owned PNG configuration may later enable writing. Vendor sources stay unchanged.
+
+## Validation
+
+Contract tests must reject a preview, a proposal, or a missing revision as an export source. Later native tests must show JPEG and PNG bytes, stripped location metadata, no history mutation, and release of encoded buffers after failure or cancellation. Both exact-SHA workflows remain mandatory. This decision does not certify an encoder.

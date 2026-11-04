@@ -22,6 +22,16 @@ dependency is admitted. Vendor sources stay unchanged. [Export v1](../contracts/
 binds the request to one ordinary revision, strips location metadata, and does
 not claim ICC preservation.
 
+## Rejected implementation SHA
+
+`0bcd873ce26697c29fbe46ad0239b4cda6a9d66a` is not certified.
+Foundation `41857947698` failed. Portable Ubuntu and Windows stopped in the Node
+suite: the new ADR omitted the required Alternatives and Validation sections, and
+the Phase 7 inventory did not yet allow the new contract and ADR. Apple boundary
+job `126671553099` was cancelled without a runner. Sanitizer, workflow lint, and
+both Android boundary jobs succeeded. Native shells run `41857947568` also failed
+and is not certification. The correction is a new SHA.
+
 ## Certification still required
 
 This commit must pass Foundation boundaries and Native application shells on its

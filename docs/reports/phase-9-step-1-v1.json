@@ -11,6 +11,10 @@
   "step2": "NOT_STARTED",
   "provider": "reference.assistance.v1",
   "planner": "reference.deterministic.v1",
+  "additions": {
+    "docs/adr/0023-export-is-a-projection.md": "6bed6e151b7c236f8426b0862293a82d7fcaec5f051b0b894fa0f33279c5ea70",
+    "docs/contracts/export-file-lifecycle-v1.md": "0172aa863bd62b458d190a0c26e1ad30bb34390ff47cb35c912820905f5d5c99"
+  },
   "formats": ["jpeg", "png"],
   "icc_preserved": false,
   "location_metadata_copied": false

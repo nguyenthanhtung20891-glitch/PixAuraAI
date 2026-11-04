@@ -55,7 +55,8 @@ test('Phase 7 closure preserves the complete frozen runtime and contract invento
  const inspection=read('docs/reports/phase-8-step-3-v1.json');
  const editing=read('docs/reports/phase-8-step-4-v1.json');
  const result=read('docs/reports/phase-8-step-5-v1.json');
- const added=new Set(['docs/contracts/full-review-experience-v1.md',...Object.keys(preview.additions),...Object.keys(inspection.additions),...Object.keys(editing.additions),...Object.keys(result.additions)]);
+ const exportContract=read('docs/reports/phase-9-step-1-v1.json');
+ const added=new Set(['docs/contracts/full-review-experience-v1.md',...Object.keys(preview.additions),...Object.keys(inspection.additions),...Object.keys(editing.additions),...Object.keys(result.additions),...Object.keys(exportContract.additions)]);
  assert.deepEqual(paths.filter(p=>!added.has(p)),Object.keys(m.sha256).sort(),'no unreviewed runtime/contract addition or removal');
  for(const [p,digest] of Object.entries(m.sha256)){
   const b=fs.readFileSync(p),s=b.toString('utf8');
