@@ -30,6 +30,9 @@ test('Phase 9 Step 2 encodes one committed revision and leaves history untouched
   assert.equal(text('packages/core/src/editor_api.cpp').includes('budget'), false);
   assert.ok(text('packages/core/codec-sources.cmake').includes('pngwrite.c'));
   assert.ok(text('packages/core/codec-sources.cmake').includes('deflate.c'));
+  for (const source of ['pngwrite.c', 'pngwio.c', 'pngwtran.c', 'pngwutil.c', 'deflate.c', 'trees.c']) {
+    assert.ok(text('packages/core/Package.swift').includes(source), source);
+  }
   assert.ok(text('docs/DEPENDENCIES.md').includes('Owned pnglibconf enables PNG write'));
   const receipt = read('docs/reports/evidence/phase-9-step-1-closure-certification.json');
   assert.equal(receipt.sha, m.step1_closure_sha);

@@ -54,4 +54,14 @@ and MSVC did not export the encode symbols while their definitions sat inside
 the anonymous namespace. The definitions now match the other boundaries and
 stand at file scope. That SHA is not rerun.
 
+`3799fe2b1bff41d8fc4c7cfad034e96306b6c475` is not certified. Foundation
+`41926053091` completed attempt 1 with apple-boundary job `126910623261`
+failed. Windows, Ubuntu, both Android ABIs, sanitizer and workflow-lint
+succeeded. Native shells `41926053135` completed attempt 1 with ios-app job
+`126910623388` failed; android-app and source succeeded. Both Apple failures
+are the same link: `CPixAuraCodecs` omitted the PNG write and zlib deflate
+sources that `codec-sources.cmake` already lists, so `png_write_*` and
+`png_free_buffer_list` were undefined. Those existing vendor files are now in
+`Package.swift`. That SHA is not rerun.
+
 Step 2 exact-SHA certification is not claimed in this commit.
