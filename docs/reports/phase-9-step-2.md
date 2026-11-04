@@ -64,4 +64,10 @@ sources that `codec-sources.cmake` already lists, so `png_write_*` and
 `png_free_buffer_list` were undefined. Those existing vendor files are now in
 `Package.swift`. That SHA is not rerun.
 
-Step 2 exact-SHA certification is not claimed in this commit.
+`64d854d7ec2a5e11787cd0b94ff60b0fdfe7a8e3` is the certified implementation SHA.
+Foundation `41928862538` SUCCESS 7/7 and Native shells `41928862545` SUCCESS 3/3,
+both attempt 1, exact SHA, every required job SUCCESS. The receipt is
+`docs/reports/evidence/phase-9-step-2-implementation-certification.json`.
+This documentation commit does not certify itself. Step 2 remains
+CLOSURE CERTIFICATION PENDING until that separate SHA is observed.
+Steps 3-6 are not started.

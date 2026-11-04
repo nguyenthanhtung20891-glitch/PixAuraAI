@@ -8,7 +8,13 @@ Step 1 closure 49ddb7fc9ebc8173e716a9cd3f8a25d18564b3ab: Foundation 41911149886
 SUCCESS 7/7; Native shells 41911149642 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
 Step 1 implementation 64c01c1fba688ff266951ce2eb608982331323f8: Foundation 41876428603
 SUCCESS 7/7; Native shells 41876428763 SUCCESS 3/3.
-Step 2 AUTHORIZED / IN PROGRESS. EXPORT IS NOT A REVISION. EXPORT IS NOT AN APPROVAL. EXPORT IS NOT AN EDIT.
+Step 2 CLOSURE CERTIFICATION PENDING.
+Certified implementation SHA: `64d854d7ec2a5e11787cd0b94ff60b0fdfe7a8e3`.
+Foundation 41928862538 SUCCESS 7/7; Native shells 41928862545 SUCCESS 3/3;
+both exact SHA, attempt 1, every required job completed/SUCCESS.
+This separate documentation-only closure requires BOTH full workflows on its OWN
+exact SHA. Until that observed receipt, Step 2 is not COMPLETE / FULL PASS.
+EXPORT IS NOT A REVISION. EXPORT IS NOT AN APPROVAL. EXPORT IS NOT AN EDIT.
 One committed revision is validated, evaluated, and encoded with the existing preview renderer.
 No new revision, approval, candidate, history mutation, or Assistance Provider call.
 Schema 3 unchanged. HUMAN Apply unchanged. Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
@@ -38,7 +44,7 @@ Steps 2-6 NOT STARTED. No Phase 10. See docs/contracts/export-file-lifecycle-v1.
 | Step | Official scope | Current authorization |
 | --- | --- | --- |
 | 1 | Export Contract and Authority | CLOSURE CERTIFICATION PENDING |
-| 2 | Native Deterministic Export Engine | AUTHORIZED / IN PROGRESS |
+| 2 | Native Deterministic Export Engine | CLOSURE CERTIFICATION PENDING |
 | 3 | Android Save and Share | NOT STARTED |
 | 4 | Apple Save and Share | NOT STARTED |
 | 5 | File Lifecycle Hardening | NOT STARTED |
