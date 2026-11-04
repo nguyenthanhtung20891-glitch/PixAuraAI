@@ -62,6 +62,18 @@ Native shells `41872559742` succeeded for source and android-app. `ios-app`
 job `126723293831` was cancelled with no steps. The NDK unpack error did not
 recur. The failed SHA is not rerun.
 
+## Closure iOS UI observation
+
+`cc798c64d5d98662966d77e1356874bad4f8916b` is not certified. Foundation
+`41893543783` succeeded 7/7 on attempt 1, including `apple-boundary` job
+`126796907747`. Native shells `41893543836` succeeded for source and
+android-app. `ios-app` job `126796907401` failed in
+`testEditableReviewValueNoActionsRestoreAndExplicitApply`: the existing
+`auto-exact-values-0` label did not show `milli_ev = 123` within the current
+waiter, so the following preview assertion also failed. The same UI test
+passed on `24c60762196c65eeda1bccfd768fa9a7da413407`, whose app sources match
+this documentation commit. This SHA is not rerun.
+
 ## Closure SHA waiting on Apple foundation
 
 `24c60762196c65eeda1bccfd768fa9a7da413407` is not the closure certification.
