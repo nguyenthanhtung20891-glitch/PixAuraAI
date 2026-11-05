@@ -7,6 +7,11 @@ Status: CLOSURE CERTIFICATION PENDING. Implementation
 not certify itself. Step 1 is not COMPLETE / FULL PASS until that separate SHA
 is observed. Steps 2-6 are not started. No unexecuted gate is PASS.
 
+`af6159de89ec108839e3ecc6e17c13039b0a53ca` is not certified. Foundation
+`42046864852` succeeded, and Native source and ios-app succeeded, but
+android-app `127312075658` stopped when the Gradle 8.13 distribution returned
+HTTP 504. That SHA is not rerun.
+
 ## Baseline
 
 HEAD and `origin/main` were `54e7be1c910cde31bacc3474f7ab0e8fdcc2b954`.
