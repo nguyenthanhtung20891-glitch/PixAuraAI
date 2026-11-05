@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "phase": 10,
+  "step": 4,
+  "status": "AUTHORIZED_IN_PROGRESS",
+  "step3_closure_sha": "b2e5809aba185f27c4362b5a56c1b448953ed743",
+  "step3_implementation_sha": "8e5a64c51acb87f25b76bafb5bc1106dadfca686",
+  "runtime_authority": false,
+  "editing_authority": false,
+  "history_authority": false,
+  "hidden_retry": false,
+  "hidden_apply": false,
+  "step5": "NOT_STARTED",
+  "changes": {},
+  "additions": {}
+}
