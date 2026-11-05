@@ -43,3 +43,12 @@ SHA is not rerun.
 `42076359294` succeeded, and Native source and android-app succeeded, but
 ios-app `127417478945` was cancelled because no hosted runner was acquired.
 That SHA is not rerun.
+
+`89455b438f6f608fefcc19b9812701f8f02ef1a9` is not certified. Foundation
+`42079277763` succeeded, and Native source and android-app succeeded. ios-app
+`127427722002` failed in
+`testEditableReviewValueNoActionsRestoreAndExplicitApply`: the review field
+delete count used `field.value`, which was not the stored text, so the typed
+value was not 123 and the edit did not reach EDITED. That SHA is not rerun.
+The test now deletes the control's 11-character cap before typing 123. The
+assertion that the new Plan shows milli_ev = 123 and EDITED is unchanged.
