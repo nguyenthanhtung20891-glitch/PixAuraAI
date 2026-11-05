@@ -17,6 +17,9 @@ The receipt is `docs/reports/evidence/phase-9-step-3-closure-certification.json`
 `9444584ab93e39d9443f47e1b39f7749fb2f56c7` is not certified. Its iOS compile rejected
 main-actor use inside the Photos completion, and the shell check rejected a
 hand-edited project file. That SHA is not rerun.
+`96dd3b0a1c26dea64537c2a05b760016c8025b07` is not certified. Foundation
+`41957799748` failed because the photo-save gate used a forbidden concurrency
+marker. That SHA is not rerun.
 
 ## Destination
 
