@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "phase": 10,
+  "step": 1,
+  "status": "AUTHORIZED_IN_PROGRESS",
+  "baseline": "54e7be1c910cde31bacc3474f7ab0e8fdcc2b954",
+  "phase9_closure_sha": "85ec8988a88f482318a3f78b97dd6e5287bd9eda",
+  "runtime_authority": false,
+  "editing_authority": false,
+  "history_authority": false,
+  "step2": "NOT_STARTED",
+  "provider": "reference.assistance.v1",
+  "planner": "reference.deterministic.v1",
+  "learned_model": "NONE_REQUIRED_NONE_ADMITTED",
+  "languages": ["en", "vi"],
+  "additions": {
+    "docs/contracts/product-ux-release-readiness-v1.md": "8d4c866ce292aba4c9574b55403fc796fd5019889f8bf16319cf916bd4a77b21"
+  }
+}

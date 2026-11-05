@@ -59,7 +59,8 @@ test('Phase 7 closure preserves the complete frozen runtime and contract invento
  const exportEngine=read('docs/reports/phase-9-step-2-v1.json');
  const exportAndroid=read('docs/reports/phase-9-step-3-v1.json');
  const exportApple=read('docs/reports/phase-9-step-4-v1.json');
- const added=new Set(['docs/contracts/full-review-experience-v1.md',...Object.keys(preview.additions),...Object.keys(inspection.additions),...Object.keys(editing.additions),...Object.keys(result.additions),...Object.keys(exportContract.additions),...Object.keys(exportEngine.additions),...Object.keys(exportAndroid.additions),...Object.keys(exportApple.additions)]);
+ const productUx=read('docs/reports/phase-10-step-1-v1.json');
+ const added=new Set(['docs/contracts/full-review-experience-v1.md',...Object.keys(preview.additions),...Object.keys(inspection.additions),...Object.keys(editing.additions),...Object.keys(result.additions),...Object.keys(exportContract.additions),...Object.keys(exportEngine.additions),...Object.keys(exportAndroid.additions),...Object.keys(exportApple.additions),...Object.keys(productUx.additions)]);
  assert.deepEqual(paths.filter(p=>!added.has(p)),Object.keys(m.sha256).sort(),'no unreviewed runtime/contract addition or removal');
  for(const [p,digest] of Object.entries(m.sha256)){
   const b=fs.readFileSync(p),s=b.toString('utf8');
