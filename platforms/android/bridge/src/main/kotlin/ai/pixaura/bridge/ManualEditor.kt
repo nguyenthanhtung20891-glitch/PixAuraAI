@@ -32,6 +32,7 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     private var active = 0
     private var agentCalls = 0
     private var assistCalls = 0
+    private var exportCalls = 0
     private var comparison: ReviewComparison? = null
     private var applyingReview: AutoReview? = null
     private var applyingApproval: AgentApproval? = null
@@ -414,6 +415,26 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
         val canRedo: Boolean get() = flags and 4 != 0
         val publicationVisible: Boolean get() = flags and 8 != 0
     }
+    class EncodedExport(val bytes: ByteArray, val width: Int, val height: Int, val state: Int)
+    /** Reads one committed revision. Does not approve, execute, or change history. */
+    fun exportEncoded(format: Int, quality: Int, mode: Int = 0, maxWidth: Int = 0, maxHeight: Int = 0, revisionId: String? = null): EncodedExport {
+        val revision = revisionId?.toByteArray(Charsets.US_ASCII)
+        gate.withLock { checked(if (closed) 13 else if (exportCalls != 0 || assistCalls != 0 || applyingReview != null) 8 else if (revision != null && revision.size != 32) 1 else 0, "Export"); exportCalls++ }
+        try {
+            val packet = checkNotNull(nativeExport(storage, format, quality, mode, maxWidth, maxHeight, revision))
+            val view = ByteBuffer.wrap(packet).order(ByteOrder.LITTLE_ENDIAN)
+            val status = view.int; val state = view.int; val width = view.int; val height = view.int
+            checked(status, "Export")
+            checked(if (state == 6 && width > 0 && height > 0 && packet.size >= 16) 0 else 14, "Export")
+            return EncodedExport(packet.copyOfRange(16, packet.size), width, height, state)
+        } finally { gate.withLock { exportCalls--; idle.signalAll() } }
+    }
+    fun exportCancel() {
+        val status = nativeExportCancel(storage)
+        if (status != 0 && status != 1 && status != 3) throw EditorFailure(status, "Export")
+    }
+    private external fun nativeExport(storage: ByteBuffer, format: Int, quality: Int, mode: Int, maxWidth: Int, maxHeight: Int, revision: ByteArray?): ByteArray?
+    private external fun nativeExportCancel(storage: ByteBuffer): Int
     /** History observation only. A null receipt cannot invent Apply success. */
     fun resultReview(receipt: AgentReceipt?): ResultReview = gate.withLock {
         checked(if (closed) 13 else 0, "Result review")
@@ -436,6 +457,8 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     override fun close() = gate.withLock {
         comparison = null
         closed = true
+        if (exportCalls != 0) nativeExportCancel(storage)
+        while (exportCalls != 0) idle.awaitUninterruptibly()
         if (!stopped) { checked(nativeStop(storage), "Close"); stopped = true }
         while (active != 0 || agentCalls != 0 || assistCalls != 0) idle.awaitUninterruptibly()
         if (!destroyed) { checked(nativeDestroy(storage), "Close"); destroyed = true }

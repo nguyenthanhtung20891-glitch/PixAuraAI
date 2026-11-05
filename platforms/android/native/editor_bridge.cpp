@@ -6,6 +6,7 @@
 #include "pixaura/review_inspection.h"
 #include "pixaura/review_edit.h"
 #include "pixaura/result_review.h"
+#include "pixaura/export.h"
 #include <cstring>
 #include <vector>
 #include <algorithm>
@@ -48,6 +49,34 @@ extern "C" JNIEXPORT jintArray JNICALL Java_ai_pixaura_bridge_ManualEditor_nativ
     std::vector<jint> words(3+static_cast<std::size_t>(width)*height);words[0]=0;words[1]=static_cast<jint>(width);words[2]=static_cast<jint>(height);
     for(uint32_t i=0;i<width*height;++i){const auto* pixel=pixels.data()+static_cast<std::size_t>(i)*4;words[3+i]=static_cast<jint>((uint32_t(pixel[3])<<24)|(uint32_t(pixel[0])<<16)|(uint32_t(pixel[1])<<8)|pixel[2]);}
     env->SetIntArrayRegion(output,0,static_cast<jsize>(words.size()),words.data());return env->ExceptionCheck()?nullptr:output;
+}
+namespace {
+jbyteArray export_packet(JNIEnv* env,int32_t status,uint32_t state,uint32_t width,uint32_t height,const uint8_t* payload,uint64_t bytes){
+    if(bytes>32ull*1024ull*1024ull)return nullptr;
+    auto array=env->NewByteArray(static_cast<jsize>(16+bytes));if(!array)return nullptr;
+    uint8_t header[16];std::memcpy(header,&status,4);std::memcpy(header+4,&state,4);std::memcpy(header+8,&width,4);std::memcpy(header+12,&height,4);
+    env->SetByteArrayRegion(array,0,16,reinterpret_cast<const jbyte*>(header));
+    if(bytes&&payload)env->SetByteArrayRegion(array,16,static_cast<jsize>(bytes),reinterpret_cast<const jbyte*>(payload));
+    return env->ExceptionCheck()?nullptr:array;
+}
+}
+extern "C" JNIEXPORT jbyteArray JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeExport(JNIEnv* env,jobject,jobject buffer,jint format,jint quality,jint mode,jint maxWidth,jint maxHeight,jbyteArray revision){
+    auto* c=storage<pixaura_editor_context>(env,buffer);if(!c)return export_packet(env,1,PIXAURA_EXPORT_FAILED,0,0,nullptr,0);
+    pixaura_export_request request{};const auto bound=pixaura_export_bind(1,c,&request);
+    if(bound)return export_packet(env,bound,PIXAURA_EXPORT_FAILED,0,0,nullptr,0);
+    if(revision){if(env->GetArrayLength(revision)!=32)return export_packet(env,1,PIXAURA_EXPORT_FAILED,0,0,nullptr,0);
+        env->GetByteArrayRegion(revision,0,32,reinterpret_cast<jbyte*>(request.revision_id));if(env->ExceptionCheck())return nullptr;}
+    if(format<0||quality<0||mode<0||maxWidth<0||maxHeight<0)return export_packet(env,1,PIXAURA_EXPORT_FAILED,0,0,nullptr,0);
+    request.format=static_cast<uint32_t>(format);request.quality=static_cast<uint32_t>(quality);request.mode=static_cast<uint32_t>(mode);
+    request.max_width=static_cast<uint32_t>(maxWidth);request.max_height=static_cast<uint32_t>(maxHeight);
+    constexpr uint64_t capacity=8ull*1024ull*1024ull;std::vector<uint8_t> output(static_cast<std::size_t>(capacity));
+    uint64_t bytes=0;uint32_t width=0,height=0,state=PIXAURA_EXPORT_FAILED;
+    const auto status=pixaura_export_encode(1,c,&request,nullptr,output.data(),capacity,&bytes,&width,&height,&state);
+    if(status||bytes>capacity)return export_packet(env,status?status:11,state,0,0,nullptr,0);
+    return export_packet(env,0,state,width,height,output.data(),bytes);
+}
+extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeExportCancel(JNIEnv* env,jobject,jobject buffer){
+    auto* c=storage<pixaura_editor_context>(env,buffer);return c?pixaura_export_cancel(c):3;
 }
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeAutoSize(JNIEnv*,jobject){return sizeof(pixaura_auto_proposal);}
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeInspection(JNIEnv* env,jobject,jobject buffer,jobject proposal,jbyteArray plan,jobject result){

@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material3.*
+import android.content.Intent
+import android.os.Build
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -26,6 +28,17 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
     val auto by model.autoProposal.collectAsStateWithLifecycle()
     var category by remember { mutableStateOf("geometry") }
     var formatError by remember { mutableStateOf<String?>(null) }
+    var exportFormat by remember { mutableIntStateOf(1) }
+    var exportQuality by remember { mutableStateOf("90") }
+    val shareGeneration by model.shareGeneration.collectAsStateWithLifecycle()
+    val shareLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result -> model.finishShare(result.resultCode) }
+    val documentLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("image/*")) { uri ->
+        model.saveToDocument(uri, exportFormat, exportQuality.toIntOrNull() ?: -1)
+    }
+    LaunchedEffect(shareGeneration) {
+        val intent = model.takeShareIntent() ?: return@LaunchedEffect
+        shareLauncher.launch(Intent.createChooser(intent, "Share photo"))
+    }
     val lifecycle = LocalLifecycleOwner.current
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) model.importImage(uri)
@@ -33,7 +46,7 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
     LaunchedEffect(model, assistInitially, autoInitially) { model.setAutoMode(autoInitially); if (!autoInitially) model.setAssistMode(assistInitially); model.openLast() }
     LaunchedEffect(ui.core?.selected) { ui.tools.firstOrNull { it.index == ui.core?.selected }?.let { category = it.category } }
     DisposableEffect(lifecycle, model) {
-        val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_STOP) model.interrupt() }
+        val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_STOP) { model.cancelExport(); model.interrupt() } }
         lifecycle.lifecycle.addObserver(observer)
         onDispose { lifecycle.lifecycle.removeObserver(observer); model.closeEditor() }
     }
@@ -46,7 +59,7 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
         if (assist.enabled) AssistPanel(model, ui, assist)
         if (auto.enabled) AutoProposalPanel(model, ui, auto)
         assist.notice?.let { Text(it, Modifier.testTag("assist-notice").semantics { liveRegion = LiveRegionMode.Polite }) }
-        Button(onClick = { picker.launch(arrayOf("image/jpeg", "image/png")) }, enabled = !ui.busy) { Text("Open JPEG or PNG") }
+        Button(onClick = { picker.launch(arrayOf("image/jpeg", "image/png")) }, enabled = !ui.busy && !ui.exporting) { Text("Open JPEG or PNG") }
         Box(Modifier.fillMaxWidth().height(180.dp).semantics { contentDescription = "Image preview" }) {
             ui.image?.let { Image(it.asImageBitmap(), "Current manual preview", Modifier.fillMaxSize(), contentScale = ContentScale.Fit) }
             if (ui.image == null) Text("Open an image to edit locally")
@@ -98,12 +111,12 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
             OutlinedButton(onClick = { model.update(tool.parameters.map { it.default }) }, enabled = !ui.busy && !core.approvalPending) { Text("Reset to default") }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(onClick = { model.action(1) }, enabled = core?.active == true && !ui.busy) { Text(if (core?.approvalPending == true) "Retry Apply" else "Apply") }
-            OutlinedButton(onClick = { model.action(0); formatError = null }, enabled = core?.active == true && !ui.busy) { Text("Cancel") }
+            Button(onClick = { model.action(1) }, enabled = core?.active == true && !ui.busy && !ui.exporting) { Text(if (core?.approvalPending == true) "Retry Apply" else "Apply") }
+            OutlinedButton(onClick = { model.action(0); formatError = null }, enabled = core?.active == true && !ui.busy && !ui.exporting) { Text("Cancel") }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = { model.action(2) }, enabled = core?.canUndo == true && !ui.busy) { Text("Undo") }
-            OutlinedButton(onClick = { model.action(3) }, enabled = core?.canRedo == true && !ui.busy) { Text("Redo") }
+            OutlinedButton(onClick = { model.action(2) }, enabled = core?.canUndo == true && !ui.busy && !ui.exporting) { Text("Undo") }
+            OutlinedButton(onClick = { model.action(3) }, enabled = core?.canRedo == true && !ui.busy && !ui.exporting) { Text("Redo") }
         }
         core?.let { Text("Committed revisions: ${it.revisionCount}") }
         (formatError ?: ui.error)?.let { Text(it, Modifier.semantics { liveRegion = LiveRegionMode.Assertive }) }
@@ -111,5 +124,24 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
         if (ui.error?.contains("Stale edit") == true) Button(onClick = model::reopenProject) { Text("Reopen committed project") }
         }
         if (auto.enabled) ui.core?.let { Text("Committed revisions: ${it.revisionCount}") }
+        if (ui.core != null) {
+            Text("Export", style = MaterialTheme.typography.titleMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(selected = exportFormat == 1, onClick = { exportFormat = 1 }, enabled = !ui.busy && !ui.exporting, label = { Text("JPEG") })
+                FilterChip(selected = exportFormat == 2, onClick = { exportFormat = 2 }, enabled = !ui.busy && !ui.exporting, label = { Text("PNG") })
+            }
+            if (exportFormat == 1) OutlinedTextField(exportQuality, { exportQuality = it.filter(Char::isDigit).take(3) }, enabled = !ui.busy && !ui.exporting,
+                label = { Text("JPEG quality 1…100") }, singleLine = true, modifier = Modifier.fillMaxWidth().testTag("export-quality"))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (Build.VERSION.SDK_INT >= 29) Button(onClick = { model.saveToPhotos(exportFormat, exportQuality.toIntOrNull() ?: -1) },
+                    enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("export-save-photos").semantics { contentDescription = "Save the committed revision to Photos" }) { Text("Save to Photos") }
+                Button(onClick = { if (model.reserveExport()) documentLauncher.launch(if (exportFormat == 1) "PixAuraAI.jpg" else "PixAuraAI.png") },
+                    enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("export-save-file").semantics { contentDescription = "Save the committed revision to a file" }) { Text("Save to a file") }
+                Button(onClick = { model.shareExport(exportFormat, exportQuality.toIntOrNull() ?: -1) },
+                    enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("export-share").semantics { contentDescription = "Share the committed revision" }) { Text("Share") }
+            }
+            if (ui.exporting && ui.exportStatus == "Exporting") OutlinedButton(onClick = model::cancelExport, modifier = Modifier.testTag("export-cancel")) { Text("Cancel export") }
+            ui.exportStatus?.let { Text(it, Modifier.testTag("export-status").semantics { liveRegion = LiveRegionMode.Polite; contentDescription = it }) }
+        }
     }
 }

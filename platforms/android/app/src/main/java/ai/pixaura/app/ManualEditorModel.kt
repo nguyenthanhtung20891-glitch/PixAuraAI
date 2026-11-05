@@ -1,6 +1,8 @@
 package ai.pixaura.app
 
+import android.app.Activity
 import android.app.Application
+import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
@@ -24,7 +26,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 data class EditorUiState(val tools: List<ManualTool> = emptyList(), val core: ManualState? = null,
-    val image: Bitmap? = null, val busy: Boolean = false, val previewLoading: Boolean = false, val error: String? = null)
+    val image: Bitmap? = null, val busy: Boolean = false, val previewLoading: Boolean = false, val error: String? = null,
+    val exporting: Boolean = false, val exportStatus: String? = null)
 enum class AssistStatus { IDLE, REQUESTING, PROPOSAL_AVAILABLE, FAILED, STALE, CANCELLED, REJECTED }
 data class AssistUiState(val enabled: Boolean = false, val status: AssistStatus = AssistStatus.IDLE,
     val choices: List<ManualEditor.AssistChoice> = emptyList(), val selected: Int = -1,
@@ -50,6 +53,10 @@ data class AutoUiState(val enabled: Boolean = false, val status: AutoStatus = Au
 class ManualEditorModel(application: Application) : AndroidViewModel(application) {
     private val reviewEditing = AtomicBoolean(false)
     private val commands = Executors.newSingleThreadExecutor()
+    private val exportAdmission = AtomicBoolean(false)
+    private val shareRequest = AtomicReference<Intent?>(null)
+    private val shareMutable = MutableStateFlow(0)
+    val shareGeneration = shareMutable.asStateFlow()
     private val rendering = Executors.newSingleThreadExecutor()
     private val advising = Executors.newSingleThreadExecutor()
     @Volatile private var owner: ManualEditor? = null
@@ -597,6 +604,92 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
             }
             renderingNow.set(false)
             if (!disposed.get() && pendingPreview.get() != null) commands.execute { preview() }
+        }
+    }
+    fun takeShareIntent(): Intent? = shareRequest.getAndSet(null)
+    fun reserveExport(): Boolean {
+        if (!exportAdmission.compareAndSet(false, true)) return false
+        mutable.value = mutable.value.copy(exporting = true, exportStatus = "Choose a destination", error = null)
+        return true
+    }
+    fun noteExportCancelled() {
+        exportAdmission.set(false)
+        mutable.value = mutable.value.copy(exporting = false, busy = false, exportStatus = "Save cancelled")
+    }
+    fun cancelExport() { try { owner?.exportCancel() } catch (_: Throwable) { } }
+    fun finishShare(resultCode: Int) {
+        shareRequest.set(null)
+        exportAdmission.set(false)
+        val status = if (resultCode == Activity.RESULT_CANCELED) "Share cancelled" else "Share sheet closed. Delivery to another app is not confirmed."
+        mutable.value = mutable.value.copy(exporting = false, busy = false, exportStatus = status)
+    }
+    private fun exportMime(format: Int) = if (format == 1) "image/jpeg" else "image/png"
+    private fun exportName(format: Int) = if (format == 1) "PixAuraAI.jpg" else "PixAuraAI.png"
+    private fun exportQuality(format: Int, quality: Int): Int {
+        if (format != 1 && format != 2) error("Choose JPEG or PNG")
+        if (format == 2) return 0
+        if (quality !in 1..100) error("JPEG quality must be from 1 through 100")
+        return quality
+    }
+    private fun exportMessage(error: Throwable) = when (error) {
+        is EditorFailure -> when (error.status) {
+            8 -> "Export is busy. Manual editing is available."
+            9 -> "The selected revision is stale. Nothing was saved."
+            11 -> "The image is larger than the export limit. Nothing was saved."
+            13 -> "Export stopped. Nothing was saved."
+            else -> "Export failed. Nothing was saved."
+        }
+        else -> error.message ?: "Export failed. Nothing was saved."
+    }
+    private fun projectExport(format: Int, quality: Int): ManualEditor.EncodedExport {
+        val editor = owner ?: error("Open an image before export")
+        val jpeg = exportQuality(format, quality)
+        val before = editor.state()
+        val encoded = editor.exportEncoded(format, jpeg)
+        val after = editor.state()
+        if (before.revisionCount != after.revisionCount || before.revisionId != after.revisionId) error("Export changed history")
+        return encoded
+    }
+    fun saveToPhotos(format: Int, quality: Int) {
+        if (!exportAdmission.compareAndSet(false, true)) return
+        mutable.value = mutable.value.copy(exporting = true, exportStatus = "Exporting", error = null)
+        commands.execute {
+            try {
+                if (android.os.Build.VERSION.SDK_INT < 29) error("Use Save to a file on this Android version")
+                val encoded = projectExport(format, quality)
+                ExportDestination.saveToPhotos(getApplication<Application>().contentResolver, exportName(format), exportMime(format), encoded.bytes)
+                refresh(); mutable.value = mutable.value.copy(exportStatus = "Saved")
+            } catch (e: Throwable) { refresh(exportMessage(e)); mutable.value = mutable.value.copy(exportStatus = "Export failed") }
+            finally { exportAdmission.set(false); mutable.value = mutable.value.copy(exporting = false, busy = false) }
+        }
+    }
+    fun saveToDocument(uri: Uri?, format: Int, quality: Int) {
+        if (uri == null) { noteExportCancelled(); return }
+        if (!exportAdmission.get()) return
+        mutable.value = mutable.value.copy(exporting = true, exportStatus = "Exporting", error = null)
+        commands.execute {
+            try {
+                val encoded = projectExport(format, quality)
+                ExportDestination.writeDocument(getApplication<Application>().contentResolver, uri, encoded.bytes)
+                refresh(); mutable.value = mutable.value.copy(exportStatus = "Saved")
+            } catch (e: Throwable) { refresh(exportMessage(e)); mutable.value = mutable.value.copy(exportStatus = "Export failed") }
+            finally { exportAdmission.set(false); mutable.value = mutable.value.copy(exporting = false, busy = false) }
+        }
+    }
+    fun shareExport(format: Int, quality: Int) {
+        if (!exportAdmission.compareAndSet(false, true)) return
+        mutable.value = mutable.value.copy(exporting = true, exportStatus = "Exporting", error = null)
+        commands.execute {
+            try {
+                val encoded = projectExport(format, quality)
+                val uri = ExportDestination.cacheUri(getApplication(), exportName(format), encoded.bytes)
+                shareRequest.set(ExportDestination.shareIntent(uri, exportMime(format)))
+                shareMutable.value = shareMutable.value + 1
+                refresh(); mutable.value = mutable.value.copy(exportStatus = "Opening the share sheet. Delivery is not confirmed.")
+            } catch (e: Throwable) {
+                exportAdmission.set(false)
+                refresh(exportMessage(e)); mutable.value = mutable.value.copy(exporting = false, exportStatus = "Export failed")
+            }
         }
     }
     override fun onCleared() {

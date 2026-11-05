@@ -11,7 +11,10 @@ export function resultReviewHash(path, expected){
  const after=change?.after_sha256_lf??expected;
  const exportManifest=JSON.parse(fs.readFileSync('docs/reports/phase-9-step-2-v1.json','utf8'));
  const next=exportManifest.changes[path];if(next)assert.equal(next.before_sha256_lf,after,path+' export predecessor');
- return next?.after_sha256_lf??after;
+ const encoded=next?.after_sha256_lf??after;
+ const android=JSON.parse(fs.readFileSync('docs/reports/phase-9-step-3-v1.json','utf8'));
+ const saved=android.changes[path];if(saved)assert.equal(saved.before_sha256_lf,encoded,path+' android export predecessor');
+ return saved?.after_sha256_lf??encoded;
 }
 export function withoutReviewEditIntegration(source){
  return source.replace('#include "review_edit_state.hpp"\n','').replace('    ReviewEditState review_edit;\n','')
