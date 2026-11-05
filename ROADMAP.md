@@ -9,7 +9,14 @@ SUCCESS 7/7; Native shells 42053284144 SUCCESS 3/3, exact SHA, attempt 1, every 
 Step 1 implementation 5b3d3a15485f159b056861aee49ca56169ce8030: Foundation 42040586837
 SUCCESS 7/7; Native shells 42040586934 SUCCESS 3/3.
 af6159de89ec108839e3ecc6e17c13039b0a53ca is not certified. Native android-app failed on a Gradle 8.13 HTTP 504. That SHA is not rerun.
-Step 2 AUTHORIZED / IN PROGRESS. Steps 3-6 NOT STARTED.
+Step 2 CLOSURE CERTIFICATION PENDING.
+Certified implementation SHA: `f9f2df461ecfb63b371982d9cc2ec7f15db14628`.
+Foundation 42085862758 SUCCESS 7/7; Native shells 42085862581 SUCCESS 3/3;
+both exact SHA, attempt 1, every required job completed/SUCCESS.
+This separate documentation-only closure requires BOTH full workflows on its OWN
+exact SHA. Until that observed receipt, Step 2 is not COMPLETE / FULL PASS.
+e617815e9f9a7e41b331472e311b605ed8ad26bf, 6d80e42071d45aa7187a70eff3b6d44d1c38effc, 733ff96658affc5a9074f36dcdc120e468245973, and 89455b438f6f608fefcc19b9812701f8f02ef1a9 are not certified and are not rerun.
+Steps 3-6 NOT STARTED.
 UI STATE != NATIVE AUTHORITY. EXPORT IS NOT A REVISION. Schema 3 unchanged. HUMAN Apply unchanged.
 Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
 Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.

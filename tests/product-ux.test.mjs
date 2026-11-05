@@ -32,7 +32,7 @@ test('Phase 10 Step 1 freezes product UX without changing native authority', () 
   }
   const plan = text('docs/plans/phase-10-roadmap.md');
   assert.ok(plan.includes('| 1 | Product UX Contract and Information Architecture | CLOSURE CERTIFICATION PENDING |'));
-  assert.ok(plan.includes('| 2 | Onboarding, Empty States and Permissions | AUTHORIZED / IN PROGRESS |'));
+  assert.ok(plan.includes('| 2 | Onboarding, Empty States and Permissions | CLOSURE CERTIFICATION PENDING |'));
   assert.ok(plan.includes('| 6 | Cross-Platform Software Release Readiness and Phase Closure | NOT STARTED |'));
   assert.ok(text('docs/plans/phase-10-readiness.md').includes('Phase 10 implementation is not started'));
   const implementation = read('docs/reports/evidence/phase-10-step-1-implementation-certification.json');
