@@ -8,7 +8,13 @@ Step 4 closure b04fd291cda9e88e6a03ad20140f634294b35168: Foundation 41971443062
 SUCCESS 7/7; Native shells 41971442960 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
 Step 4 implementation 6a6b8d30ba69316822dcffafbee6894e4d1f0271: Foundation 41967410493
 SUCCESS 7/7; Native shells 41967410497 SUCCESS 3/3.
-Step 5 AUTHORIZED / IN PROGRESS. EXPORT IS NOT A REVISION. EXPORT IS NOT AN APPROVAL. EXPORT IS NOT AN EDIT.
+Step 5 CLOSURE CERTIFICATION PENDING.
+Certified implementation SHA: `6a30b1512c995df511e420945d845a92b85364dc`.
+Foundation 41976330668 SUCCESS 7/7; Native shells 41976330587 SUCCESS 3/3;
+both exact SHA, attempt 1, every required job completed/SUCCESS.
+This separate documentation-only closure requires BOTH full workflows on its OWN
+exact SHA. Until that observed receipt, Step 5 is not COMPLETE / FULL PASS.
+EXPORT IS NOT A REVISION. EXPORT IS NOT AN APPROVAL. EXPORT IS NOT AN EDIT.
 Repeated export, a second document, and a denied buffer leave ordinary history unchanged.
 No new process-RSS ceiling. Hosted timings are not physical-device measurements.
 Schema 3 unchanged. HUMAN Apply unchanged. Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
@@ -109,7 +115,7 @@ Steps 2-6 NOT STARTED. No Phase 10. See docs/contracts/export-file-lifecycle-v1.
 | 2 | Native Deterministic Export Engine | CLOSURE CERTIFICATION PENDING |
 | 3 | Android Save and Share | CLOSURE CERTIFICATION PENDING |
 | 4 | Apple Save and Share | CLOSURE CERTIFICATION PENDING |
-| 5 | File Lifecycle Hardening | AUTHORIZED / IN PROGRESS |
+| 5 | File Lifecycle Hardening | CLOSURE CERTIFICATION PENDING |
 | 6 | End-to-end Certification and Phase Closure | NOT STARTED |
 
 1. Freeze export binding, formats, metadata privacy, destination, and failure behavior.

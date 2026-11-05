@@ -63,6 +63,6 @@ test('Phase 9 Step 4 saves and shares on Apple without changing history', () => 
     assert.equal(run.conclusion, 'success');
     for (const job of run.jobs) assert.equal(job.conclusion, 'success');
   }
-  assert.ok(text('docs/plans/phase-9-roadmap.md').includes('| 5 | File Lifecycle Hardening | AUTHORIZED / IN PROGRESS |'));
+  assert.ok(text('docs/plans/phase-9-roadmap.md').includes('| 5 | File Lifecycle Hardening | CLOSURE CERTIFICATION PENDING |'));
   for (const p of ['.github/workflows/foundation.yml', '.github/workflows/native-shells.yml']) assert.ok(text(p).includes('tests/export-apple.test.mjs'), p);
 });

@@ -1,6 +1,11 @@
 # Phase 9 Step 5 — File Lifecycle Hardening
 
-Status: AUTHORIZED / IN PROGRESS. This commit does not certify itself.
+Status: CLOSURE CERTIFICATION PENDING. Implementation
+`6a30b1512c995df511e420945d845a92b85364dc` is observed: Foundation
+`41976330668` SUCCESS 7/7 and Native shells `41976330587` SUCCESS 3/3, attempt
+1, exact SHA, every required job SUCCESS. This documentation-only closure does
+not certify itself. Step 5 is not COMPLETE / FULL PASS until that separate SHA
+is observed. Step 6 is not started.
 
 ## Observed Step 4 closure
 
