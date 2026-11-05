@@ -20,6 +20,7 @@ struct ManualEditorScreen: View {
     @State private var reviewDrafts: Set<String> = []
     @State private var cropDrafts: [String] = []
     @State private var formatError: String?
+    @State private var showingExport = false
     @State private var exportFormat: UInt32 = 1
     @State private var exportQuality = "90"
     @State private var savingFile = false
@@ -257,19 +258,29 @@ struct ManualEditorScreen: View {
             if model.error?.contains("Stale edit") == true { Button("Reopen committed project") { model.recover() } }
             }
             if model.autoProposal.enabled, let core = model.core { Text("Committed revisions: \(core.revisionCount)").accessibilityIdentifier("revision-count") }
-            if model.core != nil { exportPanel }
         }
         .buttonStyle(.bordered)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Export") { showingExport = true }
+                    .disabled(model.core == nil)
+                    .accessibilityIdentifier("export-open")
+            }
+        }
         .fileImporter(isPresented: $picking, allowedContentTypes: [.jpeg, .png]) { result in
             if case .success(let input) = result { model.importImage(input) }
             if case .failure(let error) = result { model.pickerFailure(error) }
         }
-        .fileExporter(isPresented: $savingFile, document: exportDocument, contentType: model.exportFileType, defaultFilename: "PixAuraAI") { result in
-            savingFile = false
-            model.finishFileExport(result)
-        }
-        .sheet(item: $shareItem) { item in
-            ActivityShare(url: item.url) { completed in model.finishShare(completed: completed) }
+        .sheet(isPresented: $showingExport) {
+            exportPanel
+                .padding()
+                .fileExporter(isPresented: $savingFile, document: exportDocument, contentType: model.exportFileType, defaultFilename: "PixAuraAI") { result in
+                    savingFile = false
+                    model.finishFileExport(result)
+                }
+                .sheet(item: $shareItem) { item in
+                    ActivityShare(url: item.url) { completed in model.finishShare(completed: completed) }
+                }
         }
         .onAppear {
             model.setAutoMode(autoInitially)

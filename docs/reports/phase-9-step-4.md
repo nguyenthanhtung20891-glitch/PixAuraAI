@@ -23,6 +23,10 @@ marker. That SHA is not rerun.
 `eab05531501d57873b849f830a8ac3d601bf8501` is not certified. Foundation
 `41959479634` succeeded, but Native `41959479678` rejected an unnecessary
 isolation annotation as an error. That SHA is not rerun.
+`6a95fd806c3f39dea989cbd9f1c6d396627c6611` is not certified. Foundation
+`41961216195` succeeded, but Native `41961216123` could not reach a review
+control after the inline export form reduced the review viewport. That SHA is
+not rerun. Export now opens from the toolbar and leaves the review layout intact.
 
 ## Destination
 

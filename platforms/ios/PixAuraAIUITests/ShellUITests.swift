@@ -11,6 +11,8 @@ final class ShellUITests: XCTestCase {
         let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
         let open = app.buttons["Open Manual editor"]
         XCTAssertTrue(open.waitForExistence(timeout: 20)); open.tap()
+        let export = app.buttons["export-open"]
+        XCTAssertTrue(export.waitForExistence(timeout: 20)); export.tap()
         XCTAssertTrue(app.buttons["export-save-file"].waitForExistence(timeout: 20))
         XCTAssertTrue(app.buttons["export-save-photos"].exists)
         XCTAssertTrue(app.buttons["export-share"].exists)
