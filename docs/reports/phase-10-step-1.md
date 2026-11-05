@@ -1,8 +1,11 @@
 # Phase 10 Step 1 — Product UX contract and information architecture
 
-Status: AUTHORIZED / IN PROGRESS. This commit freezes the contract only.
-No screen, catalog, permission, or native behavior is added. Steps 2-6 are
-not started. No unexecuted gate is PASS. This commit does not certify itself.
+Status: CLOSURE CERTIFICATION PENDING. Implementation
+`5b3d3a15485f159b056861aee49ca56169ce8030` is observed: Foundation
+`42040586837` SUCCESS 7/7 and Native shells `42040586934` SUCCESS 3/3, attempt
+1, exact SHA, every required job SUCCESS. This documentation-only closure does
+not certify itself. Step 1 is not COMPLETE / FULL PASS until that separate SHA
+is observed. Steps 2-6 are not started. No unexecuted gate is PASS.
 
 ## Baseline
 

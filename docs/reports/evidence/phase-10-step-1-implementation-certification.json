@@ -1,0 +1,118 @@
+{
+  "learned_model": "NONE_REQUIRED_NONE_ADMITTED_FOR_PHASE_7_MVP",
+  "version": 1,
+  "branch": "main",
+  "runs": [
+    {
+      "id": 42040586837,
+      "name": "Foundation boundaries",
+      "attempt": 1,
+      "jobs": [
+        {
+          "id": 127290053455,
+          "name": "apple-boundary",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-05T13:58:50Z",
+          "completed_at": "2026-11-05T14:16:15Z"
+        },
+        {
+          "id": 127290053845,
+          "name": "sanitizer",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-05T13:58:49Z",
+          "completed_at": "2026-11-05T14:07:57Z"
+        },
+        {
+          "id": 127290053998,
+          "name": "android-boundary (armeabi-v7a)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-05T13:58:49Z",
+          "completed_at": "2026-11-05T14:00:03Z"
+        },
+        {
+          "id": 127290054091,
+          "name": "workflow-lint",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-05T13:58:49Z",
+          "completed_at": "2026-11-05T13:58:55Z"
+        },
+        {
+          "id": 127290054094,
+          "name": "android-boundary (arm64-v8a)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-05T13:58:49Z",
+          "completed_at": "2026-11-05T14:00:11Z"
+        },
+        {
+          "id": 127290054127,
+          "name": "portable (windows-2025)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-05T13:58:49Z",
+          "completed_at": "2026-11-05T14:11:18Z"
+        },
+        {
+          "id": 127290054613,
+          "name": "portable (ubuntu-24.04)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-05T13:58:49Z",
+          "completed_at": "2026-11-05T14:04:25Z"
+        }
+      ],
+      "conclusion": "success",
+      "head_sha": "5b3d3a15485f159b056861aee49ca56169ce8030",
+      "status": "completed"
+    },
+    {
+      "id": 42040586934,
+      "name": "Native application shells",
+      "attempt": 1,
+      "jobs": [
+        {
+          "id": 127290053564,
+          "name": "ios-app",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-05T13:58:49Z",
+          "completed_at": "2026-11-05T14:36:39Z"
+        },
+        {
+          "id": 127290054134,
+          "name": "android-app",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-05T13:58:49Z",
+          "completed_at": "2026-11-05T14:12:09Z"
+        },
+        {
+          "id": 127290054200,
+          "name": "source",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-05T13:58:49Z",
+          "completed_at": "2026-11-05T14:00:04Z"
+        }
+      ],
+      "conclusion": "success",
+      "head_sha": "5b3d3a15485f159b056861aee49ca56169ce8030",
+      "status": "completed"
+    }
+  ],
+  "observed_utc": "2026-11-05T14:37:00.000Z",
+  "provider": "reference.assistance.v1",
+  "label": "implementation",
+  "provider_status": "ADMITTED",
+  "sha": "5b3d3a15485f159b056861aee49ca56169ce8030",
+  "scope": "PHASE_10_STEP_1_ONLY",
+  "working_tree": "CLEAN",
+  "runtime_authority": false,
+  "phase10": "IN_PROGRESS",
+  "step1": "CLOSURE_CERTIFICATION_PENDING",
+  "step2": "NOT_STARTED"
+}
