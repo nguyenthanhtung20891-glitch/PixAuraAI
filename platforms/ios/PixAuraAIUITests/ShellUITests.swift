@@ -7,6 +7,17 @@ final class ShellUITests: XCTestCase {
         for _ in 0..<8 where !element.isHittable { scroll.swipeUp() }
         for _ in 0..<8 where !element.isHittable { scroll.swipeDown() }
     }
+    func testExportControlsStayAvailableInManualMode() {
+        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
+        let open = app.buttons["Open Manual editor"]
+        XCTAssertTrue(open.waitForExistence(timeout: 20)); open.tap()
+        XCTAssertTrue(app.buttons["export-save-file"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.buttons["export-save-photos"].exists)
+        XCTAssertTrue(app.buttons["export-share"].exists)
+        XCTAssertTrue(app.buttons["JPEG"].exists)
+        XCTAssertTrue(app.buttons["PNG"].exists)
+        XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
+    }
     func testEditableReviewValueNoActionsRestoreAndExplicitApply() {
         let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
         func tap(_ id: String) {

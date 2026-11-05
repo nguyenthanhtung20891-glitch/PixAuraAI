@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "phase": 9,
+  "step": 4,
+  "status": "AUTHORIZED_IN_PROGRESS",
+  "step3_closure_sha": "df49c9a77bddf2f0a8b45d5bb0f12120ebe4bc3b",
+  "step3_implementation_sha": "093f63b7807935f92a3758552dfd60fc79f38d97",
+  "runtime_authority": false,
+  "editing_authority": false,
+  "history_authority": false,
+  "step5": "NOT_STARTED",
+  "provider": "reference.assistance.v1",
+  "planner": "reference.deterministic.v1",
+  "learned_model": "NONE_REQUIRED_NONE_ADMITTED",
+  "share_presentation_is_delivery": false,
+  "changes": {
+    "packages/core/swift/Sources/ManualEditor.swift": {
+      "before_sha256_lf": "f3ecb5009a0608b9dc01f448da8d0b500504b9f243133461ec7ee6e284096a3a",
+      "after_sha256_lf": "8fdc95eed155bed5ca671f31b6d947971271b232a9798df1a283b60214e58740"
+    },
+    "platforms/ios/PixAuraAI/ManualEditorModel.swift": {
+      "before_sha256_lf": "e2dbd0480287e563865dc15ea1cbe692dcbc98c75dc67570905299b8b845917e",
+      "after_sha256_lf": "a257e8ac09b422dd3d9bd484fbd3096332a86d89792661edb08421fde4c8961d"
+    },
+    "platforms/ios/PixAuraAI/ManualEditorScreen.swift": {
+      "before_sha256_lf": "adb70a373e15e72bfa9128362164fed501ba854576e8990dab981f0b884e8f77",
+      "after_sha256_lf": "98289530d71227ebfe965814479f62f42df725255233b4f7ee339a55a94f6caa"
+    },
+    "platforms/ios/PixAuraAI.xcodeproj/project.pbxproj": {
+      "before_sha256_lf": "7497e73f55664fafb1474c3b11a95da751a66d800457080512c7536d1aac3b60",
+      "after_sha256_lf": "0fd70cb908c6a30956345b7586eaf99d7977ace73d9a1b37916209165a102e63"
+    }
+  },
+  "additions": {}
+}

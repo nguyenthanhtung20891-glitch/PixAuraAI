@@ -18,6 +18,49 @@ final class ShellTests: XCTestCase {
         await fulfillment(of: [ready], timeout: 20)
         withExtendedLifetime(subscription) {}
     }
+    @MainActor func testExportFileAndShareDoNotMutateHistory() async throws {
+        let file = try XCTUnwrap(Bundle(for: ShellTests.self).url(forResource: "fixtures", withExtension: "json"))
+        let fixtures = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [String: [String: Any]])
+        let input = FileManager.default.temporaryDirectory.appendingPathComponent("export-\(UUID()).png")
+        try Data(try XCTUnwrap(fixtures["png"]?["bytes"] as? [UInt8])).write(to: input)
+        defer { try? FileManager.default.removeItem(at: input) }
+        let capability = AppleCapabilityOwner(signals: AppTestAppleSignals()); defer { capability.close() }
+        let model = ManualEditorModel(capabilities: capability)
+        model.importImage(input); await waitFor(model.$core) { $0?.revisionCount == 1 }
+        let revision = try XCTUnwrap(model.core?.revisionID)
+        model.shareExport(format: 1, quality: 0)
+        XCTAssertEqual(model.error, "JPEG quality must be from 1 through 100")
+        XCTAssertFalse(model.exporting)
+        model.shareExport(format: 2, quality: 0)
+        model.shareExport(format: 2, quality: 0)
+        await waitFor(model.$exportStatus) { $0?.contains("not confirmed") == true }
+        XCTAssertEqual(model.core?.revisionCount, 1)
+        XCTAssertEqual(model.core?.revisionID, revision)
+        let shared = try XCTUnwrap(model.shareURL)
+        XCTAssertEqual(try Data(contentsOf: shared).prefix(4), Data([0x89, 0x50, 0x4E, 0x47]))
+        model.finishShare(completed: true)
+        XCTAssertEqual(model.exportStatus, "Share sheet closed. Delivery to another app is not confirmed.")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: shared.path))
+        model.finishShare(completed: false)
+        XCTAssertEqual(model.exportStatus, "Share sheet closed. Delivery to another app is not confirmed.")
+        model.prepareFileExport(format: 1, quality: 90)
+        await waitFor(model.$exportFile) { $0?.starts(with: Data([0xFF, 0xD8])) == true }
+        XCTAssertEqual(model.core?.revisionID, revision)
+        model.finishFileExport(.failure(NSError(domain: NSCocoaErrorDomain, code: NSUserCancelledError)))
+        XCTAssertEqual(model.exportStatus, "Save cancelled")
+        XCTAssertFalse(ExportDestination.libraryAccess(.denied))
+        XCTAssertFalse(ExportDestination.libraryAccess(.restricted))
+        XCTAssertTrue(ExportDestination.libraryAccess(.authorized))
+        let parent = FileManager.default.temporaryDirectory.appendingPathComponent("export-parent-\(UUID())", isDirectory: true)
+        try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let destination = parent.appendingPathComponent("blocked", isDirectory: true)
+        try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
+        XCTAssertThrowsError(try ExportDestination.writeAtomically(destination, Data([1, 2, 3])))
+        let leftovers = try FileManager.default.contentsOfDirectory(at: parent, includingPropertiesForKeys: nil)
+        XCTAssertTrue(leftovers.allSatisfy { !$0.lastPathComponent.contains(".partial") })
+        model.close(); await waitFor(model.$core) { $0 == nil }
+    }
     @MainActor func testInteractionModeMatrixCloseReopenAndOrdinaryPublishedHistory() async throws {
         let file = try XCTUnwrap(Bundle(for: ShellTests.self).url(forResource: "fixtures", withExtension: "json"))
         let fixtures = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [String: [String: Any]])

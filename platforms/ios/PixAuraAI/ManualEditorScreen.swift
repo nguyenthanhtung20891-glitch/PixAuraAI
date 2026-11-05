@@ -20,6 +20,10 @@ struct ManualEditorScreen: View {
     @State private var reviewDrafts: Set<String> = []
     @State private var cropDrafts: [String] = []
     @State private var formatError: String?
+    @State private var exportFormat: UInt32 = 1
+    @State private var exportQuality = "90"
+    @State private var savingFile = false
+    @State private var shareItem: ShareItem?
     private let categories = [("geometry", "Geometry"), ("tone_color", "Tone/Color"), ("detail", "Detail"), ("filters_presets", "Filters/Presets")]
     private var selected: ManualTool? {
         guard let index = model.core?.selected, model.tools.indices.contains(index) else { return nil }
@@ -173,7 +177,7 @@ struct ManualEditorScreen: View {
                     .accessibilityIdentifier("review-scroll")
             }
             if let notice = model.assistance.notice { Text(notice).accessibilityIdentifier("assist-notice") }
-            Button("Open JPEG or PNG") { picking = true }.disabled(model.busy)
+            Button("Open JPEG or PNG") { picking = true }.disabled(model.busy || model.exporting)
             Group {
                 if let image = model.image {
                     Image(decorative: image, scale: 1).resizable().scaledToFit().accessibilityHidden(false).accessibilityLabel("Current manual preview")
@@ -240,12 +244,12 @@ struct ManualEditorScreen: View {
             }
             HStack {
                 Button(model.core?.approvalPending == true ? "Retry Apply" : "Apply") { model.action(1) }
-                    .disabled(model.core?.active != true || model.busy)
-                Button("Cancel") { formatError = nil; model.action(0) }.disabled(model.core?.active != true || model.busy)
+                    .disabled(model.core?.active != true || model.busy || model.exporting)
+                Button("Cancel") { formatError = nil; model.action(0) }.disabled(model.core?.active != true || model.busy || model.exporting)
             }
             HStack {
-                Button("Undo") { model.action(2) }.disabled(model.core?.canUndo != true || model.busy)
-                Button("Redo") { model.action(3) }.disabled(model.core?.canRedo != true || model.busy)
+                Button("Undo") { model.action(2) }.disabled(model.core?.canUndo != true || model.busy || model.exporting)
+                Button("Redo") { model.action(3) }.disabled(model.core?.canRedo != true || model.busy || model.exporting)
             }
             if let core = model.core { Text("Committed revisions: \(core.revisionCount)").accessibilityIdentifier("revision-count") }
             if let error = formatError ?? model.error { Text(error).accessibilityIdentifier("editor-error") }
@@ -253,11 +257,19 @@ struct ManualEditorScreen: View {
             if model.error?.contains("Stale edit") == true { Button("Reopen committed project") { model.recover() } }
             }
             if model.autoProposal.enabled, let core = model.core { Text("Committed revisions: \(core.revisionCount)").accessibilityIdentifier("revision-count") }
+            if model.core != nil { exportPanel }
         }
         .buttonStyle(.bordered)
         .fileImporter(isPresented: $picking, allowedContentTypes: [.jpeg, .png]) { result in
             if case .success(let input) = result { model.importImage(input) }
             if case .failure(let error) = result { model.pickerFailure(error) }
+        }
+        .fileExporter(isPresented: $savingFile, document: exportDocument, contentType: model.exportFileType, defaultFilename: "PixAuraAI") { result in
+            savingFile = false
+            model.finishFileExport(result)
+        }
+        .sheet(item: $shareItem) { item in
+            ActivityShare(url: item.url) { completed in model.finishShare(completed: completed) }
         }
         .onAppear {
             model.setAutoMode(autoInitially)
@@ -268,13 +280,74 @@ struct ManualEditorScreen: View {
             model.reopen()
         }
         .onDisappear { model.close() }
-        .onChange(of: scenePhase) { if $0 != .active { model.interrupt() } }
+        .onChange(of: scenePhase) { if $0 != .active { model.cancelExport(); model.interrupt() } }
+        .onChange(of: model.exportFile) { if $0 != nil { savingFile = true } }
+        .onChange(of: model.shareGeneration) { _ in if let url = model.shareURL { shareItem = ShareItem(url: url) } }
+        .onChange(of: model.exportStatus) { if let status = $0 { UIAccessibility.post(notification: .announcement, argument: status) } }
         .onChange(of: model.core?.editID) { _ in cropDrafts = model.core?.values.map(String.init) ?? [] }
         .onChange(of: model.core?.selected) { _ in if let selected { category = selected.category } }
         .onChange(of: model.core?.values) { values in cropDrafts = values?.map(String.init) ?? [] }
         .onChange(of: model.error) { if let error = $0 { UIAccessibility.post(notification: .announcement, argument: error) } }
         .onChange(of: model.assistance.error) { if let error = $0 { UIAccessibility.post(notification: .announcement, argument: error) } }
     }
+    private var exportDocument: ExportFile? {
+        guard let bytes = model.exportFile else { return nil }
+        return ExportFile(bytes: bytes, kind: model.exportFileType)
+    }
+    private var exportPanel: some View {
+        let blocked = model.busy || model.exporting
+        return VStack(alignment: .leading, spacing: 8) {
+            Text("Export").font(.headline)
+            Text("Saves the committed revision. Export does not change history.").font(.caption)
+            HStack {
+                Button("JPEG") { exportFormat = 1 }.disabled(blocked).accessibilityIdentifier("JPEG")
+                    .tint(exportFormat == 1 ? Color.accentColor : Color.secondary)
+                Button("PNG") { exportFormat = 2 }.disabled(blocked).accessibilityIdentifier("PNG")
+                    .tint(exportFormat == 2 ? Color.accentColor : Color.secondary)
+            }
+            if exportFormat == 1 {
+                TextField("JPEG quality 1…100", text: $exportQuality)
+                    .textFieldStyle(.roundedBorder).disabled(blocked).accessibilityIdentifier("export-quality")
+            }
+            Button("Save to Photos") { model.saveToPhotos(format: exportFormat, quality: Int(exportQuality) ?? -1) }
+                .disabled(blocked).accessibilityIdentifier("export-save-photos")
+            Button("Save to a file") { model.prepareFileExport(format: exportFormat, quality: Int(exportQuality) ?? -1) }
+                .disabled(blocked).accessibilityIdentifier("export-save-file")
+            Button("Share") { model.shareExport(format: exportFormat, quality: Int(exportQuality) ?? -1) }
+                .disabled(blocked).accessibilityIdentifier("export-share")
+            if model.exporting && model.exportStatus == "Exporting" {
+                Button("Cancel export") { model.cancelExport() }.accessibilityIdentifier("export-cancel")
+            }
+            if let status = model.exportStatus {
+                Text(status).accessibilityIdentifier("export-status")
+            }
+        }.accessibilityElement(children: .contain)
+    }
+}
+
+private struct ShareItem: Identifiable { let id = UUID(); let url: URL }
+private struct ExportFile: FileDocument {
+    static var readableContentTypes: [UTType] { [.jpeg, .png] }
+    var bytes: Data
+    var kind: UTType
+    init(bytes: Data, kind: UTType) { self.bytes = bytes; self.kind = kind }
+    init(configuration _: ReadConfiguration) throws { bytes = Data(); kind = .jpeg }
+    func fileWrapper(configuration _: WriteConfiguration) throws -> FileWrapper { FileWrapper(regularFileWithContents: bytes) }
+}
+private struct ActivityShare: UIViewControllerRepresentable {
+    let url: URL
+    let done: (Bool) -> Void
+    func makeUIViewController(context _: Context) -> UIActivityViewController {
+        let controller = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        controller.completionWithItemsHandler = { _, completed, _, _ in done(completed) }
+        if let popover = controller.popoverPresentationController {
+            popover.sourceView = controller.view
+            popover.sourceRect = CGRect(x: 1, y: 1, width: 1, height: 1)
+            popover.permittedArrowDirections = []
+        }
+        return controller
+    }
+    func updateUIViewController(_: UIActivityViewController, context _: Context) {}
 }
 
 @MainActor

@@ -102,7 +102,8 @@ public final class ManualEditor {
     private let gate = NSRecursiveLock()
     private let idle = NSCondition()
     private let identity = UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
-    private var closed = false, destroyed = false, renders = 0, agentCalls = 0, assistCalls = 0
+    private var closed = false, destroyed = false, stopped = false, acceptingExport = true
+    private var renders = 0, agentCalls = 0, assistCalls = 0, exportCalls = 0
     private var applyingReview: AutoReview?
     private var applyingApproval: AgentApproval?
     private var cancellingReview = false
@@ -741,12 +742,58 @@ public final class ManualEditor {
         try checked(closed ? 13 : request.identity != identity ? 9 : pixaura_review_preview_cancel(1, context, &ticket), "Review preview cancellation")
         comparison = nil
     }
+    public struct EncodedExport {
+        public let bytes: Data, width: Int, height: Int, state: UInt32
+    }
+    /// Reads one committed revision. Does not approve, execute, or change history.
+    public func exportEncoded(format: UInt32, quality: UInt32, mode: UInt32 = 0, maxWidth: UInt32 = 0, maxHeight: UInt32 = 0, revisionID: String? = nil) throws -> EncodedExport {
+        if let revisionID, revisionID.utf8.count != 32 { throw ManualEditorFailure(status: 1, boundary: "Export") }
+        idle.lock()
+        if !acceptingExport { idle.unlock(); throw ManualEditorFailure(status: 13, boundary: "Export") }
+        if exportCalls != 0 || assistCalls != 0 { idle.unlock(); throw ManualEditorFailure(status: 8, boundary: "Export") }
+        exportCalls += 1
+        idle.unlock()
+        defer { idle.lock(); exportCalls -= 1; idle.broadcast(); idle.unlock() }
+        gate.lock(); let reviewing = applyingReview != nil; gate.unlock()
+        if reviewing { throw ManualEditorFailure(status: 8, boundary: "Export") }
+        guard MemoryLayout<pixaura_export_request>.size == 72 else { throw ManualEditorFailure(status: 14, boundary: "Export") }
+        var request = pixaura_export_request()
+        try checked(pixaura_export_bind(1, context, &request), "Export")
+        if let revisionID {
+            let bytes = Array(revisionID.utf8)
+            try withUnsafeMutableBytes(of: &request) { raw in
+                guard raw.count >= 72, let base = raw.baseAddress else { throw ManualEditorFailure(status: 14, boundary: "Export") }
+                bytes.withUnsafeBytes { source in base.advanced(by: 40).copyMemory(from: source.baseAddress!, byteCount: 32) }
+            }
+        }
+        request.format = format; request.quality = quality; request.mode = mode
+        request.max_width = maxWidth; request.max_height = maxHeight
+        let capacity = 8 * 1024 * 1024
+        var output = [UInt8](repeating: 0, count: capacity)
+        var count: UInt64 = 0, width: UInt32 = 0, height: UInt32 = 0, state: UInt32 = 7
+        let status = output.withUnsafeMutableBytes { raw in
+            pixaura_export_encode(1, context, &request, nil, raw.bindMemory(to: UInt8.self).baseAddress, UInt64(capacity), &count, &width, &height, &state)
+        }
+        try checked(status, "Export")
+        try checked(state == 6 && width > 0 && height > 0 && count <= UInt64(capacity) ? 0 : 14, "Export")
+        return EncodedExport(bytes: Data(output.prefix(Int(count))), width: Int(width), height: Int(height), state: state)
+    }
+    public func exportCancel() throws {
+        let status = pixaura_export_cancel(context)
+        if status != 0 && status != 1 && status != 3 { throw ManualEditorFailure(status: status, boundary: "Export") }
+    }
     public func close() {
         gate.lock()
         comparison = nil
-        if !closed { closed = true; _ = pixaura_editor_stop(context) }
+        if !closed { closed = true }
         gate.unlock()
-        idle.lock(); while renders != 0 || agentCalls != 0 || assistCalls != 0 { idle.wait() }; idle.unlock()
+        idle.lock(); acceptingExport = false; let pending = exportCalls != 0; idle.unlock()
+        if pending { _ = pixaura_export_cancel(context) }
+        idle.lock(); while exportCalls != 0 { idle.wait() }; idle.unlock()
+        gate.lock()
+        if !stopped { _ = pixaura_editor_stop(context); stopped = true }
+        gate.unlock()
+        idle.lock(); while renders != 0 || agentCalls != 0 || assistCalls != 0 || exportCalls != 0 { idle.wait() }; idle.unlock()
         gate.lock()
         if !destroyed { _ = pixaura_editor_destroy(context); destroyed = true }
         gate.unlock()

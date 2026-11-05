@@ -1,5 +1,22 @@
 # Delivery roadmap
 
+<!-- phase9-step4-current -->
+## Phase 9 Step 4 - Apple Save and Share
+
+Phase 9 AUTHORIZED / IN PROGRESS. Step 3 COMPLETE / FULL PASS.
+Step 3 closure df49c9a77bddf2f0a8b45d5bb0f12120ebe4bc3b: Foundation 41950759628
+SUCCESS 7/7; Native shells 41950759555 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
+Step 3 implementation 093f63b7807935f92a3758552dfd60fc79f38d97: Foundation 41945751521
+SUCCESS 7/7; Native shells 41945751568 SUCCESS 3/3.
+Step 4 AUTHORIZED / IN PROGRESS. EXPORT IS NOT A REVISION. EXPORT IS NOT AN APPROVAL. EXPORT IS NOT AN EDIT.
+Apple save uses the Photos library or a user-selected document. Apple share presents the system share sheet and does not treat presentation as delivery.
+Schema 3 unchanged. HUMAN Apply unchanged. Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
+Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+Hosted Apple software evidence is not physical Metal qualification.
+Steps 5-6 NOT STARTED. No Phase 10.
+<!-- phase9-step4-history -->
+
 <!-- phase9-step3-current -->
 ## Phase 9 Step 3 - Android Save and Share
 

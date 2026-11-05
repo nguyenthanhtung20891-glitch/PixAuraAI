@@ -1,6 +1,8 @@
 import Foundation
 import Combine
 import CoreGraphics
+import Photos
+import UniformTypeIdentifiers
 import PixAuraCore
 
 enum AssistStatus { case idle, requesting, proposalAvailable, failed, stale, cancelled, rejected }
@@ -123,6 +125,7 @@ private final class EditorWorker {
     func send(_ epoch: UInt64, _ work: @escaping (EditorWorker) throws -> Void) {
         commands.async { self.latestEpoch = epoch; do { try work(self); self.emit(epoch) } catch { self.emit(epoch, error.localizedDescription) } }
     }
+    func publishQuietly() { emit(latestEpoch) }
     private func projectRoot() throws -> URL {
         let base = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
         var root = base.appendingPathComponent("manual-projects", isDirectory: true)
@@ -169,6 +172,17 @@ private final class EditorWorker {
         // Same nonisolated owner-lane scheduling as send/cancel; never join on UI.
         commands.async { self.close() }
     }
+    func exportRevision(format: UInt32, quality: UInt32) throws -> ManualEditor.EncodedExport {
+        guard let owner else { throw ManualEditorFailure(status: 13, boundary: "Export") }
+        let before = try owner.state()
+        let encoded = try owner.exportEncoded(format: format, quality: quality)
+        let after = try owner.state()
+        if before.revisionCount != after.revisionCount || before.revisionID != after.revisionID {
+            throw ManualEditorFailure(status: 14, boundary: "Export")
+        }
+        return encoded
+    }
+    func cancelExport() { try? owner?.exportCancel() }
     func close() {
         #if DEBUG
         lock.lock(); let previewToDrain = activeReviewPreview; lock.unlock()
@@ -439,6 +453,12 @@ final class ManualEditorModel: ObservableObject {
     @Published private(set) var busy = false
     @Published private(set) var error: String?
     @Published private(set) var previewLoading = false
+    @Published private(set) var exporting = false
+    @Published private(set) var exportStatus: String?
+    @Published private(set) var shareURL: URL?
+    @Published private(set) var shareGeneration = 0
+    @Published private(set) var exportFile: Data?
+    @Published private(set) var exportFileType: UTType = .jpeg
     @Published private(set) var assistance = AssistUiState()
     @Published private(set) var autoProposal = AutoUiState()
     private var autoEpoch: UInt64 = 0
@@ -745,8 +765,113 @@ final class ManualEditorModel: ObservableObject {
             DispatchQueue.main.async { [weak self] in self?.autoProposal.result = ResultReviewUi(review) }
         }
     }
-    func interrupt() { invalidateAdvice(.cancelled); send { try $0.action(4) } }
-    func close() { setAutoMode(false); setAssistMode(false); send { $0.close() } }
+    func interrupt() { invalidateAdvice(.cancelled); cancelExport(); send { try $0.action(4) } }
+    func close() { cancelExport(); setAutoMode(false); setAssistMode(false); send { $0.close() } }
+    func cancelExport() { worker.cancelExport() }
+    func reserveExport() -> Bool {
+        if exporting { return false }
+        exporting = true; exportStatus = "Choose a destination"; error = nil
+        return true
+    }
+    func noteExportCancelled() { endExport("Save cancelled", error: nil) }
+    func finishShare(completed: Bool) {
+        guard shareURL != nil || exporting else { return }
+        if let shareURL { try? FileManager.default.removeItem(at: shareURL) }
+        shareURL = nil
+        endExport(completed ? "Share sheet closed. Delivery to another app is not confirmed." : "Share cancelled", error: nil)
+    }
+    func finishFileExport(_ result: Result<URL, Error>) {
+        exportFile = nil
+        switch result {
+        case .success: endExport("Saved", error: nil)
+        case .failure(let error):
+            let cocoa = error as NSError
+            if cocoa.domain == NSCocoaErrorDomain && cocoa.code == NSUserCancelledError { endExport("Save cancelled", error: nil) }
+            else { endExport("Export failed", error: exportMessage(error)) }
+        }
+    }
+    func saveToPhotos(format: UInt32, quality: Int) {
+        guard let jpeg = exportQuality(format, quality), beginExport() else { return }
+        worker.commands.async { [weak self] in
+            guard let self else { return }
+            do {
+                let encoded = try self.worker.exportRevision(format: format, quality: jpeg)
+                ExportDestination.saveToPhotos(encoded.bytes) { result in
+                    self.worker.commands.async {
+                        self.worker.publishQuietly()
+                        DispatchQueue.main.async {
+                            switch result {
+                            case .success: self.endExport("Saved", error: nil)
+                            case .failure(let error):
+                                self.endExport("Export failed", error: error is ExportPermission ? "Photo library permission was denied. Nothing was saved." : self.exportMessage(error))
+                            }
+                        }
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async { self.endExport("Export failed", error: self.exportMessage(error)) }
+            }
+        }
+    }
+    func prepareFileExport(format: UInt32, quality: Int) {
+        guard let jpeg = exportQuality(format, quality), beginExport() else { return }
+        worker.commands.async { [weak self] in
+            guard let self else { return }
+            do {
+                let encoded = try self.worker.exportRevision(format: format, quality: jpeg)
+                self.worker.publishQuietly()
+                DispatchQueue.main.async {
+                    self.exportFileType = format == 1 ? .jpeg : .png
+                    self.exportFile = encoded.bytes
+                    self.exportStatus = "Choose a destination"
+                }
+            } catch {
+                DispatchQueue.main.async { self.endExport("Export failed", error: self.exportMessage(error)) }
+            }
+        }
+    }
+    func shareExport(format: UInt32, quality: Int) {
+        guard let jpeg = exportQuality(format, quality), beginExport() else { return }
+        worker.commands.async { [weak self] in
+            guard let self else { return }
+            do {
+                let encoded = try self.worker.exportRevision(format: format, quality: jpeg)
+                let url = try ExportDestination.cacheFile(name: format == 1 ? "PixAuraAI.jpg" : "PixAuraAI.png", bytes: encoded.bytes)
+                self.worker.publishQuietly()
+                DispatchQueue.main.async {
+                    self.shareURL = url
+                    self.shareGeneration += 1
+                    self.exportStatus = "Opening the share sheet. Delivery is not confirmed."
+                }
+            } catch {
+                DispatchQueue.main.async { self.endExport("Export failed", error: self.exportMessage(error)) }
+            }
+        }
+    }
+    private func beginExport() -> Bool {
+        if exporting { return false }
+        exporting = true; busy = true; error = nil; exportStatus = "Exporting"
+        return true
+    }
+    private func endExport(_ status: String, error: String?) {
+        exporting = false; busy = false; exportStatus = status; self.error = error; exportFile = nil
+    }
+    private func exportQuality(_ format: UInt32, _ quality: Int) -> UInt32? {
+        if format != 1 && format != 2 { self.error = "Choose JPEG or PNG"; return nil }
+        if format == 2 { return 0 }
+        if quality < 1 || quality > 100 { self.error = "JPEG quality must be from 1 through 100"; return nil }
+        return UInt32(quality)
+    }
+    private func exportMessage(_ error: Error) -> String {
+        guard let failure = error as? ManualEditorFailure else { return error.localizedDescription }
+        switch failure.status {
+        case 8: return "Export is busy. Manual editing is available."
+        case 9: return "The selected revision is stale. Nothing was saved."
+        case 11: return "The image is larger than the export limit. Nothing was saved."
+        case 13: return "Export stopped. Nothing was saved."
+        default: return "Export failed. Nothing was saved."
+        }
+    }
     func retryPreview() { previewLoading = true; send { try $0.retry() } }
     func pickerFailure(_ failure: Error) { error = failure.localizedDescription }
     #if DEBUG
@@ -763,4 +888,54 @@ final class ManualEditorModel: ObservableObject {
         }
     }
     #endif
+}
+
+struct ExportPermission: Error {}
+
+enum ExportDestination {
+    static func libraryAccess(_ status: PHAuthorizationStatus) -> Bool {
+        status == .authorized || status == .limited
+    }
+    static func saveToPhotos(_ bytes: Data, completion: @escaping (Result<Void, Error>) -> Void) {
+        let finish: (PHAuthorizationStatus) -> Void = { status in
+            guard libraryAccess(status) else { completion(.failure(ExportPermission())); return }
+            PHPhotoLibrary.shared().performChanges {
+                PHAssetCreationRequest.forAsset().addResource(with: .photo, data: bytes, options: nil)
+            } completionHandler: { saved, error in
+                if saved { completion(.success(())) }
+                else { completion(.failure(error ?? ExportPermission())) }
+            }
+        }
+        let current = PHPhotoLibrary.authorizationStatus(for: .addOnly)
+        if current == .notDetermined { PHPhotoLibrary.requestAuthorization(for: .addOnly, handler: finish) }
+        else { finish(current) }
+    }
+    static func writeAtomically(_ url: URL, _ bytes: Data) throws {
+        var directory = ObjCBool(false)
+        if FileManager.default.fileExists(atPath: url.path, isDirectory: &directory), directory.boolValue {
+            throw CocoaError(.fileWriteFileExists)
+        }
+        let temporary = url.deletingLastPathComponent().appendingPathComponent(".pixaura-\(UUID().uuidString).partial")
+        do {
+            try bytes.write(to: temporary, options: .atomic)
+            if FileManager.default.fileExists(atPath: url.path) {
+                _ = try FileManager.default.replaceItemAt(url, withItemAt: temporary)
+            } else {
+                try FileManager.default.moveItem(at: temporary, to: url)
+            }
+        } catch {
+            try? FileManager.default.removeItem(at: temporary)
+            throw error
+        }
+    }
+    static func cacheFile(name: String, bytes: Data) throws -> URL {
+        let folder = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("export", isDirectory: true)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        if let existing = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil) {
+            for file in existing { try? FileManager.default.removeItem(at: file) }
+        }
+        let url = folder.appendingPathComponent(name)
+        try writeAtomically(url, bytes)
+        return url
+    }
 }
