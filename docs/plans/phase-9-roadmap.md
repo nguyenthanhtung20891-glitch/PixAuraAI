@@ -9,7 +9,14 @@ SUCCESS 7/7; Native shells 42092651461 SUCCESS 3/3, exact SHA, attempt 1, every 
 Step 2 implementation f9f2df461ecfb63b371982d9cc2ec7f15db14628: Foundation 42085862758
 SUCCESS 7/7; Native shells 42085862581 SUCCESS 3/3.
 89455b438f6f608fefcc19b9812701f8f02ef1a9 is not certified. The review field was not cleared before typing. That SHA is not rerun.
-Step 3 AUTHORIZED / IN PROGRESS. Steps 4-6 NOT STARTED.
+Step 3 CLOSURE CERTIFICATION PENDING.
+Certified implementation SHA: `8e5a64c51acb87f25b76bafb5bc1106dadfca686`.
+Foundation 42108036683 SUCCESS 7/7; Native shells 42108036667 SUCCESS 3/3;
+both exact SHA, attempt 1, every required job completed/SUCCESS.
+This separate documentation-only closure requires BOTH full workflows on its OWN
+exact SHA. Until that observed receipt, Step 3 is not COMPLETE / FULL PASS.
+9397fc84b7727c91c1516f1255254de3569a6e73 and b526e21e58e3d17f723bb65a2df9d41af81c45cb are not certified and are not rerun.
+Steps 4-6 NOT STARTED.
 UI STATE != NATIVE AUTHORITY. EXPORT IS NOT A REVISION. Schema 3 unchanged. HUMAN Apply unchanged.
 Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
 Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.

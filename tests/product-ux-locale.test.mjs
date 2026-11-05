@@ -46,10 +46,10 @@ test('English and Vietnamese catalogs present the same journey without becoming 
   for (const p of files) {
     const s = text(p).split('<!-- phase10-step3-current -->')[1]?.split('<!-- phase10-step3-history -->')[0];
     assert.ok(s, p);
-    for (const term of ['Step 2 COMPLETE / FULL PASS', 'e077092c5f714831f73b704edf473a64a096dff0', '42092651581', '42092651461', 'f9f2df461ecfb63b371982d9cc2ec7f15db14628', '42085862758', '42085862581', 'Step 3 AUTHORIZED / IN PROGRESS', 'Steps 4-6 NOT STARTED', 'Phase 11 is not started', 'Phase 12 is not started']) assert.ok(s.includes(term), p + term);
+    for (const term of ['Step 2 COMPLETE / FULL PASS', 'e077092c5f714831f73b704edf473a64a096dff0', '42092651581', '42092651461', 'f9f2df461ecfb63b371982d9cc2ec7f15db14628', '42085862758', '42085862581', 'Step 3 CLOSURE CERTIFICATION PENDING', '8e5a64c51acb87f25b76bafb5bc1106dadfca686', '42108036683', '42108036667', 'Steps 4-6 NOT STARTED', 'Phase 11 is not started', 'Phase 12 is not started']) assert.ok(s.includes(term), p + term);
     assert.ok(text(p).split('<!-- phase10-step1-current -->')[1].includes('Steps 2-6 NOT STARTED'), p);
   }
-  assert.ok(text('docs/plans/phase-10-roadmap.md').includes('| 3 | Localization, Accessibility and Responsive UI | AUTHORIZED / IN PROGRESS |'));
+  assert.ok(text('docs/plans/phase-10-roadmap.md').includes('| 3 | Localization, Accessibility and Responsive UI | CLOSURE CERTIFICATION PENDING |'));
   const receipt = JSON.parse(text('docs/reports/evidence/phase-10-step-2-closure-certification.json'));
   assert.equal(receipt.sha, 'e077092c5f714831f73b704edf473a64a096dff0');
   assert.equal(receipt.label, 'closure');
@@ -59,6 +59,19 @@ test('English and Vietnamese catalogs present the same journey without becoming 
   assert.equal(receipt.runs[1].jobs.length, 3);
   for (const run of receipt.runs) {
     assert.equal(run.head_sha, receipt.sha);
+    assert.equal(run.attempt, 1);
+    assert.equal(run.conclusion, 'success');
+    for (const job of run.jobs) assert.equal(job.conclusion, 'success');
+  }
+  const implementation = JSON.parse(text('docs/reports/evidence/phase-10-step-3-implementation-certification.json'));
+  assert.equal(implementation.sha, '8e5a64c51acb87f25b76bafb5bc1106dadfca686');
+  assert.equal(implementation.label, 'implementation');
+  assert.equal(implementation.step3, 'CLOSURE_CERTIFICATION_PENDING');
+  assert.equal(implementation.step4, 'NOT_STARTED');
+  assert.equal(implementation.runs[0].jobs.length, 7);
+  assert.equal(implementation.runs[1].jobs.length, 3);
+  for (const run of implementation.runs) {
+    assert.equal(run.head_sha, implementation.sha);
     assert.equal(run.attempt, 1);
     assert.equal(run.conclusion, 'success');
     for (const job of run.jobs) assert.equal(job.conclusion, 'success');
