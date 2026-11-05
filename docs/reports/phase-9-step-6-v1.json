@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "phase": 9,
+  "step": 6,
+  "status": "AUTHORIZED_IN_PROGRESS",
+  "step5_closure_sha": "7e334b7962b1974bc4f674b9cc6818831dd408de",
+  "step5_implementation_sha": "6a30b1512c995df511e420945d845a92b85364dc",
+  "runtime_authority": false,
+  "editing_authority": false,
+  "history_authority": false,
+  "phase10": "NOT_STARTED",
+  "provider": "reference.assistance.v1",
+  "planner": "reference.deterministic.v1",
+  "learned_model": "NONE_REQUIRED_NONE_ADMITTED",
+  "changes": {},
+  "additions": {}
+}

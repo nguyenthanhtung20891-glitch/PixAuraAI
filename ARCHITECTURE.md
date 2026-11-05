@@ -1,5 +1,21 @@
 # System architecture
 
+<!-- phase9-step6-current -->
+## Phase 9 Step 6 - End-to-end Certification
+
+Phase 9 AUTHORIZED / IN PROGRESS. Step 5 COMPLETE / FULL PASS.
+Step 5 closure 7e334b7962b1974bc4f674b9cc6818831dd408de: Foundation 41981405571
+SUCCESS 7/7; Native shells 41981405588 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
+Step 5 implementation 6a30b1512c995df511e420945d845a92b85364dc: Foundation 41976330668
+SUCCESS 7/7; Native shells 41976330587 SUCCESS 3/3.
+Step 6 AUTHORIZED / IN PROGRESS. EXPORT IS NOT A REVISION. EXPORT IS NOT AN APPROVAL. EXPORT IS NOT AN EDIT.
+The certified export tests cover manual, approved Auto, undo, redo, denial, cancellation, and a second document.
+Schema 3 unchanged. HUMAN Apply unchanged. Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
+Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+Phase 10 is not started.
+<!-- phase9-step6-history -->
+
 <!-- phase9-step5-current -->
 ## Phase 9 Step 5 - File Lifecycle Hardening
 

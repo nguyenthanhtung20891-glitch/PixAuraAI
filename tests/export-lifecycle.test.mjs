@@ -56,6 +56,6 @@ test('Phase 9 Step 5 hardens export lifecycle without a new history or resource 
     assert.equal(run.conclusion, 'success');
     for (const job of run.jobs) assert.equal(job.conclusion, 'success');
   }
-  assert.ok(text('docs/plans/phase-9-roadmap.md').includes('| 6 | End-to-end Certification and Phase Closure | NOT STARTED |'));
+  assert.ok(text('docs/plans/phase-9-roadmap.md').includes('| 6 | End-to-end Certification and Phase Closure | AUTHORIZED / IN PROGRESS |'));
   for (const p of ['.github/workflows/foundation.yml', '.github/workflows/native-shells.yml']) assert.ok(text(p).includes('tests/export-lifecycle.test.mjs'), p);
 });
