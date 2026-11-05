@@ -20,6 +20,9 @@ hand-edited project file. That SHA is not rerun.
 `96dd3b0a1c26dea64537c2a05b760016c8025b07` is not certified. Foundation
 `41957799748` failed because the photo-save gate used a forbidden concurrency
 marker. That SHA is not rerun.
+`eab05531501d57873b849f830a8ac3d601bf8501` is not certified. Foundation
+`41959479634` succeeded, but Native `41959479678` rejected an unnecessary
+isolation annotation as an error. That SHA is not rerun.
 
 ## Destination
 

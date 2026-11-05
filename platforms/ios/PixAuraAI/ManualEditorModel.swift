@@ -804,7 +804,7 @@ final class ManualEditorModel: ObservableObject {
     }
     func saveToPhotos(format: UInt32, quality: Int) {
         guard let jpeg = exportQuality(format, quality), beginExport() else { return }
-        nonisolated(unsafe) let model = self
+        let model = self
         worker.exportThen({ worker in
             try worker.exportRevision(format: format, quality: jpeg).bytes
         }) { bytes, message in
@@ -819,7 +819,7 @@ final class ManualEditorModel: ObservableObject {
     }
     func prepareFileExport(format: UInt32, quality: Int) {
         guard let jpeg = exportQuality(format, quality), beginExport() else { return }
-        nonisolated(unsafe) let model = self
+        let model = self
         worker.exportThen({ worker in
             try worker.exportRevision(format: format, quality: jpeg).bytes
         }) { bytes, message in
@@ -833,7 +833,7 @@ final class ManualEditorModel: ObservableObject {
     }
     func shareExport(format: UInt32, quality: Int) {
         guard let jpeg = exportQuality(format, quality), beginExport() else { return }
-        nonisolated(unsafe) let model = self
+        let model = self
         let name = format == 1 ? "PixAuraAI.jpg" : "PixAuraAI.png"
         worker.exportThen({ worker in
             let encoded = try worker.exportRevision(format: format, quality: jpeg)
