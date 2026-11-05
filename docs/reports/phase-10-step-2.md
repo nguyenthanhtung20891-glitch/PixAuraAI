@@ -27,3 +27,9 @@ again." and does not replace the open document. Native import, Schema 3, and
 permission scope are unchanged.
 
 Phase 11 and Phase 12 are not started.
+
+`e617815e9f9a7e41b331472e311b605ed8ad26bf` is not certified. Foundation
+`42060460533` succeeded. Native android-app `127360354328` failed because the
+shell test required the empty-editor sentence after another test had already
+opened a project. That SHA is not rerun. The shell test now checks the Open
+Photo name, which remains present with or without a document.
