@@ -1,5 +1,21 @@
 # Delivery roadmap
 
+<!-- phase9-closed-current -->
+## Phase 9 - observed closure
+
+Phase 9 CLOSED / COMPLETE / FULL PASS.
+Step 6 closure 85ec8988a88f482318a3f78b97dd6e5287bd9eda: Foundation 41995816960
+SUCCESS 7/7; Native shells 41995816721 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
+Step 6 implementation 62d7f2a54907234f92e6c12a2527dd59d6411122: Foundation 41990040556
+SUCCESS 7/7; Native shells 41990040528 SUCCESS 3/3.
+EXPORT IS NOT A REVISION. EXPORT IS NOT AN APPROVAL. EXPORT IS NOT AN EDIT.
+Schema 3 unchanged. HUMAN Apply unchanged.
+Provider reference.assistance.v1 ADMITTED. Planner reference.deterministic.v1.
+Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+No unresolved A-class blocker. Phase 10 is not started. Phase 11 and Phase 12 are not started.
+<!-- phase9-closed-history -->
+
 <!-- phase9-step6-current -->
 ## Phase 9 Step 6 - End-to-end Certification
 
