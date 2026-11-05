@@ -27,6 +27,9 @@ isolation annotation as an error. That SHA is not rerun.
 `41961216195` succeeded, but Native `41961216123` could not reach a review
 control after the inline export form reduced the review viewport. That SHA is
 not rerun. Export now opens from the toolbar and leaves the review layout intact.
+`90fe6fb31893018a0dc65e0cfbe87d3f1b872192` is not certified. Native
+`41965766306` stopped in the iOS type checker on the combined editor expression.
+That SHA is not rerun. The manual controls and export sheet are now separate views.
 
 ## Destination
 

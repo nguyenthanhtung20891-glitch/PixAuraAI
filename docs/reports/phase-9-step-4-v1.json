@@ -24,7 +24,7 @@
     },
     "platforms/ios/PixAuraAI/ManualEditorScreen.swift": {
       "before_sha256_lf": "adb70a373e15e72bfa9128362164fed501ba854576e8990dab981f0b884e8f77",
-      "after_sha256_lf": "2e07ea985c73fcebc61d8291914981e29702e6533b472d68096f0b2b3e581e10"
+      "after_sha256_lf": "d6960a5d6c06a76350287222b92aa9e7e716e9a8771e65c784d39ccc50b5a7d6"
     },
     "platforms/ios/PixAuraAI.xcodeproj/project.pbxproj": {
       "before_sha256_lf": "7497e73f55664fafb1474c3b11a95da751a66d800457080512c7536d1aac3b60",
