@@ -1,7 +1,11 @@
 # Phase 9 Step 6 — End-to-end certification
 
-Status: AUTHORIZED / IN PROGRESS. This commit does not certify itself and does
-not close Phase 9.
+Status: CLOSURE CERTIFICATION PENDING. Implementation
+`62d7f2a54907234f92e6c12a2527dd59d6411122` is observed: Foundation
+`41990040556` SUCCESS 7/7 and Native shells `41990040528` SUCCESS 3/3, attempt
+1, exact SHA, every required job SUCCESS. This documentation-only closure does
+not certify itself. Step 6 is not COMPLETE / FULL PASS until that separate SHA
+is observed. Phase 9 is not closed. Phase 10 is not started.
 
 ## Observed Step 5 closure
 

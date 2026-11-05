@@ -45,6 +45,6 @@ test('Phase 9 Step 1 freezes export as a projection and leaves the engine unstar
     assert.equal(run.conclusion, 'success');
     for (const job of run.jobs) assert.equal(job.conclusion, 'success');
   }
-  assert.ok(plan.includes('| 6 | End-to-end Certification and Phase Closure | AUTHORIZED / IN PROGRESS |'));
+  assert.ok(plan.includes('| 6 | End-to-end Certification and Phase Closure | CLOSURE CERTIFICATION PENDING |'));
   for (const p of ['.github/workflows/foundation.yml', '.github/workflows/native-shells.yml']) assert.ok(text(p).includes('tests/export-contract.test.mjs'), p);
 });
