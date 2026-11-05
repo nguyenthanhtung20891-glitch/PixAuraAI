@@ -1,7 +1,8 @@
 # Phase 9 Step 3 — Android Save and Share
 
-Status: AUTHORIZED / IN PROGRESS. This commit adds the Android destination
-adapter over the certified native export. It does not certify itself.
+Status: CLOSURE CERTIFICATION PENDING. The Android destination adapter is
+certified at its implementation SHA. This documentation commit does not
+certify itself.
 
 ## Observed Step 2 closure
 
@@ -34,3 +35,11 @@ unknown archive` for NDK 28.2.13676358. The other Foundation jobs succeeded.
 Native shells `41941054490` failed in `android-app` job `126961648391`: release
 lint rejected an SDK check inside a method already marked for API 29. iOS and
 source succeeded. That SHA is not rerun.
+
+`093f63b7807935f92a3758552dfd60fc79f38d97` is the certified implementation SHA.
+Foundation `41945751521` SUCCESS 7/7 and Native shells `41945751568` SUCCESS 3/3,
+both attempt 1, exact SHA, every required job SUCCESS. The receipt is
+`docs/reports/evidence/phase-9-step-3-implementation-certification.json`.
+This documentation commit does not certify itself. Step 3 remains
+CLOSURE CERTIFICATION PENDING until that separate SHA is observed.
+Steps 4-6 are not started.

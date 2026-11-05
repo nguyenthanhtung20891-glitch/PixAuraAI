@@ -8,7 +8,13 @@ Step 2 closure 667bcc3f04c639e41c18f15b4d44f6aee7852107: Foundation 41935253282
 SUCCESS 7/7; Native shells 41935253224 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
 Step 2 implementation 64d854d7ec2a5e11787cd0b94ff60b0fdfe7a8e3: Foundation 41928862538
 SUCCESS 7/7; Native shells 41928862545 SUCCESS 3/3.
-Step 3 AUTHORIZED / IN PROGRESS. EXPORT IS NOT A REVISION. EXPORT IS NOT AN APPROVAL. EXPORT IS NOT AN EDIT.
+Step 3 CLOSURE CERTIFICATION PENDING.
+Certified implementation SHA: `093f63b7807935f92a3758552dfd60fc79f38d97`.
+Foundation 41945751521 SUCCESS 7/7; Native shells 41945751568 SUCCESS 3/3;
+both exact SHA, attempt 1, every required job completed/SUCCESS.
+This separate documentation-only closure requires BOTH full workflows on its OWN
+exact SHA. Until that observed receipt, Step 3 is not COMPLETE / FULL PASS.
+EXPORT IS NOT A REVISION. EXPORT IS NOT AN APPROVAL. EXPORT IS NOT AN EDIT.
 Android save uses MediaStore or a user-selected document. Android share presents the system sharesheet and does not treat presentation as delivery.
 Schema 3 unchanged. HUMAN Apply unchanged. Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
 Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.

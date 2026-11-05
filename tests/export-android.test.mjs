@@ -7,7 +7,9 @@ const files = ['AGENTS.md', 'ARCHITECTURE.md', 'DECISIONS.md', 'QUALITY_GATES.md
 
 test('Phase 9 Step 3 saves and shares without changing history', () => {
   const m = read('docs/reports/phase-9-step-3-v1.json');
-  assert.equal(m.status, 'AUTHORIZED_IN_PROGRESS');
+  assert.equal(m.status, 'CLOSURE_CERTIFICATION_PENDING');
+  assert.equal(m.certified_implementation_sha, '093f63b7807935f92a3758552dfd60fc79f38d97');
+  assert.deepEqual(m.implementation_runs, [41945751521, 41945751568]);
   assert.equal(m.step2_closure_sha, '667bcc3f04c639e41c18f15b4d44f6aee7852107');
   assert.equal(m.step2_implementation_sha, '64d854d7ec2a5e11787cd0b94ff60b0fdfe7a8e3');
   assert.equal(m.runtime_authority, false);
@@ -41,8 +43,24 @@ test('Phase 9 Step 3 saves and shares without changing history', () => {
   for (const p of files) {
     const s = text(p).split('<!-- phase9-step3-current -->')[1]?.split('<!-- phase9-step3-history -->')[0];
     assert.ok(s, p);
-    for (const term of ['Step 2 COMPLETE / FULL PASS', '667bcc3f04c639e41c18f15b4d44f6aee7852107', '41935253282', '41935253224', '64d854d7ec2a5e11787cd0b94ff60b0fdfe7a8e3', '41928862538', '41928862545', 'Step 3 AUTHORIZED / IN PROGRESS', 'EXPORT IS NOT A REVISION', 'sharesheet', 'Schema 3 unchanged', 'HUMAN Apply unchanged', 'reference.assistance.v1 ADMITTED', 'reference.deterministic.v1', 'NONE REQUIRED / NONE ADMITTED', 'Vulkan/Metal UNKNOWN', 'NOT WAIVED', 'NOT SATISFIED', 'Steps 4-6 NOT STARTED']) assert.ok(s.includes(term), p + term);
+    for (const term of ['Step 2 COMPLETE / FULL PASS', '667bcc3f04c639e41c18f15b4d44f6aee7852107', '41935253282', '41935253224', '64d854d7ec2a5e11787cd0b94ff60b0fdfe7a8e3', '41928862538', '41928862545', 'Step 3 CLOSURE CERTIFICATION PENDING', '093f63b7807935f92a3758552dfd60fc79f38d97', '41945751521', '41945751568', 'EXPORT IS NOT A REVISION', 'sharesheet', 'Schema 3 unchanged', 'HUMAN Apply unchanged', 'reference.assistance.v1 ADMITTED', 'reference.deterministic.v1', 'NONE REQUIRED / NONE ADMITTED', 'Vulkan/Metal UNKNOWN', 'NOT WAIVED', 'NOT SATISFIED', 'Steps 4-6 NOT STARTED']) assert.ok(s.includes(term), p + term);
   }
+  assert.ok(text('docs/plans/phase-9-roadmap.md').includes('| 3 | Android Save and Share | CLOSURE CERTIFICATION PENDING |'));
   assert.ok(text('docs/plans/phase-9-roadmap.md').includes('| 4 | Apple Save and Share | NOT STARTED |'));
+  const implementation = read('docs/reports/evidence/phase-9-step-3-implementation-certification.json');
+  assert.equal(implementation.sha, m.certified_implementation_sha);
+  assert.equal(implementation.label, 'implementation');
+  assert.equal(implementation.step3, 'CLOSURE_CERTIFICATION_PENDING');
+  assert.equal(implementation.step4, 'NOT_STARTED');
+  assert.equal(implementation.runs.length, 2);
+  assert.equal(implementation.runs[0].jobs.length, 7);
+  assert.equal(implementation.runs[1].jobs.length, 3);
+  for (const run of implementation.runs) {
+    assert.equal(run.head_sha, implementation.sha);
+    assert.equal(run.attempt, 1);
+    assert.equal(run.status, 'completed');
+    assert.equal(run.conclusion, 'success');
+    for (const job of run.jobs) assert.equal(job.conclusion, 'success');
+  }
   for (const p of ['.github/workflows/foundation.yml', '.github/workflows/native-shells.yml']) assert.ok(text(p).includes('tests/export-android.test.mjs'), p);
 });

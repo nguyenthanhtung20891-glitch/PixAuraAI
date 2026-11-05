@@ -72,6 +72,6 @@ test('Phase 9 Step 2 encodes one committed revision and leaves history untouched
     assert.equal(run.conclusion, 'success');
     for (const job of run.jobs) assert.equal(job.conclusion, 'success');
   }
-  assert.ok(plan.includes('| 3 | Android Save and Share | AUTHORIZED / IN PROGRESS |'));
+  assert.ok(plan.includes('| 3 | Android Save and Share | CLOSURE CERTIFICATION PENDING |'));
   for (const p of ['.github/workflows/foundation.yml', '.github/workflows/native-shells.yml']) assert.ok(text(p).includes('tests/export-engine.test.mjs'), p);
 });
