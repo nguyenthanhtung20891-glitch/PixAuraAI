@@ -46,7 +46,7 @@ test('Phase 9 Step 3 saves and shares without changing history', () => {
     for (const term of ['Step 2 COMPLETE / FULL PASS', '667bcc3f04c639e41c18f15b4d44f6aee7852107', '41935253282', '41935253224', '64d854d7ec2a5e11787cd0b94ff60b0fdfe7a8e3', '41928862538', '41928862545', 'Step 3 CLOSURE CERTIFICATION PENDING', '093f63b7807935f92a3758552dfd60fc79f38d97', '41945751521', '41945751568', 'EXPORT IS NOT A REVISION', 'sharesheet', 'Schema 3 unchanged', 'HUMAN Apply unchanged', 'reference.assistance.v1 ADMITTED', 'reference.deterministic.v1', 'NONE REQUIRED / NONE ADMITTED', 'Vulkan/Metal UNKNOWN', 'NOT WAIVED', 'NOT SATISFIED', 'Steps 4-6 NOT STARTED']) assert.ok(s.includes(term), p + term);
   }
   assert.ok(text('docs/plans/phase-9-roadmap.md').includes('| 3 | Android Save and Share | CLOSURE CERTIFICATION PENDING |'));
-  assert.ok(text('docs/plans/phase-9-roadmap.md').includes('| 4 | Apple Save and Share | AUTHORIZED / IN PROGRESS |'));
+  assert.ok(text('docs/plans/phase-9-roadmap.md').includes('| 4 | Apple Save and Share | CLOSURE CERTIFICATION PENDING |'));
   const implementation = read('docs/reports/evidence/phase-9-step-3-implementation-certification.json');
   assert.equal(implementation.sha, m.certified_implementation_sha);
   assert.equal(implementation.label, 'implementation');

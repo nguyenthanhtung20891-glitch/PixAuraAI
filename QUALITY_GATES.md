@@ -8,7 +8,13 @@ Step 3 closure df49c9a77bddf2f0a8b45d5bb0f12120ebe4bc3b: Foundation 41950759628
 SUCCESS 7/7; Native shells 41950759555 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
 Step 3 implementation 093f63b7807935f92a3758552dfd60fc79f38d97: Foundation 41945751521
 SUCCESS 7/7; Native shells 41945751568 SUCCESS 3/3.
-Step 4 AUTHORIZED / IN PROGRESS. EXPORT IS NOT A REVISION. EXPORT IS NOT AN APPROVAL. EXPORT IS NOT AN EDIT.
+Step 4 CLOSURE CERTIFICATION PENDING.
+Certified implementation SHA: `6a6b8d30ba69316822dcffafbee6894e4d1f0271`.
+Foundation 41967410493 SUCCESS 7/7; Native shells 41967410497 SUCCESS 3/3;
+both exact SHA, attempt 1, every required job completed/SUCCESS.
+This separate documentation-only closure requires BOTH full workflows on its OWN
+exact SHA. Until that observed receipt, Step 4 is not COMPLETE / FULL PASS.
+EXPORT IS NOT A REVISION. EXPORT IS NOT AN APPROVAL. EXPORT IS NOT AN EDIT.
 Apple save uses the Photos library or a user-selected document. Apple share presents the system share sheet and does not treat presentation as delivery.
 Schema 3 unchanged. HUMAN Apply unchanged. Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
 Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.

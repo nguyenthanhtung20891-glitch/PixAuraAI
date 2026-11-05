@@ -1,7 +1,11 @@
 # Phase 9 Step 4 — Apple Save and Share
 
-Status: AUTHORIZED / IN PROGRESS. This commit adds the Apple destination
-adapter over the certified native export. It does not certify itself.
+Status: CLOSURE CERTIFICATION PENDING. Implementation
+`6a6b8d30ba69316822dcffafbee6894e4d1f0271` is observed: Foundation
+`41967410493` SUCCESS 7/7 and Native shells `41967410497` SUCCESS 3/3, attempt
+1, exact SHA, every required job SUCCESS. This documentation-only closure does
+not certify itself. Step 4 is not COMPLETE / FULL PASS until that separate SHA
+is observed. Steps 5-6 are not started.
 
 ## Observed Step 3 closure
 
