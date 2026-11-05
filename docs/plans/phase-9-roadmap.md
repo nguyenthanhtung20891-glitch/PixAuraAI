@@ -9,6 +9,7 @@ SUCCESS 7/7; Native shells 42114973771 SUCCESS 3/3, exact SHA, attempt 1, every 
 Step 3 implementation 8e5a64c51acb87f25b76bafb5bc1106dadfca686: Foundation 42108036683
 SUCCESS 7/7; Native shells 42108036667 SUCCESS 3/3.
 9397fc84b7727c91c1516f1255254de3569a6e73 and b526e21e58e3d17f723bb65a2df9d41af81c45cb are not certified. Those SHAs are not rerun.
+789d1170f0811b0c1a7715ab5411b56270e75718 is not certified. Foundation armeabi-v7a failed while unzipping NDK 28.2.13676358. That SHA is not rerun.
 Step 4 AUTHORIZED / IN PROGRESS. Steps 5-6 NOT STARTED.
 UI STATE != NATIVE AUTHORITY. EXPORT IS NOT A REVISION. Schema 3 unchanged. HUMAN Apply unchanged.
 Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.

@@ -20,6 +20,10 @@ not import `dp`, and the Android screen omitted the English save labels.
 succeeded, and Native failed Android release lint on three unreferenced
 strings. Those SHAs are not rerun.
 
+`789d1170f0811b0c1a7715ab5411b56270e75718` is not certified. Foundation
+`42121218372` failed android-boundary armeabi-v7a while unzipping NDK
+28.2.13676358 with `Error on ZipFile unknown archive`. That SHA is not rerun.
+
 ## Recovery
 
 Leaving the editor, stopping the Android activity, or leaving the active Apple
