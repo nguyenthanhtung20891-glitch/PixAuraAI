@@ -178,11 +178,17 @@ struct ManualEditorScreen: View {
                     .accessibilityIdentifier("review-scroll")
             }
             if let notice = model.assistance.notice { Text(notice).accessibilityIdentifier("assist-notice") }
-            Button("Open JPEG or PNG") { picking = true }.disabled(model.busy || model.exporting)
+            Button("Open JPEG or PNG") { picking = true }
+                .disabled(model.busy || model.exporting)
+                .accessibilityIdentifier("open-photo")
+                .accessibilityLabel("Open Photo")
             Group {
                 if let image = model.image {
                     Image(decorative: image, scale: 1).resizable().scaledToFit().accessibilityHidden(false).accessibilityLabel("Current manual preview")
-                } else { Text("Open an image to edit locally") }
+                } else {
+                    Text("PixAuraAI edits a private copy on this device.").accessibilityIdentifier("empty-purpose")
+                    Text("Open an image to edit locally")
+                }
             }.frame(maxWidth: .infinity).frame(height: 180).accessibilityIdentifier("manual-preview")
             if model.busy { Text("Loading or saving…").accessibilityLabel("Editor busy") }
             if model.previewLoading { Text("Rendering preview; changes are not saved until Apply").accessibilityIdentifier("preview-loading") }

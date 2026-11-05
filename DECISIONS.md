@@ -1,5 +1,22 @@
 # Architectural decision index
 
+<!-- phase10-step2-current -->
+## Phase 10 Step 2 - Onboarding, Empty States and Permissions
+
+Phase 10 AUTHORIZED / IN PROGRESS. Step 1 COMPLETE / FULL PASS.
+Step 1 closure 40f5760b845b9f0ff2bba72228538152eb8a5b0d: Foundation 42053284183
+SUCCESS 7/7; Native shells 42053284144 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
+Step 1 implementation 5b3d3a15485f159b056861aee49ca56169ce8030: Foundation 42040586837
+SUCCESS 7/7; Native shells 42040586934 SUCCESS 3/3.
+af6159de89ec108839e3ecc6e17c13039b0a53ca is not certified. Native android-app failed on a Gradle 8.13 HTTP 504. That SHA is not rerun.
+Step 2 AUTHORIZED / IN PROGRESS. Steps 3-6 NOT STARTED.
+UI STATE != NATIVE AUTHORITY. EXPORT IS NOT A REVISION. Schema 3 unchanged. HUMAN Apply unchanged.
+Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
+Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+Phase 11 is not started. Phase 12 is not started.
+<!-- phase10-step2-history -->
+
 <!-- phase10-step1-current -->
 ## Phase 10 Step 1 - Product UX Contract and Information Architecture
 

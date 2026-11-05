@@ -561,6 +561,7 @@ final class ShellUITests: XCTestCase {
         }
         app.buttons["Open Manual editor"].tap()
         XCTAssertTrue(app.navigationBars["Editor"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["Open JPEG or PNG"].exists)
+        XCTAssertTrue(app.buttons["open-photo"].waitForExistence(timeout: 5))
+        XCTAssertEqual(app.buttons["open-photo"].label, "Open Photo")
     }
 }

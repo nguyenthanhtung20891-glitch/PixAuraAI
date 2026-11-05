@@ -521,6 +521,10 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         val name = preferences.getString("project", null)
         if (name != null && name.matches(Regex("[0-9a-f-]{36}"))) { owner = configured(File(root(), name).canonicalPath); preview() }
     } }
+    fun noteImportCancelled() {
+        if (disposed.get()) return
+        mutable.value = mutable.value.copy(error = "Import cancelled. Open JPEG or PNG to try again.")
+    }
     /** Picker source is copied in a bounded stream to app-private staging, then
      * immutable AssetStore ingestion verifies it. The original URI is untouched.
      */

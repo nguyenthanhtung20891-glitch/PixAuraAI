@@ -1,6 +1,8 @@
 package ai.pixaura.app
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -29,5 +31,8 @@ class ShellTest {
         compose.activityRule.scenario.recreate()
         compose.onNodeWithText("Editor").assertIsDisplayed()
         compose.onNodeWithText("Open JPEG or PNG").assertIsDisplayed()
+        compose.onNode(hasContentDescription("Open Photo")).assertIsDisplayed()
+        compose.onNodeWithText("PixAuraAI edits a private copy on this device.").assertIsDisplayed()
+        compose.onNodeWithText("Apply").assertIsNotEnabled()
     }
 }

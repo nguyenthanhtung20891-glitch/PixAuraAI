@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "phase": 10,
+  "step": 2,
+  "status": "AUTHORIZED_IN_PROGRESS",
+  "step1_closure_sha": "40f5760b845b9f0ff2bba72228538152eb8a5b0d",
+  "step1_implementation_sha": "5b3d3a15485f159b056861aee49ca56169ce8030",
+  "uncertified_closure_sha": "af6159de89ec108839e3ecc6e17c13039b0a53ca",
+  "runtime_authority": false,
+  "editing_authority": false,
+  "history_authority": false,
+  "step3": "NOT_STARTED",
+  "provider": "reference.assistance.v1",
+  "planner": "reference.deterministic.v1",
+  "learned_model": "NONE_REQUIRED_NONE_ADMITTED",
+  "changes": {
+    "platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorScreen.kt": {
+      "before_sha256_lf": "54bc80aaf38a2233b4b5f3a4a692954c86ce9f8813ec5c2498f9144d5c400c41",
+      "after_sha256_lf": "a1797f4c6654d715149edff5e1d1c8772d7d96ba2751b473cc27fea43d4bfc6e"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt": {
+      "before_sha256_lf": "8b3c9b77abba06e5f6a50620aa18f6815fc8f1b29d7d34051b733c64fe120785",
+      "after_sha256_lf": "c9b9aa4b11393b4f7906b45a96c7043ba21b6dd8b79bab994b52ba5beeaf16b0"
+    },
+    "platforms/ios/PixAuraAI/ManualEditorScreen.swift": {
+      "before_sha256_lf": "d6960a5d6c06a76350287222b92aa9e7e716e9a8771e65c784d39ccc50b5a7d6",
+      "after_sha256_lf": "6cb45682b41705cd72872e78df7356cbdb901829aaab2ae482f1f59f0358d3de"
+    },
+    "platforms/ios/PixAuraAI/ManualEditorModel.swift": {
+      "before_sha256_lf": "b7db3416e46ce945f54c336a8c0730b719bafc3dca1f6b0ef7b78f18499d2c3f",
+      "after_sha256_lf": "d226c84965c092aee7f1abe537538fe9f831498ddfa9d1ace196db1070d590d6"
+    }
+  },
+  "additions": {}
+}

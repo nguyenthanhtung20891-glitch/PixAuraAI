@@ -872,7 +872,12 @@ final class ManualEditorModel: ObservableObject {
         }
     }
     func retryPreview() { previewLoading = true; send { try $0.retry() } }
-    func pickerFailure(_ failure: Error) { error = failure.localizedDescription }
+    func pickerFailure(_ failure: Error) {
+        let cocoa = failure as NSError
+        error = cocoa.domain == NSCocoaErrorDomain && cocoa.code == NSUserCancelledError
+            ? "Import cancelled. Open JPEG or PNG to try again."
+            : failure.localizedDescription
+    }
     #if DEBUG
     private static var fixtureOpened = false
     func testImage() {

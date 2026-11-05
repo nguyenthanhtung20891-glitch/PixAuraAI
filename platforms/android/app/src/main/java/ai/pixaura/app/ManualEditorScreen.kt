@@ -41,7 +41,7 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
     }
     val lifecycle = LocalLifecycleOwner.current
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) model.importImage(uri)
+        if (uri != null) model.importImage(uri) else model.noteImportCancelled()
     }
     LaunchedEffect(model, assistInitially, autoInitially) { model.setAutoMode(autoInitially); if (!autoInitially) model.setAssistMode(assistInitially); model.openLast() }
     LaunchedEffect(ui.core?.selected) { ui.tools.firstOrNull { it.index == ui.core?.selected }?.let { category = it.category } }
@@ -59,10 +59,13 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
         if (assist.enabled) AssistPanel(model, ui, assist)
         if (auto.enabled) AutoProposalPanel(model, ui, auto)
         assist.notice?.let { Text(it, Modifier.testTag("assist-notice").semantics { liveRegion = LiveRegionMode.Polite }) }
-        Button(onClick = { picker.launch(arrayOf("image/jpeg", "image/png")) }, enabled = !ui.busy && !ui.exporting) { Text("Open JPEG or PNG") }
+        Button(onClick = { picker.launch(arrayOf("image/jpeg", "image/png")) }, enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("open-photo").semantics { contentDescription = "Open Photo" }) { Text("Open JPEG or PNG") }
         Box(Modifier.fillMaxWidth().height(180.dp).semantics { contentDescription = "Image preview" }) {
             ui.image?.let { Image(it.asImageBitmap(), "Current manual preview", Modifier.fillMaxSize(), contentScale = ContentScale.Fit) }
-            if (ui.image == null) Text("Open an image to edit locally")
+            if (ui.image == null) Column {
+                Text("PixAuraAI edits a private copy on this device.", Modifier.testTag("empty-purpose"))
+                Text("Open an image to edit locally")
+            }
         }
         if (ui.busy) Text("Loading or saving…", Modifier.semantics { liveRegion = LiveRegionMode.Polite })
         if (ui.previewLoading) Text("Rendering preview; changes are not saved until Apply", Modifier.semantics { liveRegion = LiveRegionMode.Polite })
