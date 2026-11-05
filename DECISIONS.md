@@ -1,5 +1,22 @@
 # Architectural decision index
 
+<!-- phase9-step5-current -->
+## Phase 9 Step 5 - File Lifecycle Hardening
+
+Phase 9 AUTHORIZED / IN PROGRESS. Step 4 COMPLETE / FULL PASS.
+Step 4 closure b04fd291cda9e88e6a03ad20140f634294b35168: Foundation 41971443062
+SUCCESS 7/7; Native shells 41971442960 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
+Step 4 implementation 6a6b8d30ba69316822dcffafbee6894e4d1f0271: Foundation 41967410493
+SUCCESS 7/7; Native shells 41967410497 SUCCESS 3/3.
+Step 5 AUTHORIZED / IN PROGRESS. EXPORT IS NOT A REVISION. EXPORT IS NOT AN APPROVAL. EXPORT IS NOT AN EDIT.
+Repeated export, a second document, and a denied buffer leave ordinary history unchanged.
+No new process-RSS ceiling. Hosted timings are not physical-device measurements.
+Schema 3 unchanged. HUMAN Apply unchanged. Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
+Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+Step 6 NOT STARTED. No Phase 10.
+<!-- phase9-step5-history -->
+
 <!-- phase9-step4-current -->
 ## Phase 9 Step 4 - Apple Save and Share
 

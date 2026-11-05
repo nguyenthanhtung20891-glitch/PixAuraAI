@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "phase": 9,
+  "step": 5,
+  "status": "AUTHORIZED_IN_PROGRESS",
+  "step4_closure_sha": "b04fd291cda9e88e6a03ad20140f634294b35168",
+  "step4_implementation_sha": "6a6b8d30ba69316822dcffafbee6894e4d1f0271",
+  "runtime_authority": false,
+  "editing_authority": false,
+  "history_authority": false,
+  "step6": "NOT_STARTED",
+  "new_resource_ceiling": false,
+  "hosted_timings_are_device_claims": false,
+  "provider": "reference.assistance.v1",
+  "planner": "reference.deterministic.v1",
+  "learned_model": "NONE_REQUIRED_NONE_ADMITTED",
+  "changes": {},
+  "additions": {}
+}

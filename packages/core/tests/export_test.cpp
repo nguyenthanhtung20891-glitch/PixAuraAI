@@ -133,5 +133,17 @@ int main(int argc,char** argv){
  {Owner o(parent,++serial);CHECK(pixaura_editor_stop(&o.c)==0);std::vector<uint8_t> output(128,0x5a),sentinel=output;uint64_t n=1;uint32_t w=1,h=1,state=1;pixaura_export_request blank{};
   CHECK(pixaura_export_encode(1,&o.c,&blank,nullptr,output.data(),output.size(),&n,&w,&h,&state)==13);CHECK(output==sentinel);
  }
+ {Owner first(parent,++serial);Owner second(parent,++serial);const auto firstDoc=first.document();const auto secondDoc=second.document();CHECK(firstDoc!=secondDoc);
+  const auto repeatStart=std::chrono::steady_clock::now();Encoded repeated;
+  for(int i=0;i<8;++i){repeated=encode(first,first.bind());CHECK(repeated.code==0&&repeated.bytes==encode(first,first.bind()).bytes);}
+  const auto repeatUs=std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now()-repeatStart).count();
+  CHECK(snap(first.document())->revisions().size()==1&&first.document()==firstDoc&&second.document()==secondDoc);
+  auto jpegReq=first.bind();jpegReq.format=PIXAURA_EXPORT_JPEG;jpegReq.quality=90;const auto jpegStart=std::chrono::steady_clock::now();const auto jpeg=encode(first,jpegReq);
+  const auto jpegUs=std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now()-jpegStart).count();
+  CHECK(jpeg.code==0&&jpeg.bytes.size()>=2&&jpeg.bytes[0]==0xff&&jpeg.bytes[1]==0xd8&&first.document()==firstDoc);
+  CHECK(encode(first,first.bind(),32).code==11&&first.document()==firstDoc&&second.document()==secondDoc);
+  const auto secondPng=encode(second,second.bind());CHECK(secondPng.code==0&&second.document()==secondDoc&&first.document()==firstDoc);
+  std::printf("export hosted repeat-us %lld jpeg-us %lld png-bytes %zu jpeg-bytes %zu\n",static_cast<long long>(repeatUs),static_cast<long long>(jpegUs),repeated.bytes.size(),jpeg.bytes.size());
+ }
  std::printf("export checks %u\n",checks.load());
 }
