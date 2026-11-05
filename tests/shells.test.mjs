@@ -21,7 +21,9 @@ test('native shells prohibit permissions, cloud backup and telemetry dependencie
   }
   assert.doesNotMatch(read('platforms/android/app/build.gradle.kts'), /firebase|analytics|retrofit|okhttp/i);
   const ios = read('platforms/ios/PixAuraAI.xcodeproj/project.pbxproj');
-  assert.doesNotMatch(ios, /UsageDescription|XCSwiftPackageReference|XCRemoteSwiftPackageReference/);
+  assert.doesNotMatch(ios, /XCSwiftPackageReference|XCRemoteSwiftPackageReference/);
+  assert.match(ios, /INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "PixAuraAI saves an exported photo only when you choose Save to Photos."/);
+  assert.doesNotMatch(ios.replaceAll('INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription', ''), /UsageDescription/);
   assert.match(ios, /XCLocalSwiftPackageReference; relativePath = ..\/..\/packages\/core/);
   assert.match(read('platforms/ios/PixAuraAI/PrivacyInfo.xcprivacy'), /NSPrivacyTracking<\/key><false\/>/);
 });

@@ -14,6 +14,9 @@ SUCCESS 7/7 and Native shells `41950759555` SUCCESS 3/3, attempt 1, exact SHA.
 The receipt is `docs/reports/evidence/phase-9-step-3-closure-certification.json`.
 
 `6f62fb1973bd98d9c241c3c687d2f91125c48198` remains uncertified and is not rerun.
+`9444584ab93e39d9443f47e1b39f7749fb2f56c7` is not certified. Its iOS compile rejected
+main-actor use inside the Photos completion, and the shell check rejected a
+hand-edited project file. That SHA is not rerun.
 
 ## Destination
 

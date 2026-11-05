@@ -73,7 +73,7 @@ function dependency() {
   return dep;
 }
 target(appTarget, 'PixAuraAI', appProduct, appSources.phase, appPackage,
-  'INFOPLIST_KEY_CFBundleDisplayName = PixAuraAI; INFOPLIST_KEY_LSRequiresIPhoneOS = YES; INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES; INFOPLIST_KEY_UILaunchScreen_Generation = YES; INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";', 'application');
+  'INFOPLIST_KEY_CFBundleDisplayName = PixAuraAI; INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "PixAuraAI saves an exported photo only when you choose Save to Photos."; INFOPLIST_KEY_LSRequiresIPhoneOS = YES; INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES; INFOPLIST_KEY_UILaunchScreen_Generation = YES; INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";', 'application');
 target(testTarget, 'PixAuraAITests', testProduct, tests.phase, testPackage,
   'TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PixAuraAI.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PixAuraAI"; BUNDLE_LOADER = "$(TEST_HOST)";', 'bundle.unit-test', [dependency()]);
 target(uiTarget, 'PixAuraAIUITests', uiProduct, uiTests.phase, null,

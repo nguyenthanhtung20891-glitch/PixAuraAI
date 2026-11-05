@@ -125,7 +125,18 @@ private final class EditorWorker {
     func send(_ epoch: UInt64, _ work: @escaping (EditorWorker) throws -> Void) {
         commands.async { self.latestEpoch = epoch; do { try work(self); self.emit(epoch) } catch { self.emit(epoch, error.localizedDescription) } }
     }
-    func publishQuietly() { emit(latestEpoch) }
+    func exportThen<T>(_ work: @escaping (EditorWorker) throws -> T, _ apply: @escaping (Result<T, Error>) -> Void) {
+        commands.async {
+            do {
+                let value = try work(self)
+                self.emit(self.latestEpoch)
+                DispatchQueue.main.async { apply(.success(value)) }
+            } catch {
+                self.emit(self.latestEpoch)
+                DispatchQueue.main.async { apply(.failure(error)) }
+            }
+        }
+    }
     private func projectRoot() throws -> URL {
         let base = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
         var root = base.appendingPathComponent("manual-projects", isDirectory: true)
@@ -792,59 +803,55 @@ final class ManualEditorModel: ObservableObject {
     }
     func saveToPhotos(format: UInt32, quality: Int) {
         guard let jpeg = exportQuality(format, quality), beginExport() else { return }
-        worker.commands.async { [weak self] in
-            guard let self else { return }
-            do {
-                let encoded = try self.worker.exportRevision(format: format, quality: jpeg)
-                ExportDestination.saveToPhotos(encoded.bytes) { result in
-                    self.worker.commands.async {
-                        self.worker.publishQuietly()
-                        DispatchQueue.main.async {
-                            switch result {
-                            case .success: self.endExport("Saved", error: nil)
-                            case .failure(let error):
-                                self.endExport("Export failed", error: error is ExportPermission ? "Photo library permission was denied. Nothing was saved." : self.exportMessage(error))
-                            }
-                        }
-                    }
+        worker.exportThen({ worker in
+            let encoded = try worker.exportRevision(format: format, quality: jpeg)
+            let gate = PhotoGate()
+            ExportDestination.saveToPhotos(encoded.bytes) { result in
+                switch result {
+                case .success: gate.finish("Saved", nil)
+                case .failure(let error):
+                    let message = error is ExportPermission ? "Photo library permission was denied. Nothing was saved." : ExportDestination.message(error)
+                    gate.finish("Export failed", message)
                 }
-            } catch {
-                DispatchQueue.main.async { self.endExport("Export failed", error: self.exportMessage(error)) }
+            }
+            return gate.wait()
+        }) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let outcome): self.endExport(outcome.status, error: outcome.error)
+            case .failure(let error): self.endExport("Export failed", error: self.exportMessage(error))
             }
         }
     }
     func prepareFileExport(format: UInt32, quality: Int) {
         guard let jpeg = exportQuality(format, quality), beginExport() else { return }
-        worker.commands.async { [weak self] in
+        worker.exportThen({ worker in
+            try worker.exportRevision(format: format, quality: jpeg).bytes
+        }) { [weak self] result in
             guard let self else { return }
-            do {
-                let encoded = try self.worker.exportRevision(format: format, quality: jpeg)
-                self.worker.publishQuietly()
-                DispatchQueue.main.async {
-                    self.exportFileType = format == 1 ? .jpeg : .png
-                    self.exportFile = encoded.bytes
-                    self.exportStatus = "Choose a destination"
-                }
-            } catch {
-                DispatchQueue.main.async { self.endExport("Export failed", error: self.exportMessage(error)) }
+            switch result {
+            case .success(let bytes):
+                self.exportFileType = format == 1 ? .jpeg : .png
+                self.exportFile = bytes
+                self.exportStatus = "Choose a destination"
+            case .failure(let error): self.endExport("Export failed", error: self.exportMessage(error))
             }
         }
     }
     func shareExport(format: UInt32, quality: Int) {
         guard let jpeg = exportQuality(format, quality), beginExport() else { return }
-        worker.commands.async { [weak self] in
+        let name = format == 1 ? "PixAuraAI.jpg" : "PixAuraAI.png"
+        worker.exportThen({ worker in
+            let encoded = try worker.exportRevision(format: format, quality: jpeg)
+            return try ExportDestination.cacheFile(name: name, bytes: encoded.bytes)
+        }) { [weak self] result in
             guard let self else { return }
-            do {
-                let encoded = try self.worker.exportRevision(format: format, quality: jpeg)
-                let url = try ExportDestination.cacheFile(name: format == 1 ? "PixAuraAI.jpg" : "PixAuraAI.png", bytes: encoded.bytes)
-                self.worker.publishQuietly()
-                DispatchQueue.main.async {
-                    self.shareURL = url
-                    self.shareGeneration += 1
-                    self.exportStatus = "Opening the share sheet. Delivery is not confirmed."
-                }
-            } catch {
-                DispatchQueue.main.async { self.endExport("Export failed", error: self.exportMessage(error)) }
+            switch result {
+            case .success(let url):
+                self.shareURL = url
+                self.shareGeneration += 1
+                self.exportStatus = "Opening the share sheet. Delivery is not confirmed."
+            case .failure(let error): self.endExport("Export failed", error: self.exportMessage(error))
             }
         }
     }
@@ -891,10 +898,32 @@ final class ManualEditorModel: ObservableObject {
 }
 
 struct ExportPermission: Error {}
+private struct PhotoOutcome { let status: String; let error: String? }
+private final class PhotoGate: @unchecked Sendable {
+    private let condition = NSCondition()
+    private var outcome: PhotoOutcome?
+    func finish(_ status: String, _ error: String?) {
+        condition.lock(); outcome = PhotoOutcome(status: status, error: error); condition.signal(); condition.unlock()
+    }
+    func wait() -> PhotoOutcome {
+        condition.lock(); while outcome == nil { condition.wait() }
+        let value = outcome!; condition.unlock(); return value
+    }
+}
 
 enum ExportDestination {
     static func libraryAccess(_ status: PHAuthorizationStatus) -> Bool {
         status == .authorized || status == .limited
+    }
+    static func message(_ error: Error) -> String {
+        guard let failure = error as? ManualEditorFailure else { return error.localizedDescription }
+        switch failure.status {
+        case 8: return "Export is busy. Manual editing is available."
+        case 9: return "The selected revision is stale. Nothing was saved."
+        case 11: return "The image is larger than the export limit. Nothing was saved."
+        case 13: return "Export stopped. Nothing was saved."
+        default: return "Export failed. Nothing was saved."
+        }
     }
     static func saveToPhotos(_ bytes: Data, completion: @escaping (Result<Void, Error>) -> Void) {
         let finish: (PHAuthorizationStatus) -> Void = { status in
