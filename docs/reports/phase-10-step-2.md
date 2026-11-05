@@ -33,3 +33,8 @@ Phase 11 and Phase 12 are not started.
 shell test required the empty-editor sentence after another test had already
 opened a project. That SHA is not rerun. The shell test now checks the Open
 Photo name, which remains present with or without a document.
+
+`6d80e42071d45aa7187a70eff3b6d44d1c38effc` is not certified. Native shells
+`42069059482` succeeded, including android-app and ios-app, but Foundation
+boundaries did not start for that SHA. A missing workflow is not a pass. That
+SHA is not rerun.
