@@ -32,6 +32,11 @@ internal fun presentationId(canonical: String): Int = when (canonical) {
     "Cancelled" -> R.string.cancelled
     "Failed" -> R.string.failed
     "Stale" -> R.string.stale
+    "Save to Photos" -> R.string.save_to_photos
+    "Save to a file" -> R.string.save_to_file
+    "Share" -> R.string.share
+    "Cancel export" -> R.string.cancel_export
+    "Export" -> R.string.export_title
     else -> 0
 }
 

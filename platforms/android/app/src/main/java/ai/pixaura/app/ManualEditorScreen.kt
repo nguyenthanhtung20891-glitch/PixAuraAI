@@ -131,7 +131,7 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
         }
         if (auto.enabled) ui.core?.let { Text(stringResource(R.string.committed_revisions, it.revisionCount)) }
         if (ui.core != null) {
-            Text(stringResource(R.string.export_title), style = MaterialTheme.typography.titleMedium)
+            Text(presented("Export"), style = MaterialTheme.typography.titleMedium)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(selected = exportFormat == 1, onClick = { exportFormat = 1 }, enabled = !ui.busy && !ui.exporting, label = { Text("JPEG") })
                 FilterChip(selected = exportFormat == 2, onClick = { exportFormat = 2 }, enabled = !ui.busy && !ui.exporting, label = { Text("PNG") })
@@ -140,13 +140,13 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
                 label = { Text("JPEG quality 1…100") }, singleLine = true, modifier = Modifier.fillMaxWidth().testTag("export-quality"))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (Build.VERSION.SDK_INT >= 29) Button(onClick = { model.saveToPhotos(exportFormat, exportQuality.toIntOrNull() ?: -1) },
-                    enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("export-save-photos").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = "Save the committed revision to Photos" }) { Text(stringResource(R.string.save_to_photos)) }
+                    enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("export-save-photos").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = "Save the committed revision to Photos" }) { Text(presented("Save to Photos")) }
                 Button(onClick = { if (model.reserveExport()) documentLauncher.launch(if (exportFormat == 1) "PixAuraAI.jpg" else "PixAuraAI.png") },
-                    enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("export-save-file").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = "Save the committed revision to a file" }) { Text(stringResource(R.string.save_to_file)) }
+                    enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("export-save-file").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = "Save the committed revision to a file" }) { Text(presented("Save to a file")) }
                 Button(onClick = { model.shareExport(exportFormat, exportQuality.toIntOrNull() ?: -1) },
-                    enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("export-share").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = "Share the committed revision" }) { Text(stringResource(R.string.share)) }
+                    enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("export-share").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = "Share the committed revision" }) { Text(presented("Share")) }
             }
-            if (ui.exporting && ui.exportStatus == "Exporting") OutlinedButton(onClick = model::cancelExport, modifier = Modifier.testTag("export-cancel").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)) { Text(stringResource(R.string.cancel_export)) }
+            if (ui.exporting && ui.exportStatus == "Exporting") OutlinedButton(onClick = model::cancelExport, modifier = Modifier.testTag("export-cancel").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)) { Text(presented("Cancel export")) }
             ui.exportStatus?.let { val shown = presented(it); Text(shown, Modifier.testTag("export-status").semantics { liveRegion = LiveRegionMode.Polite; contentDescription = shown }) }
         }
     }

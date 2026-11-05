@@ -28,4 +28,9 @@ Critical controls keep their identifiers and use at least a 48 dp target on
 Android. Their labels are not limited to one line. Hosted layout evidence is
 not a physical-device measurement.
 
+`9397fc84b7727c91c1516f1255254de3569a6e73` is not certified. The authority block
+was inserted before each document title, ReviewEditPanel did not import `dp`,
+and the Android screen no longer contained the English save and share labels.
+That SHA is not rerun.
+
 Phase 11 and Phase 12 are not started.

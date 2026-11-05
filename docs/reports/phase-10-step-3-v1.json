@@ -21,7 +21,7 @@
     },
     "platforms/android/app/src/main/java/ai/pixaura/app/ReviewEditPanel.kt": {
       "before_sha256_lf": "39f66d968343fa1d517a81d66aaea8475194031076ddfa7826799440889a02b2",
-      "after_sha256_lf": "e9c722d8ecb98b424a6eb77ed60e719422b082ee899ec2708c9b575e8b9407de"
+      "after_sha256_lf": "481c8b4e111e3415ec8dcf49a25d84819859dbc49c81d937e279be2bc82968d1"
     },
     "platforms/android/app/src/main/java/ai/pixaura/app/ReviewPreviewPanel.kt": {
       "before_sha256_lf": "1bcc21a49d6adde1b16079f579e24499c121da42c8e0c71e49d53f3febfb13c2",
@@ -33,7 +33,7 @@
     },
     "platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorScreen.kt": {
       "before_sha256_lf": "a1797f4c6654d715149edff5e1d1c8772d7d96ba2751b473cc27fea43d4bfc6e",
-      "after_sha256_lf": "b3a2a2e0cc4fe16d0d6fc876943635cf9d9d1e515894cfadb8dc97b1261a6d97"
+      "after_sha256_lf": "2347c558e6351138ae0a325aa6e10afee4baba01048ee58b7ed6f9466531063b"
     },
     "platforms/ios/PixAuraAI/ManualEditorScreen.swift": {
       "before_sha256_lf": "6cb45682b41705cd72872e78df7356cbdb901829aaab2ae482f1f59f0358d3de",
@@ -45,7 +45,7 @@
     }
   },
   "additions": {
-    "platforms/android/app/src/main/java/ai/pixaura/app/Presentation.kt": "c0c5cdabf4d8f69e37eddec3fc0a3a971175381f5758ca5294eb071ac5d27494",
+    "platforms/android/app/src/main/java/ai/pixaura/app/Presentation.kt": "a756c2976c97d641bc28f79b42ce7138d2d69575499c92ba1981611092fa187b",
     "platforms/android/app/src/main/res/values-vi/strings.xml": "70ba49eba0df6328529eadde7c1f43f62a034e6350fb2b7ba25bf4aaad2c42e5",
     "platforms/ios/PixAuraAI/en.lproj/Localizable.strings": "9064dacd0e95072887dff66c19fde56b50bc442d942a92a891d5872dfa3b5926",
     "platforms/ios/PixAuraAI/vi.lproj/Localizable.strings": "915efd5b5f7b9cbbbfc6e17a16bd69c46afe5ee1342ffdf34ddb1683e5a605bf"

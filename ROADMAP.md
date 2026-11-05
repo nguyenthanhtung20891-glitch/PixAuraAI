@@ -1,3 +1,5 @@
+# Delivery roadmap
+
 <!-- phase10-step3-current -->
 ## Phase 10 Step 3 - Localization, Accessibility and Responsive UI
 
@@ -14,8 +16,6 @@ Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.
 CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
 Phase 11 is not started. Phase 12 is not started.
 <!-- phase10-step3-history -->
-
-# Delivery roadmap
 
 <!-- phase10-step2-current -->
 ## Phase 10 Step 2 - Onboarding, Empty States and Permissions
