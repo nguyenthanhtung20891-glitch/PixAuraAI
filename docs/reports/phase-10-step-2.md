@@ -38,3 +38,8 @@ Photo name, which remains present with or without a document.
 `42069059482` succeeded, including android-app and ios-app, but Foundation
 boundaries did not start for that SHA. A missing workflow is not a pass. That
 SHA is not rerun.
+
+`733ff96658affc5a9074f36dcdc120e468245973` is not certified. Foundation
+`42076359294` succeeded, and Native source and android-app succeeded, but
+ios-app `127417478945` was cancelled because no hosted runner was acquired.
+That SHA is not rerun.
