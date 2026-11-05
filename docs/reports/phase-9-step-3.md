@@ -27,3 +27,10 @@ that the revision count and revision id are unchanged.
 
 No broad storage permission is requested. API 26 through 28 use the document
 picker. Steps 4-6 are not started.
+
+`6f62fb1973bd98d9c241c3c687d2f91125c48198` is not certified. Foundation
+`41941054584` failed because arm64 `sdkmanager` reported `Error on ZipFile
+unknown archive` for NDK 28.2.13676358. The other Foundation jobs succeeded.
+Native shells `41941054490` failed in `android-app` job `126961648391`: release
+lint rejected an SDK check inside a method already marked for API 29. iOS and
+source succeeded. That SHA is not rerun.

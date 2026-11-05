@@ -6,7 +6,6 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import androidx.annotation.RequiresApi
 import android.os.Environment
 import android.provider.MediaStore
@@ -31,7 +30,6 @@ internal object ExportDestination {
 
     @RequiresApi(29)
     fun saveToPhotos(resolver: ContentResolver, name: String, mime: String, bytes: ByteArray): Uri {
-        if (Build.VERSION.SDK_INT < 29) throw IOException("Photos save requires the document picker on this Android version")
         return savePending(
             insert = {
                 val values = ContentValues().apply {
