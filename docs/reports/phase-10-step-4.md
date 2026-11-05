@@ -24,6 +24,11 @@ strings. Those SHAs are not rerun.
 `42121218372` failed android-boundary armeabi-v7a while unzipping NDK
 28.2.13676358 with `Error on ZipFile unknown archive`. That SHA is not rerun.
 
+`e383efc453f64d1a295febab643da877a24d314a` is not certified. Foundation
+`42123770790` succeeded. Native ios-app failed because the review field
+keystrokes did not change the value before Apply was checked. That SHA is not
+rerun.
+
 ## Recovery
 
 Leaving the editor, stopping the Android activity, or leaving the active Apple
