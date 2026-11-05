@@ -37,6 +37,9 @@ internal fun presentationId(canonical: String): Int = when (canonical) {
     "Share" -> R.string.share
     "Cancel export" -> R.string.cancel_export
     "Export" -> R.string.export_title
+    "Restore original review content — not document undo" -> R.string.restore_review
+    "Undo document" -> R.string.undo_document
+    "Redo document" -> R.string.redo_document
     else -> 0
 }
 

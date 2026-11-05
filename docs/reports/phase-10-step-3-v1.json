@@ -45,7 +45,7 @@
     }
   },
   "additions": {
-    "platforms/android/app/src/main/java/ai/pixaura/app/Presentation.kt": "a756c2976c97d641bc28f79b42ce7138d2d69575499c92ba1981611092fa187b",
+    "platforms/android/app/src/main/java/ai/pixaura/app/Presentation.kt": "c24a86e397113e1215b4b71b8231e98071ca0e34d680dd6325e0a336a785ba61",
     "platforms/android/app/src/main/res/values-vi/strings.xml": "70ba49eba0df6328529eadde7c1f43f62a034e6350fb2b7ba25bf4aaad2c42e5",
     "platforms/ios/PixAuraAI/en.lproj/Localizable.strings": "9064dacd0e95072887dff66c19fde56b50bc442d942a92a891d5872dfa3b5926",
     "platforms/ios/PixAuraAI/vi.lproj/Localizable.strings": "915efd5b5f7b9cbbbfc6e17a16bd69c46afe5ee1342ffdf34ddb1683e5a605bf"

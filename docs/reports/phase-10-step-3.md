@@ -33,4 +33,9 @@ was inserted before each document title, ReviewEditPanel did not import `dp`,
 and the Android screen no longer contained the English save and share labels.
 That SHA is not rerun.
 
+`b526e21e58e3d17f723bb65a2df9d41af81c45cb` is not certified. Foundation
+`42101196238` completed success. Native `42101196157` failed Android release
+lint because restore, undo-document, and redo-document strings were not
+referenced. That SHA is not rerun.
+
 Phase 11 and Phase 12 are not started.
