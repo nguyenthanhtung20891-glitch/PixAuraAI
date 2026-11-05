@@ -19,7 +19,12 @@ test('Phase 10 Step 2 explains an empty editor without changing import authority
   assert.equal(m.editing_authority, false);
   assert.equal(m.history_authority, false);
   assert.equal(m.step3, 'NOT_STARTED');
-  for (const [p, change] of Object.entries(m.changes)) assert.equal(hash(p), change.after_sha256_lf, p);
+  const step3 = read('docs/reports/phase-10-step-3-v1.json');
+  for (const [p, change] of Object.entries(m.changes)) {
+    const successor = step3.changes[p];
+    if (successor) assert.equal(successor.before_sha256_lf, change.after_sha256_lf, p);
+    else assert.equal(hash(p), change.after_sha256_lf, p);
+  }
   const receipt = read('docs/reports/evidence/phase-10-step-1-closure-certification.json');
   assert.equal(receipt.sha, m.step1_closure_sha);
   assert.equal(receipt.label, 'closure');
@@ -50,12 +55,15 @@ test('Phase 10 Step 2 explains an empty editor without changing import authority
     assert.equal(run.conclusion, 'success');
     for (const job of run.jobs) assert.equal(job.conclusion, 'success');
   }
-  const android = text('platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorScreen.kt');
-  const apple = text('platforms/ios/PixAuraAI/ManualEditorScreen.swift');
+  const android = text('platforms/android/app/src/main/res/values/strings.xml');
+  const apple = text('platforms/ios/PixAuraAI/en.lproj/Localizable.strings');
   for (const term of ['Open Photo', 'PixAuraAI edits a private copy on this device.', 'Open JPEG or PNG', 'Open an image to edit locally']) {
     assert.ok(android.includes(term), term);
     assert.ok(apple.includes(term), term);
   }
+  assert.ok(text('platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorScreen.kt').includes('R.string.open_photo'));
+  assert.ok(text('platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorScreen.kt').includes('R.string.empty_purpose'));
+  assert.ok(text('platforms/ios/PixAuraAI/ManualEditorScreen.swift').includes('String(localized: "Open Photo")'));
   assert.ok(text('platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt').includes('Import cancelled. Open JPEG or PNG to try again.'));
   assert.ok(text('platforms/ios/PixAuraAI/ManualEditorModel.swift').includes('Import cancelled. Open JPEG or PNG to try again.'));
   assert.ok(text('platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt').includes('owner?.close()'));

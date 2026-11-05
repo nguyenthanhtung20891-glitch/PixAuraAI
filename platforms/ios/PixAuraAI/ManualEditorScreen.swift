@@ -3,6 +3,8 @@ import UniformTypeIdentifiers
 import PixAuraCore
 import UIKit
 
+func presented(_ canonical: String) -> String { String(localized: String.LocalizationValue(canonical)) }
+
 @MainActor
 struct ManualEditorScreen: View {
     @StateObject private var model: ManualEditorModel
@@ -125,7 +127,7 @@ struct ManualEditorScreen: View {
                             ReviewComparisonPanel(model: model, state: state.preview)
                             PlanInspectionPanel(inspection: review.inspection)
                             Text("Reviewed source: \(review.sourceRevision.prefix(8)). Apply rechecks the current source.").accessibilityIdentifier("auto-source")
-                            Button("Apply reviewed plan") { model.applyAutoFromHuman(review) }
+                            Button(String(localized: "Apply reviewed plan")) { model.applyAutoFromHuman(review) }
                                 .disabled((reviewDraftIdentity == review.reviewIdentity && !reviewDrafts.isEmpty) || state.inFlight || state.status != .reviewReady || state.preview.status == .previewLoading || state.preview.status == .stale).accessibilityIdentifier("auto-apply")
                                 .accessibilityHint("Explicit human approval for this exact reviewed plan")
                         }
@@ -178,27 +180,27 @@ struct ManualEditorScreen: View {
                     .accessibilityIdentifier("review-scroll")
             }
             if let notice = model.assistance.notice { Text(notice).accessibilityIdentifier("assist-notice") }
-            Button("Open JPEG or PNG") { picking = true }
+            Button(String(localized: "Open JPEG or PNG")) { picking = true }
                 .disabled(model.busy || model.exporting)
                 .accessibilityIdentifier("open-photo")
-                .accessibilityLabel("Open Photo")
+                .accessibilityLabel(String(localized: "Open Photo"))
             Group {
                 if let image = model.image {
                     Image(decorative: image, scale: 1).resizable().scaledToFit().accessibilityHidden(false).accessibilityLabel("Current manual preview")
                 } else {
-                    Text("PixAuraAI edits a private copy on this device.").accessibilityIdentifier("empty-purpose")
-                    Text("Open an image to edit locally")
+                    Text(String(localized: "PixAuraAI edits a private copy on this device.")).accessibilityIdentifier("empty-purpose")
+                    Text(String(localized: "Open an image to edit locally"))
                 }
             }.frame(maxWidth: .infinity).frame(height: 180).accessibilityIdentifier("manual-preview")
             if model.busy { Text("Loading or saving…").accessibilityLabel("Editor busy") }
             if model.previewLoading { Text("Rendering preview; changes are not saved until Apply").accessibilityIdentifier("preview-loading") }
             if !model.autoProposal.enabled { manualControls }
-            if model.autoProposal.enabled, let core = model.core { Text("Committed revisions: \(core.revisionCount)").accessibilityIdentifier("revision-count") }
+            if model.autoProposal.enabled, let core = model.core { Text(String(format: String(localized: "Committed revisions: %lld"), Int64(core.revisionCount))).accessibilityIdentifier("revision-count") }
         }
         .buttonStyle(.bordered)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Export") { showingExport = true }
+                Button(String(localized: "Export")) { showingExport = true }
                     .disabled(model.core == nil)
                     .accessibilityIdentifier("export-open")
             }
@@ -220,11 +222,11 @@ struct ManualEditorScreen: View {
         .onChange(of: scenePhase) { if $0 != .active { model.cancelExport(); model.interrupt() } }
         .onChange(of: model.exportFile) { if $0 != nil { savingFile = true } }
         .onChange(of: model.shareGeneration) { _ in if let url = model.shareURL { shareItem = ShareItem(url: url) } }
-        .onChange(of: model.exportStatus) { if let status = $0 { UIAccessibility.post(notification: .announcement, argument: status) } }
+        .onChange(of: model.exportStatus) { if let status = $0 { UIAccessibility.post(notification: .announcement, argument: presented(status)) } }
         .onChange(of: model.core?.editID) { _ in cropDrafts = model.core?.values.map(String.init) ?? [] }
         .onChange(of: model.core?.selected) { _ in if let selected { category = selected.category } }
         .onChange(of: model.core?.values) { values in cropDrafts = values?.map(String.init) ?? [] }
-        .onChange(of: model.error) { if let error = $0 { UIAccessibility.post(notification: .announcement, argument: error) } }
+        .onChange(of: model.error) { if let error = $0 { UIAccessibility.post(notification: .announcement, argument: presented(error)) } }
         .onChange(of: model.assistance.error) { if let error = $0 { UIAccessibility.post(notification: .announcement, argument: error) } }
     }
     @ViewBuilder private var manualControls: some View {
@@ -285,18 +287,18 @@ struct ManualEditorScreen: View {
                 .disabled(model.busy || core.approvalPending)
         }
         HStack {
-            Button(model.core?.approvalPending == true ? "Retry Apply" : "Apply") { model.action(1) }
+            Button(model.core?.approvalPending == true ? String(localized: "Retry Apply") : String(localized: "Apply")) { model.action(1) }
                 .disabled(model.core?.active != true || model.busy || model.exporting)
-            Button("Cancel") { formatError = nil; model.action(0) }.disabled(model.core?.active != true || model.busy || model.exporting)
+            Button(String(localized: "Cancel")) { formatError = nil; model.action(0) }.disabled(model.core?.active != true || model.busy || model.exporting)
         }
         HStack {
-            Button("Undo") { model.action(2) }.disabled(model.core?.canUndo != true || model.busy || model.exporting)
-            Button("Redo") { model.action(3) }.disabled(model.core?.canRedo != true || model.busy || model.exporting)
+            Button(String(localized: "Undo")) { model.action(2) }.disabled(model.core?.canUndo != true || model.busy || model.exporting)
+            Button(String(localized: "Redo")) { model.action(3) }.disabled(model.core?.canRedo != true || model.busy || model.exporting)
         }
-        if let core = model.core { Text("Committed revisions: \(core.revisionCount)").accessibilityIdentifier("revision-count") }
-        if let error = formatError ?? model.error { Text(error).accessibilityIdentifier("editor-error") }
-        if model.error?.hasPrefix("Preview failure") == true { Button("Retry preview") { model.retryPreview() } }
-        if model.error?.contains("Stale edit") == true { Button("Reopen committed project") { model.recover() } }
+        if let core = model.core { Text(String(format: String(localized: "Committed revisions: %lld"), Int64(core.revisionCount))).accessibilityIdentifier("revision-count") }
+        if let error = formatError ?? model.error { Text(presented(error)).accessibilityIdentifier("editor-error") }
+        if model.error?.hasPrefix("Preview failure") == true { Button(String(localized: "Retry preview")) { model.retryPreview() } }
+        if model.error?.contains("Stale edit") == true { Button(String(localized: "Reopen committed project")) { model.recover() } }
     }
     private var exportSheet: some View {
         exportPanel
@@ -316,7 +318,7 @@ struct ManualEditorScreen: View {
     private var exportPanel: some View {
         let blocked = model.busy || model.exporting
         return VStack(alignment: .leading, spacing: 8) {
-            Text("Export").font(.headline)
+            Text(String(localized: "Export")).font(.headline)
             Text("Saves the committed revision. Export does not change history.").font(.caption)
             HStack {
                 Button("JPEG") { exportFormat = 1 }.disabled(blocked).accessibilityIdentifier("JPEG")
@@ -328,17 +330,17 @@ struct ManualEditorScreen: View {
                 TextField("JPEG quality 1…100", text: $exportQuality)
                     .textFieldStyle(.roundedBorder).disabled(blocked).accessibilityIdentifier("export-quality")
             }
-            Button("Save to Photos") { model.saveToPhotos(format: exportFormat, quality: Int(exportQuality) ?? -1) }
+            Button(String(localized: "Save to Photos")) { model.saveToPhotos(format: exportFormat, quality: Int(exportQuality) ?? -1) }
                 .disabled(blocked).accessibilityIdentifier("export-save-photos")
-            Button("Save to a file") { model.prepareFileExport(format: exportFormat, quality: Int(exportQuality) ?? -1) }
+            Button(String(localized: "Save to a file")) { model.prepareFileExport(format: exportFormat, quality: Int(exportQuality) ?? -1) }
                 .disabled(blocked).accessibilityIdentifier("export-save-file")
-            Button("Share") { model.shareExport(format: exportFormat, quality: Int(exportQuality) ?? -1) }
+            Button(String(localized: "Share")) { model.shareExport(format: exportFormat, quality: Int(exportQuality) ?? -1) }
                 .disabled(blocked).accessibilityIdentifier("export-share")
             if model.exporting && model.exportStatus == "Exporting" {
-                Button("Cancel export") { model.cancelExport() }.accessibilityIdentifier("export-cancel")
+                Button(String(localized: "Cancel export")) { model.cancelExport() }.accessibilityIdentifier("export-cancel")
             }
             if let status = model.exportStatus {
-                Text(status).accessibilityIdentifier("export-status")
+                Text(presented(status)).accessibilityIdentifier("export-status")
             }
         }.accessibilityElement(children: .contain)
     }
@@ -394,10 +396,10 @@ private struct ReviewComparisonPanel: View {
                 .disabled(state.status == .previewLoading).accessibilityIdentifier("review-preview-request")
             if state.status == .previewLoading {
                 ProgressView("Preparing preview…").accessibilityIdentifier("review-preview-loading")
-                Button("Cancel preview") { model.cancelReviewPreview() }.accessibilityIdentifier("review-preview-cancel")
+                Button(String(localized: "Cancel preview")) { model.cancelReviewPreview() }.accessibilityIdentifier("review-preview-cancel")
             }
             if let pair = state.comparison {
-                Text(split ? "Before / After Preview split" : after ? "After Preview — not committed" : "Before — bound source revision")
+                Text(presented(split ? "Before / After Preview split" : after ? "After Preview — not committed" : "Before — bound source revision"))
                     .accessibilityIdentifier(after ? "review-after" : "review-before")
                 Text(pair.dimensions).font(.caption)
                 GeometryReader { geometry in
@@ -426,7 +428,7 @@ private struct ReviewComparisonPanel: View {
                 Button("Reset comparison to fit") { reset() }.accessibilityIdentifier("review-reset")
             }
             if state.status == .stale { Text("Preview is stale. Request a freshly validated proposal.").accessibilityIdentifier("review-preview-stale") }
-            if state.status == .cancelled { Text("Preview cancelled. The Plan remains inspectable if current.").accessibilityIdentifier("review-preview-cancelled") }
+            if state.status == .cancelled { Text(presented("Preview cancelled. The Plan remains inspectable if current.")).accessibilityIdentifier("review-preview-cancelled") }
             if let error = state.error { Text(error).accessibilityIdentifier("review-preview-failed") }
         }.accessibilityElement(children: .contain).accessibilityIdentifier("review-preview")
             .onChange(of: state.comparison.map { ObjectIdentifier($0) }) { _ in reset() }
@@ -481,7 +483,7 @@ private struct ReviewEditPanel: View {
                 }.id(review.reviewIdentity)
             }
             if state.editSession != nil {
-                Button("Restore original review content — not document undo") { if let binding { model.editReview(4, expectedIdentity: binding) } }.disabled(!enabled).accessibilityIdentifier("review-edit-restore")
+                Button(String(localized: "Restore original review content — not document undo")) { if let binding { model.editReview(4, expectedIdentity: binding) } }.disabled(!enabled).accessibilityIdentifier("review-edit-restore")
             }
         }.accessibilityElement(children: .contain).accessibilityIdentifier("review-edit-controls")
     }
@@ -491,16 +493,16 @@ private struct ResultReviewPanel: View {
     let result: ResultReviewUi
     private var label: String {
         switch result.state {
-        case 1: return "Committed result"
-        case 2: return "Result review is stale. Ordinary history changed."
-        case 3: return "Outcome unconfirmed. Ordinary history remains authoritative."
-        case 4: return "Receipt revision is absent from ordinary history."
-        default: return "No committed result."
+        case 1: return presented("Committed result")
+        case 2: return presented("Result review is stale. Ordinary history changed.")
+        case 3: return presented("Outcome unconfirmed. Ordinary history remains authoritative.")
+        case 4: return presented("Receipt revision is absent from ordinary history.")
+        default: return presented("No committed result.")
         }
     }
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Committed result").font(.headline)
+            Text(String(localized: "Committed result")).font(.headline)
             Text(label).accessibilityIdentifier("result-label")
             Text("Ordinary history revision \(result.live.prefix(8)). Count \(result.count).").accessibilityIdentifier("result-revision")
             if result.geometryChanged { Text("Geometry changed. Fitted comparison is not a pixel-aligned split.").accessibilityIdentifier("result-geometry") }
@@ -514,8 +516,8 @@ private struct ResultReviewPanel: View {
                 Button("Current Result") { model.showResult(previous: false) }.accessibilityIdentifier("result-current")
             }
             HStack {
-                Button("Undo document") { model.undoResult() }.disabled(!result.canUndo).accessibilityIdentifier("result-undo")
-                Button("Redo document") { model.redoResult() }.disabled(!result.canRedo).accessibilityIdentifier("result-redo")
+                Button(String(localized: "Undo document")) { model.undoResult() }.disabled(!result.canUndo).accessibilityIdentifier("result-undo")
+                Button(String(localized: "Redo document")) { model.redoResult() }.disabled(!result.canRedo).accessibilityIdentifier("result-redo")
             }
             Button("Back to editing") { model.backToEditing() }.accessibilityIdentifier("result-back")
         }.accessibilityElement(children: .contain)

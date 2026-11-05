@@ -8,7 +8,7 @@ test('Step 4 permits only exact bounded review-layer changes and freezes all pri
  const additions=['docs/contracts/editable-review-before-apply-v1.md','packages/core/include/pixaura/review_edit.h','packages/core/src/review_edit_state.hpp','packages/core/src/review_edit_boundary.hpp','platforms/android/app/src/main/java/ai/pixaura/app/ReviewEditPanel.kt'];
  assert.deepEqual(Object.keys(m.changes).sort(),changes.sort());assert.deepEqual(Object.keys(m.additions).sort(),additions.sort());
  for(const [p,c] of Object.entries(m.changes)){assert.match(c.before_sha256_lf,/^[a-f0-9]{64}$/);assert.equal(hash(text(p)),resultReviewHash(p,c.after_sha256_lf),p);}
- for(const [p,c] of Object.entries(m.additions))assert.equal(hash(text(p)),c,p);
+ for(const [p,c] of Object.entries(m.additions))assert.equal(hash(text(p)),resultReviewHash(p,c),p);
  assert.equal(hash(withoutReviewEditIntegration(text('packages/core/src/editor_api.cpp'))),m.changes['packages/core/src/editor_api.cpp'].before_sha256_lf);
  const old=read('docs/reports/phase-8-step-3-v1.json');for(const p of ['packages/core/include/pixaura/review_inspection.h','packages/core/src/review_inspection_boundary.hpp','docs/contracts/plan-inspection-action-review-v1.md'])assert.equal(hash(text(p)),old.additions[p],p);
  assert.equal(Object.keys(m.human_apply_bodies).length,2);

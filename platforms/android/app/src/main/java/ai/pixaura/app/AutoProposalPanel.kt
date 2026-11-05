@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.dp
 
@@ -46,7 +47,7 @@ internal fun AutoProposalPanel(model: ManualEditorModel, ui: EditorUiState, auto
                         PlanInspectionPanel(review.inspection)
                         Text("Reviewed source: ${review.sourceRevision.take(8)}. Apply rechecks the current source.", Modifier.testTag("auto-source"))
                         Button(onClick = { model.applyAutoFromHuman(review) }, enabled = drafts.isEmpty() && auto.status == AutoStatus.REVIEW_READY && !auto.inFlight && auto.preview.status !in listOf(ReviewPreviewStatus.PREVIEW_LOADING, ReviewPreviewStatus.STALE),
-                            modifier = Modifier.testTag("auto-apply").semantics { contentDescription = "Apply this exact reviewed plan with human approval" }) { Text("Apply reviewed plan") }
+                            modifier = Modifier.testTag("auto-apply").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = "Apply this exact reviewed plan with human approval" }) { Text(stringResource(R.string.apply_reviewed_plan)) }
                     }
                     ReviewEditPanel(model, auto) { key, dirty ->
                         if (model.autoProposal.value.review?.reviewIdentity == auto.review?.reviewIdentity) drafts = if (dirty) drafts + key else drafts - key

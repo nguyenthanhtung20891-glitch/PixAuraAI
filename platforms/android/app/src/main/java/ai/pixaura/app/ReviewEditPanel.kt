@@ -35,6 +35,6 @@ internal fun ReviewEditPanel(model: ManualEditorModel, state: AutoUiState, onDra
                 modifier = Modifier.testTag("review-edit-down-$index")) { Text("Move action ${index + 1}: ${action.label} to position ${index + 2}") }
         }
         if (state.editSession != null) OutlinedButton(onClick = { binding?.let { model.editReview(4, expectedIdentity = it) } }, enabled = enabled,
-            modifier = Modifier.testTag("review-edit-restore")) { Text("Restore original review content — not document undo") }
+            modifier = Modifier.testTag("review-edit-restore").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)) { Text(presented("Restore original review content — not document undo")) }
     }
 }

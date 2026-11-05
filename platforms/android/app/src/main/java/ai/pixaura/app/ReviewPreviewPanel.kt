@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -34,10 +35,10 @@ internal fun ReviewPreviewPanel(model: ManualEditorModel, state: ReviewPreviewUi
         if (state.status == ReviewPreviewStatus.PREVIEW_LOADING) {
             LinearProgressIndicator(Modifier.fillMaxWidth())
             Text("Preparing preview…", Modifier.testTag("review-preview-loading").semantics { liveRegion = LiveRegionMode.Polite })
-            OutlinedButton(onClick = { model.cancelReviewPreview() }, modifier = Modifier.testTag("review-preview-cancel")) { Text("Cancel preview") }
+            OutlinedButton(onClick = { model.cancelReviewPreview() }, modifier = Modifier.testTag("review-preview-cancel").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)) { Text(stringResource(R.string.cancel_preview)) }
         }
         state.comparison?.let { pair ->
-            Text(if (split) "Before / After Preview split" else if (after) "After Preview — not committed" else "Before — bound source revision",
+            Text(presented(if (split) "Before / After Preview split" else if (after) "After Preview — not committed" else "Before — bound source revision"),
                 Modifier.testTag(if (after) "review-after" else "review-before").semantics { liveRegion = LiveRegionMode.Polite })
             Text(pair.dimensions, style = MaterialTheme.typography.bodySmall)
             Box(Modifier.fillMaxWidth().height(240.dp).clipToBounds().onSizeChanged { extent = it }.testTag("review-viewport")) {

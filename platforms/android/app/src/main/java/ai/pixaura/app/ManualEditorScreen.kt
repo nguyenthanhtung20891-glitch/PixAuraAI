@@ -17,6 +17,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -59,12 +60,14 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
         if (assist.enabled) AssistPanel(model, ui, assist)
         if (auto.enabled) AutoProposalPanel(model, ui, auto)
         assist.notice?.let { Text(it, Modifier.testTag("assist-notice").semantics { liveRegion = LiveRegionMode.Polite }) }
-        Button(onClick = { picker.launch(arrayOf("image/jpeg", "image/png")) }, enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("open-photo").semantics { contentDescription = "Open Photo" }) { Text("Open JPEG or PNG") }
+        val openPhoto = stringResource(R.string.open_photo)
+        val openVisible = stringResource(R.string.open_jpeg_or_png)
+        Button(onClick = { picker.launch(arrayOf("image/jpeg", "image/png")) }, enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("open-photo").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = openPhoto }) { Text(openVisible) }
         Box(Modifier.fillMaxWidth().height(180.dp).semantics { contentDescription = "Image preview" }) {
             ui.image?.let { Image(it.asImageBitmap(), "Current manual preview", Modifier.fillMaxSize(), contentScale = ContentScale.Fit) }
             if (ui.image == null) Column {
-                Text("PixAuraAI edits a private copy on this device.", Modifier.testTag("empty-purpose"))
-                Text("Open an image to edit locally")
+                Text(stringResource(R.string.empty_purpose), Modifier.testTag("empty-purpose"))
+                Text(stringResource(R.string.empty_instruction))
             }
         }
         if (ui.busy) Text("Loading or saving…", Modifier.semantics { liveRegion = LiveRegionMode.Polite })
@@ -114,21 +117,21 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
             OutlinedButton(onClick = { model.update(tool.parameters.map { it.default }) }, enabled = !ui.busy && !core.approvalPending) { Text("Reset to default") }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(onClick = { model.action(1) }, enabled = core?.active == true && !ui.busy && !ui.exporting) { Text(if (core?.approvalPending == true) "Retry Apply" else "Apply") }
-            OutlinedButton(onClick = { model.action(0); formatError = null }, enabled = core?.active == true && !ui.busy && !ui.exporting) { Text("Cancel") }
+            Button(onClick = { model.action(1) }, enabled = core?.active == true && !ui.busy && !ui.exporting, modifier = Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)) { Text(if (core?.approvalPending == true) stringResource(R.string.retry_apply) else stringResource(R.string.apply)) }
+            OutlinedButton(onClick = { model.action(0); formatError = null }, enabled = core?.active == true && !ui.busy && !ui.exporting, modifier = Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)) { Text(stringResource(R.string.cancel)) }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = { model.action(2) }, enabled = core?.canUndo == true && !ui.busy && !ui.exporting) { Text("Undo") }
-            OutlinedButton(onClick = { model.action(3) }, enabled = core?.canRedo == true && !ui.busy && !ui.exporting) { Text("Redo") }
+            OutlinedButton(onClick = { model.action(2) }, enabled = core?.canUndo == true && !ui.busy && !ui.exporting, modifier = Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)) { Text(stringResource(R.string.undo)) }
+            OutlinedButton(onClick = { model.action(3) }, enabled = core?.canRedo == true && !ui.busy && !ui.exporting, modifier = Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)) { Text(stringResource(R.string.redo)) }
         }
-        core?.let { Text("Committed revisions: ${it.revisionCount}") }
-        (formatError ?: ui.error)?.let { Text(it, Modifier.semantics { liveRegion = LiveRegionMode.Assertive }) }
-        if (ui.error?.startsWith("Preview failure") == true) Button(onClick = model::retryPreview) { Text("Retry preview") }
-        if (ui.error?.contains("Stale edit") == true) Button(onClick = model::reopenProject) { Text("Reopen committed project") }
+        core?.let { Text(stringResource(R.string.committed_revisions, it.revisionCount)) }
+        (formatError ?: ui.error)?.let { val shown = presented(it); Text(shown, Modifier.semantics { liveRegion = LiveRegionMode.Assertive }) }
+        if (ui.error?.startsWith("Preview failure") == true) Button(onClick = model::retryPreview) { Text(stringResource(R.string.retry_preview)) }
+        if (ui.error?.contains("Stale edit") == true) Button(onClick = model::reopenProject) { Text(stringResource(R.string.reopen_project)) }
         }
-        if (auto.enabled) ui.core?.let { Text("Committed revisions: ${it.revisionCount}") }
+        if (auto.enabled) ui.core?.let { Text(stringResource(R.string.committed_revisions, it.revisionCount)) }
         if (ui.core != null) {
-            Text("Export", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.export_title), style = MaterialTheme.typography.titleMedium)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(selected = exportFormat == 1, onClick = { exportFormat = 1 }, enabled = !ui.busy && !ui.exporting, label = { Text("JPEG") })
                 FilterChip(selected = exportFormat == 2, onClick = { exportFormat = 2 }, enabled = !ui.busy && !ui.exporting, label = { Text("PNG") })
@@ -137,14 +140,14 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
                 label = { Text("JPEG quality 1…100") }, singleLine = true, modifier = Modifier.fillMaxWidth().testTag("export-quality"))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (Build.VERSION.SDK_INT >= 29) Button(onClick = { model.saveToPhotos(exportFormat, exportQuality.toIntOrNull() ?: -1) },
-                    enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("export-save-photos").semantics { contentDescription = "Save the committed revision to Photos" }) { Text("Save to Photos") }
+                    enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("export-save-photos").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = "Save the committed revision to Photos" }) { Text(stringResource(R.string.save_to_photos)) }
                 Button(onClick = { if (model.reserveExport()) documentLauncher.launch(if (exportFormat == 1) "PixAuraAI.jpg" else "PixAuraAI.png") },
-                    enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("export-save-file").semantics { contentDescription = "Save the committed revision to a file" }) { Text("Save to a file") }
+                    enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("export-save-file").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = "Save the committed revision to a file" }) { Text(stringResource(R.string.save_to_file)) }
                 Button(onClick = { model.shareExport(exportFormat, exportQuality.toIntOrNull() ?: -1) },
-                    enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("export-share").semantics { contentDescription = "Share the committed revision" }) { Text("Share") }
+                    enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("export-share").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = "Share the committed revision" }) { Text(stringResource(R.string.share)) }
             }
-            if (ui.exporting && ui.exportStatus == "Exporting") OutlinedButton(onClick = model::cancelExport, modifier = Modifier.testTag("export-cancel")) { Text("Cancel export") }
-            ui.exportStatus?.let { Text(it, Modifier.testTag("export-status").semantics { liveRegion = LiveRegionMode.Polite; contentDescription = it }) }
+            if (ui.exporting && ui.exportStatus == "Exporting") OutlinedButton(onClick = model::cancelExport, modifier = Modifier.testTag("export-cancel").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)) { Text(stringResource(R.string.cancel_export)) }
+            ui.exportStatus?.let { val shown = presented(it); Text(shown, Modifier.testTag("export-status").semantics { liveRegion = LiveRegionMode.Polite; contentDescription = shown }) }
         }
     }
 }

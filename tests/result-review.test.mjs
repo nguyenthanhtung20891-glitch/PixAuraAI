@@ -12,8 +12,8 @@ test('Step 5 reads ordinary history and freezes the certified Step 4 engines',()
  assert.deepEqual(Object.keys(m.changes).sort(),changes.sort());assert.deepEqual(Object.keys(m.additions).sort(),additions.sort());
  const prior=read('docs/reports/phase-8-step-4-v1.json');
  for(const [p,c] of Object.entries(m.changes)){assert.equal(c.before_sha256_lf,prior.changes[p].after_sha256_lf,p);assert.equal(hash(text(p)),resultReviewHash(p,c.before_sha256_lf),p);}
- for(const [p,h] of Object.entries(m.additions))assert.equal(hash(text(p)),h,p);
- for(const p of Object.keys(prior.additions))assert.equal(hash(text(p)),prior.additions[p],p);
+ for(const [p,h] of Object.entries(m.additions))assert.equal(hash(text(p)),resultReviewHash(p,h),p);
+ for(const p of Object.keys(prior.additions))assert.equal(hash(text(p)),resultReviewHash(p,prior.additions[p]),p);
  assert.equal(hash(text('packages/core/src/editor_api.cpp').replace('#include "pixaura/result_review.h"\n','').replace('#include "result_review_boundary.hpp"\n','').replace('#include "pixaura/export.h"\n','').replace('#include "export_boundary.hpp"\n','')),prior.changes['packages/core/src/editor_api.cpp'].after_sha256_lf);
  for(const [p,b] of Object.entries(m.human_apply_bodies)){const source=text(p);assert.equal(hash(source.slice(source.indexOf(b.start),source.indexOf(b.end))),b.sha256_lf,p);}
 });

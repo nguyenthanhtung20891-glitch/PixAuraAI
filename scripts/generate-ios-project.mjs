@@ -35,7 +35,12 @@ const uiTests = sources('PixAuraAIUITests', ['ShellUITests.swift']);
 const privacyRef = id(), privacyBuild = id(), resources = id();
 add(privacyRef, 'isa = PBXFileReference; lastKnownFileType = text.xml; path = PixAuraAI/PrivacyInfo.xcprivacy; sourceTree = "<group>";');
 add(privacyBuild, `isa = PBXBuildFile; fileRef = ${privacyRef};`);
-add(resources, `isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (${privacyBuild}); runOnlyForDeploymentPostprocessing = 0;`);
+const enStrings = id(), viStrings = id(), stringVariant = id(), stringBuild = id();
+add(enStrings, 'isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = PixAuraAI/en.lproj/Localizable.strings; sourceTree = "<group>";');
+add(viStrings, 'isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = PixAuraAI/vi.lproj/Localizable.strings; sourceTree = "<group>";');
+add(stringVariant, `isa = PBXVariantGroup; children = (${enStrings},${viStrings}); name = Localizable.strings; sourceTree = "<group>";`);
+add(stringBuild, `isa = PBXBuildFile; fileRef = ${stringVariant};`);
+add(resources, `isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (${privacyBuild},${stringBuild}); runOnlyForDeploymentPostprocessing = 0;`);
 const previewFixtureRef = id(), previewFixtureBuild = id(), testResources = id();
 add(previewFixtureRef, 'isa = PBXFileReference; lastKnownFileType = text.json; path = "../../tests/fixtures/decode/fixtures.json"; sourceTree = "<group>";');
 add(previewFixtureBuild, `isa = PBXBuildFile; fileRef = ${previewFixtureRef};`);
@@ -82,8 +87,8 @@ for (const [key, name, type] of [[appProduct, 'PixAuraAI.app', 'wrapper.applicat
   add(key, `isa = PBXFileReference; explicitFileType = ${type}; path = ${name}; sourceTree = BUILT_PRODUCTS_DIR;`);
 }
 add(productsGroup, `isa = PBXGroup; children = (${appProduct},${testProduct},${uiProduct}); name = Products; sourceTree = "<group>";`);
-add(mainGroup, `isa = PBXGroup; children = (${groups.join(',')},${privacyRef},${previewFixtureRef},${productsGroup}); sourceTree = "<group>";`);
-add(project, `isa = PBXProject; attributes = { BuildIndependentTargetsInParallel = YES; LastUpgradeCheck = 2600; }; buildConfigurationList = ${projectConfigs}; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en,Base); mainGroup = ${mainGroup}; productRefGroup = ${productsGroup}; projectDirPath = ""; projectRoot = ""; targets = (${appTarget},${testTarget},${uiTarget}); packageReferences = (${packageRef});`);
+add(mainGroup, `isa = PBXGroup; children = (${groups.join(',')},${privacyRef},${stringVariant},${previewFixtureRef},${productsGroup}); sourceTree = "<group>";`);
+add(project, `isa = PBXProject; attributes = { BuildIndependentTargetsInParallel = YES; LastUpgradeCheck = 2600; }; buildConfigurationList = ${projectConfigs}; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, vi, Base); mainGroup = ${mainGroup}; productRefGroup = ${productsGroup}; projectDirPath = ""; projectRoot = ""; targets = (${appTarget},${testTarget},${uiTarget}); packageReferences = (${packageRef});`);
 const directory = path.join(root, 'platforms/ios/PixAuraAI.xcodeproj');
 fs.mkdirSync(path.join(directory, 'xcshareddata/xcschemes'), { recursive: true });
 fs.writeFileSync(path.join(directory, 'project.pbxproj'), `// !$*UTF8*$!\n{ archiveVersion = 1; classes = {}; objectVersion = 56; objects = {\n${objects.join('\n')}\n}; rootObject = ${project}; }\n`);
