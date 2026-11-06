@@ -1,5 +1,21 @@
 # Phase 9 — MVP productization and file lifecycle
 
+<!-- phase10-step6-current -->
+## Phase 10 Step 6 - Cross-Platform Release Readiness and Phase Closure
+
+Phase 10 AUTHORIZED / IN PROGRESS. Step 5 COMPLETE / FULL PASS.
+Step 5 closure 47c6503c111feaa5f21c4f732036490a023107f0: Foundation 42168863992
+SUCCESS 7/7; Native shells 42168864184 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
+Step 5 implementation e57f827604b3367c983bd756e6dedf66d5644ef1: Foundation 42164977378
+SUCCESS 7/7; Native shells 42164977392 SUCCESS 3/3.
+Step 6 AUTHORIZED / IN PROGRESS.
+UI STATE != NATIVE AUTHORITY. EXPORT IS NOT A REVISION. Schema 3 unchanged. HUMAN Apply unchanged.
+Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
+Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+Phase 10 is not closed. Phase 11 is not started. Phase 12 is not started.
+<!-- phase10-step6-history -->
+
 <!-- phase10-step5-current -->
 ## Phase 10 Step 5 - Performance, Resource and Privacy Hardening
 
