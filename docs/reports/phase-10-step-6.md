@@ -5,6 +5,8 @@ Implementation `c1dfbe2783043530bf9c6f2aaa407b11d2730fe0`: Foundation
 `42173777297` SUCCESS 7/7 and Native shells `42173777251` SUCCESS 3/3, attempt
 1, exact SHA.
 `53b6da5a23dc64dbe248fbe616d2be009a6fd765` is not certified and is not rerun.
+`c992897137ef107751de5f0080979d1e490898f9` is not certified. Native ios-app
+failed because assist-cancel was not actionable. That SHA is not rerun.
 Phase 10 is not closed. Phase 11 and Phase 12 are not started.
 
 ## Observed Step 5 closure

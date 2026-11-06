@@ -13,6 +13,9 @@ Foundation `42173777297` SUCCESS 7/7. Native shells `42173777251` SUCCESS 3/3.
 Attempt 1, exact SHA, every required job SUCCESS.
 
 `53b6da5a23dc64dbe248fbe616d2be009a6fd765` is not certified and is not rerun.
+`c992897137ef107751de5f0080979d1e490898f9` is not certified. Native ios-app
+failed because assist-cancel was not actionable. That SHA is not rerun.
+Foundation `42177468270` on that SHA was SUCCESS 7/7 and does not substitute.
 
 ## Step 5, already observed
 
