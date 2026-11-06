@@ -2,6 +2,7 @@
 
 Status: NOT CLOSED. LOCAL HARDWARE GATE BLOCKED.
 
+`24466359f9cc6daf89409e08e756d7a6856762f1` is not certified. Native android-app observed exposure order 101,102 before the required 102,101 move. That SHA is not rerun. Its ios-app job succeeded and does not substitute.
 `96f5c5697f10c6b5060681135dfab4c11d23dd03` is not certified. Native ios-app failed because assist controls were not actionable. That SHA is not rerun. Foundation `42216649076` on that SHA was SUCCESS 7/7 and does not substitute.
 There is no Phase 10.1 closure SHA. Hosted CI cannot substitute for the
 missing Mac Studio environment, local Apple build, local Simulator run, or
