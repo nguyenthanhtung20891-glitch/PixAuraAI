@@ -2,6 +2,7 @@
 
 Status: NOT CLOSED. LOCAL HARDWARE GATE BLOCKED.
 
+`96f5c5697f10c6b5060681135dfab4c11d23dd03` is not certified. Native ios-app failed because assist controls were not actionable. That SHA is not rerun. Foundation `42216649076` on that SHA was SUCCESS 7/7 and does not substitute.
 There is no Phase 10.1 closure SHA. Hosted CI cannot substitute for the
 missing Mac Studio environment, local Apple build, local Simulator run, or
 Mac Studio performance samples.

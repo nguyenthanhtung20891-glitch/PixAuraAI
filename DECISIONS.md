@@ -11,6 +11,7 @@ SUCCESS 7/7; Native shells 42185975282 SUCCESS 3/3, exact SHA, attempt 1, every 
 That receipt is not the Phase 10 closure SHA.
 Phase 10.1 AUTHORIZED / IN PROGRESS / LOCAL HARDWARE GATE BLOCKED.
 The preparing session was Windows. No Mac Studio command output was collected.
+96f5c5697f10c6b5060681135dfab4c11d23dd03 is not certified. Native ios-app failed because assist controls were not actionable. That SHA is not rerun.
 Hosted Apple CI is not local Mac Studio evidence. Steps 1-5 are not COMPLETE / FULL PASS.
 Phase 10.1 is not closed. Phase 11 is not started. Phase 12 is not started.
 UI STATE != NATIVE AUTHORITY. EXPORT IS NOT A REVISION. Schema 3 unchanged. HUMAN Apply unchanged.

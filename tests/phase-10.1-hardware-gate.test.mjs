@@ -9,6 +9,7 @@ test('Phase 10.1 records a blocked Mac Studio gate without fabricated host outpu
   const block = agents.split('<!-- phase10.1-history -->')[0];
   assert.match(block, /Phase 10\.1 AUTHORIZED \/ IN PROGRESS \/ LOCAL HARDWARE GATE BLOCKED/);
   assert.match(block, /No Mac Studio command output was collected/);
+  assert.match(block, /96f5c5697f10c6b5060681135dfab4c11d23dd03 is not certified/);
   assert.match(block, /Phase 10\.1 is not closed/);
   assert.match(block, /Phase 11 is not started/);
   assert.match(block, /Phase 12 is not started/);
