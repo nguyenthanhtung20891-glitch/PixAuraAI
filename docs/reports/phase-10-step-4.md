@@ -1,6 +1,9 @@
 # Phase 10 Step 4 — Error recovery and lifecycle
 
-Status: AUTHORIZED / IN PROGRESS. This commit does not certify itself.
+Status: CLOSURE CERTIFICATION PENDING. Implementation
+`359c2f7ffd7e70b0910019ab8c38acafa29848fb` passed Foundation `42134548234`
+SUCCESS 7/7 and Native shells `42134548288` SUCCESS 3/3, attempt 1, exact SHA.
+This closure commit does not certify itself.
 Steps 5-6 are not started.
 
 ## Observed Step 3 closure

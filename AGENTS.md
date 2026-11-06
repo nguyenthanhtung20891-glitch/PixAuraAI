@@ -11,7 +11,14 @@ SUCCESS 7/7; Native shells 42108036667 SUCCESS 3/3.
 9397fc84b7727c91c1516f1255254de3569a6e73 and b526e21e58e3d17f723bb65a2df9d41af81c45cb are not certified. Those SHAs are not rerun.
 789d1170f0811b0c1a7715ab5411b56270e75718 is not certified. Foundation armeabi-v7a failed while unzipping NDK 28.2.13676358. That SHA is not rerun.
 e383efc453f64d1a295febab643da877a24d314a is not certified. The review field keystrokes did not change the value before Apply was checked. That SHA is not rerun.
-Step 4 AUTHORIZED / IN PROGRESS. Steps 5-6 NOT STARTED.
+Step 4 CLOSURE CERTIFICATION PENDING.
+Certified implementation SHA: `359c2f7ffd7e70b0910019ab8c38acafa29848fb`.
+Foundation 42134548234 SUCCESS 7/7; Native shells 42134548288 SUCCESS 3/3;
+both exact SHA, attempt 1, every required job completed/SUCCESS.
+This separate documentation-only closure requires BOTH full workflows on its OWN
+exact SHA. Until that observed receipt, Step 4 is not COMPLETE / FULL PASS.
+789d1170f0811b0c1a7715ab5411b56270e75718, e383efc453f64d1a295febab643da877a24d314a, and 9a71d4ca3c10a0e4a700ab81730764768eabcb2a are not certified and are not rerun.
+Steps 5-6 NOT STARTED.
 UI STATE != NATIVE AUTHORITY. EXPORT IS NOT A REVISION. Schema 3 unchanged. HUMAN Apply unchanged.
 Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
 Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.
