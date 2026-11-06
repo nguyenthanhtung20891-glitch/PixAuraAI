@@ -1,6 +1,7 @@
 # Phase 10 Step 6 — Cross-platform release readiness
 
 Status: AUTHORIZED / IN PROGRESS. This commit does not certify itself.
+`53b6da5a23dc64dbe248fbe616d2be009a6fd765` is not certified and is not rerun.
 Phase 10 is not closed. Phase 11 and Phase 12 are not started.
 
 ## Observed Step 5 closure

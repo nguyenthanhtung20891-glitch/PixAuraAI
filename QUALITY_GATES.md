@@ -8,6 +8,7 @@ Step 5 closure 47c6503c111feaa5f21c4f732036490a023107f0: Foundation 42168863992
 SUCCESS 7/7; Native shells 42168864184 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
 Step 5 implementation e57f827604b3367c983bd756e6dedf66d5644ef1: Foundation 42164977378
 SUCCESS 7/7; Native shells 42164977392 SUCCESS 3/3.
+53b6da5a23dc64dbe248fbe616d2be009a6fd765 is not certified. The Step 1 roadmap check still required row 6 to stay NOT STARTED. That SHA is not rerun.
 Step 6 AUTHORIZED / IN PROGRESS.
 UI STATE != NATIVE AUTHORITY. EXPORT IS NOT A REVISION. Schema 3 unchanged. HUMAN Apply unchanged.
 Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
