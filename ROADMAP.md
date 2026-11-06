@@ -1,5 +1,24 @@
 # Delivery roadmap
 
+<!-- phase10.1-current -->
+## Phase 10.1 - Dual-Platform Integration and Apple Hardware Enablement
+
+Phase 10 CLOSED / COMPLETE / FULL PASS.
+Phase 10 closure e4835cfcc008fb1e6db276cdcbeca47527e39cd4: Foundation 42181593096
+SUCCESS 7/7; Native shells 42181593143 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
+Receipt a54e30848d5fcb46d0e7eca1577e7906177cd384: Foundation 42185975261
+SUCCESS 7/7; Native shells 42185975282 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
+That receipt is not the Phase 10 closure SHA.
+Phase 10.1 AUTHORIZED / IN PROGRESS / LOCAL HARDWARE GATE BLOCKED.
+The preparing session was Windows. No Mac Studio command output was collected.
+Hosted Apple CI is not local Mac Studio evidence. Steps 1-5 are not COMPLETE / FULL PASS.
+Phase 10.1 is not closed. Phase 11 is not started. Phase 12 is not started.
+UI STATE != NATIVE AUTHORITY. EXPORT IS NOT A REVISION. Schema 3 unchanged. HUMAN Apply unchanged.
+Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
+Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+<!-- phase10.1-history -->
+
 <!-- phase10-closed-current -->
 ## Phase 10 - observed closure
 

@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "phase": "10.1",
+  "status": "LOCAL_HARDWARE_GATE_BLOCKED",
+  "phase10_closure_sha": "e4835cfcc008fb1e6db276cdcbeca47527e39cd4",
+  "phase10_receipt_sha": "a54e30848d5fcb46d0e7eca1577e7906177cd384",
+  "mac_studio_observed": false,
+  "local_apple_tests_observed": false,
+  "performance_samples_observed": false,
+  "closure_sha": null,
+  "apple_metal_v1": "UNKNOWN",
+  "dh_apple_metal_01": "DEFERRED_NOT_WAIVED_NOT_SATISFIED",
+  "phase11": "NOT_STARTED",
+  "phase12": "NOT_STARTED"
+}
