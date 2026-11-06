@@ -1,6 +1,9 @@
 # Phase 10 Step 5 — Performance, resource, and privacy
 
-Status: AUTHORIZED / IN PROGRESS. This commit does not certify itself.
+Status: CLOSURE CERTIFICATION PENDING. This commit does not certify itself.
+Implementation `e57f827604b3367c983bd756e6dedf66d5644ef1`: Foundation
+`42164977378` SUCCESS 7/7 and Native shells `42164977392` SUCCESS 3/3, attempt
+1, exact SHA.
 Step 6 is not started.
 
 ## Observed Step 4 closure
@@ -21,9 +24,22 @@ seven JPEG samples, quality 90, are timed with the steady clock around the
 existing encode call. The test prints `pixaura-hosted-v1` with the seven raw
 samples and the median. It does not add a latency ceiling. A CI job duration
 is not an operation latency. These samples are not battery or thermal data,
-and they are not physical-device measurements. The numeric sample line is
-observed from the implementation workflow log. This commit does not transcribe
-numbers that have not been printed yet.
+and they are not physical-device measurements. The numeric lines below are
+copied from the implementation workflow log.
+
+Observed Debug samples from that implementation run, fixture `decode_png`,
+2 by 3 pixels, warmup 8, samples 7:
+
+- Ubuntu 24.04, job `127719220217`: PNG microseconds 160, 112, 120, 102, 102,
+  126, 103, median 112. JPEG microseconds 563, 124, 116, 112, 112, 115, 112,
+  median 115.
+- Windows 2025, job `127719220057`: PNG microseconds 1214, 1502, 1297, 1265,
+  1210, 1252, 1311, median 1265. JPEG microseconds 1182, 1312, 1214, 1240,
+  1236, 1228, 1192, median 1228.
+
+The two hosts differ by about an order of magnitude on this tiny fixture, so
+no latency regression ceiling is justified. The Apple boundary log did not
+print this line. ASan and UBSan timings are not used as the baseline.
 
 ## Resources
 

@@ -9,7 +9,13 @@ SUCCESS 7/7; Native shells 42139462394 SUCCESS 3/3, exact SHA, attempt 1, every 
 Step 4 implementation 359c2f7ffd7e70b0910019ab8c38acafa29848fb: Foundation 42134548234
 SUCCESS 7/7; Native shells 42134548288 SUCCESS 3/3.
 789d1170f0811b0c1a7715ab5411b56270e75718, e383efc453f64d1a295febab643da877a24d314a, and 9a71d4ca3c10a0e4a700ab81730764768eabcb2a are not certified. Those SHAs are not rerun.
-Step 5 AUTHORIZED / IN PROGRESS. Step 6 NOT STARTED.
+Step 5 CLOSURE CERTIFICATION PENDING.
+Certified implementation SHA: `e57f827604b3367c983bd756e6dedf66d5644ef1`.
+Foundation 42164977378 SUCCESS 7/7; Native shells 42164977392 SUCCESS 3/3;
+both exact SHA, attempt 1, every required job completed/SUCCESS.
+This separate documentation-only closure requires BOTH full workflows on its OWN
+exact SHA. Until that observed receipt, Step 5 is not COMPLETE / FULL PASS.
+Step 6 NOT STARTED.
 No new process-RSS ceiling. Hosted timings are not physical-device measurements.
 UI STATE != NATIVE AUTHORITY. EXPORT IS NOT A REVISION. Schema 3 unchanged. HUMAN Apply unchanged.
 Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.

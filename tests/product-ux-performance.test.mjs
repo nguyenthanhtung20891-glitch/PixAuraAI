@@ -41,12 +41,15 @@ test('Step 5 records the observed Step 4 closure and adds no ceiling', () => {
   assert.match(block, /9342116c478c0165fe6db4fbc4a440f17761228a/);
   assert.match(block, /42139462323/);
   assert.match(block, /42139462394/);
-  assert.match(block, /Step 5 AUTHORIZED \/ IN PROGRESS/);
+  assert.match(block, /Step 5 CLOSURE CERTIFICATION PENDING/);
+  assert.match(block, /e57f827604b3367c983bd756e6dedf66d5644ef1/);
+  assert.match(block, /42164977378/);
+  assert.match(block, /42164977392/);
   assert.match(block, /Step 6 NOT STARTED/);
   assert.match(block, /No new process-RSS ceiling/);
   assert.match(agents.split('<!-- phase10-step4-history -->')[0], /Step 4 CLOSURE CERTIFICATION PENDING/);
   const roadmap = read('docs/plans/phase-10-roadmap.md');
-  assert.match(roadmap, /\| 5 \| Performance, Resource and Privacy Hardening \| AUTHORIZED \/ IN PROGRESS \|/);
+  assert.match(roadmap, /\| 5 \| Performance, Resource and Privacy Hardening \| CLOSURE CERTIFICATION PENDING \|/);
   assert.match(roadmap, /\| 4 \| Error Recovery and Lifecycle \| CLOSURE CERTIFICATION PENDING \|/);
   const receipt = JSON.parse(read('docs/reports/evidence/phase-10-step-4-closure-certification.json'));
   assert.equal(receipt.label, 'closure');
@@ -55,7 +58,12 @@ test('Step 5 records the observed Step 4 closure and adds no ceiling', () => {
   assert.equal(receipt.runs[0].jobs.length, 7);
   assert.equal(receipt.runs[1].jobs.length, 3);
   const report = JSON.parse(read('docs/reports/phase-10-step-5-v1.json'));
-  assert.equal(report.status, 'AUTHORIZED_IN_PROGRESS');
+  assert.equal(report.status, 'CLOSURE_CERTIFICATION_PENDING');
+  assert.equal(report.implementation_sha, 'e57f827604b3367c983bd756e6dedf66d5644ef1');
+  const implementation = JSON.parse(read('docs/reports/evidence/phase-10-step-5-implementation-certification.json'));
+  assert.equal(implementation.label, 'implementation');
+  assert.equal(implementation.runs[0].jobs.length, 7);
+  assert.equal(implementation.runs[1].jobs.length, 3);
   assert.equal(report.new_resource_ceiling, false);
   for (const workflow of ['.github/workflows/foundation.yml', '.github/workflows/native-shells.yml']) {
     assert.match(read(workflow), /tests\/product-ux-performance\.test\.mjs/);
