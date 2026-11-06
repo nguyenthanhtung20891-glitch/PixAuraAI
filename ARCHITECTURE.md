@@ -1,5 +1,22 @@
 # System architecture
 
+<!-- phase10-closed-current -->
+## Phase 10 - observed closure
+
+Phase 10 CLOSED / COMPLETE / FULL PASS.
+Closure e4835cfcc008fb1e6db276cdcbeca47527e39cd4: Foundation 42181593096
+SUCCESS 7/7; Native shells 42181593143 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
+Step 6 implementation c1dfbe2783043530bf9c6f2aaa407b11d2730fe0: Foundation 42173777297
+SUCCESS 7/7; Native shells 42173777251 SUCCESS 3/3.
+53b6da5a23dc64dbe248fbe616d2be009a6fd765 and c992897137ef107751de5f0080979d1e490898f9 are not certified and are not rerun.
+This receipt records that observed closure. This receipt is not the closure SHA.
+Phase 10.1 is not started. Phase 11 is not started. Phase 12 is not started.
+UI STATE != NATIVE AUTHORITY. EXPORT IS NOT A REVISION. Schema 3 unchanged. HUMAN Apply unchanged.
+Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
+Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+<!-- phase10-closed-history -->
+
 <!-- phase10-step6-current -->
 ## Phase 10 Step 6 - Cross-Platform Release Readiness and Phase Closure
 

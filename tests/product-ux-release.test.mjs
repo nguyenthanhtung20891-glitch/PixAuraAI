@@ -49,6 +49,15 @@ test('release packages keep certification hooks off and permissions narrow', () 
 
 test('Step 6 records the observed Step 5 closure without closing Phase 10', () => {
   const agents = read('AGENTS.md');
+  const closed = agents.split('<!-- phase10-closed-history -->')[0];
+  assert.match(closed, /Phase 10 CLOSED \/ COMPLETE \/ FULL PASS/);
+  assert.match(closed, /e4835cfcc008fb1e6db276cdcbeca47527e39cd4/);
+  assert.match(closed, /42181593096/);
+  assert.match(closed, /42181593143/);
+  assert.match(closed, /This receipt is not the closure SHA/);
+  assert.match(closed, /Phase 10\.1 is not started/);
+  assert.match(read('docs/plans/phase-10.1-readiness.md'), /Status: NOT STARTED/);
+  assert.match(read('docs/plans/phase-10.1-readiness.md'), /does not change Metal trust/);
   const block = agents.split('<!-- phase10-step6-history -->')[0];
   assert.match(block, /Step 5 COMPLETE \/ FULL PASS/);
   assert.match(block, /47c6503c111feaa5f21c4f732036490a023107f0/);
