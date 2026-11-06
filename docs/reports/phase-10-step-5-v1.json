@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "phase": 10,
+  "step": 5,
+  "status": "AUTHORIZED_IN_PROGRESS",
+  "step4_closure_sha": "9342116c478c0165fe6db4fbc4a440f17761228a",
+  "step4_implementation_sha": "359c2f7ffd7e70b0910019ab8c38acafa29848fb",
+  "runtime_authority": false,
+  "editing_authority": false,
+  "history_authority": false,
+  "new_resource_ceiling": false,
+  "hosted_timings_are_device_claims": false,
+  "step6": "NOT_STARTED",
+  "changes": {},
+  "additions": {}
+}

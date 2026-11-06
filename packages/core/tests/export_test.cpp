@@ -142,6 +142,25 @@ int main(int argc,char** argv){
   const auto jpegUs=std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now()-jpegStart).count();
   CHECK(jpeg.code==0&&jpeg.bytes.size()>=2&&jpeg.bytes[0]==0xff&&jpeg.bytes[1]==0xd8&&first.document()==firstDoc);
   CHECK(encode(first,first.bind(),32).code==11&&first.document()==firstDoc&&second.document()==secondDoc);
+  long long pngSample[7]{},jpegSample[7]{};
+  for(int sample=0;sample<7;++sample){
+    const auto pngStart=std::chrono::steady_clock::now();
+    const auto pngSampleEncoded=encode(first,first.bind());
+    pngSample[sample]=std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now()-pngStart).count();
+    CHECK(pngSampleEncoded.code==0&&pngSampleEncoded.bytes==repeated.bytes);
+    auto jpegRequest=first.bind();jpegRequest.format=PIXAURA_EXPORT_JPEG;jpegRequest.quality=90;
+    const auto jpegStartSample=std::chrono::steady_clock::now();
+    const auto jpegSampleEncoded=encode(first,jpegRequest);
+    jpegSample[sample]=std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now()-jpegStartSample).count();
+    CHECK(jpegSampleEncoded.code==0&&jpegSampleEncoded.bytes==jpeg.bytes);
+  }
+  CHECK(first.document()==firstDoc&&snap(first.document())->revisions().size()==1);
+  auto pngSorted=std::vector<long long>(pngSample,pngSample+7),jpegSorted=std::vector<long long>(jpegSample,jpegSample+7);
+  std::sort(pngSorted.begin(),pngSorted.end());std::sort(jpegSorted.begin(),jpegSorted.end());
+  std::printf("pixaura-hosted-v1 fixture=decode_png width=2 height=3 warmup=8 samples=7 png-us=%lld,%lld,%lld,%lld,%lld,%lld,%lld jpeg-us=%lld,%lld,%lld,%lld,%lld,%lld,%lld png-median=%lld jpeg-median=%lld\n",
+    pngSample[0],pngSample[1],pngSample[2],pngSample[3],pngSample[4],pngSample[5],pngSample[6],
+    jpegSample[0],jpegSample[1],jpegSample[2],jpegSample[3],jpegSample[4],jpegSample[5],jpegSample[6],
+    pngSorted[3],jpegSorted[3]);
   const auto secondPng=encode(second,second.bind());CHECK(secondPng.code==0&&second.document()==secondDoc&&first.document()==firstDoc);
   std::printf("export hosted repeat-us %lld jpeg-us %lld png-bytes %zu jpeg-bytes %zu\n",static_cast<long long>(repeatUs),static_cast<long long>(jpegUs),repeated.bytes.size(),jpeg.bytes.size());
  }

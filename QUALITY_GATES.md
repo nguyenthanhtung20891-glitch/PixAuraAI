@@ -1,5 +1,23 @@
 # Quality gates and promotion policy
 
+<!-- phase10-step5-current -->
+## Phase 10 Step 5 - Performance, Resource and Privacy Hardening
+
+Phase 10 AUTHORIZED / IN PROGRESS. Step 4 COMPLETE / FULL PASS.
+Step 4 closure 9342116c478c0165fe6db4fbc4a440f17761228a: Foundation 42139462323
+SUCCESS 7/7; Native shells 42139462394 SUCCESS 3/3, exact SHA, attempt 1, every job SUCCESS.
+Step 4 implementation 359c2f7ffd7e70b0910019ab8c38acafa29848fb: Foundation 42134548234
+SUCCESS 7/7; Native shells 42134548288 SUCCESS 3/3.
+789d1170f0811b0c1a7715ab5411b56270e75718, e383efc453f64d1a295febab643da877a24d314a, and 9a71d4ca3c10a0e4a700ab81730764768eabcb2a are not certified. Those SHAs are not rerun.
+Step 5 AUTHORIZED / IN PROGRESS. Step 6 NOT STARTED.
+No new process-RSS ceiling. Hosted timings are not physical-device measurements.
+UI STATE != NATIVE AUTHORITY. EXPORT IS NOT A REVISION. Schema 3 unchanged. HUMAN Apply unchanged.
+Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
+Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED.
+Phase 11 is not started. Phase 12 is not started.
+<!-- phase10-step5-history -->
+
 <!-- phase10-step4-current -->
 ## Phase 10 Step 4 - Error Recovery and Lifecycle
 
