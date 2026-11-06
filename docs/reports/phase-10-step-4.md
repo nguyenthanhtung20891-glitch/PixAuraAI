@@ -29,6 +29,11 @@ strings. Those SHAs are not rerun.
 keystrokes did not change the value before Apply was checked. That SHA is not
 rerun.
 
+`9a71d4ca3c10a0e4a700ab81730764768eabcb2a` is not certified. Foundation
+`42129181851` succeeded. Native ios-app failed the review-field hittable check
+added after the field was already accepted, plus two unrelated timeouts in the
+same run. That SHA is not rerun.
+
 ## Recovery
 
 Leaving the editor, stopping the Android activity, or leaving the active Apple

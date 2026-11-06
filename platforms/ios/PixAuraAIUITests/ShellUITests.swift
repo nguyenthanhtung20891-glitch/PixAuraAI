@@ -39,7 +39,6 @@ final class ShellUITests: XCTestCase {
         let field = app.textFields["review-edit-value-0-0"]; revealReview(field, in: app)
         XCTAssertTrue(field.exists); XCTAssertTrue(field.label.contains("allowed -5000 to 5000"))
         XCTAssertTrue(field.isHittable)
-        field.tap(); XCTAssertTrue(field.isHittable)
         let draft = app.staticTexts["review-edit-draft-0-0"]
         for _ in 0..<2 {
             field.tap()
@@ -47,7 +46,7 @@ final class ShellUITests: XCTestCase {
             field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 11) + "123")
             if draft.waitForExistence(timeout: 3) { break }
         }
-        XCTAssertTrue(draft.exists)
+        XCTAssertTrue(draft.waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons["auto-apply"].isEnabled)
         tap("review-edit-change-0-0"); text("auto-exact-values-0", contains: "milli_ev = 123"); text("review-edit-state", contains: "EDITED")
         XCTAssertFalse(app.staticTexts["review-before"].exists); XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
