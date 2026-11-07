@@ -29,7 +29,10 @@ export function resultReviewHash(path, expected){
  const admitted=family?.after_sha256_lf??localized;
  const capture=JSON.parse(fs.readFileSync('docs/reports/phase-10.1-swift-capture-v1.json','utf8'));
  const owned=capture.changes[path];if(owned)assert.equal(owned.before_sha256_lf,admitted,path+' swift capture predecessor');
- return owned?.after_sha256_lf??admitted;
+ const captured=owned?.after_sha256_lf??admitted;
+ const pinnedLocale=JSON.parse(fs.readFileSync('docs/reports/phase-10.1-uitest-locale-v1.json','utf8'));
+ const pinned=pinnedLocale.changes[path];if(pinned)assert.equal(pinned.before_sha256_lf,captured,path+' uitest locale predecessor');
+ return pinned?.after_sha256_lf??captured;
 }
 export function withoutReviewEditIntegration(source){
  return source.replace('#include "review_edit_state.hpp"\n','').replace('    ReviewEditState review_edit;\n','')

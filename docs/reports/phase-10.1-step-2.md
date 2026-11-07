@@ -60,3 +60,17 @@ six nested main-queue callbacks in `ManualEditorModel.swift` because their
 `self`. Those five worker closures now write `[self]` explicitly. The six
 main-queue callbacks stay `[weak self]`, including both `assistEpoch`
 checks. This session did not compile the iOS shell with Xcode 27.2.
+On `c846719a4db11259f075cb7690f18ca630bfae15` the Product Owner reported
+that `check-ios-shell.sh` compiled and then failed 18 `ShellUITests` on
+iPhone Duo, iOS 27.2. The hierarchy showed the Vietnamese catalog
+(`Mở ảnh`, `Áp dụng`, `Hoàn tác`, `Làm lại`, `Số bản sửa đã lưu: 1`)
+while the suite asserts the English catalog. Every UI-test launch now
+passes `-AppleLanguages (en)` and `-AppleLocale en_US`, which Foundation
+reads before `String(localized:)` resolves. A normal launch does not
+receive those arguments. Apply, Cancel, Undo, and Redo also expose those
+English keys as accessibility identifiers, and tool readiness matches
+the identifier or the visible label. The English sentences, action
+order, human Apply, cancellation, history, undo/redo, export, and the
+Vietnamese catalog stay in place. This Windows session did not run
+Xcode 27.2. Step 2 stays LOCAL HARDWARE GATE BLOCKED until
+`bash scripts/check-ios-shell.sh` passes on the implementation SHA.

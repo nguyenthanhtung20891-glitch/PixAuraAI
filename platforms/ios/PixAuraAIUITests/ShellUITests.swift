@@ -1,6 +1,19 @@
 import XCTest
 
 final class ShellUITests: XCTestCase {
+    // The assertions use the English catalog. A simulator inherits the Mac
+    // language, and String(localized:) then presents that catalog instead.
+    // Foundation reads these arguments before SwiftUI resolves the strings.
+    // A normal launch does not receive them, so device language stays unchanged.
+    private func launchEnglish(_ arguments: [String] = []) -> XCUIApplication {
+        let app = XCUIApplication()
+        startEnglish(app, arguments)
+        return app
+    }
+    private func startEnglish(_ app: XCUIApplication, _ arguments: [String]) {
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"] + arguments
+        app.launch()
+    }
     private func revealReview(_ element: XCUIElement, in app: XCUIApplication) {
         let scroll = app.scrollViews["review-scroll"]
         guard scroll.exists else { return }
@@ -8,7 +21,7 @@ final class ShellUITests: XCTestCase {
         for _ in 0..<8 where !element.isHittable { scroll.swipeDown() }
     }
     func testExportControlsStayAvailableInManualMode() {
-        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
+        let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image"])
         let open = app.buttons["Open Manual editor"]
         XCTAssertTrue(open.waitForExistence(timeout: 20)); open.tap()
         let export = app.buttons["export-open"]
@@ -21,7 +34,7 @@ final class ShellUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
     }
     func testEditableReviewValueNoActionsRestoreAndExplicitApply() {
-        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
+        let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image"])
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             revealReview(query.firstMatch, in: app)
@@ -57,7 +70,7 @@ final class ShellUITests: XCTestCase {
         tap("auto-apply"); XCTAssertTrue(app.staticTexts["auto-completed"].waitForExistence(timeout: 20)); XCTAssertTrue(app.staticTexts["Committed revisions: 2"].exists)
     }
     func testEditableReviewReorderRemoveAndRestoreRebuildExactInspection() {
-        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image", "--inspection-test-multi"]; app.launch()
+        let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image", "--inspection-test-multi"])
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             revealReview(query.firstMatch, in: app)
@@ -79,7 +92,7 @@ final class ShellUITests: XCTestCase {
         tap("auto-dismiss"); XCTAssertFalse(app.buttons["auto-apply"].exists)
     }
     func testPlanInspectionAllElevenExactValuesAndReadOnlyAccessibility() {
-        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
+        let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image"])
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
@@ -101,7 +114,7 @@ final class ShellUITests: XCTestCase {
         tap("mode-manual"); XCTAssertFalse(app.buttons["auto-apply"].exists)
     }
     func testPlanInspectionMultiActionOrderUsesExactRawValuesAndSamePreview() {
-        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image", "--inspection-test-multi"]; app.launch()
+        let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image", "--inspection-test-multi"])
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
@@ -120,7 +133,7 @@ final class ShellUITests: XCTestCase {
         tap("auto-dismiss"); XCTAssertFalse(app.buttons["auto-apply"].exists); XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
     }
     func testReviewPreviewToggleIsNotApplyAndGeometryUsesFit() {
-        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
+        let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image"])
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
@@ -144,7 +157,7 @@ final class ShellUITests: XCTestCase {
     }
     func testReviewPreviewCancellationFailureAndDepartureKeepManualAvailable() {
         for flag in ["--review-preview-test-pause", "--review-preview-test-failure"] {
-            let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image", flag]; app.launch()
+            let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image", flag])
             func tap(_ id: String) {
                 let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
                 let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
@@ -168,7 +181,7 @@ final class ShellUITests: XCTestCase {
         }
     }
     func testIntegratedModeBackgroundNavigationAndRestartNeverRestoreReviewAuthority() {
-        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
+        let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image"])
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
@@ -192,7 +205,7 @@ final class ShellUITests: XCTestCase {
         tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request")
         tap("auto-apply"); XCTAssertTrue(app.staticTexts["auto-completed"].waitForExistence(timeout: 20))
         XCTAssertTrue(app.staticTexts["Committed revisions: 2"].exists)
-        app.terminate(); app.launchArguments = ["--reset-shell-navigation"]; app.launch()
+        app.terminate(); startEnglish(app, ["--reset-shell-navigation"])
         tap("Open Manual editor")
         XCTAssertTrue(app.staticTexts["Committed revisions: 2"].waitForExistence(timeout: 20))
         XCTAssertFalse(app.buttons["auto-apply"].exists); XCTAssertFalse(app.staticTexts["auto-completed"].exists)
@@ -200,7 +213,7 @@ final class ShellUITests: XCTestCase {
     }
 
     func testReviewHumanApplyOneOrdinaryRevisionAndManualUndoRedo() {
-        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
+        let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image"])
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
@@ -239,7 +252,7 @@ final class ShellUITests: XCTestCase {
         guard changeExposure() else { return }; tap("Apply"); revisions(4)
     }
     func testResultReviewUsesOrdinaryUndoRedoAndLeavesEditing() {
-        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
+        let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image"])
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
@@ -268,7 +281,7 @@ final class ShellUITests: XCTestCase {
     }
     func testReviewCancelModeDepartureAndFailurePreserveManualEditing() {
         for flag in ["--review-test-pause", "--review-test-failure"] {
-            let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image", flag]; app.launch()
+            let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image", flag])
             func tap(_ id: String) {
                 let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
                 let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
@@ -287,7 +300,7 @@ final class ShellUITests: XCTestCase {
         }
     }
     func testAutoProposalIsReadOnlyAndModeAbandonmentDoesNotRestoreIt() {
-        let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]; app.launch()
+        let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image"])
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
@@ -309,7 +322,7 @@ final class ShellUITests: XCTestCase {
     }
     func testAutoCancellationAndProviderFailureLeaveManualAvailable() {
         for flag in ["--auto-test-pause", "--auto-test-failure"] {
-            let app = XCUIApplication(); app.launchArguments = ["--reset-shell-navigation", "--editor-test-image", flag]; app.launch()
+            let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image", flag])
             func tap(_ id: String) {
                 let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
                 let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
@@ -327,9 +340,7 @@ final class ShellUITests: XCTestCase {
         }
     }
     func testAssistCancellationAndModeDepartureSuppressLateAdvice() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--reset-shell-navigation", "--editor-test-image", "--assist-test-pause"]
-        app.launch()
+        let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image", "--assist-test-pause"])
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
@@ -355,9 +366,7 @@ final class ShellUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Committed revisions: 2"].waitForExistence(timeout: 20))
     }
     func testAssistAdviceDismissNavigationAndExplicitManualApply() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]
-        app.launch()
+        let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image"])
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
@@ -386,9 +395,7 @@ final class ShellUITests: XCTestCase {
         tap("pixaura.exposure"); tap("Cancel"); revisions(2)
     }
     func testAssistProviderFailureStillAllowsManualEditing() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--reset-shell-navigation", "--editor-test-image", "--assist-test-failure"]
-        app.launch()
+        let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image", "--assist-test-failure"])
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
@@ -406,9 +413,7 @@ final class ShellUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Committed revisions: 2"].waitForExistence(timeout: 20))
     }
     func testManualEditorGestureHistoryCancelBackgroundAndReopen() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--reset-shell-navigation", "--editor-test-image"]
-        app.launch()
+        let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image"])
         func tap(_ label: String) {
             let button = app.buttons[label].firstMatch
             XCTAssertTrue(button.waitForExistence(timeout: 20), label)
@@ -514,8 +519,8 @@ final class ShellUITests: XCTestCase {
                 // Re-selecting the same tool can leave its old selected trait
                 // and slider visible while no gesture is active. Require the
                 // real core-backed action state as well as those UI controls.
-                required.append(NSPredicate(format: "elementType == %d AND (label == %@ OR label == %@) AND enabled == true",
-                                            XCUIElement.ElementType.button.rawValue, "Apply", "Cancel"))
+                required.append(NSPredicate(format: "elementType == %d AND ((identifier == %@ OR label == %@) OR (identifier == %@ OR label == %@)) AND enabled == true",
+                                            XCUIElement.ElementType.button.rawValue, "Apply", "Apply", "Cancel", "Cancel"))
             }
             return waitForMatches(NSCompoundPredicate(orPredicateWithSubpredicates: required),
                                   count: id.hasPrefix("pixaura.") ? 4 : 2, stage: "selected-and-control")
@@ -553,13 +558,11 @@ final class ShellUITests: XCTestCase {
         XCUIDevice.shared.orientation = .landscapeLeft
         tap("Back to Home"); tap("Open Manual editor"); revisions(2)
         XCUIDevice.shared.orientation = .portrait
-        app.terminate(); app.launchArguments = ["--reset-shell-navigation"]; app.launch()
+        app.terminate(); startEnglish(app, ["--reset-shell-navigation"])
         tap("Open Manual editor"); revisions(2)
     }
     func testLaunchCoreAndDestinations() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--reset-shell-navigation"]
-        app.launch()
+        let app = launchEnglish(["--reset-shell-navigation"])
         XCTAssertTrue(app.staticTexts["Shared core ready · ABI 1"].waitForExistence(timeout: 10))
         for destination in ["Projects", "Settings"] {
             app.buttons["Open \(destination)"].tap()

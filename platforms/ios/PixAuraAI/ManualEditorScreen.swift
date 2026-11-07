@@ -289,11 +289,15 @@ struct ManualEditorScreen: View {
         HStack {
             Button(model.core?.approvalPending == true ? String(localized: "Retry Apply") : String(localized: "Apply")) { model.action(1) }
                 .disabled(model.core?.active != true || model.busy || model.exporting)
+                .accessibilityIdentifier("Apply")
             Button(String(localized: "Cancel")) { formatError = nil; model.action(0) }.disabled(model.core?.active != true || model.busy || model.exporting)
+                .accessibilityIdentifier("Cancel")
         }
         HStack {
             Button(String(localized: "Undo")) { model.action(2) }.disabled(model.core?.canUndo != true || model.busy || model.exporting)
+                .accessibilityIdentifier("Undo")
             Button(String(localized: "Redo")) { model.action(3) }.disabled(model.core?.canRedo != true || model.busy || model.exporting)
+                .accessibilityIdentifier("Redo")
         }
         if let core = model.core { Text(String(format: String(localized: "Committed revisions: %lld"), Int64(core.revisionCount))).accessibilityIdentifier("revision-count") }
         if let error = formatError ?? model.error { Text(presented(error)).accessibilityIdentifier("editor-error") }

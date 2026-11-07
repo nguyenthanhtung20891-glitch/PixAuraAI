@@ -9,7 +9,7 @@ test('iOS tool UI harness uses resolved element hits and retains semantic postco
   const selection = ui.slice(start, ui.indexOf('tap("Open Manual editor")', start));
   assert.ok(selection.includes('button.tap()'));
   assert.doesNotMatch(selection, /button\.frame|windows\.firstMatch\.frame|coordinate\(withNormalizedOffset/);
-  for (const marker of ['selected-and-control', 'enabled == true', 'selected == true', '"Apply", "Cancel"', 'count: id.hasPrefix("pixaura.") ? 4 : 2', 'timeout: 20']) assert.ok(selection.includes(marker), marker);
+  for (const marker of ['selected-and-control', 'enabled == true', 'selected == true', 'identifier == %@ OR label == %@', '"Apply", "Apply", "Cancel", "Cancel"', 'count: id.hasPrefix("pixaura.") ? 4 : 2', 'timeout: 20']) assert.ok(selection.includes(marker), marker);
   for (const marker of ['field("x_ppm", "600000")', 'tap("Cancel"); terminalGesture(); revisions(2)', 'tap("Undo")', 'tap("Redo")', 'app.terminate()']) assert.ok(ui.includes(marker), marker);
 });
 test('manual screens consume descriptor metadata, never duplicate native tool contracts', () => {

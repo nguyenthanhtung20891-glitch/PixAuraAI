@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "phase": "10.1",
+  "subject": "ios-uitest-english-contract",
+  "mac_studio_xcode_27_2_observed": false,
+  "apple_metal_v1": "UNKNOWN",
+  "changes": {
+    "platforms/ios/PixAuraAI/ManualEditorScreen.swift": {
+      "before_sha256_lf": "e78384221ea554b1da7a7ab29d9aced65a3ba2b769344e2cfde487d506ea8bb7",
+      "after_sha256_lf": "b96f998129ea7fee241e82a669124f1240a1e8ebe42af9d987018a42a68b5e9d"
+    },
+    "platforms/ios/PixAuraAIUITests/ShellUITests.swift": {
+      "before_sha256_lf": "0b3b6a56a977edb1d77a7a03f209dd7f6871af7a1895ffb09c89853c44c8eb23",
+      "after_sha256_lf": "90d27f153cc1764c97d4bac2854e126b48609995eb44dabeee9fe6af40f9a3f1"
+    }
+  }
+}
