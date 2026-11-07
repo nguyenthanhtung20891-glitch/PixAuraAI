@@ -52,3 +52,11 @@ is unchanged. A package-wide `KEEP_PRIVATE_EXTERNS=YES` stays rejected
 because it breaks the app debug dylib. The SwiftUICore link warning is a
 separate SDK note and does not define these symbols. This Windows session
 did not run Xcode 27.2. Hosted Xcode 26.6 does not prove that linker.
+The Product Owner reported that `bash scripts/check-apple.sh` completed on
+Mac Studio Xcode 27.2 for `7ebce2ac4a33ca69f4a39f6f30ba63745d5ef111`. That
+result belongs to that SHA. `check-ios-shell.sh` on that toolchain rejected
+six nested main-queue callbacks in `ManualEditorModel.swift` because their
+`[weak self]` capture differed from the worker closure's implicit strong
+`self`. Those five worker closures now write `[self]` explicitly. The six
+main-queue callbacks stay `[weak self]`, including both `assistEpoch`
+checks. This session did not compile the iOS shell with Xcode 27.2.

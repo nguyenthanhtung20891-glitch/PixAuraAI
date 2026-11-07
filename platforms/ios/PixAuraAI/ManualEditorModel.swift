@@ -571,7 +571,7 @@ final class ManualEditorModel: ObservableObject {
     func dismissAdvice() { invalidateAdvice(.rejected); assistance.status = assistance.enabled ? .rejected : .idle }
     func useSuggestion() {
         guard let advice = assistance.advice, let stamp = nextAssistEpoch() else { return }
-        send { worker in
+        send { [self] worker in
             do {
                 try worker.useAdvice(advice)
                 DispatchQueue.main.async { [weak self] in
@@ -735,14 +735,14 @@ final class ManualEditorModel: ObservableObject {
     func update(_ values: [Int32]) { invalidateAdvice(); guard let core else { return }; epoch += 1; previewLoading = true; worker.update(values, editID: core.editID, epoch: epoch) }
     func action(_ action: UInt32) { invalidateAdvice(); send { try $0.action(action) } }
     private func refreshResult(_ receipt: ManualEditor.AgentReceipt?) {
-        send { worker in
+        send { [self] worker in
             let review = try worker.resultReview(receipt)
             DispatchQueue.main.async { [weak self] in self?.autoProposal.result = ResultReviewUi(review) }
         }
     }
     private func reconcileFailedApply(_ error: Error) {
         let before = applyBaseline
-        send { worker in
+        send { [self] worker in
             let review = try? worker.resultReview(nil)
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
@@ -759,7 +759,7 @@ final class ManualEditorModel: ObservableObject {
     }
     func showResult(previous: Bool) {
         let receipt = resultReceipt
-        send { worker in
+        send { [self] worker in
             let review = try worker.resultReview(receipt)
             let id = previous ? review.previous : (review.result.isEmpty ? review.live : review.result)
             let image = id.isEmpty ? nil : try worker.renderResult(review, revision: id)
@@ -771,7 +771,7 @@ final class ManualEditorModel: ObservableObject {
     func backToEditing() { setAutoMode(false) }
     private func resultHistory(_ action: UInt32) {
         let receipt = resultReceipt
-        send { worker in
+        send { [self] worker in
             try worker.action(action)
             let review = try worker.resultReview(receipt)
             DispatchQueue.main.async { [weak self] in self?.autoProposal.result = ResultReviewUi(review) }

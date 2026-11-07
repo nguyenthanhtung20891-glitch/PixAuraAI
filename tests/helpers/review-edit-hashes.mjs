@@ -26,7 +26,10 @@ export function resultReviewHash(path, expected){
  const localized=translated?.after_sha256_lf??shown;
  const metal=JSON.parse(fs.readFileSync('docs/reports/phase-10.1-metal-v1.json','utf8'));
  const family=metal.changes[path];if(family)assert.equal(family.before_sha256_lf,localized,path+' metal family predecessor');
- return family?.after_sha256_lf??localized;
+ const admitted=family?.after_sha256_lf??localized;
+ const capture=JSON.parse(fs.readFileSync('docs/reports/phase-10.1-swift-capture-v1.json','utf8'));
+ const owned=capture.changes[path];if(owned)assert.equal(owned.before_sha256_lf,admitted,path+' swift capture predecessor');
+ return owned?.after_sha256_lf??admitted;
 }
 export function withoutReviewEditIntegration(source){
  return source.replace('#include "review_edit_state.hpp"\n','').replace('    ReviewEditState review_edit;\n','')

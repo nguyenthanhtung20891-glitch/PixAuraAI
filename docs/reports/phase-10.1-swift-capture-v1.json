@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "phase": "10.1",
+  "subject": "swift-implicit-strong-capture",
+  "mac_studio_xcode_27_2_observed": false,
+  "apple_metal_v1": "UNKNOWN",
+  "changes": {
+    "platforms/ios/PixAuraAI/ManualEditorModel.swift": {
+      "before_sha256_lf": "d226c84965c092aee7f1abe537538fe9f831498ddfa9d1ace196db1070d590d6",
+      "after_sha256_lf": "538b80197a15ed7eb3bd6418a1bb5b657708f5a4457d2d047ad5745f042bc3d8"
+    }
+  }
+}
