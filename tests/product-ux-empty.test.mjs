@@ -20,10 +20,17 @@ test('Phase 10 Step 2 explains an empty editor without changing import authority
   assert.equal(m.history_authority, false);
   assert.equal(m.step3, 'NOT_STARTED');
   const step3 = read('docs/reports/phase-10-step-3-v1.json');
+  const capture = read('docs/reports/phase-10.1-swift-capture-v1.json');
   for (const [p, change] of Object.entries(m.changes)) {
     const successor = step3.changes[p];
     if (successor) assert.equal(successor.before_sha256_lf, change.after_sha256_lf, p);
-    else assert.equal(hash(p), change.after_sha256_lf, p);
+    else {
+      const later = capture.changes[p];
+      if (later) {
+        assert.equal(later.before_sha256_lf, change.after_sha256_lf, p);
+        assert.equal(hash(p), later.after_sha256_lf, p);
+      } else assert.equal(hash(p), change.after_sha256_lf, p);
+    }
   }
   const receipt = read('docs/reports/evidence/phase-10-step-1-closure-certification.json');
   assert.equal(receipt.sha, m.step1_closure_sha);
