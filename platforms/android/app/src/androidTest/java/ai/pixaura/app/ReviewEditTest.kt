@@ -83,8 +83,13 @@ class ReviewEditTest {
         val review = owner.prepareAutoReview(proposal)
         @Suppress("UNCHECKED_CAST") val flow = ManualEditorModel::class.java.getDeclaredField("autoMutable").apply { isAccessible = true }.get(model) as MutableStateFlow<AutoUiState>
         compose.runOnUiThread { flow.value = flow.value.copy(proposal = proposal, review = review, editSession = null, preview = ReviewPreviewUi()) }
-        tap("review-edit-down-0"); settled()
-        assertEquals(listOf(102,101,103,800000,105,106,107,108), requireNotNull(model.autoProposal.value.review).inspection.actions.map { it.parameters[0].raw })
+        tap("review-edit-down-0")
+        val moved = listOf(102,101,103,800000,105,106,107,108)
+        waitFor {
+            val review = model.autoProposal.value.review
+            review != null && !model.autoProposal.value.inFlight && review.inspection.actions.map { it.parameters[0].raw } == moved
+        }
+        assertEquals(moved, requireNotNull(model.autoProposal.value.review).inspection.actions.map { it.parameters[0].raw })
         compose.onNodeWithTag("auto-exact-values-0").assertTextContains("milli_ev = 102", substring = true)
         tap("review-edit-remove-3"); settled(); assertEquals(7, requireNotNull(model.autoProposal.value.review).inspection.actions.size)
         assertFalse(requireNotNull(model.autoProposal.value.review).inspection.actions.any { it.geometry })

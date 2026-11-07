@@ -16,7 +16,7 @@ test('Mac2 family admission survives the macOS 27 deprecation without becoming A
   assert.doesNotMatch(code, /MTLGPUFamilyMac2|MTLGPUFamilyApple7|-Wno-deprecated|-Wno-error/);
   const swiftCode = swift.replace(/\/\/[^\n]*/g, '');
   assert.match(swiftCode, /supportsFamily\(\.apple1\)/);
-  assert.match(swiftCode, /MTLGPUFamily\(rawValue: 2002\)/);
+  assert.match(swiftCode, /guard let macFamily = MTLGPUFamily\(rawValue: 2002\) else \{ return evidence \}/);
   assert.match(swiftCode, /!name\.contains\("software"\)/);
   assert.match(swiftCode, /!name\.contains\("virtual"\)/);
   assert.doesNotMatch(swiftCode, /\.mac2|\.apple7/);

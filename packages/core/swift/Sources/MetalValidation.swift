@@ -44,8 +44,10 @@ public enum MetalValidation {
         guard let device = MTLCreateSystemDefaultDevice() else { return evidence }
         evidence["gpu"] = device.name
         let apple = device.supportsFamily(.apple1)
-        // 2002 is MTLGPUFamily.mac2. Apple7 is a different family.
-        let mac = device.supportsFamily(MTLGPUFamily(rawValue: 2002))
+        // 2002 is the Mac2 family value. Apple7 is a different family.
+        // An unavailable value fails closed and leaves this probe unsupported.
+        guard let macFamily = MTLGPUFamily(rawValue: 2002) else { return evidence }
+        let mac = device.supportsFamily(macFamily)
         evidence["apple_family_1"] = apple
         evidence["mac_family_2"] = mac
         evidence["unified_memory"] = device.hasUnifiedMemory

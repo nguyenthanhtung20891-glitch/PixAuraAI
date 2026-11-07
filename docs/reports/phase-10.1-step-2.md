@@ -28,3 +28,6 @@ Apple7-only devices and does not remove the software and virtual name
 rejection. This Windows session did not compile it with Xcode 27.2. The Mac
 Studio still runs `bash scripts/check-apple.sh` and
 `bash scripts/check-ios-shell.sh` after a fast-forward pull.
+`f7a61a019295772be700a7771083ffa612c98565` is not certified. Hosted
+Xcode rejected the optional Mac2 raw value, and the Android review order
+was still 101,102 before the required 102,101 move. That SHA is not rerun.
