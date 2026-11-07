@@ -22,3 +22,9 @@ and runs the app tests on the simulator. Those builds are unsigned simulator
 and generic-iOS software builds. They are not signed physical-device builds.
 
 Hosted Apple CI remains separate evidence. It does not satisfy this step.
+The Mac2 family query now uses raw value 2002 so an Xcode 27.2 build does
+not name the deprecated enumerator. That source change does not admit
+Apple7-only devices and does not remove the software and virtual name
+rejection. This Windows session did not compile it with Xcode 27.2. The Mac
+Studio still runs `bash scripts/check-apple.sh` and
+`bash scripts/check-ios-shell.sh` after a fast-forward pull.

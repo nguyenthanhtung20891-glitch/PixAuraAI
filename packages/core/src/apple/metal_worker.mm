@@ -25,7 +25,11 @@ struct Worker final:MetalWorker {
             require(false,4);
 #endif
             NSString* name=[device.name lowercaseString];
-            require(([device supportsFamily:MTLGPUFamilyApple1]||[device supportsFamily:MTLGPUFamilyMac2])&&
+            // 2002 is MTLGPUFamilyMac2. The macOS 27 SDK deprecates that name
+            // and suggests MTLGPUFamilyApple7. Apple7 is a different family, so
+            // the raw value keeps the existing Mac2 query.
+            const MTLGPUFamily mac_family_2=static_cast<MTLGPUFamily>(2002);
+            require(([device supportsFamily:MTLGPUFamilyApple1]||[device supportsFamily:mac_family_2])&&
                 ![name containsString:@"software"]&&![name containsString:@"virtual"],4);
         }
         require(device.maxBufferLength>=tile_bytes,4);

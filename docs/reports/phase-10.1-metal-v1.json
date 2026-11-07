@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "phase": "10.1",
+  "subject": "metal-family-source-compatibility",
+  "mac_studio_xcode_27_2_observed": false,
+  "apple_metal_v1": "UNKNOWN",
+  "changes": {
+    "packages/core/src/apple/metal_worker.mm": {
+      "before_sha256_lf": "4b552f4d909a5ff358f4dad393a4c34d7cf160143a71e3583483c3a78bb1a548",
+      "after_sha256_lf": "2c83d50ffa72fb5ae7019afb77f97b3220271b4d1ce227e3900e46f24e4c2031"
+    },
+    "packages/core/swift/Sources/MetalValidation.swift": {
+      "before_sha256_lf": "7513ac335aa4cfb832b9be7287da224707c0114c199c195bb6b4241b69df7661",
+      "after_sha256_lf": "4e37b62527d42e0e897361bc9edcd2a56deea6430d059ab6004ed2b883f3b096"
+    }
+  }
+}
