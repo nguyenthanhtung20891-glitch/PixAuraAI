@@ -26,7 +26,8 @@ test('SQLite width diagnostics stay inside the vendored amalgamation target', ()
   assert.doesNotMatch(sodium, /-Wno-/);
   assert.ok(codecs.includes(exemption));
   assert.doesNotMatch(owned, /-Wno-|-Wno-error|\b-w\b/);
-  assert.match(read('scripts/check-apple.sh'), /-Xswiftc -warnings-as-errors -Xcc -Werror/);
+  assert.match(read('scripts/check-apple.sh'), /-warnings-as-errors/);
+  assert.match(read('scripts/check-apple.sh'), /-Werror/);
   assert.doesNotMatch(read('scripts/check-apple.sh'), /-Wno-shorten-64-to-32|-Wno-error/);
   const cmake = read('CMakeLists.txt');
   const vendor = between(cmake, 'add_library(pixaura_sqlite', 'add_library(pixaura_storage');

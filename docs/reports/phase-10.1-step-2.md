@@ -42,3 +42,13 @@ core do not receive it. The CMake SQLite target keeps `-Werror` plus its
 existing unused-parameter exemption and does not gain this flag. The
 amalgamation version, checksum, thread-safety, omitted extensions, and
 length limits are unchanged.
+The macOS package test now uses `xcodebuild -scheme PixAuraCore` with the
+same per-target `KEEP_PRIVATE_EXTERNS` expansion as the iOS package builds.
+`swift test` does not pass that setting into each target's `ld -r`, and
+Xcode localizes hidden externs during that partial link. The missing groups
+are those hidden symbols: Metal's private worker entry points, `crc32`,
+libsodium, the codec exports, and the vendored SQLite API. Their visibility
+is unchanged. A package-wide `KEEP_PRIVATE_EXTERNS=YES` stays rejected
+because it breaks the app debug dylib. The SwiftUICore link warning is a
+separate SDK note and does not define these symbols. This Windows session
+did not run Xcode 27.2. Hosted Xcode 26.6 does not prove that linker.

@@ -7,15 +7,27 @@ xcodebuild -version
 xcrun swift --version
 cmake --version
 bash scripts/check-metal-shaders.sh
-node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/document-contract.test.mjs tests/native-document.test.mjs tests/persistence.test.mjs tests/decode.test.mjs tests/working.test.mjs tests/evaluation.test.mjs tests/geometry.test.mjs tests/geometry-execution.test.mjs tests/preview.test.mjs tests/gpu.test.mjs tests/manual-tools.test.mjs tests/manual-geometry.test.mjs tests/tone-color.test.mjs tests/detail-tools.test.mjs tests/presets.test.mjs tests/gesture-lifecycle.test.mjs tests/manual-editor.test.mjs tests/capability.test.mjs tests/model-package.test.mjs tests/inference.test.mjs
+node --test tests/foundation.test.mjs tests/ci-tools.test.mjs tests/document-contract.test.mjs tests/native-document.test.mjs tests/persistence.test.mjs tests/decode.test.mjs tests/working.test.mjs tests/evaluation.test.mjs tests/geometry.test.mjs tests/geometry-execution.test.mjs tests/preview.test.mjs tests/gpu.test.mjs tests/manual-tools.test.mjs tests/manual-geometry.test.mjs tests/tone-color.test.mjs tests/detail-tools.test.mjs tests/presets.test.mjs tests/gesture-lifecycle.test.mjs tests/manual-editor.test.mjs tests/capability.test.mjs tests/model-package.test.mjs tests/inference.test.mjs tests/apple-link-graph.test.mjs
 cmake -S . -B build/apple-host -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_C_COMPILER="$(xcrun --find clang)" \
     -DCMAKE_CXX_COMPILER="$(xcrun --find clang++)"
 cmake --build build/apple-host
 ctest --test-dir build/apple-host --output-on-failure
 node scripts/model-footprint.mjs build/apple-host
-swift test --package-path packages/core --scratch-path "$workspace_path/build/apple-swift" \
-    -Xswiftc -warnings-as-errors -Xcc -Werror 2>&1 | tee "$workspace_path/build/apple-segmentation-macos.log"
+# swift test never forwards KEEP_PRIVATE_EXTERNS into each package target's ld -r.
+# Xcode localizes hidden externs there, so the macOS package test uses the same
+# per-target setting as the iOS package builds. A package-wide YES breaks app dylibs.
+(
+cd packages/core
+xcodebuild -scheme PixAuraCore -destination 'platform=macOS' \
+    -derivedDataPath "$workspace_path/build/apple-swift" \
+    'KEEP_PRIVATE_EXTERNS=$(PIXAURA_PRIVATE_EXTERNS_$(TARGET_NAME))' \
+    PIXAURA_PRIVATE_EXTERNS_CPixAuraSQLite=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraCodecs=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraSodium=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraMetal=YES \
+    CODE_SIGNING_ALLOWED=NO SWIFT_TREAT_WARNINGS_AS_ERRORS=YES GCC_TREAT_WARNINGS_AS_ERRORS=YES \
+    OTHER_SWIFT_FLAGS='$(inherited) -warnings-as-errors' \
+    OTHER_CFLAGS='$(inherited) -Werror' OTHER_CPLUSPLUSFLAGS='$(inherited) -Werror' \
+    test
+) 2>&1 | tee "$workspace_path/build/apple-segmentation-macos.log"
 node scripts/segmentation-results.mjs build/apple-segmentation-macos.log \
     build/apple-segmentation-macos.jsonl hosted-macos > build/apple-segmentation-macos-summary.json
 

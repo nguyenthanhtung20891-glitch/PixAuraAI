@@ -44,15 +44,16 @@ test('Apple SDK macro exception stays confined to the vendored SQLite target', (
   assert.match(sqlite, /\.unsafeFlags\(\["-Wno-ambiguous-macro"\], \.when\(platforms: \[\.macOS, \.iOS\]\)\)/);
   assert.doesNotMatch(owned, /-Wno-|-w\b/);
   assert.match(sqlite, /visibility/);
-  for (const file of ['scripts/check-apple.sh', 'scripts/check-ios-shell.sh']) {
+  for (const [file, count] of [['scripts/check-apple.sh', 3], ['scripts/check-ios-shell.sh', 2]]) {
     const commands = read(file).match(/xcodebuild[^\n]*(?:\\\n[^\n]*)*(?:build|test)/g);
-    assert.equal(commands.length, 2, file);
+    assert.equal(commands.length, count, file);
     for (const command of commands) {
       assert.ok(command.includes("'KEEP_PRIVATE_EXTERNS=$(PIXAURA_PRIVATE_EXTERNS_$(TARGET_NAME))'"), file);
       assert.match(command, /PIXAURA_PRIVATE_EXTERNS_CPixAuraSQLite=YES/, file);
       assert.doesNotMatch(command, /\bKEEP_PRIVATE_EXTERNS=YES/, file);
     }
   }
-  assert.match(read('scripts/check-apple.sh'), /-Xswiftc -warnings-as-errors -Xcc -Werror/);
+  assert.match(read('scripts/check-apple.sh'), /-warnings-as-errors/);
+  assert.match(read('scripts/check-apple.sh'), /-Werror/);
   assert.match(read('platforms/ios/PixAuraAI.xcodeproj/project.pbxproj'), /relativePath = \.\.\/\.\.\/packages\/core/);
 });

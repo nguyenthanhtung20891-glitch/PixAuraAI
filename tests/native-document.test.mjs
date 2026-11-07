@@ -35,7 +35,7 @@ test('Linux Windows Apple and sanitizers execute document ownership and parser t
     assert.match(nativeAuthority('scripts/check-native-zig.ps1'),new RegExp(`add_test\\(NAME ${target} COMMAND ${target}`));
   }
   assert.match(read('scripts/check-apple.sh'), /ctest --test-dir build\/apple-host --output-on-failure/);
-  assert.match(read('scripts/check-apple.sh'), /swift test --package-path packages\/core/);
+  assert.match(read('scripts/check-apple.sh'), /xcodebuild -scheme PixAuraCore -destination 'platform=macOS'/);
   assert.match(read('scripts/check-sanitizers.sh'), /ctest --test-dir build\/sanitize/);
   assert.match(read('.github/workflows/foundation.yml'), /tests\/native-document.test.mjs/);
   assert.match(read('.github/workflows/native-shells.yml'), /tests\/native-document.test.mjs/);

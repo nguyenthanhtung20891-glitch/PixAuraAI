@@ -14,7 +14,7 @@ test('12-bit JPEG histogram indexes fit in int without changing vendor bytes', (
   assert.match(codecs, /src\/decode_codec\.c/);
   assert.match(codecs, /jquant2-12\.c/);
   assert.doesNotMatch(owned, /-Wno-shorten-64-to-32/);
-  assert.match(read('scripts/check-apple.sh'), /-Xcc -Werror/);
+  assert.match(read('scripts/check-apple.sh'), /-Werror/);
   assert.doesNotMatch(read('scripts/check-apple.sh'), /-Wno-shorten-64-to-32|-Wno-error/);
   const cmake = read('CMakeLists.txt');
   const adapter = cmake.slice(cmake.indexOf('packages/core/src/decode_codec.c PROPERTIES'));
