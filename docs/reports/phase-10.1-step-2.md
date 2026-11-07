@@ -36,3 +36,9 @@ The Swift package's vendored codec target ignores only
 are unchanged. Owned C++ targets and the CMake `-Werror` gate on
 `decode_codec.c` do not receive that exemption. Hosted Xcode 26.6 does not
 prove the Xcode 27.2 compile.
+`CPixAuraSQLite` ignores that same width diagnostic for `sqlite3.c` only.
+`check-apple.sh` still passes `-Werror`. libsodium, Metal, and the owned
+core do not receive it. The CMake SQLite target keeps `-Werror` plus its
+existing unused-parameter exemption and does not gain this flag. The
+amalgamation version, checksum, thread-safety, omitted extensions, and
+length limits are unchanged.

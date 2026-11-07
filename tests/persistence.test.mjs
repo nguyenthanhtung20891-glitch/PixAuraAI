@@ -39,7 +39,7 @@ test('platform storage checks use the native checked boundary', () => {
 });
 test('Apple SDK macro exception stays confined to the vendored SQLite target', () => {
   const manifest = read('packages/core/Package.swift');
-  const sqlite = manifest.slice(manifest.indexOf('.target(name: "CPixAuraSQLite"'), manifest.indexOf('.target(name: "CPixAuraCore"'));
+  const sqlite = manifest.slice(manifest.indexOf('.target(name: "CPixAuraSQLite"'), manifest.indexOf('.target(name: "CPixAuraCodecs"'));
   const owned = manifest.slice(manifest.indexOf('.target(name: "CPixAuraCore"'));
   assert.match(sqlite, /\.unsafeFlags\(\["-Wno-ambiguous-macro"\], \.when\(platforms: \[\.macOS, \.iOS\]\)\)/);
   assert.doesNotMatch(owned, /-Wno-|-w\b/);
