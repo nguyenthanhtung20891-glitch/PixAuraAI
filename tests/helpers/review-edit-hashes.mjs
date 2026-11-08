@@ -32,7 +32,10 @@ export function resultReviewHash(path, expected){
  const captured=owned?.after_sha256_lf??admitted;
  const pinnedLocale=JSON.parse(fs.readFileSync('docs/reports/phase-10.1-uitest-locale-v1.json','utf8'));
  const pinned=pinnedLocale.changes[path];if(pinned)assert.equal(pinned.before_sha256_lf,captured,path+' uitest locale predecessor');
- return pinned?.after_sha256_lf??captured;
+ const pinnedHash=pinned?.after_sha256_lf??captured;
+ const resigned=JSON.parse(fs.readFileSync('docs/reports/phase-10.1-scene-resignation-v1.json','utf8'));
+ const dropped=resigned.changes[path];if(dropped)assert.equal(dropped.before_sha256_lf,pinnedHash,path+' scene resignation predecessor');
+ return dropped?.after_sha256_lf??pinnedHash;
 }
 export function withoutReviewEditIntegration(source){
  return source.replace('#include "review_edit_state.hpp"\n','').replace('    ReviewEditState review_edit;\n','')

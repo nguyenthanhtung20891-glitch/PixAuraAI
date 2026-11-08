@@ -120,3 +120,23 @@ is absent. No JDK or SDK was installed.
 WAIVED / NOT SATISFIED. Phase 10.1 stays IN PROGRESS / LOCAL HARDWARE GATE
 BLOCKED. Phase 11 is not started. Phase 12 is not started. Hosted CI is
 separate evidence and is not claimed by this local run.
+
+Hosted Foundation `42483958442` and Native shells `42483958343` on
+`760f4afa9b17c80d08f4636857f43780ff33281a` rejected the current source
+because the fingerprint chain still ended at the pre-lifecycle hashes and
+because recovery still required the previous one-line `interrupt()`.
+`docs/reports/phase-10.1-scene-resignation-v1.json` records the successor.
+Its `before_sha256_lf` values are the unchanged `after_sha256_lf` values in
+`phase-10.1-swift-capture-v1.json` and `phase-10.1-uitest-locale-v1.json`.
+Those historical files stay immutable. The recovery check now requires
+`invalidateAdvice(.cancelled)`, `cancelExport()`, `discardPendingEdits()`,
+and `action(4)` in that order, plus the synchronous resignation observers.
+The Android `interrupt()` text stays exact. Two full simulator runs then
+failed `testResultReviewUsesOrdinaryUndoRedoAndLeavesEditing` at
+`mode-manual` after `result-back`. The hierarchy showed manual Apply on
+screen and an `Editor` navigation bar whose principal `ScrollView` had been
+dropped when the bar collapsed. Giving that toolbar item a new identity
+when Auto or Assist mode changes restores the selector. The model, UI
+tests, Android, and shared core stay the
+`760f4afa9b17c80d08f4636857f43780ff33281a` bytes. This does not close
+Phase 10.1 and it does not satisfy Metal.

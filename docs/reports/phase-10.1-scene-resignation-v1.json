@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "phase": "10.1",
+  "subject": "ios-scene-resignation",
+  "predecessor_commit": "760f4afa9b17c80d08f4636857f43780ff33281a",
+  "mac_studio_xcode_27_2_observed": true,
+  "apple_metal_v1": "UNKNOWN",
+  "historical_records_unchanged": [
+    "docs/reports/phase-10.1-swift-capture-v1.json",
+    "docs/reports/phase-10.1-uitest-locale-v1.json"
+  ],
+  "changes": {
+    "platforms/ios/PixAuraAI/ManualEditorModel.swift": {
+      "before_sha256_lf": "538b80197a15ed7eb3bd6418a1bb5b657708f5a4457d2d047ad5745f042bc3d8",
+      "after_sha256_lf": "b52a5dd10bc7fc319ddf0b23857e3a8420d1f3c112d02acce990b513e769b7a6"
+    },
+    "platforms/ios/PixAuraAI/ManualEditorScreen.swift": {
+      "before_sha256_lf": "b96f998129ea7fee241e82a669124f1240a1e8ebe42af9d987018a42a68b5e9d",
+      "after_sha256_lf": "56ee9ada482537cf3046441e6541e5b13c9c38a78e2cb2167c093cdddbc4e788"
+    },
+    "platforms/ios/PixAuraAIUITests/ShellUITests.swift": {
+      "before_sha256_lf": "90d27f153cc1764c97d4bac2854e126b48609995eb44dabeee9fe6af40f9a3f1",
+      "after_sha256_lf": "49c28e748a99e978aad98e9752fceea9c0b3e34d3ae5f7b3951e8f61e43e9474"
+    }
+  }
+}

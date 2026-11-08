@@ -203,7 +203,9 @@ struct ManualEditorScreen: View {
         .toolbar {
             // The shell scroll moves this selector off the top after a review
             // scroll. The navigation bar keeps it hittable.
-            ToolbarItem(placement: .principal) { modeSelector }
+            ToolbarItem(placement: .principal) {
+                modeSelector.id(model.autoProposal.enabled || model.assistance.enabled)
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button(String(localized: "Export")) { showingExport = true }
                     .disabled(model.core == nil)
