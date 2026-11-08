@@ -102,6 +102,56 @@ final class ShellTests: XCTestCase {
         model.close(); await waitFor(model.$core) { $0 == nil }
     }
 
+    @MainActor func testInterruptDropsAutoAuthorityAndManualGestureWithoutRevision() async throws {
+        let file = try XCTUnwrap(Bundle(for: ShellTests.self).url(forResource: "fixtures", withExtension: "json"))
+        let fixtures = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [String: [String: Any]])
+        let input = FileManager.default.temporaryDirectory.appendingPathComponent("interrupt-\(UUID()).png")
+        try Data(try XCTUnwrap(fixtures["png"]?["bytes"] as? [UInt8])).write(to: input)
+        defer { try? FileManager.default.removeItem(at: input) }
+        let capability = AppleCapabilityOwner(signals: AppTestAppleSignals()); defer { capability.close() }
+        let model = ManualEditorModel(capabilities: capability)
+        model.importImage(input); await waitFor(model.$core) { $0?.revisionCount == 1 }
+        let source = try XCTUnwrap(model.core?.revisionID)
+        model.setAutoMode(true)
+        await waitFor(model.$autoProposal) { $0.choices.count == 11 }
+        model.chooseAuto(0)
+        model.requestAuto()
+        model.interrupt()
+        await waitFor(model.$autoProposal) { !$0.inFlight }
+        XCTAssertNil(model.autoProposal.proposal)
+        XCTAssertNil(model.autoProposal.review)
+        XCTAssertEqual(model.core?.revisionID, source)
+        model.requestAuto()
+        await waitFor(model.$autoProposal) { $0.status == .reviewReady && $0.review != nil && !$0.inFlight }
+        model.interrupt()
+        XCTAssertNil(model.autoProposal.proposal)
+        XCTAssertNil(model.autoProposal.review)
+        XCTAssertEqual(model.core?.revisionCount, 1)
+        model.requestAuto()
+        await waitFor(model.$autoProposal) { $0.status == .reviewReady && $0.review != nil }
+        model.setAssistMode(true)
+        XCTAssertTrue(model.assistance.enabled)
+        XCTAssertFalse(model.autoProposal.enabled)
+        XCTAssertNil(model.autoProposal.review)
+        XCTAssertNil(model.autoProposal.proposal)
+        XCTAssertEqual(model.core?.revisionID, source)
+        model.setAssistMode(false)
+        await waitFor(model.$tools) { $0.contains { $0.toolID == "pixaura.rotate" } }
+        let rotate = try XCTUnwrap(model.tools.firstIndex { $0.toolID == "pixaura.rotate" })
+        model.select(rotate)
+        await waitFor(model.$core) { $0?.active == true }
+        model.update([1])
+        model.interrupt()
+        await waitFor(model.$busy) { $0 == false }
+        await waitFor(model.$core) { $0?.active == false && $0?.revisionID == source }
+        XCTAssertEqual(model.core?.revisionCount, 1)
+        model.action(2)
+        await waitFor(model.$busy) { $0 == false }
+        XCTAssertEqual(model.core?.revisionCount, 1)
+        XCTAssertEqual(model.core?.revisionID, source)
+        model.close(); await waitFor(model.$core) { $0 == nil }
+    }
+
     @MainActor func testObservableOwnerDestructionClosesNativeStateWithoutViewCallback() async throws {
         let capability = AppleCapabilityOwner(signals: AppTestAppleSignals()); defer { capability.close() }
         var model: ManualEditorModel? = ManualEditorModel(capabilities: capability)

@@ -74,3 +74,49 @@ order, human Apply, cancellation, history, undo/redo, export, and the
 Vietnamese catalog stay in place. This Windows session did not run
 Xcode 27.2. Step 2 stays LOCAL HARDWARE GATE BLOCKED until
 `bash scripts/check-ios-shell.sh` passes on the implementation SHA.
+
+Mac Studio local evidence, Xcode 27.2 (27B52), iPhone Duo Simulator
+`DAA0C78A-21B8-4F96-8DE4-591DAEB13BC2`, iOS 27.2 (24B91016s), arm64.
+This is not hosted CI and it is not Metal qualification.
+
+Three UI failures were separate:
+
+- `testAutoProposalIsReadOnlyAndModeAbandonmentDoesNotRestoreIt` missed
+  `mode-assist` because the shell scroll moved the mode selector off the
+  top and XCTest clamped the hit. The selector now stays in the navigation
+  bar. The editor body remains in the original shell scroll, so manual
+  Apply and the slider stay hittable.
+- `testIntegratedModeBackgroundNavigationAndRestartNeverRestoreReviewAuthority`
+  and `testManualEditorGestureHistoryCancelBackgroundAndReopen` called
+  `press(.home)` then `activate()`. On this runtime that Home press suspends
+  the process (`XCUIApplication.State` 4) without posting scene resignation,
+  so `scenePhase` never interrupted and Auto Apply / manual Apply stayed
+  enabled. A following SpringBoard activation does post
+  `UIScene.willDeactivateNotification` while the review or gesture is still
+  active. The model now clears export, advice, Auto review, and the pending
+  edit mailbox on that resignation before SwiftUI scenePhase can coalesce,
+  then sends the existing manual interrupt (`action` 4). The two tests still
+  assert the same authority results. They now require a real background
+  state before they return to the app.
+- `testInterruptDropsAutoAuthorityAndManualGestureWithoutRevision` covers the
+  same model behavior without the simulator: an in-flight proposal, a ready
+  review, Assist after Auto, and a rotate gesture all drop on interrupt
+  with revision count and id unchanged. Undo does not invent a revision.
+
+`bash scripts/check-ios-shell.sh` on this tree: generic iOS Debug build
+succeeded, generic iOS Release build succeeded, release scanners passed,
+then the iPhone Duo simulator executed PixAuraAITests 11/11 and
+PixAuraAIUITests 18/18, 0 failures, 0 skipped. The added unit test is the
+eleventh ShellTests case. `bash scripts/check-apple.sh` on this tree:
+foundation node tests fail 0, ctest 65/65, macOS PixAuraCoreTests 53/53,
+iPhone simulator PixAuraCoreTests 53/53.
+
+Android was not built. `/usr/bin/java` reports no Java runtime.
+`ANDROID_HOME` and `ANDROID_SDK_ROOT` are empty. `~/Library/Android/sdk`
+is absent. No JDK or SDK was installed.
+
+`cpu.reference.v1` stays VALIDATED. `android.vulkan.v1` stays UNKNOWN.
+`apple.metal.v1` stays UNKNOWN. `DH-APPLE-METAL-01` stays DEFERRED / NOT
+WAIVED / NOT SATISFIED. Phase 10.1 stays IN PROGRESS / LOCAL HARDWARE GATE
+BLOCKED. Phase 11 is not started. Phase 12 is not started. Hosted CI is
+separate evidence and is not claimed by this local run.

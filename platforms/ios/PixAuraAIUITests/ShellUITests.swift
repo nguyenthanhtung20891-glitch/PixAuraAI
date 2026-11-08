@@ -14,6 +14,23 @@ final class ShellUITests: XCTestCase {
         app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"] + arguments
         app.launch()
     }
+    // Home on iPhone Duo suspends the process without posting scene resignation.
+    // SpringBoard activation, while the app is running, is the resignation the
+    // editor must honor. The assertions after return stay unchanged.
+    private func backgroundAndReturn(_ app: XCUIApplication) {
+        XCUIDevice.shared.press(.home)
+        if app.state != .runningForeground {
+            app.activate()
+            XCTAssertTrue(app.wait(for: .runningForeground, timeout: 20))
+        }
+        XCUIApplication(bundleIdentifier: "com.apple.springboard").activate()
+        let resigned = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            app.state == .runningBackground || app.state == .runningBackgroundSuspended
+        }, object: nil)
+        XCTAssertEqual(XCTWaiter.wait(for: [resigned], timeout: 20), .completed)
+        app.activate()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 20))
+    }
     private func revealReview(_ element: XCUIElement, in app: XCUIApplication) {
         let scroll = app.scrollViews["review-scroll"]
         guard scroll.exists else { return }
@@ -196,8 +213,7 @@ final class ShellUITests: XCTestCase {
         }
         tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request")
         XCTAssertTrue(app.buttons["auto-apply"].waitForExistence(timeout: 20))
-        XCUIDevice.shared.press(.home); app.activate()
-        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 20))
+        backgroundAndReturn(app)
         XCTAssertFalse(app.buttons["auto-apply"].exists)
         XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
         tap("mode-manual"); tap("Back to Home"); tap("Open Manual editor")
@@ -537,8 +553,7 @@ final class ShellUITests: XCTestCase {
         tap("Cancel"); terminalGesture(); revisions(2)
         guard selectControl("Geometry"), selectControl("pixaura.rotate") else { return }
         tap("90°")
-        XCUIDevice.shared.press(.home); app.activate()
-        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 20))
+        backgroundAndReturn(app)
         revisions(2)
         XCTAssertFalse(app.buttons["Apply"].isEnabled)
         guard selectControl("pixaura.crop") else { return }

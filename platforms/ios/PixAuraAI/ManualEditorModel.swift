@@ -2,6 +2,7 @@ import Foundation
 import Combine
 import CoreGraphics
 import Photos
+import UIKit
 import UniformTypeIdentifiers
 import PixAuraCore
 
@@ -401,6 +402,9 @@ private final class EditorWorker {
             DispatchQueue.main.async { completion(completedSession, result) }
         }
     }
+    func discardPendingEdits() {
+        lock.lock(); latestValues = nil; latestPreview = nil; lock.unlock()
+    }
     func update(_ values: [Int32], editID: String, epoch: UInt64) {
         lock.lock(); latestValues = (editID, values, epoch)
         let schedule = !updating; updating = true; lock.unlock()
@@ -483,6 +487,7 @@ final class ManualEditorModel: ObservableObject {
     private let worker: EditorWorker
     private var editor: ManualEditor?
     private var epoch: UInt64 = 0
+    private nonisolated(unsafe) var lifecycleObservers: [NSObjectProtocol] = []
     init(capabilities: AppleCapabilityOwner = AppleCapabilityOwner()) {
         worker = EditorWorker(capabilities: capabilities)
         worker.refresh = { [weak self] epoch, editor, state, image, error in
@@ -508,8 +513,20 @@ final class ManualEditorModel: ObservableObject {
             guard let self, self.editor === editor, self.autoProposal.preview.comparison != nil else { return }
             self.cancelReviewPreview(.stale)
         }
+        // SwiftUI scenePhase can coalesce a fast resignation and publish it
+        // only after the process is already suspended. queue: nil runs on the
+        // posting thread before that transition returns.
+        for name in [UIApplication.willResignActiveNotification, UIApplication.didEnterBackgroundNotification, UIScene.willDeactivateNotification, UIScene.didEnterBackgroundNotification] {
+            lifecycleObservers.append(NotificationCenter.default.addObserver(forName: name, object: nil, queue: nil) { [weak self] _ in
+                MainActor.assumeIsolated {
+                    self?.cancelExport()
+                    self?.interrupt()
+                }
+            })
+        }
     }
     deinit {
+        for observer in lifecycleObservers { NotificationCenter.default.removeObserver(observer) }
         // No view callback is required. The worker owns its queue handoff;
         // deinit does not capture non-Sendable worker state into a new closure.
         worker.closeAfterOwnerRelease()
@@ -777,7 +794,14 @@ final class ManualEditorModel: ObservableObject {
             DispatchQueue.main.async { [weak self] in self?.autoProposal.result = ResultReviewUi(review) }
         }
     }
-    func interrupt() { invalidateAdvice(.cancelled); cancelExport(); send { try $0.action(4) } }
+    func interrupt() {
+        invalidateAdvice(.cancelled)
+        cancelExport()
+        // A value accepted into the mailbox can otherwise publish after cancel
+        // and leave Apply or review authority active.
+        worker.discardPendingEdits()
+        send { try $0.action(4) }
+    }
     func close() { cancelExport(); setAutoMode(false); setAssistMode(false); send { $0.close() } }
     func cancelExport() { worker.cancelExport() }
     func reserveExport() -> Bool {

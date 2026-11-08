@@ -159,21 +159,23 @@ struct ManualEditorScreen: View {
             }.frame(maxWidth: .infinity, alignment: .leading)
         }.accessibilityIdentifier("auto-panel")
     }
+    private var modeSelector: some View {
+        ScrollView(.horizontal) {
+            HStack {
+                Button("Manual") { model.setAutoMode(false); model.setAssistMode(false) }.accessibilityIdentifier("mode-manual")
+                    .tint(model.assistance.enabled || model.autoProposal.enabled ? Color.secondary : Color.accentColor)
+                    .accessibilityAddTraits(model.assistance.enabled || model.autoProposal.enabled ? [] : .isSelected)
+                Button("AI Assist") { model.setAssistMode(true) }.accessibilityIdentifier("mode-assist")
+                    .tint(model.assistance.enabled ? Color.accentColor : Color.secondary)
+                    .accessibilityAddTraits(model.assistance.enabled ? .isSelected : [])
+                Button("AI Auto-Edit") { model.setAutoMode(true) }.accessibilityIdentifier("mode-auto")
+                    .tint(model.autoProposal.enabled ? Color.accentColor : Color.secondary)
+                    .accessibilityAddTraits(model.autoProposal.enabled ? .isSelected : [])
+            }
+        }.accessibilityIdentifier("mode-selector")
+    }
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ScrollView(.horizontal) {
-                HStack {
-                    Button("Manual") { model.setAutoMode(false); model.setAssistMode(false) }.accessibilityIdentifier("mode-manual")
-                        .tint(model.assistance.enabled || model.autoProposal.enabled ? Color.secondary : Color.accentColor)
-                        .accessibilityAddTraits(model.assistance.enabled || model.autoProposal.enabled ? [] : .isSelected)
-                    Button("AI Assist") { model.setAssistMode(true) }.accessibilityIdentifier("mode-assist")
-                        .tint(model.assistance.enabled ? Color.accentColor : Color.secondary)
-                        .accessibilityAddTraits(model.assistance.enabled ? .isSelected : [])
-                    Button("AI Auto-Edit") { model.setAutoMode(true) }.accessibilityIdentifier("mode-auto")
-                        .tint(model.autoProposal.enabled ? Color.accentColor : Color.secondary)
-                        .accessibilityAddTraits(model.autoProposal.enabled ? .isSelected : [])
-                }
-            }.accessibilityIdentifier("mode-selector")
             if model.assistance.enabled { assistPanel }
             if model.autoProposal.enabled {
                 ScrollView { autoPanel }
@@ -199,6 +201,9 @@ struct ManualEditorScreen: View {
         }
         .buttonStyle(.bordered)
         .toolbar {
+            // The shell scroll moves this selector off the top after a review
+            // scroll. The navigation bar keeps it hittable.
+            ToolbarItem(placement: .principal) { modeSelector }
             ToolbarItem(placement: .topBarTrailing) {
                 Button(String(localized: "Export")) { showingExport = true }
                     .disabled(model.core == nil)
