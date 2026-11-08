@@ -12,7 +12,7 @@ note. This roadmap is the current Phase 10.1 record.
 | --- | --- | --- |
 | 1 | Mac Studio development environment | LOCAL HARDWARE GATE BLOCKED |
 | 2 | Local Apple native and iOS validation | LOCAL HARDWARE GATE BLOCKED |
-| 3 | Parallel Android and iOS workflow | POLICY RECORDED / LOCAL PARITY BLOCKED |
+| 3 | Parallel Android and iOS workflow | LOCAL ANDROID OBSERVED / PHASE NOT CLOSED |
 | 4 | Mac Studio hardware performance | LOCAL HARDWARE GATE BLOCKED |
 | 5 | Integrated certification and phase closure | NOT CLOSED |
 
@@ -37,3 +37,7 @@ Android native builds pin NDK `28.2.13676358` and the Android SDK CMake
 `cpu.reference.v1` stays VALIDATED. `android.vulkan.v1` stays UNKNOWN.
 `apple.metal.v1` stays UNKNOWN. DH-APPLE-METAL-01 stays DEFERRED / NOT WAIVED
 / NOT SATISFIED.
+
+The Product Owner authorized the existing Android workflow on the Mac Studio
+clone. The local observation is `docs/reports/phase-10.1-step-3.md`. That
+observation does not close Phase 10.1 and does not replace hosted CI.
