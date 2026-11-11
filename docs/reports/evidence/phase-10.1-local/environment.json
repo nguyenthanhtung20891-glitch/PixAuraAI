@@ -57,5 +57,12 @@
     "kotlin": "2.2.21",
     "arm64_system_image": "android-35;google_apis;arm64-v8a revision 9",
     "x86_64_local_runtime": "unsupported by aarch64 host; retained hosted Linux execution"
-  }
+  },
+  "host_gpu_detection_only": [
+    {
+      "sppci_model": "Apple M5 Max",
+      "spdisplays_vendor": "sppci_vendor_Apple"
+    }
+  ],
+  "host_gpu_detection_grants_admission": false
 }

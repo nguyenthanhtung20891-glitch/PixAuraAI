@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "supersedes_status_only": "phase-10.1-v1.json (historical evidence unchanged)",
+  "status": "IN_PROGRESS_INDEPENDENT_CERTIFICATION_REVIEW_REQUIRED",
+  "initial_sha": "9184cf4d6c58ada39ba1b0538d4c32eedf6853d8",
+  "implementation_sha": "668a79741c198e9d5c39772a4514fb0731720a76",
+  "formal_closure_sha": null,
+  "steps": {
+    "1": "ENGINEERING_VERIFIED_OBSERVED_HOST",
+    "2": "ENGINEERING_VERIFIED_RECORDED_APPLE_TARGETS",
+    "3": "ENGINEERING_VERIFIED_SOFTWARE_PARITY",
+    "4": "ENGINEERING_VERIFIED_MAC_CPU_RESOURCE_SCOPE",
+    "5": "IMPLEMENTATION_CI_VERIFIED_INDEPENDENT_REVIEW_REQUIRED"
+  },
+  "implementation_foundation_run": 43053578303,
+  "implementation_native_run": 43053578225,
+  "attempt": 1,
+  "cpu_reference_v1": "VALIDATED",
+  "android_vulkan_v1": "UNKNOWN",
+  "apple_metal_v1": "UNKNOWN",
+  "dh_apple_metal_01": "DEFERRED_NOT_WAIVED_NOT_SATISFIED",
+  "physical_mobile_available": false,
+  "phase11": "NOT_STARTED",
+  "phase12": "NOT_STARTED",
+  "active_report": "docs/reports/phase-10.1-integrated-successor.md",
+  "final_receipt_after_observation": "build/phase-10.1-final-engineering-receipt.json"
+}

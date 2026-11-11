@@ -1,6 +1,6 @@
 # Phase 10.1 integrated engineering evidence successor
 
-Status: IN PROGRESS — implementation certification and independent review pending.
+Status: IN PROGRESS — implementation certified; independent Principal Architect review required.
 Initial product baseline: `9184cf4d6c58ada39ba1b0538d4c32eedf6853d8`.
 This record supersedes phase-relative environment/ownership/missing-observation
 statuses in the original roadmap and Step 1–5 reports. Those reports and their
@@ -15,7 +15,7 @@ Phase 11 and Phase 12 remain NOT STARTED.
 | 2 Apple integration | VERIFIED for accepted source and recorded host/Simulator targets | Retained generic Debug/Release builds, release scanners, app unit 11/11 + UI 18/18, host CTest 65/65, macOS core 53/53, iPhone Duo Simulator core 53/53. Result bundles re-inspected; no skipped tests. No physical iPhone claim. |
 | 3 Dual-platform parity | VERIFIED within software scope | Android retained Debug/Release, JVM 7/7 each, lint, release isolation/scanner, ARM64 + ARMv7 libraries built and packaged, ARM64 emulator instrumentation 58/58. Same-source scenario matrix below and source manifest; old two-machine experiment did not occur and is replaced explicitly. ARMv7 runtime and mobile GPU behavior remain unqualified. |
 | 4 Host performance/resources | VERIFIED within measured host scope | New Release native host harness, 2 warmups + 7 samples at 1024x768 and 3000x2000; 12/12 focused resource/fault tests; leaks instrument reports 0 leaked bytes. Raw samples and limitations below. No physical-mobile tier/battery/thermal claim. |
-| 5 Integrated certification/closure | PENDING | Both full workflows required on the implementation SHA, then independent certification review and a distinct documentation closure SHA with its own 10 successful jobs. No source-changing work remains known from this audit. This report does not activate closure. |
+| 5 Integrated certification/closure | HOSTED IMPLEMENTATION VERIFIED / INDEPENDENT REVIEW REQUIRED | Implementation `668a79741c198e9d5c39772a4514fb0731720a76`: Foundation 43053578303 7/7, Native 43053578225 3/3, exact SHA and attempt 1. Review and distinct formal closure commit with its own 10 successful jobs remain mandatory. This documentation evidence receipt is not formal closure. |
 
 ## Evidence provenance and reuse
 
@@ -202,3 +202,65 @@ existing required boundaries. The Phase 10.1 roadmap specifically separates Mac
 measurements from mobile Metal and leaves UNKNOWN valid; this report does not
 waive, remove or postpone any existing physical gate. Independent certification
 review must confirm the acceptance scope before formal closure.
+
+## Accelerator inference admission audit supplement
+
+The separate `docs/contracts/inference-provider-certification-v1.md` requires
+full tensor comparisons on all 15 accepted weight triples at 256x256 and retained
+1x1/2x2/8x8/1024x1024/normalization cases, including zero/one/gradient/checker/IEEE
+boundary vectors and independent dyadic CPU oracles. Vulkan/Metal probability
+parity is `abs(accelerator-CPU) <= 4e-38 + 3e-7*abs(CPU)`; classification around
+0.5 follows the frozen tolerance-band rule. This is distinct from exposure-tile
+14/14 certification. Signed package/model verification, full malformed/input/output,
+handle/context, cancellation/publication, allocation/resource, trust/tier/thermal,
+fallback and release-isolation matrices remain required. Metal transient reservation
+is 1,114,112 bytes; Vulkan is 1,638,400 bytes, with at most 16,384 pixels per tile;
+these are adapter bounds, not measured driver/process RSS ceilings.
+
+`inference-admission-v1.md` requires BOTH a reviewed descriptor validation at least
+RUNTIME_VALIDATED and matching native platform capability permission. Availability,
+model/device name, successful direct dispatch or host latency cannot grant this.
+UNKNOWN descriptors continue to select CPU automatically. Promotion additionally
+needs the separately approved evidence policy/existing explicit authority required
+by the certification contract. This mission adds no such policy, model or promotion.
+
+## Implementation certification and formal closure boundary
+
+Implementation SHA: `668a79741c198e9d5c39772a4514fb0731720a76`.
+Foundation `43053578303` is completed/SUCCESS 7/7, workflow ID `372386439`.
+Native shells `43053578225` is completed/SUCCESS 3/3, workflow ID `373262165`.
+Both are main push events, exact implementation SHA, attempt 1. Job membership
+was checked against all seven/three required names, with every job completed and
+successful; there are no skipped, failed, hidden extra or foreign-SHA jobs.
+Exported `implementation-*.json` receipts record job IDs, dates and URLs.
+
+The follow-up documentation evidence commit records these observed results,
+GPU detection-only metadata and the admission audit. It changes no product source,
+harness, tests, ABI, schema, workflow or platform configuration. It still requires
+both complete workflows on its own SHA. Its observed receipt is written locally
+to `build/phase-10.1-final-engineering-receipt.json` after those workflows finish
+and reported in the final engineering delivery, avoiding a self-referential SHA.
+It is an evidence receipt, not the formal Phase 10.1 closure commit.
+
+The remaining binding gate is independent Principal Architect certification review,
+as required by the active AGENTS.md successor and the mission's separation of
+engineering from independent certification. The engineering agent cannot create
+that independent review itself. Review must assess the recorded target/source
+reuse, same-source dual-platform successor, host resource measurements and the
+existing physical-gate timing. No new Product Owner decision is requested for
+ordinary engineering actions. Every identified executable engineering task has
+been addressed; no product defect or in-scope source fix remains known.
+
+After independent acceptance, create a distinct documentation-focused formal
+closure commit and require both complete exact-SHA workflows, attempt and all
+10 job outcomes recorded, before declaring CLOSED / COMPLETE / FULL PASS.
+Until then formal closure SHA is absent and Phase 10.1 stays IN PROGRESS.
+Physical mobile evidence remains unavailable at its existing deferred gates;
+independent review must not relabel it PASS or waive DH-APPLE-METAL-01.
+
+Fresh implementation hosted log audit: source suite 235/235 passed, fail 0;
+Android build/JVM/lint/test-APK stage BUILD SUCCESSFUL and emulator stage executed
+58 tests followed by BUILD SUCCESSFUL; Apple retained core CTest 65/65, package
+53/53 and app unit 11/11 plus UI 18/18, 0 failures. These are hosted results,
+separate from the retained Mac Studio observations above. Raw implementation
+workflow log is saved locally at `build/phase-10.1-implementation-shells-ci.log`.

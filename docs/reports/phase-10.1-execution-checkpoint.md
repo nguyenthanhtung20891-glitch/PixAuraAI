@@ -1,6 +1,10 @@
 # Phase 10.1 autonomous execution checkpoint
 
-Status: IN PROGRESS. No closure claim. Baseline and initial HEAD:
+Status: IN PROGRESS — Step 5 independent certification review required. No closure claim.
+Current implementation HEAD: `668a79741c198e9d5c39772a4514fb0731720a76`.
+Runs: Foundation `43053578303` 7/7 SUCCESS; Native shells `43053578225` 3/3 SUCCESS,
+both exact implementation SHA, main push, attempt 1; all required jobs SUCCESS.
+Baseline and initial HEAD:
 `9184cf4d6c58ada39ba1b0538d4c32eedf6853d8` (main, clean).
 Mission authority: Product Owner's phase-level assignment, 2026-11-11.
 This plan was recorded before source modifications.
@@ -49,5 +53,31 @@ scope verified; Step 5 IN PROGRESS, awaiting exact implementation-SHA CI and
 independent review. Formal closure SHA absent. No physical target available;
 DH-APPLE-METAL-01 remains deferred at existing mandatory boundaries.
 
-Current HEAD remains baseline until the pending integration commit. Next action:
+Pre-commit checkpoint: HEAD was still baseline before the integration commit. Next action:
 review staged diff and secrets, commit/push authorized main, observe all 10 jobs.
+
+Integration pushed successfully: `668a79741c198e9d5c39772a4514fb0731720a76`.
+Foundation run `43053578303`; Native shells run `43053578225`, attempt 1.
+Both in progress; no result claimed. Working tree contains only the admission
+audit supplement pending a documentation evidence receipt after implementation CI.
+Next executable action: observe complete job-level results; fix any actual failure
+on a new SHA; then publish the final review-ready documentation receipt and certify
+that receipt's own SHA. Independent Principal Architect review remains external.
+
+Observed implementation completion: both full workflows passed and exported
+implementation job receipts are committed with this documentation evidence record.
+No formal closure SHA exists. Independent Principal Architect certification review
+is required by active governance; it has not been supplied. The documentation
+receipt HEAD is obtained with `git rev-parse HEAD` (self-reference avoided).
+Both workflows must also complete on that documentation SHA before delivery.
+The observed final HEAD/run IDs/job outcomes are preserved in the repository-local
+`build/phase-10.1-final-engineering-receipt.json` and the final engineering message.
+
+Completed: Steps 1–4 engineering evidence, source/provenance integrity, parity
+matrix, host performance/resource/leak observations, integrated implementation CI.
+Pending external: independent certification acceptance; physical targets/signing
+at the existing deferred mobile GPU boundaries. No physical evidence is fabricated.
+Next executable action in this active session: review and publish the documentation
+evidence receipt, observe its two full workflows, preserve the final runtime receipt.
+After independent acceptance: distinct formal closure commit and both exact-SHA
+workflows; do not declare closure in advance. Do not start Phase 11 or Phase 12.
