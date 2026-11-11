@@ -43,3 +43,43 @@ test('Phase 10.1 records a blocked Mac Studio gate without fabricated host outpu
     assert.match(read(workflow), /tests\/phase-10\.1-hardware-gate\.test\.mjs/);
   }
 });
+
+test('Mac successor binds observed host evidence to unchanged dual-platform product sources', async () => {
+  const crypto = await import('node:crypto');
+  const sha = (data) => crypto.createHash('sha256').update(data).digest('hex');
+  const base = 'docs/reports/evidence/phase-10.1-local/';
+  const manifest = JSON.parse(read(base + 'product-source-manifest.json'));
+  assert.equal(manifest.baseline_sha, '9184cf4d6c58ada39ba1b0538d4c32eedf6853d8');
+  assert.ok(Object.keys(manifest.files).some((p) => p.startsWith('platforms/android/')));
+  assert.ok(Object.keys(manifest.files).some((p) => p.startsWith('platforms/ios/')));
+  assert.ok(Object.keys(manifest.files).some((p) => p.startsWith('packages/core/src/')));
+  for (const [path, digest] of Object.entries(manifest.files)) {
+    assert.equal(sha(read(path).replaceAll('\r\n', '\n')), digest, path);
+  }
+  const measurements = JSON.parse(read(base + 'host-measurements.json'));
+  assert.equal(measurements.source_sha, manifest.baseline_sha);
+  assert.equal(measurements.measured_samples, 7);
+  assert.equal(measurements.warmups, 2);
+  assert.deepEqual(measurements.cases.map((c) => [c.width, c.height]), [[1024, 768], [3000, 2000]]);
+  for (const [path, digest] of Object.entries(measurements.harness_sha256)) {
+    assert.equal(sha(read(path).replaceAll('\r\n', '\n')), digest, path);
+  }
+  for (const c of measurements.cases) {
+    assert.equal(c.samples.filter((s) => !s.warmup).length, 7);
+    assert.ok(c.samples.every((s) => s.peak_rss_bytes > 0 && s.png_bytes > 0 && s.jpeg_bytes > 0));
+  }
+  const successor = read('docs/plans/phase-10.1-mac-successor.md');
+  assert.match(successor, /primary development environment for BOTH platforms/);
+  assert.match(successor, /historical two-machine experiment did not occur/);
+  assert.match(successor, /DH-APPLE-METAL-01 retains every technical prerequisite/);
+  for (const kind of ['ios', 'core-sim', 'core-host']) {
+    const summary = JSON.parse(read(base + kind + '-retained-summary.json'));
+    assert.equal(summary.result, 'Passed');
+    assert.equal(summary.failedTests, 0);
+    assert.equal(summary.skippedTests, 0);
+  }
+  const android = JSON.parse(read(base + 'android-retained-summary.json'));
+  assert.equal(Number(android.counts.tests), 58);
+  assert.equal(Number(android.counts.failures), 0);
+  assert.equal(Number(android.counts.skipped), 0);
+});

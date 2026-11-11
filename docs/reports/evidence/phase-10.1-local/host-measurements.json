@@ -1,0 +1,454 @@
+{
+  "version": 1,
+  "source_sha": "9184cf4d6c58ada39ba1b0538d4c32eedf6853d8",
+  "scope": "macOS host CPU; engineering harness working-tree digests recorded separately",
+  "date_utc": "2026-11-11T15:53:52Z",
+  "soc": "Apple M5 Max",
+  "os": "ProductName:\t\tmacOS\nProductVersion:\t\t27.2.1\nBuildVersion:\t\t26B131",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.4.1.1)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+  "configuration": "Release, O3 core; O2 harness; strict FP",
+  "warmups": 2,
+  "measured_samples": 7,
+  "cases": [
+    {
+      "width": 1024,
+      "height": 768,
+      "fixture_sha256": "6da0b25ede204462f20bf6673f55c05579df2a5be77c5154d3b477b998eb8d3b",
+      "input_bytes": 607950,
+      "samples": [
+        {
+          "sample": 0,
+          "warmup": true,
+          "open_us": 82046,
+          "preview_four_us": 73083,
+          "cancel_four_us": 1,
+          "apply_us": 9881,
+          "proposal_us": 74,
+          "inspection_100_us": 154461,
+          "state_100_us": 39,
+          "png_us": 33585,
+          "jpeg_us": 17569,
+          "close_us": 7054,
+          "peak_rss_bytes": 115605504,
+          "png_bytes": 684776,
+          "jpeg_bytes": 343395
+        },
+        {
+          "sample": 1,
+          "warmup": true,
+          "open_us": 44408,
+          "preview_four_us": 56426,
+          "cancel_four_us": 2,
+          "apply_us": 9836,
+          "proposal_us": 69,
+          "inspection_100_us": 152728,
+          "state_100_us": 39,
+          "png_us": 31448,
+          "jpeg_us": 17320,
+          "close_us": 7200,
+          "peak_rss_bytes": 116097024,
+          "png_bytes": 684776,
+          "jpeg_bytes": 343395
+        },
+        {
+          "sample": 2,
+          "warmup": false,
+          "open_us": 47293,
+          "preview_four_us": 55885,
+          "cancel_four_us": 0,
+          "apply_us": 9701,
+          "proposal_us": 60,
+          "inspection_100_us": 150853,
+          "state_100_us": 39,
+          "png_us": 31968,
+          "jpeg_us": 17425,
+          "close_us": 7405,
+          "peak_rss_bytes": 116146176,
+          "png_bytes": 684776,
+          "jpeg_bytes": 343395
+        },
+        {
+          "sample": 3,
+          "warmup": false,
+          "open_us": 43305,
+          "preview_four_us": 55325,
+          "cancel_four_us": 0,
+          "apply_us": 10741,
+          "proposal_us": 58,
+          "inspection_100_us": 151412,
+          "state_100_us": 38,
+          "png_us": 31615,
+          "jpeg_us": 17472,
+          "close_us": 8322,
+          "peak_rss_bytes": 116146176,
+          "png_bytes": 684776,
+          "jpeg_bytes": 343395
+        },
+        {
+          "sample": 4,
+          "warmup": false,
+          "open_us": 46317,
+          "preview_four_us": 56070,
+          "cancel_four_us": 1,
+          "apply_us": 10714,
+          "proposal_us": 61,
+          "inspection_100_us": 151691,
+          "state_100_us": 37,
+          "png_us": 31583,
+          "jpeg_us": 17431,
+          "close_us": 7250,
+          "peak_rss_bytes": 116195328,
+          "png_bytes": 684776,
+          "jpeg_bytes": 343395
+        },
+        {
+          "sample": 5,
+          "warmup": false,
+          "open_us": 48266,
+          "preview_four_us": 55978,
+          "cancel_four_us": 0,
+          "apply_us": 9762,
+          "proposal_us": 65,
+          "inspection_100_us": 152070,
+          "state_100_us": 37,
+          "png_us": 31862,
+          "jpeg_us": 17417,
+          "close_us": 6227,
+          "peak_rss_bytes": 116228096,
+          "png_bytes": 684776,
+          "jpeg_bytes": 343395
+        },
+        {
+          "sample": 6,
+          "warmup": false,
+          "open_us": 49300,
+          "preview_four_us": 56094,
+          "cancel_four_us": 1,
+          "apply_us": 9837,
+          "proposal_us": 62,
+          "inspection_100_us": 151227,
+          "state_100_us": 39,
+          "png_us": 31722,
+          "jpeg_us": 17476,
+          "close_us": 6178,
+          "peak_rss_bytes": 116244480,
+          "png_bytes": 684776,
+          "jpeg_bytes": 343395
+        },
+        {
+          "sample": 7,
+          "warmup": false,
+          "open_us": 47138,
+          "preview_four_us": 55959,
+          "cancel_four_us": 0,
+          "apply_us": 9861,
+          "proposal_us": 65,
+          "inspection_100_us": 151915,
+          "state_100_us": 39,
+          "png_us": 31724,
+          "jpeg_us": 17291,
+          "close_us": 6415,
+          "peak_rss_bytes": 116260864,
+          "png_bytes": 684776,
+          "jpeg_bytes": 343395
+        },
+        {
+          "sample": 8,
+          "warmup": false,
+          "open_us": 45371,
+          "preview_four_us": 56130,
+          "cancel_four_us": 0,
+          "apply_us": 10813,
+          "proposal_us": 58,
+          "inspection_100_us": 152024,
+          "state_100_us": 38,
+          "png_us": 31943,
+          "jpeg_us": 17379,
+          "close_us": 7245,
+          "peak_rss_bytes": 116277248,
+          "png_bytes": 684776,
+          "jpeg_bytes": 343395
+        }
+      ],
+      "summary": {
+        "open_us": {
+          "min": 43305,
+          "median": 47138,
+          "max": 49300
+        },
+        "preview_four_us": {
+          "min": 55325,
+          "median": 55978,
+          "max": 56130
+        },
+        "cancel_four_us": {
+          "min": 0,
+          "median": 0,
+          "max": 1
+        },
+        "apply_us": {
+          "min": 9701,
+          "median": 9861,
+          "max": 10813
+        },
+        "proposal_us": {
+          "min": 58,
+          "median": 61,
+          "max": 65
+        },
+        "inspection_100_us": {
+          "min": 150853,
+          "median": 151691,
+          "max": 152070
+        },
+        "state_100_us": {
+          "min": 37,
+          "median": 38,
+          "max": 39
+        },
+        "png_us": {
+          "min": 31583,
+          "median": 31724,
+          "max": 31968
+        },
+        "jpeg_us": {
+          "min": 17291,
+          "median": 17425,
+          "max": 17476
+        },
+        "close_us": {
+          "min": 6178,
+          "median": 7245,
+          "max": 8322
+        },
+        "peak_rss_bytes": {
+          "min": 116146176,
+          "median": 116228096,
+          "max": 116277248
+        }
+      }
+    },
+    {
+      "width": 3000,
+      "height": 2000,
+      "fixture_sha256": "a1a65e62dbf724e3a33d97b247a3c5ebcc8842f637a99f18b546cf64b459fae8",
+      "input_bytes": 1669140,
+      "samples": [
+        {
+          "sample": 0,
+          "warmup": true,
+          "open_us": 89138,
+          "preview_four_us": 191790,
+          "cancel_four_us": 3,
+          "apply_us": 16220,
+          "proposal_us": 73,
+          "inspection_100_us": 382746,
+          "state_100_us": 39,
+          "png_us": 171583,
+          "jpeg_us": 131212,
+          "close_us": 7344,
+          "peak_rss_bytes": 328450048,
+          "png_bytes": 1896974,
+          "jpeg_bytes": 2617443
+        },
+        {
+          "sample": 1,
+          "warmup": true,
+          "open_us": 85353,
+          "preview_four_us": 187826,
+          "cancel_four_us": 4,
+          "apply_us": 15212,
+          "proposal_us": 65,
+          "inspection_100_us": 382179,
+          "state_100_us": 39,
+          "png_us": 169376,
+          "jpeg_us": 131136,
+          "close_us": 6381,
+          "peak_rss_bytes": 328564736,
+          "png_bytes": 1896974,
+          "jpeg_bytes": 2617443
+        },
+        {
+          "sample": 2,
+          "warmup": false,
+          "open_us": 85510,
+          "preview_four_us": 187708,
+          "cancel_four_us": 5,
+          "apply_us": 16242,
+          "proposal_us": 66,
+          "inspection_100_us": 382193,
+          "state_100_us": 39,
+          "png_us": 170478,
+          "jpeg_us": 131790,
+          "close_us": 7306,
+          "peak_rss_bytes": 328630272,
+          "png_bytes": 1896974,
+          "jpeg_bytes": 2617443
+        },
+        {
+          "sample": 3,
+          "warmup": false,
+          "open_us": 88378,
+          "preview_four_us": 189346,
+          "cancel_four_us": 4,
+          "apply_us": 15271,
+          "proposal_us": 68,
+          "inspection_100_us": 386844,
+          "state_100_us": 38,
+          "png_us": 169719,
+          "jpeg_us": 131626,
+          "close_us": 7332,
+          "peak_rss_bytes": 328646656,
+          "png_bytes": 1896974,
+          "jpeg_bytes": 2617443
+        },
+        {
+          "sample": 4,
+          "warmup": false,
+          "open_us": 89449,
+          "preview_four_us": 188384,
+          "cancel_four_us": 4,
+          "apply_us": 15484,
+          "proposal_us": 68,
+          "inspection_100_us": 381661,
+          "state_100_us": 39,
+          "png_us": 169159,
+          "jpeg_us": 131071,
+          "close_us": 6342,
+          "peak_rss_bytes": 328695808,
+          "png_bytes": 1896974,
+          "jpeg_bytes": 2617443
+        },
+        {
+          "sample": 5,
+          "warmup": false,
+          "open_us": 84560,
+          "preview_four_us": 187595,
+          "cancel_four_us": 3,
+          "apply_us": 15129,
+          "proposal_us": 63,
+          "inspection_100_us": 383151,
+          "state_100_us": 39,
+          "png_us": 169392,
+          "jpeg_us": 131082,
+          "close_us": 7394,
+          "peak_rss_bytes": 328712192,
+          "png_bytes": 1896974,
+          "jpeg_bytes": 2617443
+        },
+        {
+          "sample": 6,
+          "warmup": false,
+          "open_us": 85273,
+          "preview_four_us": 188329,
+          "cancel_four_us": 4,
+          "apply_us": 15130,
+          "proposal_us": 65,
+          "inspection_100_us": 381708,
+          "state_100_us": 39,
+          "png_us": 169366,
+          "jpeg_us": 131176,
+          "close_us": 7454,
+          "peak_rss_bytes": 328744960,
+          "png_bytes": 1896974,
+          "jpeg_bytes": 2617443
+        },
+        {
+          "sample": 7,
+          "warmup": false,
+          "open_us": 84239,
+          "preview_four_us": 188634,
+          "cancel_four_us": 4,
+          "apply_us": 15347,
+          "proposal_us": 65,
+          "inspection_100_us": 381583,
+          "state_100_us": 38,
+          "png_us": 169253,
+          "jpeg_us": 131121,
+          "close_us": 7300,
+          "peak_rss_bytes": 328761344,
+          "png_bytes": 1896974,
+          "jpeg_bytes": 2617443
+        },
+        {
+          "sample": 8,
+          "warmup": false,
+          "open_us": 83425,
+          "preview_four_us": 188167,
+          "cancel_four_us": 4,
+          "apply_us": 16267,
+          "proposal_us": 69,
+          "inspection_100_us": 382177,
+          "state_100_us": 39,
+          "png_us": 169382,
+          "jpeg_us": 130829,
+          "close_us": 7420,
+          "peak_rss_bytes": 328777728,
+          "png_bytes": 1896974,
+          "jpeg_bytes": 2617443
+        }
+      ],
+      "summary": {
+        "open_us": {
+          "min": 83425,
+          "median": 85273,
+          "max": 89449
+        },
+        "preview_four_us": {
+          "min": 187595,
+          "median": 188329,
+          "max": 189346
+        },
+        "cancel_four_us": {
+          "min": 3,
+          "median": 4,
+          "max": 5
+        },
+        "apply_us": {
+          "min": 15129,
+          "median": 15347,
+          "max": 16267
+        },
+        "proposal_us": {
+          "min": 63,
+          "median": 66,
+          "max": 69
+        },
+        "inspection_100_us": {
+          "min": 381583,
+          "median": 382177,
+          "max": 386844
+        },
+        "state_100_us": {
+          "min": 38,
+          "median": 39,
+          "max": 39
+        },
+        "png_us": {
+          "min": 169159,
+          "median": 169382,
+          "max": 170478
+        },
+        "jpeg_us": {
+          "min": 130829,
+          "median": 131121,
+          "max": 131790
+        },
+        "close_us": {
+          "min": 6342,
+          "median": 7332,
+          "max": 7454
+        },
+        "peak_rss_bytes": {
+          "min": 328630272,
+          "median": 328712192,
+          "max": 328777728
+        }
+      }
+    }
+  ],
+  "harness_sha256": {
+    "scripts/benchmarks/mac-host.cpp": "da80da57d8211539d8472f9f9dac50d7e5eff3675f039238e8048f2f0db4f239",
+    "scripts/benchmarks/mac-host.py": "cdeaafdfcfc0c3c48a386b3bb167141a4c2921fc343f3ff265affc4121cf4864"
+  }
+}

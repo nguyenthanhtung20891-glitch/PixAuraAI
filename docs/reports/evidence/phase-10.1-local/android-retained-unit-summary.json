@@ -1,0 +1,26 @@
+{
+  "Debug": {
+    "tests": 7,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "artifacts": {
+      "platforms/android/app/build/test-results/testDebugUnitTest/TEST-ai.pixaura.app.ShellStateTest.xml": "ce2fa5eaee2a78d2e7a9c77131ad8bf9a6905d0b24611bf596a1a2da09596447",
+      "platforms/android/app/build/test-results/testDebugUnitTest/TEST-ai.pixaura.app.IntegerControlsTest.xml": "e30ea1164975b494c6c16c3dbdc92b39ff8cc6a5e9b3eb45d4c1d53219062000",
+      "platforms/android/app/build/test-results/testDebugUnitTest/TEST-ai.pixaura.app.CapabilityProbeTest.xml": "6a25a6e00673bcdf9f96d78cb73e52183da4e516234b14280bc35a57bb247e85",
+      "platforms/android/app/build/test-results/testDebugUnitTest/TEST-ai.pixaura.app.AndroidCapabilityOwnerTest.xml": "f0a187cceebca88fa1ba05ff0f8a8115ebb63498acafb320b7b3e607fa5804bb"
+    }
+  },
+  "Release": {
+    "tests": 7,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "artifacts": {
+      "platforms/android/app/build/test-results/testReleaseUnitTest/TEST-ai.pixaura.app.ShellStateTest.xml": "e28af5f04036d28befeaad2652fea00e7bc9d195168482e64d38cc8c6c89e421",
+      "platforms/android/app/build/test-results/testReleaseUnitTest/TEST-ai.pixaura.app.IntegerControlsTest.xml": "3893c3aba9403cd211e73f6f7176aadcd600bd54bd323ac458999f7639e376da",
+      "platforms/android/app/build/test-results/testReleaseUnitTest/TEST-ai.pixaura.app.CapabilityProbeTest.xml": "add7f6c0ec716e46b76f8958c05e83874e0b226390ca47a3f2785f95005ead14",
+      "platforms/android/app/build/test-results/testReleaseUnitTest/TEST-ai.pixaura.app.AndroidCapabilityOwnerTest.xml": "9d2e8ef7ad195acee1f02ff896d1ca2f2bfbb20fc7aef93dae595512f1ed1b80"
+    }
+  }
+}

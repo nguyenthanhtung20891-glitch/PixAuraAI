@@ -1,5 +1,22 @@
 # Architectural decision index
 
+<!-- phase10.1-mac-successor -->
+## Phase 10.1 current execution authority — Mac Studio migration
+
+The Product Owner's 2026-11-11 phase-level assignment authorizes Steps 1–5.
+Mac Studio is the primary development environment for BOTH Android and iOS.
+`main` remains canonical, with one integration owner and shared native authority.
+The two-machine ownership requirement is superseded by the explicit successor
+in docs/plans/phase-10.1-mac-successor.md. Earlier blocks retain their historical
+freeze-time observations, including uncollected evidence at that time.
+Current evidence and resumable status: docs/reports/phase-10.1-execution-checkpoint.md.
+Phase 10.1 remains IN PROGRESS pending integrated certification and independent
+review. Phase 11 is not started. Phase 12 is not started. Schema 3 and ABI unchanged.
+CPU VALIDATED; Vulkan/Metal UNKNOWN. DH-APPLE-METAL-01 remains DEFERRED /
+NOT WAIVED / NOT SATISFIED, at its existing mandatory acceptance boundaries.
+<!-- phase10.1-mac-successor-end -->
+
+
 <!-- phase10.1-current -->
 ## Phase 10.1 - Dual-Platform Integration and Apple Hardware Enablement
 

@@ -1,0 +1,29 @@
+Test project /Users/thanhtungdeptrai/Developer/PixAuraAI/build/apple-host
+      Start  1: intelligence_resources_test
+ 1/12 Test  #1: intelligence_resources_test ......   Passed    0.01 sec
+      Start  2: review_preview_allocation_test
+ 2/12 Test  #2: review_preview_allocation_test ...   Passed    1.17 sec
+      Start  3: review_edit_allocation_test
+ 3/12 Test  #3: review_edit_allocation_test ......   Passed    3.32 sec
+      Start  4: review_edit_test
+ 4/12 Test  #4: review_edit_test .................   Passed    3.37 sec
+      Start  8: export_test
+ 5/12 Test  #8: export_test ......................   Passed    0.94 sec
+      Start 12: review_preview_test
+ 6/12 Test #12: review_preview_test ..............   Passed    4.61 sec
+      Start 38: editor_test
+ 7/12 Test #38: editor_test ......................   Passed   50.78 sec
+      Start 40: gesture_lifecycle_test
+ 8/12 Test #40: gesture_lifecycle_test ...........   Passed    1.74 sec
+      Start 50: gpu_allocation_test
+ 9/12 Test #50: gpu_allocation_test ..............   Passed    0.01 sec
+      Start 51: preview_test
+10/12 Test #51: preview_test .....................   Passed    2.66 sec
+      Start 58: decode_allocation_test
+11/12 Test #58: decode_allocation_test ...........   Passed    0.24 sec
+      Start 63: document_allocation_test
+12/12 Test #63: document_allocation_test .........   Passed    0.82 sec
+
+100% tests passed out of 12
+
+Total Test time (real) =  69.66 sec

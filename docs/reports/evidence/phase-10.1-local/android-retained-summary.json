@@ -1,0 +1,306 @@
+{
+  "kind": "retained local ARM64 emulator instrumentation",
+  "source_sha": "9184cf4d6c58ada39ba1b0538d4c32eedf6853d8",
+  "source_artifact": "platforms/android/app/build/outputs/androidTest-results/connected/debug/TEST-pixaura-local-arm64(AVD) - 15-_app-.xml",
+  "artifact_sha256": "407da0f545277c2090473e33959500a4c615a2c67f90dc9c8053dd8a17f4eff8",
+  "counts": {
+    "tests": "58",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "75.929",
+    "timestamp": "2026-11-08T15:37:18"
+  },
+  "tests": [
+    {
+      "class": "ai.pixaura.app.AgentPlatformTest",
+      "name": "actualJniRejectsInvalidDirectStorageEnumsAndLengths",
+      "seconds": "0.029"
+    },
+    {
+      "class": "ai.pixaura.app.AgentPlatformTest",
+      "name": "realJniCancellationBusyManualUndoReleaseAndStopFences",
+      "seconds": "0.241"
+    },
+    {
+      "class": "ai.pixaura.app.AgentPlatformTest",
+      "name": "humanApprovalExactPlanReplayRevocationAndSharedHistory",
+      "seconds": "0.06"
+    },
+    {
+      "class": "ai.pixaura.app.AgentPlatformTest",
+      "name": "malformedAndCrossContextFailClosed",
+      "seconds": "0.058"
+    },
+    {
+      "class": "ai.pixaura.app.AndroidCapabilityIntegrationTest",
+      "name": "livePressureRecoveryParametersCommitCancelAndLateCompletionFence",
+      "seconds": "0.544"
+    },
+    {
+      "class": "ai.pixaura.app.AndroidCapabilityIntegrationTest",
+      "name": "actualAndroidProbeIsBoundedLocalAndUncertified",
+      "seconds": "0.027"
+    },
+    {
+      "class": "ai.pixaura.app.AndroidCapabilityIntegrationTest",
+      "name": "pressureCallbacksVsRenderCommitCancelAndOwnerDestruction",
+      "seconds": "0.404"
+    },
+    {
+      "class": "ai.pixaura.app.AndroidCapabilityIntegrationTest",
+      "name": "lowMidHighAndUnknownProfilesUseTheSameSharedRecoveryAndCeilings",
+      "seconds": "0.061"
+    },
+    {
+      "class": "ai.pixaura.app.AndroidCapabilityIntegrationTest",
+      "name": "malformedJniAndSyntheticSeamCannotClaimTrustOrRaiseCeilings",
+      "seconds": "0.031"
+    },
+    {
+      "class": "ai.pixaura.app.AndroidCapabilityIntegrationTest",
+      "name": "initialPolicyRejectsBeforeDecodeAndPreservesNoDocumentState",
+      "seconds": "0.029"
+    },
+    {
+      "class": "ai.pixaura.app.AndroidCapabilityLifecycleTest",
+      "name": "applicationOwnerPressureActiveEditBackgroundAndRecreation",
+      "seconds": "2.184"
+    },
+    {
+      "class": "ai.pixaura.app.AssetPublicationTest",
+      "name": "actualAndroidRenameNoReplaceAndImmutableFailureCorpus",
+      "seconds": "0.063"
+    },
+    {
+      "class": "ai.pixaura.app.AssistExperienceTest",
+      "name": "adviceDismissNavigationAndOnlyExplicitManualApplyChangesHistory",
+      "seconds": "3.927"
+    },
+    {
+      "class": "ai.pixaura.app.AssistExperienceTest",
+      "name": "manualSourceChangeAndScreenRecreationDiscardInFlightAdvice",
+      "seconds": "1.468"
+    },
+    {
+      "class": "ai.pixaura.app.AssistExperienceTest",
+      "name": "cancelModeSwitchDuplicateRequestAndFailureNeverDisableManual",
+      "seconds": "4.749"
+    },
+    {
+      "class": "ai.pixaura.app.AutoProposalTest",
+      "name": "cancellationFailuresBusyModeSwitchAndTeardownNeverPublishOrExecute",
+      "seconds": "4.204"
+    },
+    {
+      "class": "ai.pixaura.app.AutoProposalTest",
+      "name": "admittedReferenceProviderAllGoalsRepeatWithoutAuthority",
+      "seconds": "1.186"
+    },
+    {
+      "class": "ai.pixaura.app.AutoProposalTest",
+      "name": "realProposalSummaryIsInertDismissibleAndNeverAnApprovalControl",
+      "seconds": "2.658"
+    },
+    {
+      "class": "ai.pixaura.app.AutoReviewTest",
+      "name": "providerAdmissionIncludesQueuedValidationAndLateCancellationCannotHitFreshWork",
+      "seconds": "1.45"
+    },
+    {
+      "class": "ai.pixaura.app.AutoReviewTest",
+      "name": "explicitHumanApplyBindsExactReviewOnceAndSharesManualUndoRedoHistory",
+      "seconds": "2.154"
+    },
+    {
+      "class": "ai.pixaura.app.AutoReviewTest",
+      "name": "userCancelAndModeDepartureFenceExecutionAndRequireFreshProposal",
+      "seconds": "1.963"
+    },
+    {
+      "class": "ai.pixaura.app.AutoReviewTest",
+      "name": "wrapperRejectsWrongProposalStaleSourceAndCancelBeforeNativeAdmission",
+      "seconds": "1.041"
+    },
+    {
+      "class": "ai.pixaura.app.AutoReviewTest",
+      "name": "recreationStopsAndJoinsApplyingOwnerWithoutPublicationOrApprovalRecovery",
+      "seconds": "1.331"
+    },
+    {
+      "class": "ai.pixaura.app.AutoReviewTest",
+      "name": "allModeEdgesAndCloseReopenKeepOneHistoryAndNeverRestoreReview",
+      "seconds": "4.097"
+    },
+    {
+      "class": "ai.pixaura.app.CapabilityFoundationTest",
+      "name": "sharedVerifiedOnnxVulkanProviderCorpus",
+      "seconds": "6.77"
+    },
+    {
+      "class": "ai.pixaura.app.CapabilityFoundationTest",
+      "name": "sharedSyntheticAndMalformedCorpus",
+      "seconds": "0.001"
+    },
+    {
+      "class": "ai.pixaura.app.CapabilityFoundationTest",
+      "name": "conservativeProbeIsUnknownAndDetached",
+      "seconds": "0.0"
+    },
+    {
+      "class": "ai.pixaura.app.CapabilityFoundationTest",
+      "name": "sharedSignedModelPackageAndIndependentEd25519Corpus",
+      "seconds": "0.029"
+    },
+    {
+      "class": "ai.pixaura.app.CapabilityFoundationTest",
+      "name": "sharedCanonicalIntentAndPlanGoldens",
+      "seconds": "0.03"
+    },
+    {
+      "class": "ai.pixaura.app.CapabilityFoundationTest",
+      "name": "sharedVerifiedOnnxCpuReferenceCorpus",
+      "seconds": "3.468"
+    },
+    {
+      "class": "ai.pixaura.app.CapabilityFoundationTest",
+      "name": "sharedDynamicPressureRecoveryAndBackendCorpus",
+      "seconds": "0.0"
+    },
+    {
+      "class": "ai.pixaura.app.CapabilityFoundationTest",
+      "name": "sharedBudgetThresholdOverflowAndDowngradeCorpus",
+      "seconds": "0.001"
+    },
+    {
+      "class": "ai.pixaura.app.CrossTierReplayTest",
+      "name": "sharedCanonicalReplayAndReferenceCertification",
+      "seconds": "1.967"
+    },
+    {
+      "class": "ai.pixaura.app.DecodeBoundaryTest",
+      "name": "boundedDecodeUsesSharedNativeOwnership",
+      "seconds": "0.0"
+    },
+    {
+      "class": "ai.pixaura.app.DocumentBoundaryTest",
+      "name": "canonicalNativeDocumentFixture",
+      "seconds": "0.001"
+    },
+    {
+      "class": "ai.pixaura.app.ExportDestinationTest",
+      "name": "partialDestinationIsRemovedAndShareIsNotDelivery",
+      "seconds": "0.709"
+    },
+    {
+      "class": "ai.pixaura.app.ExportDestinationTest",
+      "name": "exportKeepsHistoryAndRejectsAStaleRevision",
+      "seconds": "0.969"
+    },
+    {
+      "class": "ai.pixaura.app.GpuEvidenceTransportTest",
+      "name": "shellArtifactSurvivesPrivateEvidenceRemovalAndRejectsOverwrite",
+      "seconds": "0.083"
+    },
+    {
+      "class": "ai.pixaura.app.GpuHardwareTest",
+      "name": "physicalVulkanCertification",
+      "seconds": "0.029"
+    },
+    {
+      "class": "ai.pixaura.app.ManualBoundaryTest",
+      "name": "sharedOfflineRegistry",
+      "seconds": "0.0"
+    },
+    {
+      "class": "ai.pixaura.app.ManualBoundaryTest",
+      "name": "toneGestureBoundary",
+      "seconds": "0.144"
+    },
+    {
+      "class": "ai.pixaura.app.ManualBoundaryTest",
+      "name": "presetsUseSharedCanonicalAndBatchProposalBoundary",
+      "seconds": "0.0"
+    },
+    {
+      "class": "ai.pixaura.app.ManualBoundaryTest",
+      "name": "integratedGestureOwnsPreviewAndTerminalLifecycle",
+      "seconds": "0.141"
+    },
+    {
+      "class": "ai.pixaura.app.ManualBoundaryTest",
+      "name": "geometryGestureBoundary",
+      "seconds": "0.0"
+    },
+    {
+      "class": "ai.pixaura.app.ManualEditorTest",
+      "name": "certifyEveryDescriptorValidationCancelCommitUndoRedoAndReopen",
+      "seconds": "1.912"
+    },
+    {
+      "class": "ai.pixaura.app.ManualEditorTest",
+      "name": "composeEditingCommitCancelSwitchHistoryLifecycleAndEmptyPresets",
+      "seconds": "2.896"
+    },
+    {
+      "class": "ai.pixaura.app.ManualEditorTest",
+      "name": "sharedOwnerEveryToolChurnHistoryReopenAndFences",
+      "seconds": "0.829"
+    },
+    {
+      "class": "ai.pixaura.app.PlanInspectionTest",
+      "name": "eightActionPresentationPreservesNativeOrderPrecisionAndPreviewAssociation",
+      "seconds": "2.056"
+    },
+    {
+      "class": "ai.pixaura.app.PlanInspectionTest",
+      "name": "allElevenActionsExposeExactNativeValuesAndStaleUnsupportedStates",
+      "seconds": "3.857"
+    },
+    {
+      "class": "ai.pixaura.app.ResultReviewTest",
+      "name": "applyShowsCommittedOrdinaryRevisionAndUndoRedoBackToEditing",
+      "seconds": "1.809"
+    },
+    {
+      "class": "ai.pixaura.app.ReviewEditTest",
+      "name": "invalidRawValueRetiresReviewAndNativeMultiActionOrderCannotBeUiPatched",
+      "seconds": "2.187"
+    },
+    {
+      "class": "ai.pixaura.app.ReviewEditTest",
+      "name": "exactValueRestoreNoActionsPreviewInvalidationAndHumanApply",
+      "seconds": "3.546"
+    },
+    {
+      "class": "ai.pixaura.app.ReviewPreviewTest",
+      "name": "recreationStopsAndJoinsPreviewBeforeDestroyWithoutRestoringPixels",
+      "seconds": "1.244"
+    },
+    {
+      "class": "ai.pixaura.app.ReviewPreviewTest",
+      "name": "wrapperRejectsStaleAndWrongOwnerAndGeometryUsesFitToggle",
+      "seconds": "1.138"
+    },
+    {
+      "class": "ai.pixaura.app.ReviewPreviewTest",
+      "name": "deterministicCancelFailureAndModeDepartureNeverInstallLatePixels",
+      "seconds": "1.83"
+    },
+    {
+      "class": "ai.pixaura.app.ReviewPreviewTest",
+      "name": "previewIsDisposableComparisonAndApplyRemainsExplicit",
+      "seconds": "2.106"
+    },
+    {
+      "class": "ai.pixaura.app.ShellTest",
+      "name": "realJniBoundaryAndShellNavigation",
+      "seconds": "1.103"
+    },
+    {
+      "class": "ai.pixaura.app.StorageBoundaryTest",
+      "name": "nativeStorageCreatesAndReopens",
+      "seconds": "0.203"
+    }
+  ]
+}

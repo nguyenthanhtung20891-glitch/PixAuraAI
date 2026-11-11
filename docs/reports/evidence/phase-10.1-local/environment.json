@@ -1,0 +1,61 @@
+{
+  "observed_utc": "2026-11-11",
+  "scope": "Mac Studio host; physical mobile qualification not performed",
+  "available_physical_android_devices": 0,
+  "available_physical_apple_devices": 0,
+  "unavailable_apple_model": "iPad8,9",
+  "local_apple_xcode_authority": "Product Owner master mission; hosted Xcode pin unchanged",
+  "os": {
+    "exit": 0,
+    "output": "ProductName:\t\tmacOS\nProductVersion:\t\t27.2.1\nBuildVersion:\t\t26B131"
+  },
+  "architecture": {
+    "exit": 0,
+    "output": "arm64"
+  },
+  "xcode": {
+    "exit": 0,
+    "output": "Xcode 27.2\nBuild version 27B52"
+  },
+  "swift": {
+    "exit": 0,
+    "output": "swift-driver version: 1.168.6 Apple Swift version 6.4.2 (swiftlang-6.4.2.1.9 clang-2100.4.1.1)\nTarget: arm64-apple-macosx27.2.0"
+  },
+  "clang": {
+    "exit": 0,
+    "output": "Apple clang version 21.0.0 (clang-2100.4.1.1)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin"
+  },
+  "cmake": {
+    "exit": 0,
+    "output": "cmake version 4.4.5\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake)."
+  },
+  "node": {
+    "exit": 0,
+    "output": "v26.13.0"
+  },
+  "jdk": {
+    "exit": 0,
+    "output": "openjdk version \"21.0.10\" 2026-01-20 LTS\nOpenJDK Runtime Environment Temurin-21.0.10+7 (build 21.0.10+7-LTS)\nOpenJDK 64-Bit Server VM Temurin-21.0.10+7 (build 21.0.10+7-LTS, mixed mode, sharing)"
+  },
+  "git": {
+    "exit": 0,
+    "output": "git version 2.54.0 (Apple Git-157)"
+  },
+  "github_cli": {
+    "exit": 0,
+    "output": "gh version 2.103.3 (2026-10-26)\nhttps://github.com/cli/cli/releases/tag/v2.103.3"
+  },
+  "soc": "Apple M5 Max (observed outside sandbox via sysctl)",
+  "android": {
+    "sdk_platform": 36,
+    "build_tools": "35.0.0",
+    "ndk": "28.2.13676358",
+    "sdk_cmake": "3.22.1",
+    "emulator": "37.2.13",
+    "gradle_wrapper": "8.13",
+    "agp": "8.13.2",
+    "kotlin": "2.2.21",
+    "arm64_system_image": "android-35;google_apis;arm64-v8a revision 9",
+    "x86_64_local_runtime": "unsupported by aarch64 host; retained hosted Linux execution"
+  }
+}

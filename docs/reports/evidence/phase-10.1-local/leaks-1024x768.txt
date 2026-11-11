@@ -1,0 +1,24 @@
+Process:         mac-host [74794]
+Path: <repository>/build/phase-10.1-host/mac-host
+Load Address:    0x1007bc000
+Identifier:      mac-host
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  leaks [74792]
+Target Type:     live task
+
+Date/Time:       2026-11-11 22:54:25.650 +0700
+Launch Time:     2026-11-11 22:54:21.913 +0700
+OS Version:      macOS 27.2.1 (26B131)
+Report Version:  7
+Analysis Tool:   /usr/bin/leaks
+
+Physical footprint:         108.6M
+Physical footprint (peak):  108.6M
+Idle exit:                  untracked
+----
+
+leaks Report Version: 4.0, multi-line stacks
+Process 74794: 874 nodes malloced for 90 KB
+Process 74794: 0 leaks for 0 total leaked bytes.
