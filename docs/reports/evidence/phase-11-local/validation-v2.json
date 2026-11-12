@@ -1,0 +1,78 @@
+{
+  "version": 2,
+  "predecessor_implementation": "f585c24a7eec7496454d8fd1f2258bdce5c417ee",
+  "predecessor_validation_sha256": "72ef0df448ed7fe67689c3f0e075fb9901a3d3178c08c38d826ce8a71d22982e",
+  "parent_source_manifest_sha256": "1ec3a6b408401fcc7b32fb6dfa2a0787746c34dcb86986b7364bece1382b5593",
+  "source_record": "docs/reports/phase-11-source-v2.json",
+  "ios_control_targets": {
+    "red": "Normal-size Open Photo/Apply/Cancel/Undo/Redo/Crop/Rotate34–36pt frames failed >=44pt checks in en/vi",
+    "fix": "Existing bordered editor now uses standard large control size; seven additional width/height checks retained",
+    "normal_text_and_manual_history_background_reopen": "2/2 PASS",
+    "maximum_text_light_bilingual": "PASS",
+    "maximum_text_dark_bilingual": "PASS",
+    "original_target_result_undo_redo_departure": "PASS",
+    "generic_debug_release_builds": "Both PASS",
+    "release_isolation": "PASS;10files/3898941bytes/0models"
+  },
+  "test_allocator": {
+    "windows_predecessor_diagnostic": "C4324/C2220 under /WX; no rerun",
+    "corrective_change": "Explicit aligned union extent; same accounting header size, static size/alignment assertions",
+    "focused_asan_ubsan_lifecycle": "PASS4.95s",
+    "warning_suppression": false,
+    "final_hosted_windows_verification": "PENDING exact successor SHA"
+  },
+  "source_checks": {
+    "passed": 202,
+    "total": 202
+  },
+  "reused_scope": "Unchanged Android source/models/shared production native/harness/resource tests and v1 measurements; no foreign-SHA CI substitution",
+  "local_logs": {
+    "ios-manual-targets-before.log": {
+      "sha256": "da33180ed7d0f273a2a5b84df5e90a999436e2205812ac99e2437c3f97a55288",
+      "bytes": 66953
+    },
+    "ios-manual-targets-normal.log": {
+      "sha256": "5b397d51b1604ca085f25c641a76001ead3e23bd9a6b67de93a714cd88c6c1f3",
+      "bytes": 113632
+    },
+    "ios-manual-targets-max-light.log": {
+      "sha256": "a7d3542294336d8291678981fe68f3b2b9677435e12ed475e20cdeb248805f5a",
+      "bytes": 31786
+    },
+    "ios-manual-targets-max-dark.log": {
+      "sha256": "f7541dba11c8f7abaa5ee3d4ab45c92e92cf6e9d44ea4259cef66e893ad6a0e2",
+      "bytes": 31783
+    },
+    "ios-large-controls-review.log": {
+      "sha256": "5208294448a9bd6eacc2273fbd2c381fb0c613ab60fcaf8bee0a20e03a1859e2",
+      "bytes": 116842
+    },
+    "ios-generic-v2.log": {
+      "sha256": "46b14a2993105a3a52b43ef8aed3c3ce3da928182d0a10aabf99d11d5858c910",
+      "bytes": 4003562
+    },
+    "allocator-v2-build.log": {
+      "sha256": "78380b6d0753b30b7d464e2273ff1f9ecd29064d9e99882298a8004db81e1740",
+      "bytes": 15345
+    },
+    "allocator-v2-sanitizer.log": {
+      "sha256": "68f4c57d5792fe5b876f62e0848177e17bc817932d2848f791c7db2e4fc53fee",
+      "bytes": 1679
+    },
+    "source-v2-final.log": {
+      "sha256": "6ce8eaab00f8cb9da85080e5043d9f5ea28b40754467fdabc5a5e7b98f7e587b",
+      "bytes": 19133
+    }
+  },
+  "phase_11": "IN PROGRESS / mandatory acceptance gates BLOCKED",
+  "phase_12": "NOT STARTED",
+  "hardware": {
+    "cpu.reference.v1": "VALIDATED",
+    "apple.metal.v1": "UNKNOWN",
+    "android.vulkan.v1": "UNKNOWN",
+    "DH-APPLE-METAL-01": "DEFERRED / NOT WAIVED / NOT SATISFIED"
+  },
+  "independent_acceptance": "NOT RECEIVED",
+  "closure_sha": null,
+  "hosted_ci": "Both complete workflows required on the separate successor commit; not pre-certified"
+}

@@ -1,0 +1,12 @@
+{
+  "predecessor_commit": "f585c24a7eec7496454d8fd1f2258bdce5c417ee",
+  "foundation_run": 43202377467,
+  "run_attempt": 1,
+  "failed_job": 131128812609,
+  "failed_job_name": "portable (windows-2025)",
+  "result": "NOT CERTIFIED; no rerun",
+  "compiler_diagnostic": "C4324 implicit tail padding in test-only Allocation; C2220 under /WX",
+  "fix": "Explicit aligned union byte extent with static size/alignment assertions; warnings-as-errors retained",
+  "raw_log_sha256": "98da3c6b6b493426f7aa8ace9d2e4d9636f3a5c1ac61c1c6681b2c551f14d23b",
+  "sanitized_log_sha256": "fa89b81aabc8ee3b5900ca3c7de0490e2d556df4f20f7b11383f26325ec4eb8f"
+}

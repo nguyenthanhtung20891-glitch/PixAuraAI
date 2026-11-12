@@ -170,3 +170,27 @@ workflows. No future CI success or independent acceptance asserted here.
 Next executable action: final diff/secrets/provenance review, commit/push main,
 verify exact-SHA Foundation7/7 and Native3/3 attempts, correct deterministic
 failures on a new commit. Then stop only at remaining external acceptance gates.
+
+Follow-up: first implementation f585c24a7eec7496454d8fd1f2258bdce5c417ee pushed;
+Foundation43202377467 Windows job131128812609 failed deterministically (MSVC
+C4324 implicit aligned-header padding, /WX); Native43202377389 remains separate.
+Do not rerun f585c24 or call it certified. Additive v2 correction uses explicit
+aligned-union extent with static assertions; focused ASan/UBSan lifecycle PASS.
+Further final review reproduced normal-size Manual target34pt frames; large
+editor controls and seven extra bilingual target checks added. v1 JSON evidence
+stays immutable, v2 source chain/report/local receipt added. Source suite202/202
+PASS. Normal bilingual + Manual gesture/history/background/reopen2/2 PASS;
+maximum-text light PASS; dark and original-target result review are finishing.
+Generic Debug/Release and release isolation PASS for the changed iOS source.
+Next: finish those focused checks, review/commit/push successor; full exact-SHA
+7+3 workflows, diagnose any deterministic failure on another new SHA. No phase
+acceptance/closure while external hardware/human/store prerequisites remain absent.
+
+Follow-up local completion: strengthened normal bilingual + Manual lifecycle2/2
+PASS; max-text bilingual light/dark PASS; original-target result Undo/Redo/return
+PASS. Final generic Debug/Release/release isolation PASS; focused allocator
+ASan/UBSan PASS4.95s. validation-v2.json and source-v2 pin additive successor;
+v1 manifests/local JSON unchanged. Full source202/202 PASS. Next commit/push this
+successor and observe both complete exact-SHA workflows; f585c24 remains failed,
+not rerun or substituted. Final receipt build/phase-11/final-certification.json
+must name the new HEAD, both run attempts and all10 completed successful jobs.

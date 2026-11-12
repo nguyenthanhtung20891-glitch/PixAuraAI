@@ -26,7 +26,14 @@ static thread_local int64_t fail_after=-1;
 static thread_local bool injected=false;
 // Darwin's max_align_t can be weaker than the C++17 default-new alignment.
 // The accounting prefix must preserve both when returning malloc + 1 header.
-struct alignas(std::max_align_t) alignas(__STDCPP_DEFAULT_NEW_ALIGNMENT__) Allocation { std::size_t bytes; };
+static constexpr std::size_t allocation_alignment =
+    std::max(alignof(std::max_align_t), static_cast<std::size_t>(__STDCPP_DEFAULT_NEW_ALIGNMENT__));
+// A full extent avoids implicit tail padding (MSVC C4324 under /WX).
+union alignas(std::max_align_t) alignas(__STDCPP_DEFAULT_NEW_ALIGNMENT__) Allocation {
+    std::size_t bytes;
+    unsigned char extent[allocation_alignment];
+};
+static_assert(sizeof(Allocation) == allocation_alignment);
 static_assert(alignof(Allocation) >= __STDCPP_DEFAULT_NEW_ALIGNMENT__);
 static_assert(sizeof(Allocation) % __STDCPP_DEFAULT_NEW_ALIGNMENT__ == 0);
 static std::atomic<std::size_t> live_bytes{0};

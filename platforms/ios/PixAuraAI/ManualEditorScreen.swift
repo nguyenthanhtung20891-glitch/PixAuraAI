@@ -200,6 +200,7 @@ struct ManualEditorScreen: View {
             if model.autoProposal.enabled, let core = model.core { Text(String(format: String(localized: "Committed revisions: %lld"), Int64(core.revisionCount))).accessibilityIdentifier("revision-count") }
         }
         .buttonStyle(.bordered)
+        .controlSize(.large)
         .toolbar {
             // The shell scroll moves this selector off the top after a review
             // scroll. The navigation bar keeps it hittable.

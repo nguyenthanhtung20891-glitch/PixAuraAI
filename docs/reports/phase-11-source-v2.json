@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "subject": "phase-11-manual-accessibility-targets",
+  "predecessor_commit": "f585c24a7eec7496454d8fd1f2258bdce5c417ee",
+  "parent_manifest": "docs/reports/phase-11-source-v1.json",
+  "parent_manifest_sha256_lf": "1ec3a6b408401fcc7b32fb6dfa2a0787746c34dcb86986b7364bece1382b5593",
+  "public_abi_changed": false,
+  "schema_changed": false,
+  "gpu_admission_policy_changed": false,
+  "changes": {
+    "packages/core/tests/gesture_lifecycle_test.cpp": {
+      "before_sha256_lf": "93a58cec9b1c05d3e61dadd31affad0f0abddb14e5bd0895863bf8c3cb3f82f4",
+      "after_sha256_lf": "c12c5a2db5070a2ade615baeafaffcbc9868b2b9788833a662186e50922e597f"
+    },
+    "platforms/ios/PixAuraAI/ManualEditorScreen.swift": {
+      "before_sha256_lf": "f33c0f47be0fdfa4f652a9ca2025a1fffd5a67dfd9495f3ed20c4c77ff418917",
+      "after_sha256_lf": "ae44d79cf771afc84a59bbad90f24b1fae38293d9d176788e0823f9aa94e2f1e"
+    },
+    "platforms/ios/PixAuraAIUITests/ShellUITests.swift": {
+      "before_sha256_lf": "346711210b4bc49480e484b187cda4d2f3193867272a4bc37eb526c8bca9c207",
+      "after_sha256_lf": "9ffba9a7bb3ff9757e09ef36c3bce6a769db86c9b2dd3903c744ca5be7437f85"
+    },
+    "tests/helpers/phase-11-hashes.mjs": {
+      "before_sha256_lf": "39c55bfdc40177d38560f40b3fe070af4d660417e48c883cbf9aeec1962bbc9b",
+      "after_sha256_lf": "330d8086e7da0c05fbebbbcb4d32a20f9a8980a9781bd527981c10e0129c6b7a"
+    },
+    "tests/phase-11-hardening.test.mjs": {
+      "before_sha256_lf": "387aa6c9c6e8122960f154d7de26e2567a86b29bd7d97434044ecc59a6833c40",
+      "after_sha256_lf": "1be7d2fcd7991a0b865408c8087799c18abd6ebb4cc1ffb46b9c5ff0792b47ef"
+    }
+  }
+}

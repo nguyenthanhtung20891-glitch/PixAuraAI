@@ -47,6 +47,12 @@ final class ShellUITests: XCTestCase {
             let revision = app.staticTexts["revision-count"]
             XCTAssertTrue(revision.waitForExistence(timeout: 20))
             let original = revision.label
+            for id in ["open-photo", "Apply", "Cancel", "Undo", "Redo", "pixaura.crop", "pixaura.rotate"] {
+                let control = app.buttons[id]
+                XCTAssertTrue(control.exists, id)
+                XCTAssertGreaterThanOrEqual(control.frame.width, 44, id)
+                XCTAssertGreaterThanOrEqual(control.frame.height, 44, id)
+            }
             let export = app.buttons["export-open"]
             XCTAssertTrue(export.waitForExistence(timeout: 20)); export.tap()
             let share = app.buttons["export-share"]

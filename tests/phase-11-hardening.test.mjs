@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import test from 'node:test';
-import { phase11Hash } from './helpers/phase-11-hashes.mjs';
+import { phase11Hash, phase11SuccessorHash } from './helpers/phase-11-hashes.mjs';
 const read = p => fs.readFileSync(p, 'utf8').replaceAll('\r\n', '\n');
 const hash = p => crypto.createHash('sha256').update(read(p)).digest('hex');
 
@@ -15,11 +15,22 @@ test('Phase 11 source successor binds current hardening without rewriting histor
   assert.equal(record.gpu_admission_policy_changed, false);
   for (const [path, change] of Object.entries(record.changes)) {
     if (baseline.files[path]) assert.equal(change.before_sha256_lf, baseline.files[path], path);
-    assert.equal(phase11Hash(path, change.before_sha256_lf), change.after_sha256_lf, path);
+    assert.equal(phase11Hash(path, change.before_sha256_lf), phase11SuccessorHash(path, change.after_sha256_lf), path);
+    assert.equal(hash(path), phase11SuccessorHash(path, change.after_sha256_lf), path);
+  }
+  for (const [path, digest] of Object.entries(record.additions)) assert.equal(hash(path), phase11SuccessorHash(path, digest), path);
+  for (const [path, digest] of Object.entries(record.historical_records)) assert.equal(hash(path), digest, path);
+  const successor = JSON.parse(read('docs/reports/phase-11-source-v2.json'));
+  assert.equal(successor.predecessor_commit, 'f585c24a7eec7496454d8fd1f2258bdce5c417ee');
+  assert.equal(hash(successor.parent_manifest), successor.parent_manifest_sha256_lf);
+  assert.equal(successor.public_abi_changed, false);
+  assert.equal(successor.schema_changed, false);
+  assert.equal(successor.gpu_admission_policy_changed, false);
+  for (const [path, change] of Object.entries(successor.changes)) {
+    assert.equal(change.before_sha256_lf, record.changes[path]?.after_sha256_lf ?? record.additions[path], path);
     assert.equal(hash(path), change.after_sha256_lf, path);
   }
-  for (const [path, digest] of Object.entries(record.additions)) assert.equal(hash(path), digest, path);
-  for (const [path, digest] of Object.entries(record.historical_records)) assert.equal(hash(path), digest, path);
+
 });
 
 test('Darwin sanitizer portability retains Linux leak checks and active error probes', () => {
