@@ -26,5 +26,6 @@ xcodebuild -project platforms/ios/PixAuraAI.xcodeproj -scheme PixAuraAI \
     -only-testing:PixAuraAITests/GpuHardwareTests/testPhysicalMetalCertification \
     'KEEP_PRIVATE_EXTERNS=$(PIXAURA_PRIVATE_EXTERNS_$(TARGET_NAME))' \
     PIXAURA_PRIVATE_EXTERNS_CPixAuraSQLite=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraCodecs=YES \
+    PIXAURA_PRIVATE_EXTERNS_CPixAuraSodium=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraMetal=YES \
     "${signing[@]}" test | tee "$result_directory/xcodebuild.log"
 echo "Evidence: $result_directory (JSON XCTest attachment and human-readable log)"

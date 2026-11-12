@@ -1,0 +1,52 @@
+{
+  "tested_source_sha": "85a8369365b1efae2d7844337656a607d9e0ca96",
+  "observed_at_utc": "2026-11-12T12:57:01.962581+00:00",
+  "physical_device": true,
+  "model": "iPhone XR",
+  "product_type": "iPhone11,8",
+  "hardware_model": "N841AP",
+  "os_version": "18.7.9",
+  "os_build": "22H355",
+  "architecture": "arm64e",
+  "supports_arm64": true,
+  "transport": "wired",
+  "paired": true,
+  "tunnel_connected": true,
+  "boot_state": "booted",
+  "developer_mode": "enabled",
+  "developer_services_available": true,
+  "app_minimum_ios": "16.0",
+  "deployment_version_condition_met": true,
+  "valid_signing_identity_count": 0,
+  "standard_provisioning_profile_count": 0,
+  "configured_development_team": false,
+  "signing_or_account_changes_performed": false,
+  "metal": "NOT RUN \u2014 signing blocked",
+  "metal_hardware_eligibility": "Not runtime-verified; OS/architecture conditions met only",
+  "G7_G8_physical_observations": "NOT RUN; no device measurements fabricated",
+  "G11": "Operator protocol ready; human walkthrough NOT OBSERVED",
+  "trust": {
+    "cpu.reference.v1": "VALIDATED",
+    "apple.metal.v1": "UNKNOWN",
+    "android.vulkan.v1": "UNKNOWN",
+    "DH-APPLE-METAL-01": "DEFERRED / NOT WAIVED / NOT SATISFIED"
+  },
+  "phase_11": "IN PROGRESS / ACCEPTANCE BLOCKED",
+  "phase_12": "NOT STARTED",
+  "private_raw_artifacts_not_for_publication": [
+    "device-details-private.json",
+    "device-details-private.log",
+    "signing-identities-private.log",
+    "destinations-private.log",
+    "lock-private.json"
+  ],
+  "raw_artifact_sha256": {
+    "device-details-private.json": "9cc67d62bcd75fc53d63648af77ac37b1ac56680d61deaf2b72029d194730d7d",
+    "signing-identities-private.log": "0ad30eb1563c325d77f4dc564c5d96851d5a39205307f5cdd7d762b59688f87a",
+    "device-details-current-private.json": "ffd3001fd48f3eb93c21d78ca3703c9691fd722710a418a936a3df46cfa611dd",
+    "controller-unsigned-preflight.log": "7b0a858a8e14928a606e274cc03da94b5e08ebb8cda098264cbec97311c26c06",
+    "controller-fixed-preflight.log": "e94ad33e797c0c9046d0a613840a50f6eec3945e8df94f4ac9270246d29c04e2",
+    "source-tests.log": "12ed2cb44280ce8dfd173d7b9c8aea430c21a612f32dc4104f2d2f392a069bda"
+  },
+  "initial_developer_mode": "disabled"
+}

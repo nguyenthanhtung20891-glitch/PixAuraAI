@@ -33,3 +33,13 @@ test('hidden link inputs stay on their existing targets', () => {
   assert.match(header, /__attribute__\(\(visibility\("hidden"\)\)\) bool metal_available\(\)noexcept;/);
   assert.match(header, /__attribute__\(\(visibility\("hidden"\)\)\) std::unique_ptr<MetalWorker> make_metal_worker\(bool reference\);/);
 });
+
+// Physical certification must link the same hidden native inputs as software tests.
+test('physical Apple controller preserves every hidden native link input', () => {
+  const script = read('scripts/check-gpu-apple-hardware.sh');
+  assert.ok(script.includes("'KEEP_PRIVATE_EXTERNS=$(PIXAURA_PRIVATE_EXTERNS_$(TARGET_NAME))'"));
+  for (const target of ['CPixAuraSQLite', 'CPixAuraCodecs', 'CPixAuraSodium', 'CPixAuraMetal']) {
+    assert.match(script, new RegExp(`PIXAURA_PRIVATE_EXTERNS_${target}=YES`));
+  }
+  assert.doesNotMatch(script, /-allowProvisioningUpdates|\bKEEP_PRIVATE_EXTERNS=YES/);
+});

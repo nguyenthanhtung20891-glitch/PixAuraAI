@@ -236,3 +236,17 @@ Next: source/secrets/diff review, commit/push v3, discover new exact-SHA run IDs
 update local observer SHA/IDs, require both FULL workflows SUCCESS7/7+3/3 before
 stopping at external hardware/human/store/independent-review gates. ee7f8ce remains
 uncertified because Native Android failed; no rerun. No Phase11 closure/Phase12.
+
+## iPhone XR mission successor
+
+Baseline85a8369365b1efae2d7844337656a607d9e0ca96 certified Foundation43209508433
+7/7 and Native43209509302 3/3, exact SHA/attempt1/all completed SUCCESS.
+Physical XR18.7.9 now paired/developer-ready; signing blocked: zero valid signing
+identities/profiles, no configured team. No physical tests or measurements run.
+Hardware-controller unsigned preflight reproduced missing Sodium/Metal hidden
+symbols; two per-target flags correct it, unsigned physical-SDK test build PASS.
+Local203/203 source checks PASS. Additive v4, sanitized device receipt and
+phase-11-iphone-xr.md preserve exact scope and operator handoff. Next: commit/push
+this controller correction and verify full exact-SHA7+3; when owner supplies
+existing signing/provisioning and Team ID, execute clean physical Metal protocol,
+G7/G8 journeys and human G11 walkthrough. No trust promotion or Phase11 closure.

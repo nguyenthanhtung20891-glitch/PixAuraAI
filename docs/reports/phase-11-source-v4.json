@@ -1,0 +1,32 @@
+{
+  "version": 4,
+  "subject": "physical-apple-controller-link-correction",
+  "predecessor_commit": "85a8369365b1efae2d7844337656a607d9e0ca96",
+  "parent_manifest": "docs/reports/phase-11-source-v3.json",
+  "parent_manifest_sha256_lf": "90b91d24a3d7a63a3bd79b6361e939186626e2761a07d71e709559f8acc81d5e",
+  "public_abi_changed": false,
+  "schema_changed": false,
+  "gpu_admission_policy_changed": false,
+  "unchanged_predecessor_files": {
+    "scripts/check-gpu-apple-hardware.sh": "3fe198d6b5e136ffb1ac8d9d927bc0640a0df26f307381dab85fd8d8110f9bf9",
+    "tests/apple-link-graph.test.mjs": "aa14426f901bf4e0f61efc05a80137c94c219e0768cf1f5635939e222062d610"
+  },
+  "changes": {
+    "scripts/check-gpu-apple-hardware.sh": {
+      "before_sha256_lf": "3fe198d6b5e136ffb1ac8d9d927bc0640a0df26f307381dab85fd8d8110f9bf9",
+      "after_sha256_lf": "903b4642b9b59ac36974cf5c4b80dc42f287fc26f5a94c4738b863bae76cbb4c"
+    },
+    "tests/apple-link-graph.test.mjs": {
+      "before_sha256_lf": "aa14426f901bf4e0f61efc05a80137c94c219e0768cf1f5635939e222062d610",
+      "after_sha256_lf": "fb59b7819caf1040f93a274873e03fd19392aa24bcc7de257f581f19befebaf7"
+    },
+    "tests/helpers/phase-11-hashes.mjs": {
+      "before_sha256_lf": "12baee9d68d11a6c576b594ac83e4a4561b95e970493adb446aa09b336d68b9f",
+      "after_sha256_lf": "49a89066937bc143f9a01c7d1a6484a945f8d01a187b9f4c77e172145e1284b6"
+    },
+    "tests/phase-11-hardening.test.mjs": {
+      "before_sha256_lf": "ab84e5614479a51140697e89eae3d1f66f424ef5d7d89f7644d54c397101960d",
+      "after_sha256_lf": "cc6abc02db6c79ebe73a1c475a4b0a182dbd489baba8a1050f6eb62fdea5ca6a"
+    }
+  }
+}
