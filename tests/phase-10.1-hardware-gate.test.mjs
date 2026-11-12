@@ -1,3 +1,4 @@
+import { phase11Hash } from './helpers/phase-11-hashes.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import test from 'node:test';
@@ -54,7 +55,7 @@ test('Mac successor binds observed host evidence to unchanged dual-platform prod
   assert.ok(Object.keys(manifest.files).some((p) => p.startsWith('platforms/ios/')));
   assert.ok(Object.keys(manifest.files).some((p) => p.startsWith('packages/core/src/')));
   for (const [path, digest] of Object.entries(manifest.files)) {
-    assert.equal(sha(read(path).replaceAll('\r\n', '\n')), digest, path);
+    assert.equal(sha(read(path).replaceAll('\r\n', '\n')), phase11Hash(path, digest), path);
   }
   const measurements = JSON.parse(read(base + 'host-measurements.json'));
   assert.equal(measurements.source_sha, manifest.baseline_sha);
@@ -62,7 +63,7 @@ test('Mac successor binds observed host evidence to unchanged dual-platform prod
   assert.equal(measurements.warmups, 2);
   assert.deepEqual(measurements.cases.map((c) => [c.width, c.height]), [[1024, 768], [3000, 2000]]);
   for (const [path, digest] of Object.entries(measurements.harness_sha256)) {
-    assert.equal(sha(read(path).replaceAll('\r\n', '\n')), digest, path);
+    assert.equal(sha(read(path).replaceAll('\r\n', '\n')), phase11Hash(path, digest), path);
   }
   for (const c of measurements.cases) {
     assert.equal(c.samples.filter((s) => !s.warmup).length, 7);

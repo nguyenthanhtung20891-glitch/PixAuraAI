@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "scope": "Phase 11 local engineering observations; no phase acceptance, physical GPU or production release qualification",
+  "baseline_commit": "874b6645c75cd227fbb974b891ff41991397acc2",
+  "source_binding": "docs/reports/phase-11-source-v1.json; final implementation is the commit containing these records",
+  "observed_at_utc": "2026-11-12T10:39:10.899710+00:00",
+  "source_checks": {
+    "tests": 202,
+    "passed": 202,
+    "local_exclusion": "Linux-specific android-emulator.test.mjs retained in both complete hosted workflows; prior documented GNU realpath portability boundary"
+  },
+  "native": {
+    "bounded_fuzz_calls": 4163,
+    "accepted": 6,
+    "rejected": 4157,
+    "checks": 33328,
+    "failures": 0,
+    "sanitizer_full_inside_sandbox": {
+      "passed": 67,
+      "total": 68,
+      "remaining": "inference_apple_test returned unavailable15 without host Metal device access"
+    },
+    "same_apple_test_with_authorized_host_access": {
+      "passed": true,
+      "vectors": 105,
+      "checks": 36727185,
+      "failures": 0,
+      "release_trust": 0
+    },
+    "active_negative_probes": "ASan heap overflow exit86; UBSan signed overflow exit87 PASS",
+    "new_fuzz_final_halt_on_error": "PASS",
+    "leaks": {
+      "small_105_lifetimes": 0,
+      "large_105_lifetimes": 0,
+      "total_leaked_bytes": 0
+    }
+  },
+  "android": {
+    "target": "Repository-owned API35 ARM64 Emulator, SwiftShader; no physical/ARMv7 runtime claim",
+    "builds": [
+      "Debug PASS",
+      "Release PASS"
+    ],
+    "lint": [
+      "Debug PASS",
+      "Release PASS"
+    ],
+    "units": {
+      "testDebugUnitTest": {
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "testReleaseUnitTest": {
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "offline_instrumentation": {
+      "tests": 62,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "airplane_mode_after_run": 1,
+    "transport": "Fresh shell-owned TRANSPORT_TEST_ONLY publication/overwrite defense PASS",
+    "release_scan": {
+      "native_libraries": 12,
+      "dex_files": 2,
+      "uncompressed_bytes": 33021570
+    },
+    "security_red_then_green": true,
+    "bilingual_200_percent_alternative_input": "2/2 PASS",
+    "migration_defect": "Windows-path-bearing cached AAPT .flat resources quarantined and regenerated on macOS; scanner retained"
+  },
+  "ios": {
+    "target": "Local Mac Studio Xcode27.2, iOS27.2 Simulator; generic unsigned builds are not physical qualification",
+    "final_generic_debug_release": "Both BUILD SUCCEEDED; command exit0, exec session91714; release scanner10files/3893693bytes/0models PASS",
+    "app_units": {
+      "tests": 13,
+      "failures": 0
+    },
+    "initial_complete_ui_sweep": {
+      "tests": 19,
+      "passing_test_cases": 17,
+      "failed_test_cases": 2,
+      "failed_assertions": 3,
+      "note": "Export target size and original-target result departure defects preserved, subsequently corrected; not a green complete run"
+    },
+    "final_local_focused": {
+      "original_target_plan_review_formatting": "5/5 unaffected inspection/edit checks PASS; pre-toolbar-fix departure still failed",
+      "stable_toolbar_original_target": "2/2 PASS: result ordinary Undo/Redo/return and integrated background/navigation/restart",
+      "bilingual_export_normal_text": "PASS, all five format/destination targets >=44pt",
+      "bilingual_export_max_dynamic_type_light": "PASS",
+      "bilingual_export_max_dynamic_type_dark": "PASS"
+    },
+    "reused_unchanged_native_swift": "Phase10.1 core53/53 host and Simulator are historical unchanged shared Swift/native source evidence, not fresh Phase11 app/physical evidence",
+    "security_red_then_green": true,
+    "human_voiceover_walkthrough": "NOT OBSERVED"
+  },
+  "acceptance": {
+    "G7": "Scoped software/privacy/offline checks; independent review and any required physical observations pending",
+    "G8": "BLOCKED physical cohort/thermal/frame/pressure qualification",
+    "G9": "Native reference/control regressions verified; independent acceptance pending",
+    "G10": "BLOCKED approved binding contract, implementation and authorized store sandbox",
+    "G11": "BLOCKED human TalkBack/VoiceOver/contrast/focus/alternative input acceptance",
+    "DH-APPLE-METAL-01": "DEFERRED / NOT WAIVED / NOT SATISFIED"
+  },
+  "trust": {
+    "cpu.reference.v1": "VALIDATED",
+    "apple.metal.v1": "UNKNOWN",
+    "android.vulkan.v1": "UNKNOWN"
+  },
+  "abi_schema_production_native_changes": false,
+  "phase_11": "AUTHORIZED / IN PROGRESS; acceptance BLOCKED",
+  "phase_12": "NOT STARTED",
+  "hosted_ci": "PENDING exact final implementation SHA, both complete workflows; no future PASS asserted",
+  "independent_principal_architect_acceptance": "NOT RECEIVED",
+  "closure_sha": null
+}

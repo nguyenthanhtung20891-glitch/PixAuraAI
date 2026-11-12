@@ -32,19 +32,19 @@ internal fun ResultReviewPanel(model: ManualEditorModel, result: ResultReviewUi)
         4 -> "Receipt revision is absent from ordinary history."
         else -> "No committed result."
     })
-    val spoken = "$label Previous ${observed.previous.ifEmpty { "none" }}. Current ${observed.live}. Count ${observed.count}."
+    val spoken = presentedFormat(R.string.phase11_result_spoken, label, observed.previous.ifEmpty { "none" }, observed.live, observed.count)
     Column(Modifier.fillMaxWidth().testTag("result-review"), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(presented("Committed result"), style = MaterialTheme.typography.titleSmall)
         Text(label, Modifier.testTag("result-label").semantics { contentDescription = spoken; liveRegion = LiveRegionMode.Polite })
-        Text("Ordinary history revision ${observed.live.take(8)}. Count ${observed.count}.", Modifier.testTag("result-revision"))
-        if (observed.geometryChanged) Text("Geometry changed. Fitted comparison is not a pixel-aligned split.", Modifier.testTag("result-geometry"))
+        Text(presentedFormat(R.string.phase11_result_revision, observed.live.take(8), observed.count), Modifier.testTag("result-revision"))
+        if (observed.geometryChanged) Text(presented("Geometry changed. Fitted comparison is not a pixel-aligned split."), Modifier.testTag("result-geometry"))
         observed.image?.let {
-            val caption = if (observed.showing == "previous") "Previous committed revision" else "Current committed result"
+            val caption = presented(if (observed.showing == "previous") "Previous committed revision" else "Current committed result")
             Image(it.asImageBitmap(), caption, Modifier.fillMaxWidth().height(180.dp).testTag("result-viewport"), contentScale = ContentScale.Fit)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = { model.showResult(true) }, enabled = observed.previous.isNotEmpty(), modifier = Modifier.testTag("result-previous")) { Text("Previous") }
-            OutlinedButton(onClick = { model.showResult(false) }, modifier = Modifier.testTag("result-current")) { Text("Current Result") }
+            OutlinedButton(onClick = { model.showResult(true) }, enabled = observed.previous.isNotEmpty(), modifier = Modifier.testTag("result-previous")) { Text(presented("Previous")) }
+            OutlinedButton(onClick = { model.showResult(false) }, modifier = Modifier.testTag("result-current")) { Text(presented("Current Result")) }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             val undoDocument = presented("Undo document")
@@ -52,6 +52,6 @@ internal fun ResultReviewPanel(model: ManualEditorModel, result: ResultReviewUi)
             OutlinedButton(onClick = model::undoResult, enabled = observed.canUndo, modifier = Modifier.testTag("result-undo").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = undoDocument }) { Text(undoDocument) }
             OutlinedButton(onClick = model::redoResult, enabled = observed.canRedo, modifier = Modifier.testTag("result-redo").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = redoDocument }) { Text(redoDocument) }
         }
-        OutlinedButton(onClick = model::backToEditing, modifier = Modifier.testTag("result-back")) { Text("Back to editing") }
+        OutlinedButton(onClick = model::backToEditing, modifier = Modifier.testTag("result-back")) { Text(presented("Back to editing")) }
     }
 }

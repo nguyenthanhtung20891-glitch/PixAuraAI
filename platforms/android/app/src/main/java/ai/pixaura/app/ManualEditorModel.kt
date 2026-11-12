@@ -546,7 +546,17 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     private fun importFileOnWorker(file: File) {
         pendingPreview.set(null); pendingValues.set(null)
         val name = UUID.randomUUID().toString(); val directory = File(root(), name).apply { check(mkdir()) }
-        val replacement = file.inputStream().use { configured(directory.canonicalPath, it, file.length()) }
+        var prepared: ManualEditor? = null
+        try {
+            file.inputStream().use { prepared = configured(directory.canonicalPath, it, file.length()) }
+        } catch (failure: Throwable) {
+            // Includes a stream-close failure after native preparation. This
+            // fresh root is unpublished; the current project/source is intact.
+            runCatching { prepared?.close() }
+            directory.deleteRecursively()
+            throw failure
+        }
+        val replacement = checkNotNull(prepared)
         owner?.close(); owner = replacement
         preferences.edit { putString("project", name) }; preview()
     }

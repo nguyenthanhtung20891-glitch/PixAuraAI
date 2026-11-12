@@ -1,0 +1,117 @@
+{
+  "scope": "Completed local synthetic-data evidence; full raw logs/xcresults remain ignored under build/phase-11. Initial failures explicitly retained.",
+  "logs": {
+    "security-before.log": {
+      "sha256": "e07a45669dbc2ee31e18b898b99e49b92942b0d81d1378dbbbfa7f7d1b6dfdbf",
+      "bytes": 179508
+    },
+    "security-after.log": {
+      "sha256": "38ab697b23aef41de5c4bad31057b288c6315c4cc9abf6cc44442b1861441480",
+      "bytes": 74265
+    },
+    "android-security-before.log": {
+      "sha256": "01a5c68754957a0de4757c4ef2018670bc9f8a0ef91b75cc540ceb17f1a5395c",
+      "bytes": 6054
+    },
+    "android-security-after.log": {
+      "sha256": "642720f0580922b792a011e544d02caab3bc358796dc8fbcf880131980e07d6e",
+      "bytes": 4853
+    },
+    "android-accessibility-before3.log": {
+      "sha256": "b741cacc388db705799177d685631bf9b9e7a131e6adedc1cc4ff69f57a6116d",
+      "bytes": 5996
+    },
+    "android-accessibility-after.log": {
+      "sha256": "6b0f5eb81e8d2aaf214620f6e09a6f9972d2a896139a5f61cd6f53a7682d5687",
+      "bytes": 4861
+    },
+    "accessibility-light.log": {
+      "sha256": "3c16d0dd8b2d18b1916fe0ee913094e85d4501a3f4a3a5598fd9441c242d4e07",
+      "bytes": 115585
+    },
+    "accessibility-dark.log": {
+      "sha256": "d6d6345c3367815ad24ab79607c10b95333592c3f807320fd3167dc8e19d69cc",
+      "bytes": 28645
+    },
+    "source-final-reviewed.log": {
+      "sha256": "31524805b10e345afcb95e0ea6fd22b77a7aee134f5d791fc8c2cce5f7d4959c",
+      "bytes": 19152
+    },
+    "sanitize-final.log": {
+      "sha256": "e7084e11231cc05013043c95ad3ba82c4c1a568ad7f7e19245e267ecb771b87a",
+      "bytes": 7756
+    },
+    "sanitize-metal-access.log": {
+      "sha256": "370da56e015bc4dbaa77be852839ae220fe7963dabe9ce10010e20e722b7ff62",
+      "bytes": 70721
+    },
+    "fuzz-sanitizer-final.log": {
+      "sha256": "f6b89cca0ab46eaf638171b0edb03e9e57b4ef44de2d4996745fe99b46419279",
+      "bytes": 1365
+    },
+    "native-fuzz.log": {
+      "sha256": "95d5aaee8df95eac828b06ce700a157ac479da59a2ef68dde9ab99a7de560e49",
+      "bytes": 1165
+    },
+    "leaks-small.log": {
+      "sha256": "2c575781f6169daa96e116bb4b88203dfe7084a764e07b03a7d2303a96f0ddb1",
+      "bytes": 37946
+    },
+    "leaks-large.log": {
+      "sha256": "ffb583870d63db6b91ea9664487ebcaee6186276954dcaa03a0c6357a4c5380f",
+      "bytes": 38522
+    },
+    "host-benchmark-final.log": {
+      "sha256": "60b9dbfe83bcf42fd7452f6897833bc47c85943ea3f019675faa54364b63b0af",
+      "bytes": 5021
+    },
+    "android-builds.log": {
+      "sha256": "e27544d54f07b6b602a1dd6419888b791f4f1c23f417e3991602880512ea061b",
+      "bytes": 8877
+    },
+    "android-offline-full.log": {
+      "sha256": "5baf0307a39a6610fd9d6840e14256ab3b9d48affd34a57c847943f91e0a08fd",
+      "bytes": 6594
+    },
+    "android-native-cache-builds.log": {
+      "sha256": "eada9141a5f8935ed4fb960583572d4f29164b38401f8cf6603b33702786347b",
+      "bytes": 9004
+    },
+    "android-offline-verified.log": {
+      "sha256": "dd3d41e032a7d78a5e8d1f10a4a0ced12eec8a78e4a78cbed3ed8d6c64cf2733",
+      "bytes": 5788
+    },
+    "android-scanner-fixtures-final.log": {
+      "sha256": "d5e319eb705874b86a3c6cd62db96acb471670001f4f4e31230dafd4a9e57594",
+      "bytes": 208
+    },
+    "ios-full.log": {
+      "sha256": "8513ed9e1e0a1cf8e48fda2afd26198e63b6939f362c3b38deb7983e8b0e73b0",
+      "bytes": 4346963
+    },
+    "ios-final-focus.log": {
+      "sha256": "f92c126a7407cf984a46c93413dbe73fbdcf14797a0fb5edccd5a34906abb59d",
+      "bytes": 2426624
+    },
+    "ios-original-target-final.log": {
+      "sha256": "e4f52ac3778f6174f5eeedb9d9ebc684715d3b39f6794f30331c1cec382c85e8",
+      "bytes": 210033
+    },
+    "ios-toolbar-fixed.log": {
+      "sha256": "11f7a49c64eb2e22d2794b99372d6447249628d8a08c9eb784ffaba432c26e52",
+      "bytes": 106337
+    },
+    "ios-targets-normal.log": {
+      "sha256": "1c4809209795af06b5a1c4ac77b69a09d1c8b9c73d69eba18621c001f400da1d",
+      "bytes": 88579
+    },
+    "ios-targets-max-light.log": {
+      "sha256": "e191286d3d8556be7d6d8814e6cc89c478e601e69b4912fb8b0e8e4d2370036a",
+      "bytes": 82168
+    },
+    "ios-targets-max-dark.log": {
+      "sha256": "7c2a90c4539483d1fec3f018a0976fa37c10437219832a94a07767c8066bb738",
+      "bytes": 29668
+    }
+  }
+}

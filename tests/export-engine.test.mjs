@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { phase11Hash } from './helpers/phase-11-hashes.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
@@ -22,8 +23,8 @@ test('Phase 9 Step 2 encodes one committed revision and leaves history untouched
   assert.equal(m.location_metadata_copied, false);
   assert.equal(m.encoder.new_dependency, false);
   assert.deepEqual(m.formats, ['jpeg', 'png']);
-  for (const [p, digest] of Object.entries(m.additions)) assert.equal(hash(p), digest, p);
-  for (const [p, change] of Object.entries(m.changes)) assert.equal(hash(p), change.after_sha256_lf, p);
+  for (const [p, digest] of Object.entries(m.additions)) assert.equal(hash(p), phase11Hash(p, digest), p);
+  for (const [p, change] of Object.entries(m.changes)) assert.equal(hash(p), phase11Hash(p, change.after_sha256_lf), p);
   const header = text('packages/core/include/pixaura/export.h');
   for (const term of ['pixaura_export_bind', 'pixaura_export_encode', 'pixaura_export_cancel', 'PIXAURA_EXPORT_STALE', 'EXPORT IS NOT A REVISION']) assert.ok(header.includes(term), term);
   const boundary = text('packages/core/src/export_boundary.hpp');

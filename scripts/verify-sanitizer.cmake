@@ -12,9 +12,15 @@ else()
     message(FATAL_ERROR "Unknown sanitizer kind: ${PIXAURA_KIND}")
 endif()
 file(MAKE_DIRECTORY "${PIXAURA_LOG_DIR}")
+set(asan_environment "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1:abort_on_error=0:exitcode=${expected_exit}")
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+    # Apple ASan does not implement LeakSanitizer. This does not disable the
+    # required address/undefined negative probes or Linux leak detection.
+    set(asan_environment "ASAN_OPTIONS=detect_leaks=0:halt_on_error=1:abort_on_error=0:exitcode=${expected_exit}")
+endif()
 execute_process(
     COMMAND "${CMAKE_COMMAND}" -E env
-        "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1:abort_on_error=0:exitcode=${expected_exit}"
+        "${asan_environment}"
         "UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1:exitcode=${expected_exit}"
         "${PIXAURA_PROBE}"
     RESULT_VARIABLE probe_result

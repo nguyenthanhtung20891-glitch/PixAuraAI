@@ -18,7 +18,8 @@ struct ShellView: View {
                     Text("Local-first photo editing. Application shell preview.")
                     Text(model.probe).accessibilityIdentifier("core-status")
                     ForEach(EditMode.allCases, id: \.self) { mode in
-                        Button("Open \(mode.rawValue) editor") { model.openEditor(mode) }
+                        Button(presented("Open \(mode.rawValue) editor")) { model.openEditor(mode) }
+                            .accessibilityIdentifier("open-editor-\(mode.rawValue)")
                     }
                     Button("Open Projects") { model.navigate(.projects) }
                     Button("Open Settings") { model.navigate(.settings) }
@@ -46,7 +47,7 @@ struct ShellView: View {
                             .buttonStyle(.bordered).controlSize(.large)
                     }.padding()
                 }
-                .navigationTitle(destination.rawValue)
+                .navigationTitle(presented(destination.rawValue))
             }
         }
         .task {

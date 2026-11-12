@@ -1,3 +1,4 @@
+import {phase11Hash} from './helpers/phase-11-hashes.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import crypto from 'node:crypto';
 import {resultReviewHash,reviewEditHash,withoutReviewEditIntegration} from './helpers/review-edit-hashes.mjs';
 const text=p=>fs.readFileSync(p,'utf8').replaceAll('\r\n','\n'),read=p=>JSON.parse(text(p));
@@ -10,7 +11,7 @@ test('Step 3 is exact bounded additive inspection, preserving certified Step 2 a
  assert.deepEqual(Object.keys(m.changes).sort(),changed.sort());assert.deepEqual(Object.keys(m.additions).sort(),added.sort());
  const prior=read('docs/reports/phase-8-step-2-v1.json');
  for(const [p,c] of Object.entries(m.changes)){assert.match(c.before_sha256_lf,/^[a-f0-9]{64}$/);assert.equal(hash(text(p)),resultReviewHash(p,reviewEditHash(p,c.after_sha256_lf)),p);if(prior.changes[p])assert.equal(c.before_sha256_lf,prior.changes[p].after_sha256_lf,p);}
- for(const [p,h] of Object.entries(m.additions))assert.equal(hash(text(p)),h,p);
+ for(const [p,h] of Object.entries(m.additions))assert.equal(hash(text(p)),phase11Hash(p,h),p);
  const editor=withoutReviewEditIntegration(text('packages/core/src/editor_api.cpp')).replace('#include "pixaura/review_inspection.h"\n','').replace('#include "review_inspection_boundary.hpp"\n','');assert.equal(hash(editor),m.changes['packages/core/src/editor_api.cpp'].before_sha256_lf);
  const frozen=read('docs/reports/phase-7-closure-v1.json');
  for(const p of ['packages/core/src/document.cpp','packages/core/src/manual_tools.cpp','packages/core/src/evaluation.cpp','packages/core/src/geometry.cpp','packages/core/src/preview.cpp','packages/core/src/agent_execution_boundary.hpp','packages/core/src/budget.cpp','packages/core/src/dynamic_policy.cpp'])assert.equal(hash(text(p)),frozen.sha256[p],p);
@@ -30,7 +31,7 @@ test('platform review presents exact raw units and order with no action editing 
  for(const p of ['platforms/android/app/src/main/java/ai/pixaura/app/PlanInspectionPanel.kt','platforms/ios/PixAuraAI/ManualEditorScreen.swift']){
   const panel=text(p).split(p.endsWith('.kt')?'internal fun PlanInspectionPanel':'private struct PlanInspectionPanel')[1];assert.ok(panel);
   for(const id of ['review-action-list','review-plan-count','review-action-','review-action-detail-','review-geometry-warning-','auto-exact-values-'])assert.ok(panel.includes(id),p+id);
-  assert.ok(panel.includes('Action '));assert.ok(panel.includes('.raw'));assert.ok(panel.includes('.unit'));assert.ok(panel.includes('.minimum'));assert.ok(panel.includes('.maximum'));assert.ok(panel.includes('.neutral'));
+  if(p.endsWith('.kt')) { assert.ok(panel.includes('presentedFormat(R.string.phase11_action_position, action.index + 1, inspection.actions.size, action.label)')); assert.ok(text('platforms/android/app/src/main/res/values/strings.xml').includes('Action %1$d of %2$d: %3$s')); } else assert.ok(panel.includes('Action '));assert.ok(panel.includes('.raw'));assert.ok(panel.includes('.unit'));assert.ok(panel.includes('.minimum'));assert.ok(panel.includes('.maximum'));assert.ok(panel.includes('.neutral'));
   assert.doesNotMatch(panel,/Slider\(|TextField\(|Button\(|\.sorted|\.sort\(|\.filter|Double\(|Float\(|adviceSetting|approveAgent|executeAgent/);
  }
  for(const p of ['platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt','packages/core/swift/Sources/ManualEditor.swift']){

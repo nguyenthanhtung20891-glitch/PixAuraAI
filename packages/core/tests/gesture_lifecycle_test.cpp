@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
@@ -23,7 +24,11 @@
 // Live payload accounting proves retained memory, not a device RSS claim.
 static thread_local int64_t fail_after=-1;
 static thread_local bool injected=false;
-struct alignas(std::max_align_t) Allocation { std::size_t bytes; };
+// Darwin's max_align_t can be weaker than the C++17 default-new alignment.
+// The accounting prefix must preserve both when returning malloc + 1 header.
+struct alignas(std::max_align_t) alignas(__STDCPP_DEFAULT_NEW_ALIGNMENT__) Allocation { std::size_t bytes; };
+static_assert(alignof(Allocation) >= __STDCPP_DEFAULT_NEW_ALIGNMENT__);
+static_assert(sizeof(Allocation) % __STDCPP_DEFAULT_NEW_ALIGNMENT__ == 0);
 static std::atomic<std::size_t> live_bytes{0};
 void* operator new(std::size_t n) {
     if(fail_after==0){fail_after=-1;injected=true;throw std::bad_alloc();}

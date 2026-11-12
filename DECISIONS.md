@@ -1,5 +1,26 @@
 # Architectural decision index
 
+<!-- phase11-current -->
+## Phase 11 — authorized hardening engineering
+
+Product Owner authorizes the entire Phase 11 engineering mission on 2026-11-12.
+Phase 10.1 CLOSED / COMPLETE / FULL PASS at 874b6645c75cd227fbb974b891ff41991397acc2:
+Foundation 43127870126 SUCCESS 7/7; Native shells 43127870204 SUCCESS 3/3,
+exact SHA, attempt 1. Independent Phase 10.1 acceptance and historical evidence
+remain unchanged. Older “Phase 11 not started” text is freeze-time history.
+Phase 11 AUTHORIZED / IN PROGRESS; NOT accepted or closed. Internal workstreams
+A–F: docs/plans/phase-11-roadmap.md. Checkpoint: docs/reports/phase-11-checkpoint.md.
+Mac Studio is primary for BOTH platforms; main remains canonical. Shared native
+editing/approval/history/resource authority, HUMAN Apply, ABI, Schema 3 and
+certified numerical behavior remain frozen. No unadmitted model/provider/backend.
+cpu.reference.v1 VALIDATED; android.vulkan.v1 UNKNOWN; apple.metal.v1 UNKNOWN.
+DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED: physical Apple PASS is
+MANDATORY before Phase 11 hardening acceptance. Green software CI cannot replace
+it or G7–G11 physical/human/store prerequisites. No waiver or false PASS.
+Phase 12 NOT STARTED. No signing/account/policy changes without required authority.
+<!-- phase11-history -->
+
+
 <!-- phase10.1-formal-closure -->
 ## Phase 10.1 formal closure — independently accepted scope
 

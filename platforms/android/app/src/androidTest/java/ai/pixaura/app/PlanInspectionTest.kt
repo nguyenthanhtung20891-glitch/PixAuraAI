@@ -57,7 +57,7 @@ class PlanInspectionTest {
             try { (inspection.actions as MutableList).clear(); fail("inspection list was mutable") } catch (_: UnsupportedOperationException) { }
             assertEquals(choice.values, a.parameters.map { it.raw })
             compose.onNodeWithTag("review-action-list").assertExists()
-            compose.onNodeWithTag("review-plan-count").assertTextContains("1 planned action(s).", substring = true)
+            compose.onNodeWithTag("review-plan-count").assertTextContains("1 planned action.", substring = true)
             compose.onNodeWithTag("review-action-0").performScrollTo().assertIsDisplayed().assertContentDescriptionContains("Action 1 of 1: ${a.label}", substring = true)
             compose.onNodeWithText("Action 1 of 1: ${a.label}").assertExists()
             compose.onNodeWithTag("auto-exact-values-0").assertTextEquals(a.parameters.joinToString("; ") { "${it.name} = ${it.raw} (${it.unit})" })
@@ -82,7 +82,7 @@ class PlanInspectionTest {
         val proposal = InspectionTestHooks().candidate(owner, bytes); val review = owner.prepareAutoReview(proposal)
         @Suppress("UNCHECKED_CAST") val mutable = ManualEditorModel::class.java.getDeclaredField("autoMutable").apply { isAccessible = true }.get(model) as MutableStateFlow<AutoUiState>
         compose.runOnUiThread { mutable.value = mutable.value.copy(status = AutoStatus.REVIEW_READY, proposal = proposal, review = review, inFlight = false) }
-        compose.onNodeWithTag("review-plan-count").assertTextContains("8 planned action(s).", substring = true)
+        compose.onNodeWithTag("review-plan-count").assertTextContains("8 planned actions.", substring = true)
         for (i in 0..7) {
             compose.onNodeWithTag("review-action-$i").performScrollTo().assertIsDisplayed().assertContentDescriptionContains("Action ${i+1} of 8: Exposure", substring = true)
             compose.onNodeWithText("Action ${i+1} of 8: Exposure").assertExists()

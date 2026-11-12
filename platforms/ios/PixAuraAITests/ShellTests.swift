@@ -18,6 +18,45 @@ final class ShellTests: XCTestCase {
         await fulfillment(of: [ready], timeout: 20)
         withExtendedLifetime(subscription) {}
     }
+    func testShareCacheRejectsPathNamesBeforeRemovingCurrentExport() throws {
+        let token = UUID().uuidString
+        let safe = try ExportDestination.cacheFile(name: "phase11-\(token).png", bytes: Data([1, 2, 3]))
+        let outside = safe.deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("phase11-escape-\(token).png")
+        defer { try? FileManager.default.removeItem(at: safe); try? FileManager.default.removeItem(at: outside) }
+        let invalid = ["../phase11-escape-\(token).png", "", ".", "..", "/absolute.png", "..\\escape.png", "bad\0.png", "bad\n.png", String(repeating: "a", count: 256)]
+        for name in invalid {
+            XCTAssertThrowsError(try ExportDestination.cacheFile(name: name, bytes: Data([9])))
+            XCTAssertTrue(FileManager.default.fileExists(atPath: safe.path), "invalid name must not remove current export")
+            XCTAssertFalse(FileManager.default.fileExists(atPath: outside.path), "cache name must not escape its directory")
+        }
+    }
+    @MainActor func testFailedImportsRemoveOnlyUnpublishedRootsAndKeepManualHistory() async throws {
+        let fixture = try XCTUnwrap(Bundle(for: ShellTests.self).url(forResource: "fixtures", withExtension: "json"))
+        let entries = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: fixture)) as? [String: [String: Any]])
+        let input = FileManager.default.temporaryDirectory.appendingPathComponent("phase11-\(UUID()).png")
+        let invalid = FileManager.default.temporaryDirectory.appendingPathComponent("phase11-invalid-\(UUID()).png")
+        try Data(try XCTUnwrap(entries["png"]?["bytes"] as? [UInt8])).write(to: input)
+        try Data([0, 1, 2, 3]).write(to: invalid)
+        defer { try? FileManager.default.removeItem(at: input); try? FileManager.default.removeItem(at: invalid) }
+        let capability = AppleCapabilityOwner(signals: AppTestAppleSignals()); defer { capability.close() }
+        let model = ManualEditorModel(capabilities: capability)
+        model.importImage(input); await waitFor(model.$core) { $0?.revisionCount == 1 }
+        model.select(4); await waitFor(model.$core) { $0?.active == true }
+        model.update([100]); model.action(1); await waitFor(model.$core) { $0?.revisionCount == 2 }
+        let revision = try XCTUnwrap(model.core?.revisionID)
+        let support = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+        let projects = support.appendingPathComponent("manual-projects", isDirectory: true)
+        let before = Set(try FileManager.default.contentsOfDirectory(atPath: projects.path))
+        for _ in 0..<3 {
+            model.importImage(invalid); await waitFor(model.$error) { $0 != nil }
+            XCTAssertEqual(Set(try FileManager.default.contentsOfDirectory(atPath: projects.path)), before)
+            XCTAssertEqual(model.core?.revisionID, revision); XCTAssertEqual(model.core?.revisionCount, 2)
+            XCTAssertEqual(try Data(contentsOf: invalid), Data([0, 1, 2, 3]))
+        }
+        model.select(4); await waitFor(model.$core) { $0?.active == true }
+        model.update([200]); model.action(1); await waitFor(model.$core) { $0?.revisionCount == 3 }
+        model.close(); await waitFor(model.$core) { $0 == nil }
+    }
     @MainActor func testExportFileAndShareDoNotMutateHistory() async throws {
         let file = try XCTUnwrap(Bundle(for: ShellTests.self).url(forResource: "fixtures", withExtension: "json"))
         let fixtures = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [String: [String: Any]])

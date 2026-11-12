@@ -160,8 +160,16 @@ private final class EditorWorker {
         var directory = try projectRoot().appendingPathComponent(name, isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false,
             attributes: [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication])
-        var policy = URLResourceValues(); policy.isExcludedFromBackup = true; try directory.setResourceValues(policy)
-        let replacement = try ManualEditor(root: directory, importing: input, capability: initialCapability())
+        let replacement: ManualEditor
+        do {
+            var policy = URLResourceValues(); policy.isExcludedFromBackup = true; try directory.setResourceValues(policy)
+            replacement = try ManualEditor(root: directory, importing: input, capability: initialCapability())
+        } catch {
+            // This fresh root has not been published or selected. Never remove
+            // the current owner, a retained revision, or the picker source.
+            try? FileManager.default.removeItem(at: directory)
+            throw error
+        }
         clearPending(); owner?.close(); owner = replacement
         UserDefaults.standard.set(name, forKey: "manual-project"); try preview()
     }
@@ -970,6 +978,11 @@ enum ExportDestination {
         }
     }
     static func cacheFile(name: String, bytes: Data) throws -> URL {
+        guard !name.isEmpty, name.utf8.count <= 255, name != ".", name != "..",
+              !name.contains("/"), !name.contains("\\"),
+              !name.unicodeScalars.contains(where: { $0.value < 32 || $0.value == 127 }) else {
+            throw CocoaError(.fileWriteInvalidFileName)
+        }
         let folder = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("export", isDirectory: true)
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         if let existing = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil) {

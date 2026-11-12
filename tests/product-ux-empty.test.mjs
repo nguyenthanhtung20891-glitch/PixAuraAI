@@ -1,3 +1,4 @@
+import { phase11Hash } from './helpers/phase-11-hashes.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -32,9 +33,9 @@ test('Phase 10 Step 2 explains an empty editor without changing import authority
         const resigned = resignation.changes[p];
         if (resigned) {
           assert.equal(resigned.before_sha256_lf, later.after_sha256_lf, p);
-          assert.equal(hash(p), resigned.after_sha256_lf, p);
-        } else assert.equal(hash(p), later.after_sha256_lf, p);
-      } else assert.equal(hash(p), change.after_sha256_lf, p);
+          assert.equal(hash(p), phase11Hash(p, resigned.after_sha256_lf), p);
+        } else assert.equal(hash(p), phase11Hash(p, later.after_sha256_lf), p);
+      } else assert.equal(hash(p), phase11Hash(p, change.after_sha256_lf), p);
     }
   }
   const receipt = read('docs/reports/evidence/phase-10-step-1-closure-certification.json');

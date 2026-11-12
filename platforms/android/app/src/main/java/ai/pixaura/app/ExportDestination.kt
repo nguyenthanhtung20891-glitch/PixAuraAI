@@ -60,11 +60,18 @@ internal object ExportDestination {
     }
 
     fun cacheUri(context: Context, name: String, bytes: ByteArray): Uri {
+        require(name.isNotEmpty() && name.toByteArray(Charsets.UTF_8).size <= 255 && name != "." && name != ".." &&
+            name.none { it == '/' || it == '\\' || it < ' ' || it == '\u007f' }) { "invalid export name" }
         val dir = File(context.cacheDir, "export").apply { mkdirs() }
         dir.listFiles()?.forEach { child -> child.delete() }
         val file = File(dir, name)
-        file.writeBytes(bytes)
-        return FileProvider.getUriForFile(context, context.packageName + ".export", file)
+        try {
+            file.writeBytes(bytes)
+            return FileProvider.getUriForFile(context, context.packageName + ".export", file)
+        } catch (failure: Throwable) {
+            file.delete()
+            throw failure
+        }
     }
 
     fun shareIntent(uri: Uri, mime: String): Intent = Intent(Intent.ACTION_SEND).apply {

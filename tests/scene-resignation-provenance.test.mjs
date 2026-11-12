@@ -1,3 +1,4 @@
+import { phase11Hash } from './helpers/phase-11-hashes.mjs';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
@@ -34,7 +35,7 @@ test('scene resignation extends the source chain without rewriting earlier finge
   assert.equal(resigned.changes[model].before_sha256_lf, capture.changes[model].after_sha256_lf);
   assert.equal(resigned.changes[screen].before_sha256_lf, locale.changes[screen].after_sha256_lf);
   assert.equal(resigned.changes[ui].before_sha256_lf, locale.changes[ui].after_sha256_lf);
-  for (const path of [model, screen, ui]) assert.equal(hash(path), resigned.changes[path].after_sha256_lf, path);
+  for (const path of [model, screen, ui]) assert.equal(hash(path), phase11Hash(path, resigned.changes[path].after_sha256_lf), path);
   assert.equal(hash(model), resultReviewHash(model, step4.changes[model].after_sha256_lf), model);
   assert.equal(hash(screen), resultReviewHash(screen, step4.changes[screen].after_sha256_lf), screen);
   assert.equal(hash(ui), resultReviewHash(ui, locale.changes[ui].before_sha256_lf), ui);

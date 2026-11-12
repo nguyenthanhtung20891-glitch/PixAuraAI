@@ -22,8 +22,8 @@ internal fun AssistPanel(model: ManualEditorModel, ui: EditorUiState, assist: As
     val selectedTool = selected?.let { choice -> ui.tools.firstOrNull { it.index == choice.toolIndex } }
     Card(Modifier.fillMaxWidth().testTag("assist-panel")) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("AI Assist", style = MaterialTheme.typography.titleMedium)
-            Text("Choose a precise adjustment. Local reference guidance does not analyze your image or apply edits.", style = MaterialTheme.typography.bodySmall)
+            Text(presented("AI Assist"), style = MaterialTheme.typography.titleMedium)
+            Text(presented("Choose a precise adjustment. Local reference guidance does not analyze your image or apply edits."), style = MaterialTheme.typography.bodySmall)
             Box {
                 OutlinedButton(onClick = { choosing = true }, enabled = !assist.inFlight && assist.choices.isNotEmpty(),
                     modifier = Modifier.testTag("assist-goal")) { Text(selectedTool?.name ?: "Choose adjustment") }
@@ -36,30 +36,30 @@ internal fun AssistPanel(model: ManualEditorModel, ui: EditorUiState, assist: As
                 }
             }
             if (selectedTool != null) Text("Request: ${selectedTool.name} — ${adviceSetting(selectedTool, selected.values)}", Modifier.testTag("assist-choice-value"))
-            if (ui.core?.active == true) Text("Finish or cancel your current manual adjustment before requesting advice.", style = MaterialTheme.typography.bodySmall)
+            if (ui.core?.active == true) Text(presented("Finish or cancel your current manual adjustment before requesting advice."), style = MaterialTheme.typography.bodySmall)
             Button(onClick = model::requestAdvice, enabled = ui.core != null && !ui.core.active && !ui.busy && !assist.inFlight && selectedTool != null,
-                modifier = Modifier.testTag("assist-request")) { Text("Request advice") }
+                modifier = Modifier.testTag("assist-request")) { Text(presented("Request advice")) }
             if (assist.status == AssistStatus.REQUESTING) {
                 LinearProgressIndicator(Modifier.fillMaxWidth())
-                Text("Getting advice…", Modifier.testTag("assist-loading").semantics { liveRegion = LiveRegionMode.Polite })
-                OutlinedButton(onClick = model::cancelAdvice, modifier = Modifier.testTag("assist-cancel")) { Text("Cancel advice") }
+                Text(presented("Getting advice…"), Modifier.testTag("assist-loading").semantics { liveRegion = LiveRegionMode.Polite })
+                OutlinedButton(onClick = model::cancelAdvice, modifier = Modifier.testTag("assist-cancel")) { Text(presented("Cancel advice")) }
             }
             assist.advice?.let { advice ->
                 ui.tools.firstOrNull { it.index == advice.choice.toolIndex }?.let { tool ->
                     Column(Modifier.testTag("assist-recommendation").semantics { contentDescription = "AI Assist recommendation" }, verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text(tool.name, style = MaterialTheme.typography.titleSmall)
                         Text(adviceSetting(tool, advice.choice.values))
-                        Text("Open the manual tool and choose your value. Nothing has been applied.", style = MaterialTheme.typography.bodySmall)
+                        Text(presented("Open the manual tool and choose your value. Nothing has been applied."), style = MaterialTheme.typography.bodySmall)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Button(onClick = model::useSuggestion, enabled = !ui.busy, modifier = Modifier.testTag("assist-use")) { Text("Use suggestion") }
-                            OutlinedButton(onClick = model::dismissAdvice, modifier = Modifier.testTag("assist-dismiss")) { Text("Dismiss") }
+                            Button(onClick = model::useSuggestion, enabled = !ui.busy, modifier = Modifier.testTag("assist-use")) { Text(presented("Use suggestion")) }
+                            OutlinedButton(onClick = model::dismissAdvice, modifier = Modifier.testTag("assist-dismiss")) { Text(presented("Dismiss")) }
                         }
                     }
                 }
             }
-            if (assist.status == AssistStatus.CANCELLED) Text("Advice cancelled. You can keep editing manually.", Modifier.testTag("assist-cancelled"))
-            if (assist.status == AssistStatus.STALE) Text("Advice expired after an editing change. Request new guidance when ready.", Modifier.testTag("assist-stale"))
-            if (assist.status == AssistStatus.REJECTED) Text("Advice dismissed. Your image is unchanged.", Modifier.testTag("assist-dismissed"))
+            if (assist.status == AssistStatus.CANCELLED) Text(presented("Advice cancelled. You can keep editing manually."), Modifier.testTag("assist-cancelled"))
+            if (assist.status == AssistStatus.STALE) Text(presented("Advice expired after an editing change. Request new guidance when ready."), Modifier.testTag("assist-stale"))
+            if (assist.status == AssistStatus.REJECTED) Text(presented("Advice dismissed. Your image is unchanged."), Modifier.testTag("assist-dismissed"))
             assist.error?.let { Text(it, Modifier.testTag("assist-error").semantics { liveRegion = LiveRegionMode.Assertive }) }
         }
     }

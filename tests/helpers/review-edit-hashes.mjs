@@ -1,3 +1,4 @@
+import {phase11Hash} from './phase-11-hashes.mjs';
 import fs from 'node:fs';import assert from 'node:assert/strict';
 const manifest=JSON.parse(fs.readFileSync('docs/reports/phase-8-step-4-v1.json','utf8'));
 const resultManifest=JSON.parse(fs.readFileSync('docs/reports/phase-8-step-5-v1.json','utf8'));
@@ -35,7 +36,7 @@ export function resultReviewHash(path, expected){
  const pinnedHash=pinned?.after_sha256_lf??captured;
  const resigned=JSON.parse(fs.readFileSync('docs/reports/phase-10.1-scene-resignation-v1.json','utf8'));
  const dropped=resigned.changes[path];if(dropped)assert.equal(dropped.before_sha256_lf,pinnedHash,path+' scene resignation predecessor');
- return dropped?.after_sha256_lf??pinnedHash;
+ return phase11Hash(path,dropped?.after_sha256_lf??pinnedHash);
 }
 export function withoutReviewEditIntegration(source){
  return source.replace('#include "review_edit_state.hpp"\n','').replace('    ReviewEditState review_edit;\n','')

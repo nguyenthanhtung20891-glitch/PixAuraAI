@@ -1,0 +1,721 @@
+{
+  "date": "2026-11-12T06:17:08.225248+00:00",
+  "query_count": 289,
+  "flagged": [
+    {
+      "package": {
+        "version": "32.0.1-jre",
+        "package": {
+          "name": "com.google.guava:guava",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-xxph-c9ww-hj94",
+            "modified": "2026-10-27T14:45:04.803511Z"
+          }
+        ]
+      },
+      "configurations": [
+        "_internal-unified-test-platform-android-driver-instrumentation",
+        "_internal-unified-test-platform-android-test-plugin",
+        "_internal-unified-test-platform-core",
+        "_internal-unified-test-platform-launcher"
+      ]
+    },
+    {
+      "package": {
+        "version": "33.3.1-jre",
+        "package": {
+          "name": "com.google.guava:guava",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-xxph-c9ww-hj94",
+            "modified": "2026-10-27T14:45:04.803511Z"
+          }
+        ]
+      },
+      "configurations": [
+        "_internal-unified-test-platform-android-device-provider-ddmlib",
+        "_internal-unified-test-platform-android-test-plugin-host-additional-test-output",
+        "_internal-unified-test-platform-android-test-plugin-host-apk-installer",
+        "_internal-unified-test-platform-android-test-plugin-host-coverage",
+        "_internal-unified-test-platform-android-test-plugin-host-device-info",
+        "_internal-unified-test-platform-android-test-plugin-host-emulator-control",
+        "_internal-unified-test-platform-android-test-plugin-host-logcat",
+        "_internal-unified-test-platform-android-test-plugin-result-listener-gradle"
+      ]
+    },
+    {
+      "package": {
+        "version": "3.24.4",
+        "package": {
+          "name": "com.google.protobuf:protobuf-java",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-735f-pc8j-v9w8",
+            "modified": "2026-09-10T03:50:19.212518Z"
+          }
+        ]
+      },
+      "configurations": [
+        "_internal-unified-test-platform-android-driver-instrumentation",
+        "_internal-unified-test-platform-android-test-plugin",
+        "_internal-unified-test-platform-core",
+        "_internal-unified-test-platform-launcher"
+      ]
+    },
+    {
+      "package": {
+        "version": "3.24.4",
+        "package": {
+          "name": "com.google.protobuf:protobuf-kotlin",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-735f-pc8j-v9w8",
+            "modified": "2026-09-10T03:50:19.212518Z"
+          }
+        ]
+      },
+      "configurations": [
+        "_internal-unified-test-platform-android-device-provider-ddmlib",
+        "_internal-unified-test-platform-android-driver-instrumentation",
+        "_internal-unified-test-platform-android-test-plugin",
+        "_internal-unified-test-platform-android-test-plugin-host-additional-test-output",
+        "_internal-unified-test-platform-android-test-plugin-host-apk-installer",
+        "_internal-unified-test-platform-android-test-plugin-host-coverage",
+        "_internal-unified-test-platform-android-test-plugin-host-device-info",
+        "_internal-unified-test-platform-android-test-plugin-host-emulator-control",
+        "_internal-unified-test-platform-android-test-plugin-host-logcat",
+        "_internal-unified-test-platform-android-test-plugin-result-listener-gradle",
+        "_internal-unified-test-platform-core",
+        "_internal-unified-test-platform-launcher"
+      ]
+    },
+    {
+      "package": {
+        "version": "4.1.110.Final",
+        "package": {
+          "name": "io.netty:netty-codec-http2",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-563q-j3cm-6jxm",
+            "modified": "2026-09-10T03:50:48.396944Z"
+          },
+          {
+            "id": "GHSA-5x3r-wrvg-rp6q",
+            "modified": "2026-09-10T03:50:48.488084Z"
+          },
+          {
+            "id": "GHSA-93wv-jw9v-4972",
+            "modified": "2026-09-10T03:51:11.318239Z"
+          },
+          {
+            "id": "GHSA-c2gf-v879-257j",
+            "modified": "2026-10-06T19:45:03.555042Z"
+          },
+          {
+            "id": "GHSA-c69g-56f8-xwqj",
+            "modified": "2026-09-10T03:51:11.564389Z"
+          },
+          {
+            "id": "GHSA-f6hv-jmp6-3vwv",
+            "modified": "2026-09-10T03:51:05.447415Z"
+          },
+          {
+            "id": "GHSA-prj3-ccx8-p6x4",
+            "modified": "2026-09-10T03:50:27.396257Z"
+          },
+          {
+            "id": "GHSA-w9fj-cfpg-grvv",
+            "modified": "2026-09-10T03:50:41.535305Z"
+          }
+        ]
+      },
+      "configurations": [
+        "_internal-unified-test-platform-android-test-plugin-host-emulator-control",
+        "_internal-unified-test-platform-android-test-plugin-result-listener-gradle"
+      ]
+    },
+    {
+      "package": {
+        "version": "4.1.93.Final",
+        "package": {
+          "name": "io.netty:netty-codec-http2",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-563q-j3cm-6jxm",
+            "modified": "2026-09-10T03:50:48.396944Z"
+          },
+          {
+            "id": "GHSA-5x3r-wrvg-rp6q",
+            "modified": "2026-09-10T03:50:48.488084Z"
+          },
+          {
+            "id": "GHSA-93wv-jw9v-4972",
+            "modified": "2026-09-10T03:51:11.318239Z"
+          },
+          {
+            "id": "GHSA-c2gf-v879-257j",
+            "modified": "2026-10-06T19:45:03.555042Z"
+          },
+          {
+            "id": "GHSA-c69g-56f8-xwqj",
+            "modified": "2026-09-10T03:51:11.564389Z"
+          },
+          {
+            "id": "GHSA-f6hv-jmp6-3vwv",
+            "modified": "2026-09-10T03:51:05.447415Z"
+          },
+          {
+            "id": "GHSA-prj3-ccx8-p6x4",
+            "modified": "2026-09-10T03:50:27.396257Z"
+          },
+          {
+            "id": "GHSA-w9fj-cfpg-grvv",
+            "modified": "2026-09-10T03:50:41.535305Z"
+          },
+          {
+            "id": "GHSA-xpw8-rcwv-8f8p",
+            "modified": "2026-09-10T03:49:58.760787Z"
+          }
+        ]
+      },
+      "configurations": [
+        "_internal-unified-test-platform-core"
+      ]
+    },
+    {
+      "package": {
+        "version": "4.1.110.Final",
+        "package": {
+          "name": "io.netty:netty-codec-http",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-38f8-5428-x5cv",
+            "modified": "2026-09-10T03:51:04.415985Z"
+          },
+          {
+            "id": "GHSA-4mp9-239f-g9hg",
+            "modified": "2026-09-10T03:51:10.413004Z"
+          },
+          {
+            "id": "GHSA-57rv-r2g8-2cj3",
+            "modified": "2026-09-10T03:51:04.645242Z"
+          },
+          {
+            "id": "GHSA-6cqp-g7gg-8hr5",
+            "modified": "2026-09-10T03:51:10.615779Z"
+          },
+          {
+            "id": "GHSA-6jqx-86gh-f27w",
+            "modified": "2026-09-10T03:51:10.812069Z"
+          },
+          {
+            "id": "GHSA-84h7-rjj3-6jx4",
+            "modified": "2026-09-10T03:50:31.724062Z"
+          },
+          {
+            "id": "GHSA-8c42-7qj2-3j46",
+            "modified": "2026-09-10T03:51:13.389261Z"
+          },
+          {
+            "id": "GHSA-f6hv-jmp6-3vwv",
+            "modified": "2026-09-10T03:51:05.447415Z"
+          },
+          {
+            "id": "GHSA-fghv-69vj-qj49",
+            "modified": "2026-09-10T03:50:28.333050Z"
+          },
+          {
+            "id": "GHSA-gcjf-9mgh-3p7g",
+            "modified": "2026-09-10T03:50:52.172506Z"
+          },
+          {
+            "id": "GHSA-hvcg-qmg6-jm4c",
+            "modified": "2026-09-10T03:50:50.025404Z"
+          },
+          {
+            "id": "GHSA-jppx-w49h-x2qq",
+            "modified": "2026-09-10T03:50:12.368445Z"
+          },
+          {
+            "id": "GHSA-m4cv-j2px-7723",
+            "modified": "2026-09-10T03:51:06.379210Z"
+          },
+          {
+            "id": "GHSA-mvh2-crg5-v77c",
+            "modified": "2026-09-10T03:50:52.830435Z"
+          },
+          {
+            "id": "GHSA-pwqr-wmgm-9rr8",
+            "modified": "2026-09-10T03:50:40.493461Z"
+          },
+          {
+            "id": "GHSA-q4f6-jm68-57ww",
+            "modified": "2026-09-10T03:50:52.883743Z"
+          },
+          {
+            "id": "GHSA-v8h7-rr48-vmmv",
+            "modified": "2026-09-10T03:50:47.637727Z"
+          },
+          {
+            "id": "GHSA-xxqh-mfjm-7mv9",
+            "modified": "2026-09-10T03:51:07.381332Z"
+          }
+        ]
+      },
+      "configurations": [
+        "_internal-unified-test-platform-android-test-plugin-host-emulator-control",
+        "_internal-unified-test-platform-android-test-plugin-result-listener-gradle"
+      ]
+    },
+    {
+      "package": {
+        "version": "4.1.93.Final",
+        "package": {
+          "name": "io.netty:netty-codec-http",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-38f8-5428-x5cv",
+            "modified": "2026-09-10T03:51:04.415985Z"
+          },
+          {
+            "id": "GHSA-4mp9-239f-g9hg",
+            "modified": "2026-09-10T03:51:10.413004Z"
+          },
+          {
+            "id": "GHSA-57rv-r2g8-2cj3",
+            "modified": "2026-09-10T03:51:04.645242Z"
+          },
+          {
+            "id": "GHSA-5jpm-x58v-624v",
+            "modified": "2026-09-10T03:50:10.174704Z"
+          },
+          {
+            "id": "GHSA-6cqp-g7gg-8hr5",
+            "modified": "2026-09-10T03:51:10.615779Z"
+          },
+          {
+            "id": "GHSA-6jqx-86gh-f27w",
+            "modified": "2026-09-10T03:51:10.812069Z"
+          },
+          {
+            "id": "GHSA-84h7-rjj3-6jx4",
+            "modified": "2026-09-10T03:50:31.724062Z"
+          },
+          {
+            "id": "GHSA-8c42-7qj2-3j46",
+            "modified": "2026-09-10T03:51:13.389261Z"
+          },
+          {
+            "id": "GHSA-f6hv-jmp6-3vwv",
+            "modified": "2026-09-10T03:51:05.447415Z"
+          },
+          {
+            "id": "GHSA-fghv-69vj-qj49",
+            "modified": "2026-09-10T03:50:28.333050Z"
+          },
+          {
+            "id": "GHSA-gcjf-9mgh-3p7g",
+            "modified": "2026-09-10T03:50:52.172506Z"
+          },
+          {
+            "id": "GHSA-hvcg-qmg6-jm4c",
+            "modified": "2026-09-10T03:50:50.025404Z"
+          },
+          {
+            "id": "GHSA-jppx-w49h-x2qq",
+            "modified": "2026-09-10T03:50:12.368445Z"
+          },
+          {
+            "id": "GHSA-m4cv-j2px-7723",
+            "modified": "2026-09-10T03:51:06.379210Z"
+          },
+          {
+            "id": "GHSA-mvh2-crg5-v77c",
+            "modified": "2026-09-10T03:50:52.830435Z"
+          },
+          {
+            "id": "GHSA-pwqr-wmgm-9rr8",
+            "modified": "2026-09-10T03:50:40.493461Z"
+          },
+          {
+            "id": "GHSA-q4f6-jm68-57ww",
+            "modified": "2026-09-10T03:50:52.883743Z"
+          },
+          {
+            "id": "GHSA-v8h7-rr48-vmmv",
+            "modified": "2026-09-10T03:50:47.637727Z"
+          },
+          {
+            "id": "GHSA-xxqh-mfjm-7mv9",
+            "modified": "2026-09-10T03:51:07.381332Z"
+          }
+        ]
+      },
+      "configurations": [
+        "_internal-unified-test-platform-core"
+      ]
+    },
+    {
+      "package": {
+        "version": "4.1.110.Final",
+        "package": {
+          "name": "io.netty:netty-codec",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-3p8m-j85q-pgmj",
+            "modified": "2026-09-10T03:50:27.942019Z"
+          },
+          {
+            "id": "GHSA-558v-64gr-wgg4",
+            "modified": "2026-09-10T03:50:12.358146Z"
+          },
+          {
+            "id": "GHSA-mj4r-2hfc-f8p6",
+            "modified": "2026-09-10T03:51:06.526589Z"
+          }
+        ]
+      },
+      "configurations": [
+        "_internal-unified-test-platform-android-test-plugin-host-emulator-control",
+        "_internal-unified-test-platform-android-test-plugin-result-listener-gradle"
+      ]
+    },
+    {
+      "package": {
+        "version": "4.1.93.Final",
+        "package": {
+          "name": "io.netty:netty-codec",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-3p8m-j85q-pgmj",
+            "modified": "2026-09-10T03:50:27.942019Z"
+          },
+          {
+            "id": "GHSA-558v-64gr-wgg4",
+            "modified": "2026-09-10T03:50:12.358146Z"
+          },
+          {
+            "id": "GHSA-mj4r-2hfc-f8p6",
+            "modified": "2026-09-10T03:51:06.526589Z"
+          }
+        ]
+      },
+      "configurations": [
+        "_internal-unified-test-platform-core"
+      ]
+    },
+    {
+      "package": {
+        "version": "4.1.110.Final",
+        "package": {
+          "name": "io.netty:netty-common",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-389x-839f-4rhx",
+            "modified": "2026-09-10T03:50:22.454183Z"
+          },
+          {
+            "id": "GHSA-xq3w-v528-46rv",
+            "modified": "2026-09-10T03:50:56.073045Z"
+          }
+        ]
+      },
+      "configurations": [
+        "_internal-unified-test-platform-android-test-plugin-host-emulator-control",
+        "_internal-unified-test-platform-android-test-plugin-result-listener-gradle"
+      ]
+    },
+    {
+      "package": {
+        "version": "4.1.93.Final",
+        "package": {
+          "name": "io.netty:netty-common",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-389x-839f-4rhx",
+            "modified": "2026-09-10T03:50:22.454183Z"
+          },
+          {
+            "id": "GHSA-xq3w-v528-46rv",
+            "modified": "2026-09-10T03:50:56.073045Z"
+          }
+        ]
+      },
+      "configurations": [
+        "_internal-unified-test-platform-core"
+      ]
+    },
+    {
+      "package": {
+        "version": "4.1.110.Final",
+        "package": {
+          "name": "io.netty:netty-handler-proxy",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-45q3-82m4-75jr",
+            "modified": "2026-09-10T03:51:04.662453Z"
+          }
+        ]
+      },
+      "configurations": [
+        "_internal-unified-test-platform-android-test-plugin-host-emulator-control",
+        "_internal-unified-test-platform-android-test-plugin-result-listener-gradle"
+      ]
+    },
+    {
+      "package": {
+        "version": "4.1.93.Final",
+        "package": {
+          "name": "io.netty:netty-handler-proxy",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-45q3-82m4-75jr",
+            "modified": "2026-09-10T03:51:04.662453Z"
+          }
+        ]
+      },
+      "configurations": [
+        "_internal-unified-test-platform-core"
+      ]
+    },
+    {
+      "package": {
+        "version": "4.1.110.Final",
+        "package": {
+          "name": "io.netty:netty-handler",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-3qp7-7mw8-wx86",
+            "modified": "2026-09-10T03:50:55.436123Z"
+          },
+          {
+            "id": "GHSA-4g8c-wm8x-jfhw",
+            "modified": "2026-09-10T03:50:22.400091Z"
+          },
+          {
+            "id": "GHSA-c4c3-7fpv-j4q5",
+            "modified": "2026-09-08T18:27:48.571082Z"
+          },
+          {
+            "id": "GHSA-c653-97m9-rcg9",
+            "modified": "2026-09-10T03:51:08.552933Z"
+          },
+          {
+            "id": "GHSA-fccg-mwvh-qqg4",
+            "modified": "2026-09-08T18:27:48.113951Z"
+          },
+          {
+            "id": "GHSA-x4gw-5cx5-pgmh",
+            "modified": "2026-09-10T03:50:12.401611Z"
+          }
+        ]
+      },
+      "configurations": [
+        "_internal-unified-test-platform-android-test-plugin-host-emulator-control",
+        "_internal-unified-test-platform-android-test-plugin-result-listener-gradle"
+      ]
+    },
+    {
+      "package": {
+        "version": "4.1.93.Final",
+        "package": {
+          "name": "io.netty:netty-handler",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-3qp7-7mw8-wx86",
+            "modified": "2026-09-10T03:50:55.436123Z"
+          },
+          {
+            "id": "GHSA-4g8c-wm8x-jfhw",
+            "modified": "2026-09-10T03:50:22.400091Z"
+          },
+          {
+            "id": "GHSA-6mjq-h674-j845",
+            "modified": "2026-09-10T03:50:02.086375Z"
+          },
+          {
+            "id": "GHSA-c4c3-7fpv-j4q5",
+            "modified": "2026-09-08T18:27:48.571082Z"
+          },
+          {
+            "id": "GHSA-c653-97m9-rcg9",
+            "modified": "2026-09-10T03:51:08.552933Z"
+          },
+          {
+            "id": "GHSA-fccg-mwvh-qqg4",
+            "modified": "2026-09-08T18:27:48.113951Z"
+          },
+          {
+            "id": "GHSA-x4gw-5cx5-pgmh",
+            "modified": "2026-09-10T03:50:12.401611Z"
+          }
+        ]
+      },
+      "configurations": [
+        "_internal-unified-test-platform-core"
+      ]
+    },
+    {
+      "package": {
+        "version": "1.41.0",
+        "package": {
+          "name": "io.opentelemetry:opentelemetry-api",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-ccrj-gw8r-854m",
+            "modified": "2026-10-28T21:15:04.329194Z"
+          },
+          {
+            "id": "GHSA-rcgg-9c38-7xpx",
+            "modified": "2026-06-09T02:15:07.364273Z"
+          }
+        ]
+      },
+      "configurations": [
+        "swiftExportClasspathResolvable"
+      ]
+    },
+    {
+      "package": {
+        "version": "1.80",
+        "package": {
+          "name": "org.bouncycastle:bcpg-jdk18on",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-cj8j-37rh-8475",
+            "modified": "2026-09-10T03:50:44.136521Z"
+          }
+        ]
+      },
+      "configurations": [
+        "kotlinBouncyCastleConfiguration"
+      ]
+    },
+    {
+      "package": {
+        "version": "1.80",
+        "package": {
+          "name": "org.bouncycastle:bcpkix-jdk18on",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-wg6q-6289-32hp",
+            "modified": "2026-09-10T03:50:45.075900Z"
+          }
+        ]
+      },
+      "configurations": [
+        "kotlinBouncyCastleConfiguration"
+      ]
+    },
+    {
+      "package": {
+        "version": "1.80.2",
+        "package": {
+          "name": "org.bouncycastle:bcprov-jdk18on",
+          "ecosystem": "Maven"
+        }
+      },
+      "advisories": {
+        "vulns": [
+          {
+            "id": "GHSA-9pwp-9qqc-pr26",
+            "modified": "2026-09-18T17:45:06.105254Z"
+          },
+          {
+            "id": "GHSA-qp49-qgx5-5m26",
+            "modified": "2026-09-18T17:45:06.096277Z"
+          }
+        ]
+      },
+      "configurations": [
+        "kotlinBouncyCastleConfiguration"
+      ]
+    }
+  ],
+  "release_runtime_coordinates": 107,
+  "release_runtime_flagged": [],
+  "missing_current_queries": [],
+  "notes": [
+    "Query includes all 289 locked Maven coordinates; empty is Gradle lock metadata, not a package.",
+    "20 flagged coordinates are only upstream build/test or Swift-export tooling; 107 release-runtime coordinates returned no OSV findings.",
+    "No dependency, lock, verification checksum or commercial/runtime policy changed.",
+    "This dated database result is not vulnerability-free certification or independent security acceptance."
+  ]
+}

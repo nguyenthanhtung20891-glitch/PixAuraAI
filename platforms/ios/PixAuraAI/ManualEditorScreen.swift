@@ -36,7 +36,7 @@ struct ManualEditorScreen: View {
         model.tools.enumerated().filter { $0.element.category == category }
     }
     private func toolButton(_ index: Int, _ tool: ManualTool) -> some View {
-        Button(tool.name) { formatError = nil; model.select(index) }
+        Button(presented(tool.name)) { formatError = nil; model.select(index) }
             .disabled(model.busy || model.core == nil)
             .accessibilityIdentifier(tool.toolID)
             .tint(model.core?.selected == index ? Color.accentColor : Color.secondary)
@@ -63,7 +63,7 @@ struct ManualEditorScreen: View {
                                 .accessibilityIdentifier("assist-goal-\(tool.toolID)")
                         }
                     }
-                } label: { Text(tool?.name ?? "Choose adjustment") }
+                } label: { Text(presented(tool?.name ?? "Choose adjustment")) }
                     .disabled(state.inFlight || state.choices.isEmpty).accessibilityIdentifier("assist-goal")
                 if let tool, let choice { Text("Request: \(tool.name) — \(adviceSetting(tool, choice.values))").accessibilityIdentifier("assist-choice-value") }
                 if model.core?.active == true { Text("Finish or cancel your current manual adjustment before requesting advice.").font(.caption) }
@@ -77,7 +77,7 @@ struct ManualEditorScreen: View {
                 if let advice = state.advice, model.tools.indices.contains(advice.choice.toolIndex) {
                     let tool = model.tools[advice.choice.toolIndex]
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(tool.name).font(.headline)
+                        Text(presented(tool.name)).font(.headline)
                         Text(adviceSetting(tool, advice.choice.values))
                         Text("Open the manual tool and choose your value. Nothing has been applied.").font(.caption)
                         HStack {
@@ -109,7 +109,7 @@ struct ManualEditorScreen: View {
                                 .accessibilityIdentifier("auto-goal-\(descriptor.toolID)")
                         }
                     }
-                } label: { Text(tool?.name ?? "Choose adjustment") }
+                } label: { Text(presented(tool?.name ?? "Choose adjustment")) }
                     .disabled(state.inFlight || state.choices.isEmpty).accessibilityIdentifier("auto-goal")
                 if let tool, let choice { Text("Request: \(tool.name) — \(adviceSetting(tool, choice.values))").accessibilityIdentifier("auto-choice-value") }
                 if model.core?.active == true { Text("Finish or cancel your manual adjustment before requesting a proposal.") }
@@ -204,7 +204,9 @@ struct ManualEditorScreen: View {
             // The shell scroll moves this selector off the top after a review
             // scroll. The navigation bar keeps it hittable.
             ToolbarItem(placement: .principal) {
-                modeSelector.id(model.autoProposal.enabled || model.assistance.enabled)
+                // Keep toolbar identity stable when returning from review. Replacing
+                // the principal item can leave UIKit with an empty navigation bar.
+                modeSelector
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button(String(localized: "Export")) { showingExport = true }
@@ -240,7 +242,7 @@ struct ManualEditorScreen: View {
         ScrollView(.horizontal) {
             HStack {
                 ForEach(categories, id: \.0) { key, label in
-                    Button(label) { formatError = nil; category = key; if model.core?.active == true { model.action(0) } }
+                    Button(presented(label)) { formatError = nil; category = key; if model.core?.active == true { model.action(0) } }
                         .disabled(model.busy)
                         .tint(category == key ? .accentColor : .secondary)
                         .accessibilityAddTraits(category == key ? .isSelected : [])
@@ -258,7 +260,7 @@ struct ManualEditorScreen: View {
             }
         }
         if let tool = selected, let core = model.core {
-            Text(tool.name).font(.headline)
+            Text(presented(tool.name)).font(.headline)
             if tool.parameters.count > 1 {
                 ForEach(Array(tool.parameters.enumerated()), id: \.offset) { index, parameter in
                     TextField("\(parameter.name) (\(parameter.minimum)…\(parameter.maximum))", text: Binding(
@@ -276,7 +278,7 @@ struct ManualEditorScreen: View {
                 Text("Crop values are millionths of the current extent. Invalid rectangles are rejected.")
             } else {
                 let parameter = tool.parameters[0], value = core.values[0]
-                Text("\(tool.name): \(parameter.displayValue(value))").accessibilityIdentifier("parameter-value")
+                Text("\(presented(tool.name)): \(parameter.displayValue(value))").accessibilityIdentifier("parameter-value")
                 if parameter.unit == "clockwise_quarter_turns" {
                     HStack {
                         ForEach(Array(stride(from: parameter.minimum, through: parameter.maximum, by: parameter.step)), id: \.self) { turn in
@@ -286,7 +288,8 @@ struct ManualEditorScreen: View {
                 } else {
                     Slider(value: Binding(get: { Double(value) }, set: { model.update([parameter.integerPosition($0)]) }),
                         in: Double(parameter.minimum)...Double(parameter.maximum), step: Double(parameter.step))
-                        .disabled(model.busy || core.approvalPending).accessibilityLabel("\(tool.name) value")
+                        .disabled(model.busy || core.approvalPending).accessibilityLabel(Text(String(format: String(localized: "%@ value"), presented(tool.name))))
+                        .accessibilityValue(parameter.displayValue(value))
                         .accessibilityIdentifier("manual-slider")
                 }
             }
@@ -312,8 +315,8 @@ struct ManualEditorScreen: View {
         if model.error?.contains("Stale edit") == true { Button(String(localized: "Reopen committed project")) { model.recover() } }
     }
     private var exportSheet: some View {
-        exportPanel
-            .padding()
+        ScrollView { exportPanel.padding() }
+            .accessibilityIdentifier("export-scroll")
             .fileExporter(isPresented: $savingFile, document: exportDocument, contentType: model.exportFileType, defaultFilename: "PixAuraAI") { result in
                 savingFile = false
                 model.finishFileExport(result)
@@ -332,23 +335,23 @@ struct ManualEditorScreen: View {
             Text(String(localized: "Export")).font(.headline)
             Text("Saves the committed revision. Export does not change history.").font(.caption)
             HStack {
-                Button("JPEG") { exportFormat = 1 }.disabled(blocked).accessibilityIdentifier("JPEG")
+                Button { exportFormat = 1 } label: { Text("JPEG").frame(minWidth: 48, minHeight: 48).contentShape(Rectangle()) }.disabled(blocked).accessibilityIdentifier("JPEG")
                     .tint(exportFormat == 1 ? Color.accentColor : Color.secondary)
-                Button("PNG") { exportFormat = 2 }.disabled(blocked).accessibilityIdentifier("PNG")
+                Button { exportFormat = 2 } label: { Text("PNG").frame(minWidth: 48, minHeight: 48).contentShape(Rectangle()) }.disabled(blocked).accessibilityIdentifier("PNG")
                     .tint(exportFormat == 2 ? Color.accentColor : Color.secondary)
             }
             if exportFormat == 1 {
                 TextField("JPEG quality 1…100", text: $exportQuality)
                     .textFieldStyle(.roundedBorder).disabled(blocked).accessibilityIdentifier("export-quality")
             }
-            Button(String(localized: "Save to Photos")) { model.saveToPhotos(format: exportFormat, quality: Int(exportQuality) ?? -1) }
+            Button { model.saveToPhotos(format: exportFormat, quality: Int(exportQuality) ?? -1) } label: { Text(String(localized: "Save to Photos")).frame(minWidth: 48, minHeight: 48).contentShape(Rectangle()) }
                 .disabled(blocked).accessibilityIdentifier("export-save-photos")
-            Button(String(localized: "Save to a file")) { model.prepareFileExport(format: exportFormat, quality: Int(exportQuality) ?? -1) }
+            Button { model.prepareFileExport(format: exportFormat, quality: Int(exportQuality) ?? -1) } label: { Text(String(localized: "Save to a file")).frame(minWidth: 48, minHeight: 48).contentShape(Rectangle()) }
                 .disabled(blocked).accessibilityIdentifier("export-save-file")
-            Button(String(localized: "Share")) { model.shareExport(format: exportFormat, quality: Int(exportQuality) ?? -1) }
+            Button { model.shareExport(format: exportFormat, quality: Int(exportQuality) ?? -1) } label: { Text(String(localized: "Share")).frame(minWidth: 48, minHeight: 48).contentShape(Rectangle()) }
                 .disabled(blocked).accessibilityIdentifier("export-share")
             if model.exporting && model.exportStatus == "Exporting" {
-                Button(String(localized: "Cancel export")) { model.cancelExport() }.accessibilityIdentifier("export-cancel")
+                Button { model.cancelExport() } label: { Text(String(localized: "Cancel export")).frame(minWidth: 48, minHeight: 48).contentShape(Rectangle()) }.accessibilityIdentifier("export-cancel")
             }
             if let status = model.exportStatus {
                 Text(presented(status)).accessibilityIdentifier("export-status")
@@ -481,7 +484,7 @@ private struct ReviewEditPanel: View {
                 ForEach(Array(review.inspection.actions.enumerated()), id: \.offset) { index, action in
                     ForEach(Array(action.parameters.enumerated()), id: \.offset) { parameterIndex, parameter in
                         ReviewValueControl(model: model, expectedIdentity: review.reviewIdentity, action: index, parameter: parameterIndex,
-                            label: "Requested raw integer for Action \(index + 1) of \(review.inspection.actions.count): \(action.label), \(parameter.name); canonical value \(parameter.raw) \(parameter.unit), allowed \(parameter.minimum) to \(parameter.maximum)", raw: parameter.raw, enabled: enabled,
+                            label: String(format: String(localized: "Requested raw integer for Action %lld of %lld: %@, %@; canonical value %d %@, allowed %d to %d"), Int64(index + 1), Int64(review.inspection.actions.count), action.label, parameter.name, parameter.raw, parameter.unit, parameter.minimum, parameter.maximum), raw: parameter.raw, enabled: enabled,
                             onDraft: { onDraft(review, "\(index)-\(parameterIndex)", $0) })
                     }
                     Button("Remove action \(index + 1): \(action.label)") { model.editReview(2, action: UInt32(index), expectedIdentity: review.reviewIdentity) }.disabled(!enabled).accessibilityIdentifier("review-edit-remove-\(index)")
@@ -519,7 +522,7 @@ private struct ResultReviewPanel: View {
             if result.geometryChanged { Text("Geometry changed. Fitted comparison is not a pixel-aligned split.").accessibilityIdentifier("result-geometry") }
             if let image = result.image {
                 Image(decorative: image, scale: 1).resizable().scaledToFit().frame(maxHeight: 180)
-                    .accessibilityLabel(result.showing == "previous" ? "Previous committed revision" : "Current committed result")
+                    .accessibilityLabel(presented(result.showing == "previous" ? "Previous committed revision" : "Current committed result"))
                     .accessibilityIdentifier("result-viewport")
             }
             HStack {
@@ -532,7 +535,7 @@ private struct ResultReviewPanel: View {
             }
             Button("Back to editing") { model.backToEditing() }.accessibilityIdentifier("result-back")
         }.accessibilityElement(children: .contain)
-            .accessibilityLabel("\(label) Previous \(result.previous.isEmpty ? "none" : result.previous). Current \(result.live). Count \(result.count).")
+            .accessibilityLabel(String(format: String(localized: "%@ Previous %@. Current %@. Count %lld."), label, result.previous.isEmpty ? "none" : result.previous, result.live, Int64(result.count)))
             .accessibilityIdentifier("result-review")
     }
 }

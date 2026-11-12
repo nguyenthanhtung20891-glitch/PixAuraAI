@@ -1,0 +1,266 @@
+{
+  "version": 1,
+  "subject": "phase-11-hardening",
+  "base_commit": "874b6645c75cd227fbb974b891ff41991397acc2",
+  "public_abi_changed": false,
+  "schema_changed": false,
+  "gpu_admission_policy_changed": false,
+  "changes": {
+    ".github/workflows/foundation.yml": {
+      "before_sha256_lf": "3e922b67e0d153ad495a5f1cc896e4c3be6771a95251ae5e4909a3c3ddf4956f",
+      "after_sha256_lf": "05b6ef7573d916e374ceaa74f2bb159fb3d844844cc27884340519756abe60b8"
+    },
+    ".github/workflows/native-shells.yml": {
+      "before_sha256_lf": "435ac03f646821424515c00d00d5c1a307c5001dcbd32da94a8ad8ff4d0ea357",
+      "after_sha256_lf": "c03ff4a3c4672ca2b6f88dd90bbc83c9942149bca14bc22def98b2503cdcb1cd"
+    },
+    "CMakeLists.txt": {
+      "before_sha256_lf": "a7936acedac69709198f91550db2a90afb6ad439701df677c5ee96213c5216d7",
+      "after_sha256_lf": "35bc7bbb1fc944be868eac86ef988d93bd3c153e4ec36d015f4175b3cb1949d2"
+    },
+    "packages/core/tests/gesture_lifecycle_test.cpp": {
+      "before_sha256_lf": "7242b4a02ef51379ade26887a037d1142f5b53e11ab0a20f49667899eac06e22",
+      "after_sha256_lf": "93a58cec9b1c05d3e61dadd31affad0f0abddb14e5bd0895863bf8c3cb3f82f4"
+    },
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/PlanInspectionTest.kt": {
+      "before_sha256_lf": "4d75ce7eaf46c6687bc29617ad76f7a7137cddc72e6ca1397525d86b2cfcf406",
+      "after_sha256_lf": "e68c5ccfb2c57683a53ae59123aab5399496227937c22ba4a1cdfc1ea6aef925"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/AssistPanel.kt": {
+      "before_sha256_lf": "e99c6640d46251cb6611d5baff213fa58cafaf381cb5aa4bc6c70aca10960fb9",
+      "after_sha256_lf": "ec5e472439fb300b6baedc1ebbd9ff3f96ad5db92e1de5a16e66d26f672a11fa"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/AutoProposalPanel.kt": {
+      "before_sha256_lf": "b0cf24a892307cf9edeaa7b3e0c20943c3e2ae0d85a971a2933db444d0ba1c3a",
+      "after_sha256_lf": "cdd31a677daefb6547f8af2d01b2eeda9a40579284b550ec45b466e8e5632acf"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/ExportDestination.kt": {
+      "before_sha256_lf": "d65e5813c77de9205c5cbe0f611bee22bf2f2734c0858d9220decfc9686c1dab",
+      "after_sha256_lf": "ba23405a8a561614be63bb0ed3d6a96991a2614a19e2bbd1887679190d8c1de1"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/MainActivity.kt": {
+      "before_sha256_lf": "1e373c01848320860794bcc2b26e229becd470210d251447343f8a4d94204fee",
+      "after_sha256_lf": "463f2bc550a60329fb1c400249d4d1d159c0053db98ded804a1bf9d4781916fe"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt": {
+      "before_sha256_lf": "c9b9aa4b11393b4f7906b45a96c7043ba21b6dd8b79bab994b52ba5beeaf16b0",
+      "after_sha256_lf": "938f2296ed814d2045a9bf9f87e8720ea0e2b8ee8e1151edfeea9479410d8831"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorScreen.kt": {
+      "before_sha256_lf": "2347c558e6351138ae0a325aa6e10afee4baba01048ee58b7ed6f9466531063b",
+      "after_sha256_lf": "a021c35e237cb0557f26c1caf960a6049cc137a550707ad7eea96ab6a6aa27d7"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/PlanInspectionPanel.kt": {
+      "before_sha256_lf": "2790794dfaae8f28d429384005e428f0ed459cd665eb87ec4fcfd6188323e4b7",
+      "after_sha256_lf": "b3144092b4d99ffb718270c81b7dfbfd0d6b17b68937b2bedb74d99338eb2805"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/Presentation.kt": {
+      "before_sha256_lf": "c24a86e397113e1215b4b71b8231e98071ca0e34d680dd6325e0a336a785ba61",
+      "after_sha256_lf": "f7efd9f7ed104daf2a52dcb3593b752086df29e2993fb43e128e5a6834013363"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/ResultReviewPanel.kt": {
+      "before_sha256_lf": "e3641f25ed264da6dd639459852e8f4a452890ffcd03a53b3d0425cdf4615ded",
+      "after_sha256_lf": "c188ea3abdf67edc86ebfa79dcbb1a5e344ac10aa6d658cce51d702f52b5b4d3"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/ReviewEditPanel.kt": {
+      "before_sha256_lf": "481c8b4e111e3415ec8dcf49a25d84819859dbc49c81d937e279be2bc82968d1",
+      "after_sha256_lf": "f91c4774fc5c494f535d95a5bf686050f35445f3c618001ef9c0cf5b66c60f66"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/ReviewPreviewPanel.kt": {
+      "before_sha256_lf": "2a966278f24d3fdd217bbe6bfbd09a062794ad81f16c00b8b63da44c0e45d568",
+      "after_sha256_lf": "b67b2e89aaab7c09dccb96e41863a96be298e0e1d93f4fd9ac2aacbc8c7cd06e"
+    },
+    "platforms/android/app/src/main/res/values-vi/strings.xml": {
+      "before_sha256_lf": "70ba49eba0df6328529eadde7c1f43f62a034e6350fb2b7ba25bf4aaad2c42e5",
+      "after_sha256_lf": "37fe81c6e02c927c78d1a8ec5822abeffbd09163d9b7046329574f5c97c3fe2b"
+    },
+    "platforms/android/app/src/main/res/values/strings.xml": {
+      "before_sha256_lf": "d1b6e0c590ee2e6d99ff5e3150b58724cb1f2892c3f7677cd7d7bc64b3f6152f",
+      "after_sha256_lf": "9d34b58a4a938ac73ff488231e07e7fce90cde966a6ca864aaac4c6796c22fd2"
+    },
+    "platforms/ios/PixAuraAI/ManualEditorModel.swift": {
+      "before_sha256_lf": "b52a5dd10bc7fc319ddf0b23857e3a8420d1f3c112d02acce990b513e769b7a6",
+      "after_sha256_lf": "c3e3d608430f7b948bcfb44176f1dcfe31f05dc7c5b834710183426ec33d00d9"
+    },
+    "platforms/ios/PixAuraAI/ManualEditorScreen.swift": {
+      "before_sha256_lf": "56ee9ada482537cf3046441e6541e5b13c9c38a78e2cb2167c093cdddbc4e788",
+      "after_sha256_lf": "f33c0f47be0fdfa4f652a9ca2025a1fffd5a67dfd9495f3ed20c4c77ff418917"
+    },
+    "platforms/ios/PixAuraAI/ShellView.swift": {
+      "before_sha256_lf": "a33f3cdec7f85cc9ec81df7f859059503b6e92f27c0a33f13dfb95ce998d2fff",
+      "after_sha256_lf": "a7c7c2680a650fc3fbf08b7f851975aac3fe83532141a67f137b081a121d0b9c"
+    },
+    "platforms/ios/PixAuraAI/en.lproj/Localizable.strings": {
+      "before_sha256_lf": "9064dacd0e95072887dff66c19fde56b50bc442d942a92a891d5872dfa3b5926",
+      "after_sha256_lf": "1555df745f0830f37e775ae0d3a6aeed604ff6e5b5f002cc0482ffebb2f14c31"
+    },
+    "platforms/ios/PixAuraAI/vi.lproj/Localizable.strings": {
+      "before_sha256_lf": "915efd5b5f7b9cbbbfc6e17a16bd69c46afe5ee1342ffdf34ddb1683e5a605bf",
+      "after_sha256_lf": "2221f4d0567a72c0c3fcb0bb9720d5cc2ab9f5de7b31ac659c2f4dc3075cc200"
+    },
+    "platforms/ios/PixAuraAITests/ShellTests.swift": {
+      "before_sha256_lf": "96b1150f2bd555820bd843d69e6e5a9278fc15af4bb776c1334d1dc77309f1c9",
+      "after_sha256_lf": "8485c0f687a6c7b55fe18f519e8cd458f36b376a11c06981baedd795c80cd7ec"
+    },
+    "platforms/ios/PixAuraAIUITests/ShellUITests.swift": {
+      "before_sha256_lf": "49c28e748a99e978aad98e9752fceea9c0b3e34d3ae5f7b3951e8f61e43e9474",
+      "after_sha256_lf": "346711210b4bc49480e484b187cda4d2f3193867272a4bc37eb526c8bca9c207"
+    },
+    "scripts/check-apple.sh": {
+      "before_sha256_lf": "f44b98de1439f42c0762dd54a333624a14117c6abab875846f379d3266a32434",
+      "after_sha256_lf": "9063c25ded2821e32aa5a7e453635725a31e34df0e700778134295b917be832f"
+    },
+    "scripts/verify-sanitizer.cmake": {
+      "before_sha256_lf": "1b04ac5aa786c5a5c7e7f3f5d2c4350988763f08eeffdb9ff0851e5f5c8be878",
+      "after_sha256_lf": "0d42d3f571d67292016f73906e90665bc489d79c5b39b335149f196d9afe7350"
+    },
+    "tests/export-engine.test.mjs": {
+      "before_sha256_lf": "9cebf9a42a4fa64adcc5d9410e082f2d3d094e910b598740b22b11b9cab5f197",
+      "after_sha256_lf": "b9f6f52a843a6b0108b58e14e46f4bdc7be93eea91ad580486d168d3d2630cd4"
+    },
+    "tests/helpers/review-edit-hashes.mjs": {
+      "before_sha256_lf": "ca539cdbc0c52ea44befb4da9df2ae26c8560c72518f34048cadd686c5393aad",
+      "after_sha256_lf": "47ed71170907a8cb0f484a49852d4d337ea344c72e41f5d7619919108a7fd29b"
+    },
+    "tests/phase-10.1-hardware-gate.test.mjs": {
+      "before_sha256_lf": "01fc5e0573b0a8b09fa7a5c168f800532791071862e006fb7fdb5170f10aca4a",
+      "after_sha256_lf": "a71c22e456b97da3c3a5df1c902b8b4ef966fc10f5ca84c862f5a01033d31c3e"
+    },
+    "tests/plan-inspection.test.mjs": {
+      "before_sha256_lf": "0de74223407da396727fe4fe7db2dd6e06fe4f869253f2415b0af74719524092",
+      "after_sha256_lf": "2384f772a00e5bd3f8c3081d97cdd776402b400f0f27445c2ab64333416b9e49"
+    },
+    "tests/product-ux-empty.test.mjs": {
+      "before_sha256_lf": "dc82ced0c34d25461fd0466c9263a7f63215ce3051d5556b3659503adfa56292",
+      "after_sha256_lf": "fb2419c470c6d41a0563cae28c017de97851df8587a2feaf1b0f0246f6ee277f"
+    },
+    "tests/scene-resignation-provenance.test.mjs": {
+      "before_sha256_lf": "70b59ffb06c5ae3b0adbc373c01a9a7f02118d3cbebf983f2913e392f98c1c45",
+      "after_sha256_lf": "a4585f5e9310d5447662a8b2fd98cb07d2f873d5834465493c410c6b489a3c79"
+    },
+    "tests/uitest-locale.test.mjs": {
+      "before_sha256_lf": "7f188c00f8317c9401024159d643ec5623c71148b6b3421ecc86a1fadcabee17",
+      "after_sha256_lf": "bad3ba1b3b0a4fd4bc062c9350f2598f7425d9c8d92346c5c77170776141982a"
+    }
+  },
+  "additions": {
+    "packages/core/tests/phase11_security_test.cpp": "a502b2fbea03b8f079af64dccaa6b4f4eb9928eced3e92785d0d6bc9520af7fe",
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/Phase11AccessibilityTest.kt": "df8331bab6d815decc993b8b20db387e57c81c48c8113582d76e1cec3b4ce4fd",
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/Phase11SecurityTest.kt": "100df460b6d95a221d66cf96d1f7888207e7749563f1438fc1bf69bd0914e94b",
+    "scripts/benchmarks/phase-11-host.cpp": "823e7895ec1e45dc51590f750fcf4c5abb43792257316ad1783335de84967421",
+    "scripts/benchmarks/phase-11-host.py": "0351ec93bcd8fbc1f93cefdbb713071dc7993727eff7f741e2a33376322969a4",
+    "tests/helpers/phase-11-hashes.mjs": "39c55bfdc40177d38560f40b3fe070af4d660417e48c883cbf9aeec1962bbc9b",
+    "tests/phase-11-hardening.test.mjs": "387aa6c9c6e8122960f154d7de26e2567a86b29bd7d97434044ecc59a6833c40"
+  },
+  "historical_records": {
+    "docs/reports/evidence/phase-10-step-1-closure-certification.json": "80080001a335c5c3c479ef5bea3e34da20d4178a4cd20ede42e58f6be7d7913b",
+    "docs/reports/evidence/phase-10-step-1-implementation-certification.json": "3afc8cb666fa5dc671c85209be821421ac63b5fb7923e44e3708d58ed2ef83f0",
+    "docs/reports/evidence/phase-10-step-2-closure-certification.json": "872b0089d637450b06f0e0ca2b680ae67ff90e3a9bef5bfc32da92448380a7ea",
+    "docs/reports/evidence/phase-10-step-2-implementation-certification.json": "c5c0b2236c4c3bb2c869aa06f478447002a4b4df129bf9f373479a68ab7b7924",
+    "docs/reports/evidence/phase-10-step-3-closure-certification.json": "98509dbbae690985f9fc2344aa1499598a37e0159591f6627f1df40b2058d503",
+    "docs/reports/evidence/phase-10-step-3-implementation-certification.json": "de3bd9fe937884735c0cf4a53ea6b998dda668b4cdd3227e40b79332773ab915",
+    "docs/reports/evidence/phase-10-step-4-closure-certification.json": "aa959302cb2df4ad1eef8da1645e9d8913b0bcfa4d407bfa4837f0b8db90c3ef",
+    "docs/reports/evidence/phase-10-step-4-implementation-certification.json": "dfca16ca6a7cb19e20a42dd900a603b89b09dea721ec8bc6fcf3db3a29f660bd",
+    "docs/reports/evidence/phase-10-step-5-closure-certification.json": "8921e1b906da1c443c73d03fc7e5dec5ce25f57aaad9d245dfca5d84e35a4cbb",
+    "docs/reports/evidence/phase-10-step-5-implementation-certification.json": "add011e884c34dbfb50867815a3e96d878dc10131622ef0a511e962cee02d9f0",
+    "docs/reports/evidence/phase-10-step-6-closure-certification.json": "a40c803794006048cde1a21de80c83790d1347160bb108fc836f75cd8894cb95",
+    "docs/reports/evidence/phase-10-step-6-implementation-certification.json": "8d97522fb2c8e38c9732f0bdbd59257b52af57862f2ff64cbe9fbca48919ea82",
+    "docs/reports/evidence/phase-10.1-independent-acceptance.json": "1f13a28262e5aeb0f7607af67fe4d21357ae219800487381b328757a04e2728a",
+    "docs/reports/evidence/phase-10.1-local/android-retained-summary.json": "999859dbb06377bb151092b1b547467d010b5a01fbc3e9f3f0a281d62987f3f7",
+    "docs/reports/evidence/phase-10.1-local/android-retained-unit-summary.json": "b2b122fcbcf80d491c2ebeb1ebaad7ae36759c092dd51a9c621f4e5879a7f9b4",
+    "docs/reports/evidence/phase-10.1-local/baseline-42495980796.json": "e19edd0445159f0b8360410b8338e8add5c4f84b2612b83ab427c972006d394f",
+    "docs/reports/evidence/phase-10.1-local/baseline-42495980827.json": "fb0dfead212c787564b0da692cf41ab22574fb99d16101114a4f147fb398499c",
+    "docs/reports/evidence/phase-10.1-local/core-host-retained-summary.json": "f76211bea07366f67297009047a6a34ea9771093ef93c6aa5ce4af3126087bcb",
+    "docs/reports/evidence/phase-10.1-local/core-sim-retained-summary.json": "8ef64acd589b595ed6a4810e7945b8fc5282f3700189f0843c5adeb1e659baa9",
+    "docs/reports/evidence/phase-10.1-local/documentation-43061304547.json": "371fa06852adf52656e27599dc375b4c8adc9f28025c23714c30bfcdf883a58a",
+    "docs/reports/evidence/phase-10.1-local/documentation-43061304548.json": "4460f363082ff0d81c8ea932869b93bc4ce238027ba48896160c6e33fda1e62d",
+    "docs/reports/evidence/phase-10.1-local/environment.json": "bacd9e9d3e6ff7d953a65d7fe20c5fb4c22cb9d6b40e1a7adca18bab25a8bc63",
+    "docs/reports/evidence/phase-10.1-local/host-measurements.json": "fb4964c095457fd7ee88ee8b980563180f4e8e835c07bc64fc5455e759b8ef08",
+    "docs/reports/evidence/phase-10.1-local/implementation-43053578225.json": "50fe0f9e6429331201b8ca66e557d7ef826fabaa8f77f0af638936ccb669c14c",
+    "docs/reports/evidence/phase-10.1-local/implementation-43053578303.json": "e0407cfa420b3117522c6245af557cd8d2e4a895d68d3c13005bd7fdba15b415",
+    "docs/reports/evidence/phase-10.1-local/ios-retained-summary.json": "26ba51c951b504654f1b8a49751266d3f9db72038d4517208d7f1493d5e40c84",
+    "docs/reports/evidence/phase-10.1-local/product-source-manifest.json": "2b1fa618a5f45e4364a8ab74a7da0545249d05fab0530e247b68bc4e8a7e60b8",
+    "docs/reports/evidence/phase-7-certified-steps.json": "dd01736491d3842d6d7f1bf20e127474ca829c34907743d5494d15619f0e14ae",
+    "docs/reports/evidence/phase-7-step-7-round2-environment.json": "92860cba7e0773a91eab1bf96b7ae989995637ffc13e980dc8dc9e733d782ca5",
+    "docs/reports/evidence/phase-7-step-7-round2-provenance.json": "2d349a77c7bc2fcf301b6ea5e155be12bcc9b5fedf3e6fb2537126507d690122",
+    "docs/reports/evidence/phase-7-step-7-round2-results.json": "34834112c1bd631a04a1fe7fcf2a52856d59f6717a26c7c1bdf69fa66bc97fef",
+    "docs/reports/evidence/phase-7-step-7-round3-analysis.json": "7081450717bf9ce6480fbc92e3ffb47ed3b249d29530fb74b657615667de0a9f",
+    "docs/reports/evidence/phase-7-step-7-round3-development.json": "75cdce8ae498360c2ab5e7fea6ccb92b20b48d1284ad734f74e1711ea68e7185",
+    "docs/reports/evidence/phase-7-step-7-round3-files.json": "97a8b14542eeacbf09261958b273a8f499593cfb840fb66af54418e6d48bb369",
+    "docs/reports/evidence/phase-7-step-7-round3-holdout-start.json": "28db6453b43174f36a6b006e3a27d9549b30fd5eca06751608fd8d5c310d6131",
+    "docs/reports/evidence/phase-7-step-7-round3-holdout.json": "62963e9ac4e51833578156ab394652b5bac77dbec0ca7e83a68860c1592f6353",
+    "docs/reports/evidence/phase-7-step-7-round4-absolute.json": "fca6cb5c90f08801839d5935672b4dda5f03f9da8efeb1bc11bec4f48cdd970e",
+    "docs/reports/evidence/phase-7-step-7-round4-cost.json": "55b3e160a0e067b3c73ab5a2e5f747c19c52cc99a493724e3a217c49240c86cc",
+    "docs/reports/evidence/phase-7-step-7-round4-files.json": "8b0742ba4c4485b138e5d85850c47815c09e2b920ccd64c8943439b806de2d8e",
+    "docs/reports/evidence/phase-7-step-7-round4-start.json": "5da6712ab5208c89b1d6faa95d057b86f3be230f10a8768ba02df99ae47d5d60",
+    "docs/reports/evidence/phase-7-step-7-round5-closure-files.json": "d7a3b553579eb1dbdb41194b5350410a265de827adb0157aa5362cfba1c4f9a3",
+    "docs/reports/evidence/phase-7-step-7-round5-files.json": "a9ad2c1e3f5d5a5bac6c8a83d6dbd0a8336719c5d0818902376eca7c29f30019",
+    "docs/reports/evidence/phase-7-step-7-round5-implementation-certification.json": "af5e350ae77c84c90dfed2a4aceeb8055e0a545cc3b6190188331817ddde9e57",
+    "docs/reports/evidence/phase-7-step-7-round5-local.json": "05f7e48ba2e84d7ea91fa35230783e801006f28fbbe3d0ffa05aee6c092f0e39",
+    "docs/reports/evidence/phase-7-step-8-audit-certification.json": "018743dc1d9caf5ec0d3d12a08b8ef781d333c7beeadb03d5abea9281565a5ae",
+    "docs/reports/evidence/phase-7-step-8-audit-files.json": "4443ec03658a0a7edd96a9d2c3d4737ac2bcf61841c91ee4e9f2c17a32e64743",
+    "docs/reports/evidence/phase-7-step-8-closure-files.json": "92bdec63525effd3f3a7b416150c4228aa3e98d13fb6c12aed7a5f2a750be5ce",
+    "docs/reports/evidence/phase-8-step-1-baseline.json": "ffdb44a80716814a6dabb94dd09de13898f597172cc3e7e6f3196c7f42f6d55f",
+    "docs/reports/evidence/phase-8-step-1-closure-certification.json": "2cabeac0bacca32ad93249207fa23c11ed6dc91970fb817b742e3fbfc5228d43",
+    "docs/reports/evidence/phase-8-step-1-closure-files.json": "e89248d0209a6cddb1bdd9bd77f6610da574c1294978252f7525257e12ab6d6f",
+    "docs/reports/evidence/phase-8-step-1-files.json": "a68167ce2c44c18c71ec5ec06c18c5ccbd4937aae7f088216df4f95c73fd63c3",
+    "docs/reports/evidence/phase-8-step-1-implementation-certification.json": "f6028a0e5bc483df9065896947820d922421c43a6d9f67ab48e338c70810a965",
+    "docs/reports/evidence/phase-8-step-2-closure-certification.json": "de9fb7d8fa3a4c135d5f457b3c9ea46133f1cdd9820f84477be31e3faa385738",
+    "docs/reports/evidence/phase-8-step-2-closure-files.json": "e7d0d331c25766d68f608603afe9d30ab2cd52a0e9909852818685d9a51ca1b7",
+    "docs/reports/evidence/phase-8-step-2-files.json": "e6993dc9a2a97c606e292b15e78ddd1e03a850afae6513205c225573acfbc30f",
+    "docs/reports/evidence/phase-8-step-2-implementation-certification.json": "0bcdcd48f4869752b69ada5f83f2e2977084ca972410281a04b6bf212e4ac88e",
+    "docs/reports/evidence/phase-8-step-3-closure-certification.json": "466ba90fa742926999097ba538dafaf22deb73d9752df81972b6afb9516692c7",
+    "docs/reports/evidence/phase-8-step-3-closure-files.json": "9308086f1a4283b16c87302cabc794444297931c33752366e87cf8779dacc59f",
+    "docs/reports/evidence/phase-8-step-3-files.json": "73df731a93a8b1a541bf71412f93505421b065921049b27c82cd794105df3102",
+    "docs/reports/evidence/phase-8-step-3-implementation-certification.json": "621d20c0478ef08c0c7056d9d688041780552399ba2c984b6ab5b37d364a5fb0",
+    "docs/reports/evidence/phase-8-step-4-closure-certification.json": "8307d5dfeaa9080463d1dc5d1e511d183ff88014e8c71406b840cf0fdb9e8b8f",
+    "docs/reports/evidence/phase-8-step-4-closure-files.json": "8b81e9151ec2c4f8b2b6d527809637bc5c59a06df8d284a0a13a92122f4337a6",
+    "docs/reports/evidence/phase-8-step-4-files.json": "7c532daa30fbf89995ed6f782f2b938b608c464afaf3a88e4c9f37685295b220",
+    "docs/reports/evidence/phase-8-step-4-implementation-certification.json": "208318e98ad052f5f02b17cc0cde542871647d318e83d958a730a6101df824cd",
+    "docs/reports/evidence/phase-8-step-5-closure-certification.json": "a1c0ee7d00e9fabd8de3b8576800c6c80a64caa325684fb81bfa0dc943cb6e41",
+    "docs/reports/evidence/phase-8-step-5-closure-files.json": "03c880a4db370ddc103384a899b6d28271329f9125af6806df1700b3d6b035b1",
+    "docs/reports/evidence/phase-8-step-5-implementation-certification.json": "9d74f6b4ef75d057c524ee03e61db5c3a31b54022ba8d41d9936eb7c875c1496",
+    "docs/reports/evidence/phase-8-step-6-closure-certification.json": "e46ad8432d817cb3477552a8be2f8923dce15fe52dc0483dbb514eb026d39e5f",
+    "docs/reports/evidence/phase-8-step-6-closure-files.json": "cc188a8134b0f17c095892bacc1ee7f1eb9ccc95bcee9e5a42322f2f66ed97e5",
+    "docs/reports/evidence/phase-8-step-6-implementation-certification.json": "28e17f98eda69b7dd474fab02699c16b33b77b7a5b95ff88452c56334fe1c16a",
+    "docs/reports/evidence/phase-9-step-1-closure-certification.json": "3f1a124185177983352f513986a5a17873616ea005687a03633dd27af264f65c",
+    "docs/reports/evidence/phase-9-step-1-implementation-certification.json": "7b0844c29f85270b1b71ce4e13d981048e27dfe62d92daee4ccb76aa5c73e697",
+    "docs/reports/evidence/phase-9-step-2-closure-certification.json": "70a20256860de93d431e72d2c0585a8ffa8764f60dd957f7a78d37f36a45ce4a",
+    "docs/reports/evidence/phase-9-step-2-implementation-certification.json": "a904bedc26495eacf79d5a10ecfea3475edf367da50c02f1e0b1a8681dc3e747",
+    "docs/reports/evidence/phase-9-step-3-closure-certification.json": "72d7e1df8d91f4bdf6f69e1c1ec46ed1bb5f9ebb5211c97b3169df30dc0841f5",
+    "docs/reports/evidence/phase-9-step-3-implementation-certification.json": "3389f692af5e384fdecb93838999c0843bfc0f2c4272c35537f2ef9b3bc3efa4",
+    "docs/reports/evidence/phase-9-step-4-closure-certification.json": "7291f8e9362189ce1e7ac609bba38af8e7f816ff4e853785e05012414005b7fc",
+    "docs/reports/evidence/phase-9-step-4-implementation-certification.json": "22549e53d52e843949f899c2cc2f680f2a47396da56bf8f72174e546913df000",
+    "docs/reports/evidence/phase-9-step-5-closure-certification.json": "cbadefa460706c26868902855ff3a45d2ccaa4b60fec51b982cdd0dd6326a444",
+    "docs/reports/evidence/phase-9-step-5-implementation-certification.json": "8dcdd6c39c607edc1de8f232a8dd8dce17591dcdba9720d0428bfd159271e37b",
+    "docs/reports/evidence/phase-9-step-6-closure-certification.json": "df97bab628ab05a8cc58a14e26370f92f1e1feef2581b01a21a9643169284137",
+    "docs/reports/evidence/phase-9-step-6-implementation-certification.json": "271205cffebd20216ee7a35bccb82416b59206f911d43f88f54d4d8f31ddd024",
+    "docs/reports/phase-10-step-1-v1.json": "e10b70a9547b81c4683626497843e6ea909d11f522b87c9a794cddc3c4ad2110",
+    "docs/reports/phase-10-step-2-v1.json": "96f1dbe8bca8b90fd6632110e1ca95f76ed3720ae0ce2e22ad8296e3b3128017",
+    "docs/reports/phase-10-step-3-v1.json": "0d9b26909a9c9ae847e76e87f2dfbf84a2de4517fa87ae8e095a11be0841d433",
+    "docs/reports/phase-10-step-4-v1.json": "66ff1a53c36b4013b4d7a8c8a19648dbca02b41ffd0ffda66b4b9901ea98625b",
+    "docs/reports/phase-10-step-5-v1.json": "b4f2c87585efec8b8042a61dba697bfd6d2104a53cab9a994cf820700a3b8904",
+    "docs/reports/phase-10-step-6-v1.json": "fc067efa811874999136512cbfbd0985255c09a296e56583bf29822b098b0b98",
+    "docs/reports/phase-10.1-closure-v1.json": "13120a6b3657b60c203a38d614b860df3c3f126fcb60e9172a6772ab369b5a2a",
+    "docs/reports/phase-10.1-metal-v1.json": "8f17afbd338aa95f4a79b914df7145fd92cfe0b3727c14bd598f5908267d6d6a",
+    "docs/reports/phase-10.1-scene-resignation-v1.json": "727cb5e048a1b8e849350c04d88492be65b67b4e934e40c55deab8da1075c653",
+    "docs/reports/phase-10.1-swift-capture-v1.json": "2f686bfbb1b87fc94f17d8a9e2a7b30cef7ea9cd5cd2f8dc6f5ff9a77fb1e727",
+    "docs/reports/phase-10.1-uitest-locale-v1.json": "1a9fd84eae9589fcd50911ed5b26fe828e43240825fef7d3525b9ca21b06a89d",
+    "docs/reports/phase-10.1-v1.json": "5cc2bd79c67413a21494c711313ee57fd1fc8ff21fbbba106a5ad19d4fa6ad3d",
+    "docs/reports/phase-10.1-v2.json": "7c31d8fc4171d96fd8824b3d635779e95b8f143507e81ab037a6c403a3d99dca",
+    "docs/reports/phase-5-closure-v1.json": "4e7d9cbaff8db8be153ded663cf5e79c5a8bcb301f1bd534b3500e67fe46817c",
+    "docs/reports/phase-6-closure-v1.json": "3c423c9ca6ab350a097578700f45a78a79246c2ab10f06186ec95b91688186b5",
+    "docs/reports/phase-7-closure-v1.json": "2916f737d3dfe047df4dee9f7240eca4ab74cd6b3c49b7daf3e9bfe198e4d7bd",
+    "docs/reports/phase-8-step-1-v1.json": "481c6daf12aa694805d6d71c8d3b8d6e4dc5bf0f5b2341592bec0b7a4e4877c0",
+    "docs/reports/phase-8-step-2-v1.json": "9506999806eda4791253dae6b6a549821ba7f1eb27dbb93adab270f59903bbbf",
+    "docs/reports/phase-8-step-3-v1.json": "f96a7269b4b37c48c81c7b76a2c786e7c756faf8eace892bd679bf7a522c9213",
+    "docs/reports/phase-8-step-4-v1.json": "204c7ecbbc31e96d084ee53b9b5c2cf6c8494271a1564c27e65a7c684c986173",
+    "docs/reports/phase-8-step-5-v1.json": "7a356d69455eaedb458184e22dd504787f4e3a3016f4efb379839c5a3a866a8a",
+    "docs/reports/phase-9-step-1-v1.json": "425519127d724eeb70c31b5f49d6fbf99a3c0a0891a45345ed35b24dfe394453",
+    "docs/reports/phase-9-step-2-v1.json": "2b6c531b3445f7c45a89caf160084e36aad39835e9e4892041467cfdec2590e2",
+    "docs/reports/phase-9-step-3-v1.json": "c94f2e156e04aa9812b8ed6e5280b478244480e0ded72f36458cda29d6b4ca76",
+    "docs/reports/phase-9-step-4-v1.json": "ad6d5cad43ae5b00fc2b9e068dcf1bd1d469342e5ea08eaa9c5911d71fb97e82",
+    "docs/reports/phase-9-step-5-v1.json": "5fcf9c3d8159d0643848804f85f96bab897f9ad65db4782fb7fd87d8d4bf70a9",
+    "docs/reports/phase-9-step-6-v1.json": "d42ef4a9d2073f1926d10d3ef6497939ca5610c0830eb249303e4044fe4d4d77"
+  }
+}

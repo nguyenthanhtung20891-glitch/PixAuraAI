@@ -37,6 +37,33 @@ final class ShellUITests: XCTestCase {
         for _ in 0..<8 where !element.isHittable { scroll.swipeUp() }
         for _ in 0..<8 where !element.isHittable { scroll.swipeDown() }
     }
+    func testPhase11BilingualExportAtAccessibilityTextSize() {
+        for (language, locale, shareLabel) in [("en", "en_US", "Share"), ("vi", "vi_VN", "Chia sẻ")] {
+            let app = XCUIApplication()
+            app.launchArguments = ["-AppleLanguages", "(\(language))", "-AppleLocale", locale, "--reset-shell-navigation", "--editor-test-image"]
+            app.launch()
+            let open = app.buttons["open-editor-Manual"]
+            XCTAssertTrue(open.waitForExistence(timeout: 20)); open.tap()
+            let revision = app.staticTexts["revision-count"]
+            XCTAssertTrue(revision.waitForExistence(timeout: 20))
+            let original = revision.label
+            let export = app.buttons["export-open"]
+            XCTAssertTrue(export.waitForExistence(timeout: 20)); export.tap()
+            let share = app.buttons["export-share"]
+            XCTAssertTrue(share.waitForExistence(timeout: 20))
+            for _ in 0..<10 where !share.isHittable { app.swipeUp() }
+            XCTAssertTrue(share.isHittable, "Share must remain reachable at accessibility text size")
+            XCTAssertEqual(share.label, shareLabel)
+            XCTAssertGreaterThanOrEqual(share.frame.height, 44)
+            for id in ["export-save-file", "export-save-photos", "JPEG", "PNG"] {
+                let control = app.buttons[id]
+                XCTAssertTrue(control.exists)
+                XCTAssertGreaterThanOrEqual(control.frame.height, 44, id)
+            }
+            XCTAssertEqual(revision.label, original, "Opening export never publishes a revision")
+            app.terminate()
+        }
+    }
     func testExportControlsStayAvailableInManualMode() {
         let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image"])
         let open = app.buttons["Open Manual editor"]

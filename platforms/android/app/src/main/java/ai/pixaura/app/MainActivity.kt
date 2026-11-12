@@ -50,23 +50,23 @@ class MainActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
                         Text("PixAuraAI", style = androidx.compose.material3.MaterialTheme.typography.headlineLarge)
-                        Text(state.destination.name, style = androidx.compose.material3.MaterialTheme.typography.headlineMedium)
+                        Text(presented(state.destination.name), style = androidx.compose.material3.MaterialTheme.typography.headlineMedium)
                         Text(probe)
                         when (state.destination) {
                             Destination.Home -> {
-                                Text("Local-first photo editing. Application shell preview.")
+                                Text(presented("Local-first photo editing. Application shell preview."))
                                 for (mode in EditMode.entries) {
-                                    Button(onClick = { model.openEditor(mode) }) { Text("Open ${mode.name} editor") }
+                                    Button(onClick = { model.openEditor(mode) }) { Text(presented("Open ${mode.name} editor")) }
                                 }
-                                Button(onClick = { model.navigate(Destination.Projects) }) { Text("Open Projects") }
-                                Button(onClick = { model.navigate(Destination.Settings) }) { Text("Open Settings") }
+                                Button(onClick = { model.navigate(Destination.Projects) }) { Text(presented("Open Projects")) }
+                                Button(onClick = { model.navigate(Destination.Settings) }) { Text(presented("Open Settings")) }
                             }
                             Destination.Editor -> ManualEditorScreen(editor, state.mode == EditMode.Assisted, state.mode == EditMode.AI)
-                            Destination.Projects -> Text("Your projects will appear here.")
-                            Destination.Settings -> Text("Offline by default. No account, analytics or photo access requested.")
+                            Destination.Projects -> Text(presented("Your projects will appear here."))
+                            Destination.Settings -> Text(presented("Offline by default. No account, analytics or photo access requested."))
                         }
                         if (state.destination != Destination.Home) {
-                            Button(onClick = { model.back() }) { Text("Back to Home") }
+                            Button(onClick = { model.back() }) { Text(presented("Back to Home")) }
                         }
                     }
                 }

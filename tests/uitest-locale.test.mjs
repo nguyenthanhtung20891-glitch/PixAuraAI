@@ -8,7 +8,10 @@ test('iOS UI tests launch the English catalog without changing device language',
   const tests = read('platforms/ios/PixAuraAIUITests/ShellUITests.swift');
   const screen = read('platforms/ios/PixAuraAI/ManualEditorScreen.swift');
   const launches = tests.match(/launchArguments = \[[^\]]*\]/g);
-  assert.deepEqual(launches, ['launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]']);
+  assert.equal(launches[0], 'launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]');
+  assert.equal(launches.length, 2);
+  assert.match(launches[1], /AppleLanguages.*language.*AppleLocale.*locale/);
+  assert.match(tests, /\("en", "en_US", "Share"\).*\("vi", "vi_VN", "Chia sẻ"\)/);
   assert.equal(tests.match(/let app = launchEnglish\(/g).length, 18);
   assert.equal(tests.match(/startEnglish\(app,/g).length, 3);
   assert.doesNotMatch(tests.slice(tests.indexOf('func selectControl')), /coordinate\(withNormalizedOffset/);
