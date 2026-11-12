@@ -37,3 +37,29 @@ roadmap explicitly allows Metal UNKNOWN after Mac performance measurements.
 The phase can only close after all five local/integrated gates, both final
 implementation and distinct documentation closure workflows, and independent
 certification review. No engineering report self-activates acceptance.
+
+
+## Formal closure successor — independent acceptance, 2026-11-12
+
+The Product Owner supplied the independent Principal Architect decision APPROVED
+FOR FORMAL CLOSURE after the engineering evidence submission. Steps 1–4 are
+ACCEPTED and Step 5 engineering evidence is ACCEPTED. This acceptance is recorded
+in docs/reports/evidence/phase-10.1-independent-acceptance.json; the engineering
+agent records the decision and does not claim to independently review itself.
+The prior waiting-for-independent-review status is superseded by this decision.
+
+| Step | Independently accepted scope | Completion activation |
+| --- | --- | --- |
+| 1 | Mac Studio environment; both-platform governance | COMPLETE / FULL PASS only with this closure SHA's two full workflow receipts |
+| 2 | Apple native, host, Simulator and hosted integration | Same own-SHA closure activation |
+| 3 | Android/iOS software parity and shared native contracts | Same own-SHA closure activation |
+| 4 | Host CPU, resource lifecycle, faults, memory and leaks | Same own-SHA closure activation |
+| 5 | Integrated certification and formal closure | Both complete workflows on distinct closure SHA; every required job SUCCESS |
+
+Before certification: CLOSURE CERTIFICATION PENDING. After the observed exact-SHA
+Foundation 7/7 and Native shells 3/3 receipts: PHASE 10.1 CLOSED / COMPLETE /
+FULL PASS within the accepted scope. docs/reports/phase-10.1-formal-closure.md
+and phase-10.1-closure-v1.json define the activation and evidence path.
+Physical GPU qualification has NOT passed. CPU VALIDATED; Vulkan/Metal UNKNOWN;
+DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED. Phase 11 and Phase 12
+remain NOT STARTED; production and physical GPU claims are not authorized.

@@ -1,5 +1,24 @@
 # Phase 10.1 autonomous execution checkpoint
 
+## Current formal closure checkpoint — 2026-11-12
+
+Independent Principal Architect acceptance supplied by Product Owner: APPROVED
+FOR FORMAL CLOSURE. Previous review-required checkpoints below are historical.
+Starting HEAD/origin/main: cd74818a95a5c8b4b3b8608a90681f8f63655a23, clean.
+All four implementation/documentation workflows rechecked against GitHub: exact
+SHAs, attempt 1, 7/7 and 3/3 for both. No product/source/ABI/schema/runtime work.
+Closure records: docs/reports/phase-10.1-formal-closure.md and
+phase-10.1-closure-v1.json. Status before own-SHA workflows: CLOSURE CERTIFICATION
+PENDING. Only their verified completion activates CLOSED / COMPLETE / FULL PASS.
+Next action: validate documentation/source bindings, review diff/secrets, commit
+and push the distinct documentation closure, then verify both full workflows on
+that SHA. Actual closure SHA, runs, attempts, job results and current git status
+are saved in build/phase-10.1-formal-closure-receipt.json and final delivery.
+Physical GPU evidence remains unexecuted; trust and future-phase gates unchanged.
+No Phase 11 or Phase 12. No background execution after the active session ends.
+
+## Earlier engineering checkpoints
+
 Status: IN PROGRESS — Step 5 independent certification review required. No closure claim.
 Current implementation HEAD: `668a79741c198e9d5c39772a4514fb0731720a76`.
 Runs: Foundation `43053578303` 7/7 SUCCESS; Native shells `43053578225` 3/3 SUCCESS,

@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "phase": "10.1",
+  "record_kind": "DISTINCT_DOCUMENTATION_FORMAL_CLOSURE",
+  "status_before_own_sha_certification": "CLOSURE_CERTIFICATION_PENDING",
+  "status_after_verified_own_sha_certification": "CLOSED_COMPLETE_FULL_PASS",
+  "activation_requires_all_required_jobs_completed_success": true,
+  "implementation_sha": "668a79741c198e9d5c39772a4514fb0731720a76",
+  "documentation_receipt_sha": "cd74818a95a5c8b4b3b8608a90681f8f63655a23",
+  "closure_sha_resolution": "The commit containing this record, resolved in the observed final engineering receipt; no self-referential SHA",
+  "independent_acceptance": "docs/reports/evidence/phase-10.1-independent-acceptance.json",
+  "steps_after_own_sha_certification": {
+    "1": "COMPLETE_FULL_PASS_WITHIN_ACCEPTED_SCOPE",
+    "2": "COMPLETE_FULL_PASS_WITHIN_ACCEPTED_SCOPE",
+    "3": "COMPLETE_FULL_PASS_WITHIN_ACCEPTED_SCOPE",
+    "4": "COMPLETE_FULL_PASS_WITHIN_ACCEPTED_SCOPE",
+    "5": "COMPLETE_FULL_PASS_WITHIN_ACCEPTED_SCOPE"
+  },
+  "required_foundation": {
+    "workflow_id": 372386439,
+    "jobs": [
+      "workflow-lint",
+      "portable (ubuntu-24.04)",
+      "portable (windows-2025)",
+      "sanitizer",
+      "apple-boundary",
+      "android-boundary (arm64-v8a)",
+      "android-boundary (armeabi-v7a)"
+    ]
+  },
+  "required_native": {
+    "workflow_id": 373262165,
+    "jobs": [
+      "source",
+      "android-app",
+      "ios-app"
+    ]
+  },
+  "observed_closure_receipt": "build/phase-10.1-formal-closure-receipt.json",
+  "historical_records_unchanged": [
+    "docs/reports/phase-10.1-v1.json",
+    "docs/reports/phase-10.1-v2.json",
+    "docs/reports/phase-10.1-closure.md",
+    "docs/reports/phase-10.1-integrated-successor.md",
+    "docs/plans/phase-10.1-roadmap.md",
+    "source-fingerprint chains"
+  ],
+  "product_source_abi_schema_runtime_unchanged": true,
+  "cpu_reference_v1": "VALIDATED",
+  "android_vulkan_v1": "UNKNOWN",
+  "apple_metal_v1": "UNKNOWN",
+  "dh_apple_metal_01": "DEFERRED_NOT_WAIVED_NOT_SATISFIED",
+  "physical_gpu_qualification_passed": false,
+  "phase11": "NOT_STARTED",
+  "phase12": "NOT_STARTED",
+  "production_release_readiness_claimed": false
+}

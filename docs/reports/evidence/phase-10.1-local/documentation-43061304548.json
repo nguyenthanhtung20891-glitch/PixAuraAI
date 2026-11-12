@@ -1,0 +1,40 @@
+{
+  "attempt": 1,
+  "conclusion": "success",
+  "databaseId": 43061304548,
+  "event": "push",
+  "headBranch": "main",
+  "headSha": "cd74818a95a5c8b4b3b8608a90681f8f63655a23",
+  "jobs": [
+    {
+      "completedAt": "2026-11-11T17:32:31Z",
+      "conclusion": "success",
+      "databaseId": 130664305810,
+      "name": "ios-app",
+      "startedAt": "2026-11-11T16:49:40Z",
+      "status": "completed",
+      "url": "https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/43061304548/job/130664305810"
+    },
+    {
+      "completedAt": "2026-11-11T16:46:24Z",
+      "conclusion": "success",
+      "databaseId": 130664306325,
+      "name": "source",
+      "startedAt": "2026-11-11T16:44:49Z",
+      "status": "completed",
+      "url": "https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/43061304548/job/130664306325"
+    },
+    {
+      "completedAt": "2026-11-11T16:55:17Z",
+      "conclusion": "success",
+      "databaseId": 130664306350,
+      "name": "android-app",
+      "startedAt": "2026-11-11T16:44:38Z",
+      "status": "completed",
+      "url": "https://github.com/nguyenthanhtung20891-glitch/PixAuraAI/actions/runs/43061304548/job/130664306350"
+    }
+  ],
+  "status": "completed",
+  "workflowDatabaseId": 373262165,
+  "verified_required_jobs": 3
+}

@@ -1,5 +1,39 @@
 # PixAuraAI Autonomous Engineering Contract
 
+<!-- phase10.1-formal-closure -->
+## Phase 10.1 formal closure — independently accepted scope
+
+Independent Principal Architect acceptance was communicated by the Product Owner
+on 2026-11-12: APPROVED FOR FORMAL CLOSURE. This is the supplied independent
+review decision, recorded by the engineering agent, not engineering self-review.
+Implementation 668a79741c198e9d5c39772a4514fb0731720a76: Foundation 43053578303
+SUCCESS 7/7; Native shells 43053578225 SUCCESS 3/3, exact SHA, attempt 1.
+Documentation receipt cd74818a95a5c8b4b3b8608a90681f8f63655a23: Foundation
+43061304547 SUCCESS 7/7; Native shells 43061304548 SUCCESS 3/3, exact SHA, attempt 1.
+
+This distinct documentation closure requires BOTH full workflows on its OWN SHA:
+Foundation 7/7 and Native shells 3/3, every required job completed/SUCCESS.
+Before that observed receipt: CLOSURE CERTIFICATION PENDING / IN PROGRESS.
+Only after that receipt does this authority activate:
+PHASE 10.1 CLOSED / COMPLETE / FULL PASS, Steps 1–5 COMPLETE / FULL PASS
+for the independently accepted software, host, Simulator, integration, performance
+and resource-lifecycle scope. The observed final delivery records the actual
+closure SHA/run IDs without a self-referential commit. Earlier status blocks and
+reports remain immutable freeze-time evidence; this successor governs closure.
+See docs/reports/phase-10.1-formal-closure.md and phase-10.1-closure-v1.json.
+Mac Studio remains primary for BOTH platforms. main remains canonical.
+UI STATE != NATIVE AUTHORITY. EXPORT IS NOT A REVISION. HUMAN Apply unchanged.
+Product source, Schema 3, ABI, GPU admission and runtime behavior unchanged.
+Provider reference.assistance.v1 ADMITTED; planner reference.deterministic.v1.
+Learned model NONE REQUIRED / NONE ADMITTED FOR PHASE 7 MVP.
+cpu.reference.v1 = VALIDATED; android.vulkan.v1 = UNKNOWN; apple.metal.v1 = UNKNOWN.
+DH-APPLE-METAL-01 = DEFERRED / NOT WAIVED / NOT SATISFIED.
+Physical GPU qualification has NOT passed. No production release readiness claim.
+Phase 11 is not started. Phase 12 is not started. Existing mandatory physical-device
+requirements remain binding at their existing acceptance/release boundaries.
+<!-- phase10.1-formal-closure-end -->
+
+
 <!-- phase10.1-mac-successor -->
 ## Phase 10.1 current execution authority — Mac Studio migration
 

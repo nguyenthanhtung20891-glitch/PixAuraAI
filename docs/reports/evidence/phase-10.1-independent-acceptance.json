@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "phase": "10.1",
+  "decision": "APPROVED_FOR_FORMAL_CLOSURE",
+  "decision_source": "Product Owner message: PixAuraAI \u2014 Phase 10.1 Formal Closure Authorization / Independent Principal Architect Decision",
+  "communicated_date_local": "2026-11-12",
+  "timezone": "Asia/Ho_Chi_Minh",
+  "review_authority": "Independent Principal Architect; decision communicated by Product Owner after engineering evidence submission",
+  "engineering_agent_role": "Records supplied independent decision; does not claim independent self-review",
+  "acceptance_scope": [
+    "software",
+    "Mac Studio host",
+    "iOS Simulator",
+    "cross-platform integration",
+    "host CPU performance",
+    "resource lifecycle"
+  ],
+  "steps": {
+    "1": "ACCEPTED",
+    "2": "ACCEPTED",
+    "3": "ACCEPTED",
+    "4": "ACCEPTED",
+    "5": "ENGINEERING_EVIDENCE_ACCEPTED_PENDING_DISTINCT_CLOSURE_CERTIFICATION"
+  },
+  "reviewed_evidence": [
+    {
+      "sha": "668a79741c198e9d5c39772a4514fb0731720a76",
+      "foundation": 43053578303,
+      "foundation_jobs": "7/7 SUCCESS",
+      "native": 43053578225,
+      "native_jobs": "3/3 SUCCESS",
+      "attempt": 1
+    },
+    {
+      "sha": "cd74818a95a5c8b4b3b8608a90681f8f63655a23",
+      "foundation": 43061304547,
+      "foundation_jobs": "7/7 SUCCESS",
+      "native": 43061304548,
+      "native_jobs": "3/3 SUCCESS",
+      "attempt": 1
+    }
+  ],
+  "supplied_decision_states_all_four_workflows_independently_checked": true,
+  "engineering_agent_rechecked_all_four_against_github": true,
+  "approval_itself_closes_phase": false,
+  "new_product_implementation_authorized": false,
+  "cpu_reference_v1": "VALIDATED",
+  "android_vulkan_v1": "UNKNOWN",
+  "apple_metal_v1": "UNKNOWN",
+  "dh_apple_metal_01": "DEFERRED_NOT_WAIVED_NOT_SATISFIED",
+  "physical_gpu_qualification_passed": false,
+  "phase11": "NOT_STARTED",
+  "phase12": "NOT_STARTED",
+  "production_release_authorized": false
+}
