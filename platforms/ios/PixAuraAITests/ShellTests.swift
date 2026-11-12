@@ -23,8 +23,8 @@ final class ShellTests: XCTestCase {
         XCTAssertEqual(presented("Preview failure: Preview failure: Invalid parameter (core 7)", bundle: bundle), "Lỗi bản xem trước: Preview failure: Invalid parameter (core 7)")
     }
 
-    @MainActor private func waitFor<T>(_ publisher: Published<T>.Publisher, _ predicate: @escaping (T) -> Bool) async {
-        let ready = expectation(description: "authoritative interaction state")
+    @MainActor private func waitFor<T>(_ publisher: Published<T>.Publisher, _ predicate: @escaping (T) -> Bool, file: StaticString = #filePath, line: UInt = #line) async {
+        let ready = expectation(description: "authoritative interaction state at \(file):\(line)")
         let subscription = publisher.first(where: predicate).sink { _ in ready.fulfill() }
         await fulfillment(of: [ready], timeout: 20)
         withExtendedLifetime(subscription) {}
@@ -167,6 +167,7 @@ final class ShellTests: XCTestCase {
         model.chooseAuto(0)
         model.requestAuto()
         model.interrupt()
+        await waitFor(model.$busy) { !$0 }
         await waitFor(model.$autoProposal) { !$0.inFlight }
         XCTAssertNil(model.autoProposal.proposal)
         XCTAssertNil(model.autoProposal.review)
@@ -177,6 +178,8 @@ final class ShellTests: XCTestCase {
         XCTAssertNil(model.autoProposal.proposal)
         XCTAssertNil(model.autoProposal.review)
         XCTAssertEqual(model.core?.revisionCount, 1)
+        // A new proposal is admitted only after queued interruption retires.
+        await waitFor(model.$busy) { !$0 }
         model.requestAuto()
         await waitFor(model.$autoProposal) { $0.status == .reviewReady && $0.review != nil }
         model.setAssistMode(true)
@@ -199,6 +202,50 @@ final class ShellTests: XCTestCase {
         await waitFor(model.$busy) { $0 == false }
         XCTAssertEqual(model.core?.revisionCount, 1)
         XCTAssertEqual(model.core?.revisionID, source)
+        model.close(); await waitFor(model.$core) { $0 == nil }
+    }
+
+    @MainActor func testAutoRequestWhileInterruptRetiresFailsBusyThenRecovers() async throws {
+        let file = try XCTUnwrap(Bundle(for: ShellTests.self).url(forResource: "fixtures", withExtension: "json"))
+        let fixtures = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [String: [String: Any]])
+        let input = FileManager.default.temporaryDirectory.appendingPathComponent("interrupt-admission-\(UUID()).png")
+        try Data(try XCTUnwrap(fixtures["png"]?["bytes"] as? [UInt8])).write(to: input)
+        defer { try? FileManager.default.removeItem(at: input) }
+        let capability = AppleCapabilityOwner(signals: AppTestAppleSignals()); defer { capability.close() }
+        let model = ManualEditorModel(capabilities: capability)
+        model.importImage(input); await waitFor(model.$core) { $0?.revisionCount == 1 }
+        let source = try XCTUnwrap(model.core?.revisionID)
+        model.setAutoMode(true); await waitFor(model.$autoProposal) { $0.choices.count == 11 }
+        model.chooseAuto(0); model.requestAuto()
+        await waitFor(model.$autoProposal) { $0.status == .reviewReady && !$0.inFlight }
+        // Hold retirement deterministically; inspect the existing queue without
+        // adding a production hook, changing admission, or adding a retry.
+        let worker = try XCTUnwrap(Mirror(reflecting: model).children.first { $0.label == "worker" }?.value)
+        let queue = try XCTUnwrap(Mirror(reflecting: worker).children.first { $0.label == "commands" }?.value as? DispatchQueue)
+        let gate = DispatchSemaphore(value: 0)
+        defer { gate.signal() }
+        let entered = expectation(description: "command retirement held")
+        queue.async { entered.fulfill(); gate.wait() }
+        await fulfillment(of: [entered], timeout: 20)
+        model.interrupt()
+        XCTAssertTrue(model.busy)
+        XCTAssertNil(model.autoProposal.review)
+        model.requestAuto()
+        await waitFor(model.$autoProposal) { $0.status == .failed && !$0.inFlight }
+        XCTAssertEqual(model.autoProposal.error, "Provider busy or resources limited. Manual editing is available.")
+        XCTAssertNil(model.autoProposal.proposal); XCTAssertNil(model.autoProposal.review)
+        XCTAssertEqual(model.core?.revisionID, source); XCTAssertEqual(model.core?.revisionCount, 1)
+        gate.signal()
+        await waitFor(model.$busy) { !$0 }
+        model.requestAuto()
+        await waitFor(model.$autoProposal) { $0.status == .reviewReady && $0.review != nil && !$0.inFlight }
+        XCTAssertEqual(model.core?.revisionID, source); XCTAssertEqual(model.core?.revisionCount, 1)
+        model.setAutoMode(false)
+        let rotate = try XCTUnwrap(model.tools.firstIndex { $0.toolID == "pixaura.rotate" })
+        model.select(rotate); await waitFor(model.$core) { $0?.active == true }
+        model.update([1]); model.action(1)
+        await waitFor(model.$core) { $0?.revisionCount == 2 }
+        XCTAssertNotEqual(model.core?.revisionID, source)
         model.close(); await waitFor(model.$core) { $0 == nil }
     }
 

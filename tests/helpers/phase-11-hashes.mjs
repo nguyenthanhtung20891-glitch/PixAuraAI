@@ -31,5 +31,13 @@ export function phase11PostV3Hash(path, predecessor) {
   const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v4.json', 'utf8'));
   const change = record.changes[path];
   if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase 11 controller predecessor');
+  return phase11PostV4Hash(path, change?.after_sha256_lf ?? predecessor);
+}
+
+// Queue-retirement regression successor; no prior source receipt is rewritten.
+export function phase11PostV4Hash(path, predecessor) {
+  const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v5.json', 'utf8'));
+  const change = record.changes[path];
+  if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase 11 retirement predecessor');
   return change?.after_sha256_lf ?? predecessor;
 }

@@ -250,3 +250,14 @@ phase-11-iphone-xr.md preserve exact scope and operator handoff. Next: commit/pu
 this controller correction and verify full exact-SHA7+3; when owner supplies
 existing signing/provisioning and Team ID, execute clean physical Metal protocol,
 G7/G8 journeys and human G11 walkthrough. No trust promotion or Phase11 closure.
+
+XR controller828152f8673001c2ae38bda2c489dc2d7fd5251f pushed but NOT certified:
+Foundation43255559580 PASS7/7 attempt1; Native43255559983 source/AndroidPASS,
+iOS lifecycle unit waitFAILED attempt1. Not rerun. Root cause test requested fresh
+Auto before queued cancellation retired; worker correctly returnedBUSY. Controlled
+queue-hold regression proves failclosedBUSY/no publication, then successful fresh
+review/manualApply after retirement. Original test now awaits existingbusy=false
+before expectingreviewReady. No product/runtime changes. Localall15 iOSunits and
+203 source checksPASS. Additivev5 preservesv1–v4. Next: review/commit/push test
+successor, observe new exact-SHA full7+3. Signingstill0identities/0profiles; physical
+Metal/G7/G8 NOTRUN, G11humanNOTOBSERVED; Phase11open, Phase12notstarted.

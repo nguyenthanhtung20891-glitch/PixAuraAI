@@ -1,0 +1,24 @@
+{
+  "version": 5,
+  "subject": "ios-interruption-retirement-test-synchronization",
+  "predecessor_commit": "828152f8673001c2ae38bda2c489dc2d7fd5251f",
+  "parent_manifest": "docs/reports/phase-11-source-v4.json",
+  "parent_manifest_sha256_lf": "76994dab640c6714859b0b63cd60f309a459edf31a39ab314a5b8072e2ba5283",
+  "public_abi_changed": false,
+  "schema_changed": false,
+  "gpu_admission_policy_changed": false,
+  "changes": {
+    "platforms/ios/PixAuraAITests/ShellTests.swift": {
+      "before_sha256_lf": "c28f01d1fd986b4de6a5af92f4d9ef5d1fc6eb78eca0447c5d5bab5ab8217b49",
+      "after_sha256_lf": "c4a3c046742a7a8c8f79df11f91001e9c94ab7691fca9cfaf708dffa526942f9"
+    },
+    "tests/helpers/phase-11-hashes.mjs": {
+      "before_sha256_lf": "49a89066937bc143f9a01c7d1a6484a945f8d01a187b9f4c77e172145e1284b6",
+      "after_sha256_lf": "319bba64aebce005d44e5c644257190d8d0c8b8bc276ef523855a41ffecc0028"
+    },
+    "tests/phase-11-hardening.test.mjs": {
+      "before_sha256_lf": "cc6abc02db6c79ebe73a1c475a4b0a182dbd489baba8a1050f6eb62fdea5ca6a",
+      "after_sha256_lf": "0ab3042710c57a0d21d86e2054baa63b9095e4820db447084813e000c121d198"
+    }
+  }
+}

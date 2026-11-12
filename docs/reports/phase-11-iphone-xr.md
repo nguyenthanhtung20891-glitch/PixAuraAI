@@ -86,3 +86,35 @@ independent review remain mandatory. G8 physical cohorts/thermal, G10 binding
 commerce policy/implementation/authorized store sandbox and G11 human iOS/Android
 assistive-technology evidence remain outstanding. Phase 11 is not accepted or
 closed; no closure SHA exists.
+
+## Certification failure and retirement synchronization successor
+
+Controller implementation 828152f8673001c2ae38bda2c489dc2d7fd5251f is NOT
+fully certified. Foundation43255559580 passed7/7, attempt1. Native43255559983
+source/Android passed, but iOS failed, attempt1. The failure was a 20-second
+wait in testInterruptDropsAutoAuthorityAndManualGestureWithoutRevision; full
+hosted UI tests still executed. This SHA is not rerun or represented as certified.
+Raw log: build/phase-11-iphone-xr/ios-ci.log (clean excerpt ios-ci-clean.log).
+
+Root cause: the lifecycle test requested another Auto review before asynchronous
+interruption retirement completed. EditorWorker correctly rejects admission
+while cancellingAuto is true with status8 BUSY; a test expecting reviewReady in
+that interval can wait forever. The test now awaits the existing busy=false
+completion after each interruption before expecting a fresh admitted request.
+No timeout was increased and no assertion or production admission was weakened.
+
+A new deterministic test holds the existing command queue with a test-owned
+semaphore, interrupts an existing review, and verifies an immediate request
+fails BUSY, clears review/proposal authority and leaves the source revision and
+count unchanged. It releases the queue, waits for retirement, verifies a fresh
+review succeeds without publication, then verifies manual Apply publishes one
+ordinary revision. No production testing API, retry, queue or runtime change.
+Wait expectation descriptions now include caller source location for diagnosis.
+
+All15 local iOS app unit tests PASS, including the original lifecycle test and
+new controlled regression. Local203 source checks PASS,0 skipped. Result bundle:
+build/phase-11-iphone-xr/lifecycle-retirement.xcresult; full test log:
+build/phase-11-iphone-xr/lifecycle-retirement.log; source-tests-v5.log.
+Additive phase-11-source-v5.json binds this successor to828152f, preservingv1–v4.
+The successor still requires both complete exact-SHA hosted workflows. Physical
+signing and every device/human/store blocker above remain unchanged.

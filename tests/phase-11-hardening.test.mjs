@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import test from 'node:test';
-import { phase11Hash, phase11SuccessorHash, phase11PostV2Hash, phase11PostV3Hash } from './helpers/phase-11-hashes.mjs';
+import { phase11Hash, phase11SuccessorHash, phase11PostV2Hash, phase11PostV3Hash, phase11PostV4Hash } from './helpers/phase-11-hashes.mjs';
 const read = p => fs.readFileSync(p, 'utf8').replaceAll('\r\n', '\n');
 const hash = p => crypto.createHash('sha256').update(read(p)).digest('hex');
 
@@ -46,6 +46,14 @@ test('Phase 11 source successor binds current hardening without rewriting histor
   for (const flag of ['public_abi_changed', 'schema_changed', 'gpu_admission_policy_changed']) assert.equal(controller[flag], false);
   for (const [path, change] of Object.entries(controller.changes)) {
     assert.equal(change.before_sha256_lf, localization.changes[path]?.after_sha256_lf ?? successor.changes[path]?.after_sha256_lf ?? record.changes[path]?.after_sha256_lf ?? record.additions[path] ?? controller.unchanged_predecessor_files[path], path);
+    assert.equal(hash(path), phase11PostV4Hash(path, change.after_sha256_lf), path);
+  }
+  const retirement = JSON.parse(read('docs/reports/phase-11-source-v5.json'));
+  assert.equal(retirement.predecessor_commit, '828152f8673001c2ae38bda2c489dc2d7fd5251f');
+  assert.equal(hash(retirement.parent_manifest), retirement.parent_manifest_sha256_lf);
+  for (const flag of ['public_abi_changed', 'schema_changed', 'gpu_admission_policy_changed']) assert.equal(retirement[flag], false);
+  for (const [path, change] of Object.entries(retirement.changes)) {
+    assert.equal(change.before_sha256_lf, controller.changes[path]?.after_sha256_lf ?? localization.changes[path]?.after_sha256_lf ?? successor.changes[path]?.after_sha256_lf ?? record.changes[path]?.after_sha256_lf ?? record.additions[path], path);
     assert.equal(hash(path), change.after_sha256_lf, path);
   }
 
