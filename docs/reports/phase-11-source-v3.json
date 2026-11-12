@@ -1,0 +1,91 @@
+{
+  "version": 3,
+  "subject": "phase-11-bilingual-failure-state-presentation",
+  "predecessor_commit": "ee7f8cefc96f26bb3024d749d3f3bd52742f2a02",
+  "parent_manifest": "docs/reports/phase-11-source-v2.json",
+  "parent_manifest_sha256_lf": "4e2386ece9d42c7f1fa9e47e569c7b33da5c49716927c08677ce23b4f0ab1393",
+  "public_abi_changed": false,
+  "schema_changed": false,
+  "gpu_admission_policy_changed": false,
+  "unchanged_predecessor_files": {
+    "tests/product-ux-locale.test.mjs": "b5bbe3c61074366d6ca642688ea59a3adfd2fc06c8e917e7fd96cd1af785a976"
+  },
+  "changes": {
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/Phase11AccessibilityTest.kt": {
+      "before_sha256_lf": "df8331bab6d815decc993b8b20db387e57c81c48c8113582d76e1cec3b4ce4fd",
+      "after_sha256_lf": "8a6bde67060ec54a404dededbd65a69877f88ff03d3409f881aa6a704d26dc0c"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/AssistPanel.kt": {
+      "before_sha256_lf": "ec5e472439fb300b6baedc1ebbd9ff3f96ad5db92e1de5a16e66d26f672a11fa",
+      "after_sha256_lf": "f0928fddc2147d17d421c9a025dde71c7cae9b048dd08af48729f827b861cb78"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/AutoProposalPanel.kt": {
+      "before_sha256_lf": "cdd31a677daefb6547f8af2d01b2eeda9a40579284b550ec45b466e8e5632acf",
+      "after_sha256_lf": "7d71f3e660d27ae5480e74c82ec6c0cc395b1713b0d2c197b0d4a8a1f09117ff"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorScreen.kt": {
+      "before_sha256_lf": "a021c35e237cb0557f26c1caf960a6049cc137a550707ad7eea96ab6a6aa27d7",
+      "after_sha256_lf": "2ac6a000fc140e4d9780f1aa93669cc57f0d4422db8239de5877787b0f5c01c2"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/Presentation.kt": {
+      "before_sha256_lf": "f7efd9f7ed104daf2a52dcb3593b752086df29e2993fb43e128e5a6834013363",
+      "after_sha256_lf": "f5e6777cd7f3f3656159b8770645dac2566ba06f191cd5caf58995d16916b157"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/ResultReviewPanel.kt": {
+      "before_sha256_lf": "c188ea3abdf67edc86ebfa79dcbb1a5e344ac10aa6d658cce51d702f52b5b4d3",
+      "after_sha256_lf": "96506c96312f6feab680de7f440ba925e05717308d60f41121795426c12e1c1b"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/ReviewEditPanel.kt": {
+      "before_sha256_lf": "f91c4774fc5c494f535d95a5bf686050f35445f3c618001ef9c0cf5b66c60f66",
+      "after_sha256_lf": "6e18b02f52b7aacb6f15fb7f3b7f77cf1de0edd04f38e9135cbbec8495a3c77c"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/ReviewPreviewPanel.kt": {
+      "before_sha256_lf": "b67b2e89aaab7c09dccb96e41863a96be298e0e1d93f4fd9ac2aacbc8c7cd06e",
+      "after_sha256_lf": "6ea9a493a03cc245e89a9e811a6ef74f7d4d42c0eb08d0ce2d95bd76977b36e5"
+    },
+    "platforms/android/app/src/main/res/values-vi/strings.xml": {
+      "before_sha256_lf": "37fe81c6e02c927c78d1a8ec5822abeffbd09163d9b7046329574f5c97c3fe2b",
+      "after_sha256_lf": "2bb6a50a8dca0574d56659a0851a7f123b34e56e86d6ba517df2b53fc7469f45"
+    },
+    "platforms/android/app/src/main/res/values/strings.xml": {
+      "before_sha256_lf": "9d34b58a4a938ac73ff488231e07e7fce90cde966a6ca864aaac4c6796c22fd2",
+      "after_sha256_lf": "31ed9f0d53d7f7ae8a37307bf605b6da03d602795f133b4d06019ddfca36353e"
+    },
+    "platforms/ios/PixAuraAI/ManualEditorScreen.swift": {
+      "before_sha256_lf": "ae44d79cf771afc84a59bbad90f24b1fae38293d9d176788e0823f9aa94e2f1e",
+      "after_sha256_lf": "eaf5b44b24bdf5bda52289b47573326df64db3a748eb0fb95b11433cbfcb3540"
+    },
+    "platforms/ios/PixAuraAI/en.lproj/Localizable.strings": {
+      "before_sha256_lf": "1555df745f0830f37e775ae0d3a6aeed604ff6e5b5f002cc0482ffebb2f14c31",
+      "after_sha256_lf": "df52030ced62b054c6b9be35368df06109b8c93a70b96362393bb40788346c32"
+    },
+    "platforms/ios/PixAuraAI/vi.lproj/Localizable.strings": {
+      "before_sha256_lf": "2221f4d0567a72c0c3fcb0bb9720d5cc2ab9f5de7b31ac659c2f4dc3075cc200",
+      "after_sha256_lf": "080bb887f21081a915ba2c3f3a14b852ab545f93be24203ac3579d28a2779069"
+    },
+    "platforms/ios/PixAuraAITests/ShellTests.swift": {
+      "before_sha256_lf": "8485c0f687a6c7b55fe18f519e8cd458f36b376a11c06981baedd795c80cd7ec",
+      "after_sha256_lf": "c28f01d1fd986b4de6a5af92f4d9ef5d1fc6eb78eca0447c5d5bab5ab8217b49"
+    },
+    "platforms/ios/PixAuraAIUITests/ShellUITests.swift": {
+      "before_sha256_lf": "9ffba9a7bb3ff9757e09ef36c3bce6a769db86c9b2dd3903c744ca5be7437f85",
+      "after_sha256_lf": "3aa8c52b40e8cf8f45e6e6c0680455c4a4a5d331df1f0d10e07b56e6b25d5846"
+    },
+    "tests/helpers/phase-11-hashes.mjs": {
+      "before_sha256_lf": "330d8086e7da0c05fbebbbcb4d32a20f9a8980a9781bd527981c10e0129c6b7a",
+      "after_sha256_lf": "12baee9d68d11a6c576b594ac83e4a4561b95e970493adb446aa09b336d68b9f"
+    },
+    "tests/phase-11-hardening.test.mjs": {
+      "before_sha256_lf": "1be7d2fcd7991a0b865408c8087799c18abd6ebb4cc1ffb46b9c5ff0792b47ef",
+      "after_sha256_lf": "ab84e5614479a51140697e89eae3d1f66f424ef5d7d89f7644d54c397101960d"
+    },
+    "tests/plan-inspection.test.mjs": {
+      "before_sha256_lf": "2384f772a00e5bd3f8c3081d97cdd776402b400f0f27445c2ab64333416b9e49",
+      "after_sha256_lf": "96cd4ce0ec4a10b78592347b5fa6030245dccbb81237ea6b8fe79dd63deeada6"
+    },
+    "tests/product-ux-locale.test.mjs": {
+      "before_sha256_lf": "b5bbe3c61074366d6ca642688ea59a3adfd2fc06c8e917e7fd96cd1af785a976",
+      "after_sha256_lf": "aeef13076f518fde6f3c9945e772f82e1ba0c5a66e6cfd95db8f0530f1f39f2c"
+    }
+  }
+}

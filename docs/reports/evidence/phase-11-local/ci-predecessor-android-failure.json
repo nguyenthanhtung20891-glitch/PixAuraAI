@@ -1,0 +1,27 @@
+{
+  "predecessor_commit": "ee7f8cefc96f26bb3024d749d3f3bd52742f2a02",
+  "foundation": {
+    "id": 43204173904,
+    "attempt": 1,
+    "completed_success_jobs": 7,
+    "exact_sha": true
+  },
+  "native": {
+    "id": 43204173804,
+    "attempt": 1,
+    "failed_job": 131134999023,
+    "failed_name": "android-app",
+    "tests": 62,
+    "failures": 7,
+    "skipped": 0,
+    "status": "NOT CERTIFIED; not rerun"
+  },
+  "actual_viewport": {
+    "width": 320,
+    "height": 640,
+    "density": 160
+  },
+  "root_cause": "Nested horizontal action rows intercepted nearest-ancestor scroll-to; small action groups now wrap and remain owned by the outer vertical page",
+  "assertion_or_timeout_weakening": false,
+  "job_log_sha256": "cd15b944cb11708f4e25be830b4574901ba94f2b152d82badecdf563069cca7f"
+}

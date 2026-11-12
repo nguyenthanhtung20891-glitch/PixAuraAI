@@ -37,7 +37,12 @@ test('platform review presents exact raw units and order with no action editing 
  for(const p of ['platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt','packages/core/swift/Sources/ManualEditor.swift']){
   const s=text(p);for(const term of ['4808','inspectReview','inspection','Inspection'])assert.ok(s.includes(term),p+term);assert.ok(s.includes('nativeInspectionPreview')||s.includes('pixaura_review_inspection_preview'));
  }
- for(const p of ['platforms/android/app/src/main/java/ai/pixaura/app/AutoProposalPanel.kt','platforms/ios/PixAuraAI/ManualEditorScreen.swift'])for(const term of ['review-context','review-inspection-stale','review-inspection-unsupported','PlanInspectionPanel','reference.deterministic.v1'])assert.ok(text(p).includes(term),p+term);
+ for(const p of ['platforms/android/app/src/main/java/ai/pixaura/app/AutoProposalPanel.kt','platforms/ios/PixAuraAI/ManualEditorScreen.swift'])for(const term of ['review-context','review-inspection-stale','review-inspection-unsupported','PlanInspectionPanel','reference.deterministic.v1']){
+  if(p.endsWith('.kt')&&term==='reference.deterministic.v1'){
+   assert.ok(text(p).includes('presentedFormat(R.string.phase11_context_context, auto.status.toString(), proposal.providerId)'));
+   for(const locale of ['values','values-vi'])assert.match(text(`platforms/android/app/src/main/res/${locale}/strings.xml`),/name="phase11_context_context"[^\n]*reference\.deterministic\.v1/);
+  }else assert.ok(text(p).includes(term),p+term);
+ }
 });
 test('retained complete workflows execute inspection regressions and release-negative fixtures',()=>{
  for(const p of ['.github/workflows/foundation.yml','.github/workflows/native-shells.yml'])assert.ok(text(p).includes('tests/plan-inspection.test.mjs'));

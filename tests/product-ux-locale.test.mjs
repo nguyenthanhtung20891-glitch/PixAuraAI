@@ -34,7 +34,10 @@ test('English and Vietnamese catalogs present the same journey without becoming 
   assert.equal(appleEn['Open JPEG or PNG'], 'Open JPEG or PNG');
   for (const key of Object.keys(appleEn)) assert.notEqual(appleVi[key], appleEn[key], key);
   assert.equal(text('platforms/android/app/src/main/java/ai/pixaura/app/Presentation.kt').includes('else -> 0'), true);
-  assert.equal(text('platforms/ios/PixAuraAI/ManualEditorScreen.swift').includes('String(localized: String.LocalizationValue(canonical))'), true);
+  const applePresentation = text('platforms/ios/PixAuraAI/ManualEditorScreen.swift');
+  assert.equal(applePresentation.includes('String(localized: String.LocalizationValue(meaning), bundle: bundle)'), true);
+  assert.equal(applePresentation.includes('String(body[$0.lowerBound...])'), true); // Raw native suffix stays verbatim.
+  assert.equal(applePresentation.includes('return heading +'), true);
   assert.equal(fs.existsSync('packages/core/src') && text('platforms/android/app/src/main/java/ai/pixaura/app/Presentation.kt').includes('Plan('), false);
   const screen = text('platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorScreen.kt');
   assert.equal(screen.includes('Text("JPEG")'), true);

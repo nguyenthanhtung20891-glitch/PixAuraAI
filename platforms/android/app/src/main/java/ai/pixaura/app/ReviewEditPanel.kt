@@ -17,7 +17,7 @@ internal fun ReviewEditPanel(model: ManualEditorModel, state: AutoUiState, onDra
     val enabled = editable && !state.inFlight && state.preview.status !in listOf(ReviewPreviewStatus.PREVIEW_LOADING, ReviewPreviewStatus.STALE)
     Column(Modifier.testTag("review-edit-controls")) {
         val dirty = when (if (state.status == AutoStatus.EDIT_FAILED) 4 else state.editSession?.state) { 2 -> "EDITED"; 3 -> "NO_ACTIONS — nothing to apply"; 4 -> "EDIT_FAILED — restore required"; else -> "ORIGINAL" }
-        Text(dirty, Modifier.testTag("review-edit-state"))
+        Text(presented(dirty), Modifier.testTag("review-edit-state"))
         if (editable && state.inFlight) Text(presented("Validating review edit…"), Modifier.testTag("review-edit-loading").semantics { liveRegion = LiveRegionMode.Polite })
         review?.inspection?.actions?.forEachIndexed { index, action ->
             action.parameters.forEachIndexed { parameterIndex, parameter ->

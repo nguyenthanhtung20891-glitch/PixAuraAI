@@ -18,6 +18,7 @@ import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun ReviewPreviewPanel(model: ManualEditorModel, state: ReviewPreviewUi) {
     var after by remember(state.comparison) { mutableStateOf(false) }
@@ -53,14 +54,14 @@ internal fun ReviewPreviewPanel(model: ManualEditorModel, state: ReviewPreviewUi
                     Image(pair.after.asImageBitmap(), "After Preview split", transform, contentScale = ContentScale.Fit)
                 }
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = { after = !after; split = false }, modifier = Modifier.testTag("review-toggle")) { Text(if (after) "Show Before" else "Show After Preview") }
                 OutlinedButton(onClick = { split = !split }, enabled = !pair.geometryChanged, modifier = Modifier.testTag("review-split")) { Text(presented("Split")) }
             }
             if (pair.geometryChanged) Text(presented("Geometry changed. Aspect-preserving fit/toggle is available; spatial split is unavailable."))
             else {
                 if (split) Slider(divider, { divider = it }, valueRange = 0f..1f, modifier = Modifier.testTag("review-divider").semantics { contentDescription = "Comparison split position" })
-                Text("Shared view zoom: ${zoom.toInt()}×")
+                Text(presentedFormat(R.string.phase11_context_zoom, zoom.toInt()))
                 Slider(zoom, { zoom = it }, valueRange = 1f..4f, modifier = Modifier.testTag("review-zoom").semantics { contentDescription = "Comparison zoom" })
                 Slider(panX, { panX = it }, valueRange = -1f..1f, modifier = Modifier.testTag("review-pan-x").semantics { contentDescription = "Comparison horizontal pan" })
                 Slider(panY, { panY = it }, valueRange = -1f..1f, modifier = Modifier.testTag("review-pan-y").semantics { contentDescription = "Comparison vertical pan" })
@@ -69,6 +70,6 @@ internal fun ReviewPreviewPanel(model: ManualEditorModel, state: ReviewPreviewUi
         }
         if (state.status == ReviewPreviewStatus.STALE) Text(presented("Preview is stale. Request a freshly validated proposal."), Modifier.testTag("review-preview-stale"))
         if (state.status == ReviewPreviewStatus.CANCELLED) Text("Preview cancelled. The Plan remains inspectable if current.", Modifier.testTag("review-preview-cancelled"))
-        state.error?.let { Text(it, Modifier.testTag("review-preview-failed").semantics { liveRegion = LiveRegionMode.Polite }) }
+        state.error?.let { Text(presented(it), Modifier.testTag("review-preview-failed").semantics { liveRegion = LiveRegionMode.Polite }) }
     }
 }

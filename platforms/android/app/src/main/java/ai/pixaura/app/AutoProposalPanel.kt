@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 internal fun AutoProposalPanel(model: ManualEditorModel, ui: EditorUiState, auto: AutoUiState) {
+    val approvalDescription = presented("Apply this exact reviewed plan with human approval")
     var choosing by remember { mutableStateOf(false) }
     var drafts by remember(auto.review?.reviewIdentity) { mutableStateOf(emptySet<String>()) }
     val choice = auto.choices.firstOrNull { it.index == auto.selected }
@@ -20,7 +21,7 @@ internal fun AutoProposalPanel(model: ManualEditorModel, ui: EditorUiState, auto
             Text(presented("AI Auto-Edit"), style = MaterialTheme.typography.titleMedium)
             Text(presented("Local reference planning does not analyze your image. Review exact actions, then choose Apply yourself."), style = MaterialTheme.typography.bodySmall)
             Box {
-                OutlinedButton(onClick = { choosing = true }, enabled = !auto.inFlight && auto.choices.isNotEmpty(), modifier = Modifier.testTag("auto-goal")) { Text(tool?.name ?: "Choose adjustment") }
+                OutlinedButton(onClick = { choosing = true }, enabled = !auto.inFlight && auto.choices.isNotEmpty(), modifier = Modifier.testTag("auto-goal")) { Text(presented(tool?.name ?: "Choose adjustment")) }
                 DropdownMenu(expanded = choosing, onDismissRequest = { choosing = false }) {
                     for (option in auto.choices) {
                         val descriptor = ui.tools.firstOrNull { it.index == option.toolIndex } ?: continue
@@ -29,7 +30,7 @@ internal fun AutoProposalPanel(model: ManualEditorModel, ui: EditorUiState, auto
                     }
                 }
             }
-            if (tool != null) Text("Request: ${tool.name} — ${adviceSetting(tool, choice.values)}", Modifier.testTag("auto-choice-value"))
+            if (tool != null) Text(presentedFormat(R.string.phase11_context_request, presented(tool.name), adviceSetting(tool, choice.values)), Modifier.testTag("auto-choice-value"))
             if (ui.core?.active == true) Text(presented("Finish or cancel your manual adjustment before requesting a proposal."))
             Button(onClick = model::requestAuto, enabled = ui.core != null && !ui.core.active && !ui.busy && !auto.inFlight && tool != null,
                 modifier = Modifier.testTag("auto-request")) { Text(presented("Prepare proposal")) }
@@ -42,12 +43,12 @@ internal fun AutoProposalPanel(model: ManualEditorModel, ui: EditorUiState, auto
                 Column(Modifier.testTag("auto-ready"), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(presented(if (auto.status in listOf(AutoStatus.NO_ACTIONS, AutoStatus.EDIT_FAILED)) "No executable review — restore original or request a new proposal" else if (auto.status == AutoStatus.REVIEW_READY) "Ready for human approval" else "Reviewed plan"), style = MaterialTheme.typography.titleSmall)
                     auto.review?.let { review ->
-                        Text("Context: AI Auto-Edit; ${auto.status}. Provider ${proposal.providerId} (informational only). Planner reference.deterministic.v1.", Modifier.testTag("review-context"))
+                        Text(presentedFormat(R.string.phase11_context_context, auto.status.toString(), proposal.providerId), Modifier.testTag("review-context"))
                         ReviewPreviewPanel(model, auto.preview)
                         PlanInspectionPanel(review.inspection)
-                        Text("Reviewed source: ${review.sourceRevision.take(8)}. Apply rechecks the current source.", Modifier.testTag("auto-source"))
+                        Text(presentedFormat(R.string.phase11_context_source, review.sourceRevision.take(8)), Modifier.testTag("auto-source"))
                         Button(onClick = { model.applyAutoFromHuman(review) }, enabled = drafts.isEmpty() && auto.status == AutoStatus.REVIEW_READY && !auto.inFlight && auto.preview.status !in listOf(ReviewPreviewStatus.PREVIEW_LOADING, ReviewPreviewStatus.STALE),
-                            modifier = Modifier.testTag("auto-apply").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = "Apply this exact reviewed plan with human approval" }) { Text(stringResource(R.string.apply_reviewed_plan)) }
+                            modifier = Modifier.testTag("auto-apply").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = approvalDescription }) { Text(stringResource(R.string.apply_reviewed_plan)) }
                     }
                     ReviewEditPanel(model, auto) { key, dirty ->
                         if (model.autoProposal.value.review?.reviewIdentity == auto.review?.reviewIdentity) drafts = if (dirty) drafts + key else drafts - key
@@ -61,7 +62,7 @@ internal fun AutoProposalPanel(model: ManualEditorModel, ui: EditorUiState, auto
                 OutlinedButton(onClick = model::cancelAuto, enabled = !auto.cancelRequested, modifier = Modifier.testTag("auto-execution-cancel")) { Text(presented("Cancel execution")) }
             }
             if (auto.status == AutoStatus.COMPLETED && auto.receipt != null) {
-                Text("Edit applied. Ordinary revision ${auto.receipt.resultingRevision.take(8)}. Undo is available in Manual.", Modifier.testTag("auto-completed").semantics { liveRegion = LiveRegionMode.Polite })
+                Text(presentedFormat(R.string.phase11_context_completed, auto.receipt.resultingRevision.take(8)), Modifier.testTag("auto-completed").semantics { liveRegion = LiveRegionMode.Polite })
             }
             auto.result?.let { ResultReviewPanel(model, it) }
             if (auto.status == AutoStatus.REJECTED) Text(presented("Proposal dismissed. Nothing was applied."), Modifier.testTag("auto-rejected"))
@@ -70,7 +71,7 @@ internal fun AutoProposalPanel(model: ManualEditorModel, ui: EditorUiState, auto
                 Text(presented("Plan inspection stale. Request a new review."), Modifier.testTag("review-inspection-stale"))
                 Text(presented("Proposal expired after an editing change."), Modifier.testTag("auto-stale"))
             }
-            auto.error?.let { Text(it, Modifier.testTag("auto-error").semantics { liveRegion = LiveRegionMode.Assertive }) }
+            auto.error?.let { Text(presented(it), Modifier.testTag("auto-error").semantics { liveRegion = LiveRegionMode.Assertive }) }
             if (auto.status == AutoStatus.FAILED) Text(presented("Plan inspection unavailable. No actionable review; request a new proposal explicitly."), Modifier.testTag("review-inspection-unsupported"))
         }
     }

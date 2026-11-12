@@ -12,6 +12,17 @@ import Foundation
 }
 
 final class ShellTests: XCTestCase {
+    func testNativeDiagnosticPresentationPreservesRawStatusAndLocalizedMeaning() throws {
+        let bundle = try XCTUnwrap(Bundle.main.path(forResource: "vi", ofType: "lproj").flatMap(Bundle.init(path:)))
+        let failure = ManualEditorFailure(status: 7, boundary: "Preview")
+        let diagnostic = try XCTUnwrap(failure.errorDescription)
+        XCTAssertEqual(diagnostic, "Preview failure: Invalid parameter (core 7)")
+        XCTAssertEqual(presented(diagnostic, bundle: bundle), "Lỗi bản xem trước: Tham số không hợp lệ (core 7)")
+        XCTAssertEqual(presented("Unknown diagnostic (core 999)", bundle: bundle), "Unknown diagnostic (core 999)")
+        XCTAssertEqual(presented("Invalid parameter (core forged)", bundle: bundle), "Tham số không hợp lệ (core forged)")
+        XCTAssertEqual(presented("Preview failure: Preview failure: Invalid parameter (core 7)", bundle: bundle), "Lỗi bản xem trước: Preview failure: Invalid parameter (core 7)")
+    }
+
     @MainActor private func waitFor<T>(_ publisher: Published<T>.Publisher, _ predicate: @escaping (T) -> Bool) async {
         let ready = expectation(description: "authoritative interaction state")
         let subscription = publisher.first(where: predicate).sink { _ in ready.fulfill() }

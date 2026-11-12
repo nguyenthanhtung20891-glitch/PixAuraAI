@@ -22,6 +22,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = false, autoInitially: Boolean = false) {
     val ui by model.state.collectAsStateWithLifecycle()
@@ -64,7 +65,7 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
         }
         if (assist.enabled) AssistPanel(model, ui, assist)
         if (auto.enabled) AutoProposalPanel(model, ui, auto)
-        assist.notice?.let { Text(it, Modifier.testTag("assist-notice").semantics { liveRegion = LiveRegionMode.Polite }) }
+        assist.notice?.let { Text(presented(it), Modifier.testTag("assist-notice").semantics { liveRegion = LiveRegionMode.Polite }) }
         val openPhoto = stringResource(R.string.open_photo)
         val openVisible = stringResource(R.string.open_jpeg_or_png)
         Button(onClick = { picker.launch(arrayOf("image/jpeg", "image/png")) }, enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("open-photo").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = openPhoto }) { Text(openVisible) }
@@ -78,13 +79,13 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
         if (ui.busy) Text(presented("Loading or saving…"), Modifier.semantics { liveRegion = LiveRegionMode.Polite })
         if (ui.previewLoading) Text(presented("Rendering preview; changes are not saved until Apply"), Modifier.semantics { liveRegion = LiveRegionMode.Polite })
         if (!auto.enabled) {
-        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             for ((key, label) in listOf("geometry" to "Geometry", "tone_color" to "Tone/Color", "detail" to "Detail", "filters_presets" to "Filters/Presets")) {
                 FilterChip(selected = category == key, enabled = !ui.busy, onClick = { formatError = null; category = key; if (ui.core?.active == true) model.action(0) }, label = { Text(presented(label)) })
             }
         }
         if (category == "filters_presets") Text(presented("No presets available. The shipping catalog is empty."))
-        else Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        else FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             for (tool in ui.tools.filter { it.category == category }) {
                 FilterChip(selected = ui.core?.selected == tool.index, enabled = !ui.busy && ui.core != null,
                     onClick = { formatError = null; model.select(tool.index) }, label = { Text(presented(tool.name)) })
@@ -123,11 +124,11 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
             }
             OutlinedButton(onClick = { model.update(tool.parameters.map { it.default }) }, enabled = !ui.busy && !core.approvalPending) { Text(presented("Reset to default")) }
         }
-        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(onClick = { model.action(1) }, enabled = core?.active == true && !ui.busy && !ui.exporting, modifier = Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)) { Text(if (core?.approvalPending == true) stringResource(R.string.retry_apply) else stringResource(R.string.apply)) }
             OutlinedButton(onClick = { model.action(0); formatError = null }, enabled = core?.active == true && !ui.busy && !ui.exporting, modifier = Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)) { Text(stringResource(R.string.cancel)) }
         }
-        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = { model.action(2) }, enabled = core?.canUndo == true && !ui.busy && !ui.exporting, modifier = Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)) { Text(stringResource(R.string.undo)) }
             OutlinedButton(onClick = { model.action(3) }, enabled = core?.canRedo == true && !ui.busy && !ui.exporting, modifier = Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)) { Text(stringResource(R.string.redo)) }
         }
@@ -139,13 +140,13 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
         if (auto.enabled) ui.core?.let { Text(stringResource(R.string.committed_revisions, it.revisionCount)) }
         if (ui.core != null) {
             Text(presented("Export"), style = MaterialTheme.typography.titleMedium)
-            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(selected = exportFormat == 1, onClick = { exportFormat = 1 }, enabled = !ui.busy && !ui.exporting, label = { Text("JPEG") })
                 FilterChip(selected = exportFormat == 2, onClick = { exportFormat = 2 }, enabled = !ui.busy && !ui.exporting, label = { Text("PNG") })
             }
             if (exportFormat == 1) OutlinedTextField(exportQuality, { exportQuality = it.filter(Char::isDigit).take(3) }, enabled = !ui.busy && !ui.exporting,
                 label = { Text(presented("JPEG quality 1…100")) }, singleLine = true, modifier = Modifier.fillMaxWidth().testTag("export-quality"))
-            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (Build.VERSION.SDK_INT >= 29) Button(onClick = { model.saveToPhotos(exportFormat, exportQuality.toIntOrNull() ?: -1) },
                     enabled = !ui.busy && !ui.exporting, modifier = Modifier.testTag("export-save-photos").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = photosDescription }) { Text(presented("Save to Photos")) }
                 Button(onClick = { if (model.reserveExport()) documentLauncher.launch(if (exportFormat == 1) "PixAuraAI.jpg" else "PixAuraAI.png") },

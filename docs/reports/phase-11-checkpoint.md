@@ -194,3 +194,45 @@ v1 manifests/local JSON unchanged. Full source202/202 PASS. Next commit/push thi
 successor and observe both complete exact-SHA workflows; f585c24 remains failed,
 not rerun or substituted. Final receipt build/phase-11/final-certification.json
 must name the new HEAD, both run attempts and all10 completed successful jobs.
+
+Further G11 audit (current HEAD ee7f8cefc96f26bb3024d749d3f3bd52742f2a02):
+Foundation43204173904 completed7/7 SUCCESS attempt1, including corrected Windows;
+Native43204173804 Android job131134999023 FAILED7/62 instrumentation on hosted
+320x640/density160. Full evidence downloaded locally; old SHA not rerun.
+Timeouts occur after scrolling to Apply/Undo/Redo, plus export-not-displayed;
+root cause is nested horizontal action rows stealing nearest scroll ancestor.
+Reproduce same viewport on owned emulator5556, then replace small action groups
+with FlowRow wrapping; no assertion/time-limit weakening. Compact-before running.
+Also actual VI error-label regressions reproduced on iOS (2 exact mismatches)
+and Android (corrected before2 fails VI label; initial before harness forgot goal,
+not a product fail). Added24 canonical error/status translations, localized menus,
+context/source/completion/zoom labels, localized UI announcements, bounded display
+formatting that preserves raw native suffix bytes. Model/native contracts untouched.
+Android2/2 failure/recovery/diagnostic checks PASS after corrected real-text selector;
+iOS14/14 app unit + bilingual failure/export PASS at normal text. Full source202/202
+PASS after catalog-aware provenance assertions. These current UI/test edits are
+UNCOMMITTED; additive phase-11-source-v3.json and generator in build/phase-11
+are prepared. v1/v2 JSON evidence unchanged. Node locale test's previously
+unchanged predecessor hash pinned explicitly to ee7f8ce. Need finish compact fix,
+full62 Android/DebugRelease/lint/scanners and iOS max light/dark/generic checks,
+new additive evidence/report, source/secrets/diff review, commit/push successor,
+and exact new-SHA full7+3 CI. Runtime observer still monitors ee7f8ce and MUST be
+updated to the next SHA/run IDs after pushing. Hardware/human/store blockers unchanged.
+
+V3 local completion: actual compact before3 failed export display in BOTH locales;
+first compact attempt passed because AI-error journey left page near bottom, and
+before2 failed a test-only missing import. Both limitations explicitly retained.
+Wrapping small editor/Assist/preview/result groups fixes scroll ancestry and
+large text. Full COMPACT offline instrumentation62/62 PASS,0 skipped; DebugRelease,
+7+7 unit, strict lint and release isolation PASS. iOS14/14 unit and combined
+bilingual native-failure/Manual/export journey PASS at normal and MAX light/dark;
+final generic DebugRelease/release isolation PASS. Full Node202/202 PASS.
+Detailed source-v3, presentation-integration report and validation-v3 records added;
+v1/v2 JSON unchanged. Public source advisories reviewed; official SQLite tag source
+comparison confirms pinned3.53.4 has corrected byte accounting, not3.54.0 regression;
+new JPEG notes concern uncalled TurboJPEG/partial-crop/RGB565 paths. Supplemental
+upstream-maintenance-review.json retained; no vulnerability-free or physical claim.
+Next: source/secrets/diff review, commit/push v3, discover new exact-SHA run IDs,
+update local observer SHA/IDs, require both FULL workflows SUCCESS7/7+3/3 before
+stopping at external hardware/human/store/independent-review gates. ee7f8ce remains
+uncertified because Native Android failed; no rerun. No Phase11 closure/Phase12.

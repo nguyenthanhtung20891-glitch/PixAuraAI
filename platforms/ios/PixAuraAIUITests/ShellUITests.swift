@@ -40,7 +40,7 @@ final class ShellUITests: XCTestCase {
     func testPhase11BilingualExportAtAccessibilityTextSize() {
         for (language, locale, shareLabel) in [("en", "en_US", "Share"), ("vi", "vi_VN", "Chia sẻ")] {
             let app = XCUIApplication()
-            app.launchArguments = ["-AppleLanguages", "(\(language))", "-AppleLocale", locale, "--reset-shell-navigation", "--editor-test-image"]
+            app.launchArguments = ["-AppleLanguages", "(\(language))", "-AppleLocale", locale, "--reset-shell-navigation", "--editor-test-image", "--assist-test-failure", "--auto-test-failure"]
             app.launch()
             let open = app.buttons["open-editor-Manual"]
             XCTAssertTrue(open.waitForExistence(timeout: 20)); open.tap()
@@ -53,6 +53,22 @@ final class ShellUITests: XCTestCase {
                 XCTAssertGreaterThanOrEqual(control.frame.width, 44, id)
                 XCTAssertGreaterThanOrEqual(control.frame.height, 44, id)
             }
+            func tapReady(_ id: String) {
+                let button = app.buttons[id]
+                let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == true AND enabled == true"), object: button)
+                XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 20), .completed, id)
+                button.tap()
+            }
+            tapReady("mode-assist"); tapReady("assist-goal"); tapReady("assist-goal-pixaura.exposure"); tapReady("assist-request")
+            let adviceError = app.staticTexts["assist-error"]
+            XCTAssertTrue(adviceError.waitForExistence(timeout: 20))
+            XCTAssertEqual(adviceError.label, language == "vi" ? "Không thể xác thực gợi ý. Bạn có thể tiếp tục chỉnh sửa thủ công." : "Advice could not be validated. You can keep editing manually.")
+            tapReady("mode-manual"); tapReady("mode-auto"); tapReady("auto-goal"); tapReady("auto-goal-pixaura.exposure"); tapReady("auto-request")
+            let proposalError = app.staticTexts["auto-error"]
+            XCTAssertTrue(proposalError.waitForExistence(timeout: 20))
+            XCTAssertEqual(proposalError.label, language == "vi" ? "Không thể xác thực đề xuất. Chưa áp dụng thay đổi nào." : "Proposal could not be validated. Nothing was applied.")
+            tapReady("mode-manual")
+            XCTAssertEqual(revision.label, original, "Failed advice/proposals never publish a revision")
             let export = app.buttons["export-open"]
             XCTAssertTrue(export.waitForExistence(timeout: 20)); export.tap()
             let share = app.buttons["export-share"]

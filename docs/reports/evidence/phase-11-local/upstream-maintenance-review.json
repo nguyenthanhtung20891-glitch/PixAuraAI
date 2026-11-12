@@ -1,0 +1,31 @@
+{
+  "scope": "Supplemental public upstream review; not exhaustive vulnerability clearance",
+  "libjpeg_turbo": {
+    "pinned": "3.2.0",
+    "reviewed_release": "3.2.1",
+    "source": "https://github.com/libjpeg-turbo/libjpeg-turbo/releases/tag/3.2.1",
+    "reachable_owned_calls": "decode_codec.c uses 8-bit non-progressive full-image JCS_EXT_RGBA and one scanline at a time; no TurboJPEG, JPEG cropping/skip or RGB565 calls",
+    "assessment": "New release notes reviewed; no owned call path for the identified TurboJPEG/partial-cropping/RGB565 defects; no numerical/vendor policy change made"
+  },
+  "libsodium": {
+    "pinned": "1.0.22",
+    "reviewed": "https://github.com/jedisct1/libsodium/releases",
+    "assessment": "Pinned maintained release reviewed; no new admission/provider introduced"
+  },
+  "sqlite": {
+    "pinned": "3.53.4",
+    "reviewed_release": "3.54.1",
+    "sources": [
+      "https://www.sqlite.org/changes.html",
+      "https://sqlite.org/src/timeline?from=version-3.54.0&to=version-3.54.1&y=ci"
+    ],
+    "assessment": "Verified pinned3.53.4 uses pParse->szOpAlloc - n, the restored3.54.1 byte accounting; the problematic3.54.0 opcode-count expression is absent. Compared official sqlite/sqlite tagged vdbeaux.c sources. This specific32-bit regression is not in the pinned source; no exhaustive vulnerability-free claim.",
+    "primary_tag_sources": [
+      "https://github.com/sqlite/sqlite/blob/version-3.53.4/src/vdbeaux.c",
+      "https://github.com/sqlite/sqlite/blob/version-3.54.0/src/vdbeaux.c",
+      "https://github.com/sqlite/sqlite/blob/version-3.54.1/src/vdbeaux.c"
+    ],
+    "pinned_amalgamation_sha256": "b1dd5d74ec7f29055a6684fa06fb3c2f6821c87dd38f9a458dfd2e8a1db28189"
+  },
+  "zero_vulnerability_claim": false
+}

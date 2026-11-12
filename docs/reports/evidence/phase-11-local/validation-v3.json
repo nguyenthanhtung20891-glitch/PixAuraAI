@@ -1,0 +1,137 @@
+{
+  "version": 3,
+  "predecessor_implementation": "ee7f8cefc96f26bb3024d749d3f3bd52742f2a02",
+  "parent_validation_sha256": "e07b2840d04fd75dc5f8f39066b994388352f19bc8bf873fa34f7979d62f2ad7",
+  "source_record": "docs/reports/phase-11-source-v3.json",
+  "preserved_v1_v2": true,
+  "scope": "Actual bilingual native failures, diagnostic preservation, compact wrapping/scroll recovery; software only",
+  "android": {
+    "display_override": {
+      "width": 320,
+      "height": 640,
+      "density": 160,
+      "target": "Owned ARM64 API35 Emulator; no physical GPU claim"
+    },
+    "full_offline_instrumentation": {
+      "tests": 62,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "bilingual_font_scale": 2.0,
+    "native_failures": "Malformed reference advice/proposal via existing debug hooks; native invalid manual parameter rejected core7; translated errors keep raw status, Manual/history remain available",
+    "admission_or_history_change": false,
+    "scroll_regression": "Reset outer page to top for each destination; before3 both locales fail not-displayed, wrapping FlowRows after PASS",
+    "debug_release_builds": "PASS",
+    "jvm_tests": "7/7 Debug and7/7 Release PASS",
+    "lint_debug_release": "PASS",
+    "release_scan": {
+      "native_libraries": 12,
+      "dex_files": 2,
+      "uncompressed_bytes": 33048525
+    }
+  },
+  "ios": {
+    "app_units": {
+      "tests": 14,
+      "failures": 0
+    },
+    "bilingual_error_manual_export_normal": "PASS",
+    "combined_maximum_dynamic_type_light": "PASS",
+    "combined_maximum_dynamic_type_dark": "PASS",
+    "native_diagnostic_bundle_test": "Real ManualEditorFailure, actual vi catalog; known/unknown/forged/repeated prefixes preserve raw suffix without recursion",
+    "final_generic_debug_release": "PASS",
+    "release_scan": {
+      "files": 10,
+      "bytes": 3953772,
+      "model_assets": 0
+    }
+  },
+  "source_tests": {
+    "tests": 202,
+    "passed": 202
+  },
+  "logs": {
+    "android-bilingual-errors-before.log": {
+      "sha256": "fdadd383addda5076856e0b179be1899beb66f7b25b9eeafbe8899f3f2ab66c3",
+      "bytes": 6395
+    },
+    "android-bilingual-errors-before2.log": {
+      "sha256": "9b54c444322b1982b9d728a5f5d1f226076ddb4964fdc4268c8e4ea869437e14",
+      "bytes": 5809
+    },
+    "android-bilingual-errors-after.log": {
+      "sha256": "3c5e9e3187b5dc76ac1258b06e9f362d28e3dad1ac83ef87f9e33d59c7a58036",
+      "bytes": 5931
+    },
+    "android-bilingual-errors-after2.log": {
+      "sha256": "5b5ed8a89d01724cacc243aa475374616baa7257e947bbc87da4130022941835",
+      "bytes": 4872
+    },
+    "android-compact-before.log": {
+      "sha256": "9705ab9210e2992cfaafc17a15ccc3e1e28e9ad8cd2cca0157d2b7eefc02e8e9",
+      "bytes": 4915
+    },
+    "android-compact-before2.log": {
+      "sha256": "7162369b0efe7b9a661e87064adcdb74637ad47a201b1a2fd63ac6abf5a32d01",
+      "bytes": 5020
+    },
+    "android-compact-before3.log": {
+      "sha256": "4b79394c43d5fee68dbaf214dc8a75430bf5263d1d736df562705f77448db258",
+      "bytes": 6107
+    },
+    "android-compact-after.log": {
+      "sha256": "04744340fc3b0c3efecad650b746e988dd237e634342f07b1359babb3ddbe50c",
+      "bytes": 4861
+    },
+    "android-v3-builds.log": {
+      "sha256": "0ba4511ca650a20f79a079690319871983041da9397eae4c5db800ba4f5df987",
+      "bytes": 8877
+    },
+    "android-v3-compact-full.log": {
+      "sha256": "368732ad63e390c1e943f9b4b48ed9b9bf415a32279c5979f76b4a8b9699e69c",
+      "bytes": 5788
+    },
+    "android-scanner-v3.log": {
+      "sha256": "796a1a203c80afcd904d17f4bc577ad231d15e3e44c1ddb85811ccebc657b85b",
+      "bytes": 208
+    },
+    "ios-bilingual-errors-before.log": {
+      "sha256": "7feb103e8dfaf7ee758f4caeedce73e0a755f4c62ccbda62e38d988990f917a3",
+      "bytes": 78503
+    },
+    "ios-bilingual-errors-after.log": {
+      "sha256": "1d4d0226d67e4f0c23b824a0b75658c60ecf24ce390046f8691798f9932676a0",
+      "bytes": 137283
+    },
+    "ios-errors-max-light.log": {
+      "sha256": "0c91ee37077142e99ee69264d56c0cae07f204cb2af05f2a424a21c0881a9785",
+      "bytes": 45245
+    },
+    "ios-errors-max-dark.log": {
+      "sha256": "4980982fc00d7184c635b3250aaf500ccd5380949e211522623476e801d3d166",
+      "bytes": 42853
+    },
+    "ios-generic-v3.log": {
+      "sha256": "09d9782a8a98af973bc722a73550a1562f524132bf9471261d9087897f9a7844",
+      "bytes": 4009280
+    },
+    "source-v3-precommit.log": {
+      "sha256": "3f248fe75291b65e8650cab5144dcc3fc7b1eee62467c231ad36c639527ad36f",
+      "bytes": 19144
+    }
+  },
+  "predecessor_native_failure": "ci-predecessor-android-failure.json; old SHA not rerun",
+  "final_hosted_ci": "PENDING exact containing implementation SHA; both complete7+3 required",
+  "shared_production_native_abi_schema_or_trust_changed": false,
+  "trust": {
+    "cpu.reference.v1": "VALIDATED",
+    "apple.metal.v1": "UNKNOWN",
+    "android.vulkan.v1": "UNKNOWN",
+    "DH-APPLE-METAL-01": "DEFERRED / NOT WAIVED / NOT SATISFIED"
+  },
+  "phase_11": "IN PROGRESS / mandatory acceptance gates BLOCKED",
+  "phase_12": "NOT STARTED",
+  "independent_acceptance": "NOT RECEIVED",
+  "closure_sha": null
+}

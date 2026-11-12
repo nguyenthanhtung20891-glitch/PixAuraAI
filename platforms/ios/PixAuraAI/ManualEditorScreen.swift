@@ -3,7 +3,16 @@ import UniformTypeIdentifiers
 import PixAuraCore
 import UIKit
 
-func presented(_ canonical: String) -> String { String(localized: String.LocalizationValue(canonical)) }
+func presented(_ canonical: String, bundle: Bundle = .main) -> String {
+    // Display-only formatting. Native suffix bytes remain intact and grant no authority.
+    let prefix = canonical.hasPrefix("Preview failure: ") ? "Preview failure" : canonical.hasPrefix("Commit failure: ") ? "Commit failure" : ""
+    let body = prefix.isEmpty ? canonical : String(canonical.dropFirst(prefix.count + 2))
+    let marker = body.hasSuffix(")") ? body.range(of: " (core ", options: .backwards) : nil
+    let meaning = marker.map { String(body[..<$0.lowerBound]) } ?? body
+    let suffix = marker.map { String(body[$0.lowerBound...]) } ?? ""
+    let heading = prefix.isEmpty ? "" : String(localized: String.LocalizationValue(prefix), bundle: bundle) + ": "
+    return heading + String(localized: String.LocalizationValue(meaning), bundle: bundle) + suffix
+}
 
 @MainActor
 struct ManualEditorScreen: View {
@@ -59,13 +68,13 @@ struct ManualEditorScreen: View {
                     ForEach(state.choices, id: \.index) { choice in
                         if model.tools.indices.contains(choice.toolIndex) {
                             let tool = model.tools[choice.toolIndex]
-                            Button("\(tool.name) — \(adviceSetting(tool, choice.values))") { model.chooseAdvice(choice.index) }
+                            Button("\(presented(tool.name)) — \(adviceSetting(tool, choice.values))") { model.chooseAdvice(choice.index) }
                                 .accessibilityIdentifier("assist-goal-\(tool.toolID)")
                         }
                     }
                 } label: { Text(presented(tool?.name ?? "Choose adjustment")) }
                     .disabled(state.inFlight || state.choices.isEmpty).accessibilityIdentifier("assist-goal")
-                if let tool, let choice { Text("Request: \(tool.name) — \(adviceSetting(tool, choice.values))").accessibilityIdentifier("assist-choice-value") }
+                if let tool, let choice { Text("Request: \(presented(tool.name)) — \(adviceSetting(tool, choice.values))").accessibilityIdentifier("assist-choice-value") }
                 if model.core?.active == true { Text("Finish or cancel your current manual adjustment before requesting advice.").font(.caption) }
                 Button("Request advice") { model.requestAdvice() }
                     .disabled(model.core == nil || model.core?.active == true || model.busy || state.inFlight || tool == nil)
@@ -89,7 +98,7 @@ struct ManualEditorScreen: View {
                 if state.status == .cancelled { Text("Advice cancelled. You can keep editing manually.").accessibilityIdentifier("assist-cancelled") }
                 if state.status == .stale { Text("Advice expired after an editing change. Request new guidance when ready.").accessibilityIdentifier("assist-stale") }
                 if state.status == .rejected { Text("Advice dismissed. Your image is unchanged.").accessibilityIdentifier("assist-dismissed") }
-                if let error = state.error { Text(error).accessibilityIdentifier("assist-error") }
+                if let error = state.error { Text(presented(error)).accessibilityIdentifier("assist-error") }
             }.frame(maxWidth: .infinity, alignment: .leading)
         }.accessibilityIdentifier("assist-panel")
     }
@@ -111,7 +120,7 @@ struct ManualEditorScreen: View {
                     }
                 } label: { Text(presented(tool?.name ?? "Choose adjustment")) }
                     .disabled(state.inFlight || state.choices.isEmpty).accessibilityIdentifier("auto-goal")
-                if let tool, let choice { Text("Request: \(tool.name) — \(adviceSetting(tool, choice.values))").accessibilityIdentifier("auto-choice-value") }
+                if let tool, let choice { Text("Request: \(presented(tool.name)) — \(adviceSetting(tool, choice.values))").accessibilityIdentifier("auto-choice-value") }
                 if model.core?.active == true { Text("Finish or cancel your manual adjustment before requesting a proposal.") }
                 Button("Prepare proposal") { model.requestAuto() }
                     .disabled(model.core == nil || model.core?.active == true || model.busy || state.inFlight || tool == nil).accessibilityIdentifier("auto-request")
@@ -154,7 +163,7 @@ struct ManualEditorScreen: View {
                     Text("Plan inspection stale. Request a new review.").accessibilityIdentifier("review-inspection-stale")
                     Text("Proposal expired after an editing change.").accessibilityIdentifier("auto-stale")
                 }
-                if let error = state.error { Text(error).accessibilityIdentifier("auto-error") }
+                if let error = state.error { Text(presented(error)).accessibilityIdentifier("auto-error") }
                 if state.status == .failed { Text("Plan inspection unavailable. No actionable review; request a new proposal explicitly.").accessibilityIdentifier("review-inspection-unsupported") }
             }.frame(maxWidth: .infinity, alignment: .leading)
         }.accessibilityIdentifier("auto-panel")
@@ -181,7 +190,7 @@ struct ManualEditorScreen: View {
                 ScrollView { autoPanel }
                     .accessibilityIdentifier("review-scroll")
             }
-            if let notice = model.assistance.notice { Text(notice).accessibilityIdentifier("assist-notice") }
+            if let notice = model.assistance.notice { Text(presented(notice)).accessibilityIdentifier("assist-notice") }
             Button(String(localized: "Open JPEG or PNG")) { picking = true }
                 .disabled(model.busy || model.exporting)
                 .accessibilityIdentifier("open-photo")
@@ -237,7 +246,9 @@ struct ManualEditorScreen: View {
         .onChange(of: model.core?.selected) { _ in if let selected { category = selected.category } }
         .onChange(of: model.core?.values) { values in cropDrafts = values?.map(String.init) ?? [] }
         .onChange(of: model.error) { if let error = $0 { UIAccessibility.post(notification: .announcement, argument: presented(error)) } }
-        .onChange(of: model.assistance.error) { if let error = $0 { UIAccessibility.post(notification: .announcement, argument: error) } }
+        .onChange(of: model.assistance.error) { if let error = $0 { UIAccessibility.post(notification: .announcement, argument: presented(error)) } }
+        .onChange(of: model.autoProposal.error) { if let error = $0 { UIAccessibility.post(notification: .announcement, argument: presented(error)) } }
+        .onChange(of: model.autoProposal.preview.error) { if let error = $0 { UIAccessibility.post(notification: .announcement, argument: presented(error)) } }
     }
     @ViewBuilder private var manualControls: some View {
         ScrollView(.horizontal) {
@@ -444,7 +455,7 @@ private struct ReviewComparisonPanel: View {
             }
             if state.status == .stale { Text("Preview is stale. Request a freshly validated proposal.").accessibilityIdentifier("review-preview-stale") }
             if state.status == .cancelled { Text(presented("Preview cancelled. The Plan remains inspectable if current.")).accessibilityIdentifier("review-preview-cancelled") }
-            if let error = state.error { Text(error).accessibilityIdentifier("review-preview-failed") }
+            if let error = state.error { Text(presented(error)).accessibilityIdentifier("review-preview-failed") }
         }.accessibilityElement(children: .contain).accessibilityIdentifier("review-preview")
             .onChange(of: state.comparison.map { ObjectIdentifier($0) }) { _ in reset() }
     }
@@ -479,7 +490,7 @@ private struct ReviewEditPanel: View {
     var body: some View {
         VStack(alignment: .leading) {
             let binding = state.review?.reviewIdentity ?? state.editSession?.bindingIdentity
-            Text(dirty).accessibilityIdentifier("review-edit-state")
+            Text(presented(dirty)).accessibilityIdentifier("review-edit-state")
             if editable && state.inFlight { Text("Validating review edit…").accessibilityIdentifier("review-edit-loading") }
             if let review = state.review {
                 ForEach(Array(review.inspection.actions.enumerated()), id: \.offset) { index, action in
@@ -536,7 +547,7 @@ private struct ResultReviewPanel: View {
             }
             Button("Back to editing") { model.backToEditing() }.accessibilityIdentifier("result-back")
         }.accessibilityElement(children: .contain)
-            .accessibilityLabel(String(format: String(localized: "%@ Previous %@. Current %@. Count %lld."), label, result.previous.isEmpty ? "none" : result.previous, result.live, Int64(result.count)))
+            .accessibilityLabel(String(format: String(localized: "%@ Previous %@. Current %@. Count %lld."), label, result.previous.isEmpty ? presented("none") : result.previous, result.live, Int64(result.count)))
             .accessibilityIdentifier("result-review")
     }
 }

@@ -4,6 +4,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,6 +24,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun ResultReviewPanel(model: ManualEditorModel, result: ResultReviewUi) {
     val observed = model.autoProposal.collectAsStateWithLifecycle().value.result ?: result
@@ -32,7 +35,7 @@ internal fun ResultReviewPanel(model: ManualEditorModel, result: ResultReviewUi)
         4 -> "Receipt revision is absent from ordinary history."
         else -> "No committed result."
     })
-    val spoken = presentedFormat(R.string.phase11_result_spoken, label, observed.previous.ifEmpty { "none" }, observed.live, observed.count)
+    val spoken = presentedFormat(R.string.phase11_result_spoken, label, if (observed.previous.isEmpty()) presented("none") else observed.previous, observed.live, observed.count)
     Column(Modifier.fillMaxWidth().testTag("result-review"), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(presented("Committed result"), style = MaterialTheme.typography.titleSmall)
         Text(label, Modifier.testTag("result-label").semantics { contentDescription = spoken; liveRegion = LiveRegionMode.Polite })
@@ -42,11 +45,11 @@ internal fun ResultReviewPanel(model: ManualEditorModel, result: ResultReviewUi)
             val caption = presented(if (observed.showing == "previous") "Previous committed revision" else "Current committed result")
             Image(it.asImageBitmap(), caption, Modifier.fillMaxWidth().height(180.dp).testTag("result-viewport"), contentScale = ContentScale.Fit)
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = { model.showResult(true) }, enabled = observed.previous.isNotEmpty(), modifier = Modifier.testTag("result-previous")) { Text(presented("Previous")) }
             OutlinedButton(onClick = { model.showResult(false) }, modifier = Modifier.testTag("result-current")) { Text(presented("Current Result")) }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             val undoDocument = presented("Undo document")
             val redoDocument = presented("Redo document")
             OutlinedButton(onClick = model::undoResult, enabled = observed.canUndo, modifier = Modifier.testTag("result-undo").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = undoDocument }) { Text(undoDocument) }

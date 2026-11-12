@@ -132,13 +132,58 @@ internal fun presentationId(canonical: String): Int = when (canonical) {
     "Previous" -> R.string.phase11_a57b08a480
     "Current Result" -> R.string.phase11_93037e4317
     "Back to editing" -> R.string.phase11_69a02c64d5
+    "Advice session ended. Manual editing is available." -> R.string.phase11_failure_743dd48627
+    "Advice is unavailable. Manual editing is available." -> R.string.phase11_failure_dc016e2eee
+    "This advice has expired. Request new guidance for the current image." -> R.string.phase11_failure_772d826a16
+    "Advice cancelled or stopped. Manual editing is available." -> R.string.phase11_failure_5526c61ea3
+    "Advice is busy or resources are limited. You can keep editing manually." -> R.string.phase11_failure_7cd6f808b3
+    "Advice could not be validated. You can keep editing manually." -> R.string.phase11_failure_ba5b8c3be2
+    "Manual tool opened. Set your preferred value, then choose Apply." -> R.string.phase11_failure_c397041518
+    "Proposal session ended. Manual editing is available." -> R.string.phase11_failure_d871eab5ff
+    "Proposals unavailable. Manual editing is available." -> R.string.phase11_failure_d9f9bec642
+    "Proposal expired after an editing change. Request a new proposal." -> R.string.phase11_failure_194b5da315
+    "Proposal cancelled or stopped. Nothing was applied." -> R.string.phase11_failure_bafb858433
+    "Provider busy or resources limited. Manual editing is available." -> R.string.phase11_failure_9c8cc1c650
+    "Proposal could not be validated. Nothing was applied." -> R.string.phase11_failure_1f715b4da3
+    "Cancellation requested; awaiting the native publication result." -> R.string.phase11_failure_0ff624b08a
+    "Execution cancelled before publication." -> R.string.phase11_failure_b235eb470c
+    "Execution did not report completion. Check history before requesting a fresh proposal." -> R.string.phase11_failure_0f7bc78335
+    "Preview busy. Manual editing is available." -> R.string.phase11_failure_31797bdd9a
+    "Preview unavailable. No edit was applied. Manual editing and Plan inspection remain available." -> R.string.phase11_failure_50641169e9
+    "ORIGINAL" -> R.string.phase11_failure_962f85a278
+    "EDITED" -> R.string.phase11_failure_c14684254f
+    "NO_ACTIONS — nothing to apply" -> R.string.phase11_failure_dcd111dc74
+    "EDIT_FAILED — restore required" -> R.string.phase11_failure_667c1b3075
+    "AI Assist recommendation" -> R.string.phase11_failure_a104c698e6
+    "Apply this exact reviewed plan with human approval" -> R.string.phase11_failure_83bd0db3ca
+    "Invalid parameter" -> R.string.phase11_failure_2480e9750d
+    "Resource/admission failure" -> R.string.phase11_failure_0660b4337f
+    "Tool or image capability unavailable" -> R.string.phase11_failure_cc3ce9611d
+    "Human approval required" -> R.string.phase11_failure_de0f0706e4
+    "Shared core unavailable" -> R.string.phase11_failure_8eaf295837
+    "Preview failure" -> R.string.phase11_failure_affb755f3b
+    "Commit failure" -> R.string.phase11_failure_c0474dd60f
+    "none" -> R.string.phase11_failure_140bedbf9c
     else -> 0
 }
 
 @Composable
 internal fun presented(canonical: String): String {
-    val id = presentationId(canonical)
-    return if (id == 0) canonical else stringResource(id)
+    // Presentation only: translate known meaning, preserve the raw native
+    // diagnostic suffix. No status is interpreted as editing authority.
+    val prefix = when {
+        canonical.startsWith("Preview failure: ") -> "Preview failure"
+        canonical.startsWith("Commit failure: ") -> "Commit failure"
+        else -> ""
+    }
+    val body = if (prefix.isEmpty()) canonical else canonical.substring(prefix.length + 2)
+    val marker = if (body.endsWith(")")) body.lastIndexOf(" (core ") else -1
+    val meaning = if (marker >= 0) body.substring(0, marker) else body
+    val suffix = if (marker >= 0) body.substring(marker) else ""
+    val id = presentationId(meaning)
+    val translated = if (id == 0) meaning else stringResource(id)
+    val prefixId = presentationId(prefix)
+    return (if (prefix.isEmpty()) "" else stringResource(prefixId) + ": ") + translated + suffix
 }
 
 /** Presentation-only formatting; native identifiers and raw values stay verbatim. */

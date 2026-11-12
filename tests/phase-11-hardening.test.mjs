@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import test from 'node:test';
-import { phase11Hash, phase11SuccessorHash } from './helpers/phase-11-hashes.mjs';
+import { phase11Hash, phase11SuccessorHash, phase11PostV2Hash } from './helpers/phase-11-hashes.mjs';
 const read = p => fs.readFileSync(p, 'utf8').replaceAll('\r\n', '\n');
 const hash = p => crypto.createHash('sha256').update(read(p)).digest('hex');
 
@@ -28,6 +28,16 @@ test('Phase 11 source successor binds current hardening without rewriting histor
   assert.equal(successor.gpu_admission_policy_changed, false);
   for (const [path, change] of Object.entries(successor.changes)) {
     assert.equal(change.before_sha256_lf, record.changes[path]?.after_sha256_lf ?? record.additions[path], path);
+    assert.equal(hash(path), phase11PostV2Hash(path, change.after_sha256_lf), path);
+  }
+  const localization = JSON.parse(read('docs/reports/phase-11-source-v3.json'));
+  assert.equal(localization.predecessor_commit, 'ee7f8cefc96f26bb3024d749d3f3bd52742f2a02');
+  assert.equal(hash(localization.parent_manifest), localization.parent_manifest_sha256_lf);
+  for (const flag of ['public_abi_changed', 'schema_changed', 'gpu_admission_policy_changed']) assert.equal(localization[flag], false);
+  const previouslyUnchanged = { 'tests/product-ux-locale.test.mjs': 'b5bbe3c61074366d6ca642688ea59a3adfd2fc06c8e917e7fd96cd1af785a976' };
+  assert.deepEqual(localization.unchanged_predecessor_files, previouslyUnchanged);
+  for (const [path, change] of Object.entries(localization.changes)) {
+    assert.equal(change.before_sha256_lf, successor.changes[path]?.after_sha256_lf ?? record.changes[path]?.after_sha256_lf ?? record.additions[path] ?? previouslyUnchanged[path], path);
     assert.equal(hash(path), change.after_sha256_lf, path);
   }
 
