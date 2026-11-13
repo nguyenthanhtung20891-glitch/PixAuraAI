@@ -55,5 +55,13 @@ export function phase11PostV6Hash(path, predecessor) {
   const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v7.json', 'utf8'));
   const change = record.changes[path];
   if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase 11 physical fixture predecessor');
+  return phase11PostV7Hash(path, change?.after_sha256_lf ?? predecessor);
+}
+
+// Admitted-device measurement harness successor; production policy is unchanged.
+export function phase11PostV7Hash(path, predecessor) {
+  const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v8.json', 'utf8'));
+  const change = record.changes[path];
+  if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase 11 device measurement predecessor');
   return change?.after_sha256_lf ?? predecessor;
 }

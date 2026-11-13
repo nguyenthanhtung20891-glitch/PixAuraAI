@@ -292,3 +292,17 @@ PASS. Additivev7; no productionchange. Nextcommit/pushfixture successor, freshcl
 physicalMetalcontroller andall15units, exactSHA7+3 CI; collect scopedG8observations.
 V6CI Foundation43406518767/Native43406518751 stillrunningattempt1. PrimaryownerTeam
 changes remainunstaged; doNOTstageprojectfile. Phase11open;Phase12notstarted.
+
+## Physical workload successor (certification pending)
+
+See phase-11-device-workload.md and additive phase-11-source-v8.json.
+Predecessor82f8478 has Foundation7/7 but Native iOS cancelled at45m, with an
+earlier initial-proposal UI assertion failure. Local focused reproduction passes;
+root cause not established. Added first-failure diagnostics, retained assertions,
+and60m iOS job budget. New test-only actual-policy workload instrumentation has
+Release Simulator smoke/full100-sample and all16Debug unit PASS. No physical
+measurements claimed for new harness yet. Next: commit/review source, full exact
+SHA7+3 CI, clean isolated checkout, fresh physical Metal/units/Release sampling.
+Preserve owner-only Team/format project changes unstaged. Raw local checkpoint:
+build/phase-11-iphone-xr/signing-ready/RESUME.md. G8/G10/G11 and independent
+Metal review remain outstanding; Phase11 remains IN PROGRESS, Phase12 NOT STARTED.

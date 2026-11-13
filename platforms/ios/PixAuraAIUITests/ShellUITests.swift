@@ -1,6 +1,23 @@
 import XCTest
 
 final class ShellUITests: XCTestCase {
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        // Stop on the first broken contract; later taps obscure its UI state.
+        continueAfterFailure = false
+    }
+    override func tearDownWithError() throws {
+        if testRun?.hasSucceeded == false {
+            let app = XCUIApplication()
+            let tree = XCTAttachment(string: app.debugDescription)
+            tree.name = "first-failure-accessibility-tree"; tree.lifetime = .keepAlways
+            add(tree)
+            let screenshot = XCTAttachment(screenshot: app.screenshot())
+            screenshot.name = "first-failure-screen"; screenshot.lifetime = .keepAlways
+            add(screenshot)
+        }
+        try super.tearDownWithError()
+    }
     // The assertions use the English catalog. A simulator inherits the Mac
     // language, and String(localized:) then presents that catalog instead.
     // Foundation reads these arguments before SwiftUI resolves the strings.

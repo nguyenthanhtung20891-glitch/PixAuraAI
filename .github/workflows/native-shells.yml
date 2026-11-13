@@ -50,7 +50,8 @@ jobs:
           retention-days: 14
   ios-app:
     runs-on: macos-26
-    timeout-minutes: 45
+    # Observed full hosted build/package/UI suite exceeded 45 minutes; all checks remain enabled.
+    timeout-minutes: 60
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
     steps:

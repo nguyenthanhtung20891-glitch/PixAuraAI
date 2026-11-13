@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import test from 'node:test';
-import { phase11Hash, phase11SuccessorHash, phase11PostV2Hash, phase11PostV3Hash, phase11PostV4Hash, phase11PostV5Hash, phase11PostV6Hash } from './helpers/phase-11-hashes.mjs';
+import { phase11Hash, phase11SuccessorHash, phase11PostV2Hash, phase11PostV3Hash, phase11PostV4Hash, phase11PostV5Hash, phase11PostV6Hash, phase11PostV7Hash } from './helpers/phase-11-hashes.mjs';
 const read = p => fs.readFileSync(p, 'utf8').replaceAll('\r\n', '\n');
 const hash = p => crypto.createHash('sha256').update(read(p)).digest('hex');
 
@@ -70,6 +70,14 @@ test('Phase 11 source successor binds current hardening without rewriting histor
   for (const flag of ['public_abi_changed', 'schema_changed', 'gpu_admission_policy_changed']) assert.equal(fixture[flag], false);
   for (const [path, change] of Object.entries(fixture.changes)) {
     assert.equal(change.before_sha256_lf, loader.changes[path]?.after_sha256_lf ?? retirement.changes[path]?.after_sha256_lf ?? controller.changes[path]?.after_sha256_lf ?? localization.changes[path]?.after_sha256_lf ?? successor.changes[path]?.after_sha256_lf ?? record.changes[path]?.after_sha256_lf ?? record.additions[path], path);
+    assert.equal(hash(path), phase11PostV7Hash(path, change.after_sha256_lf), path);
+  }
+  const measurement = JSON.parse(read('docs/reports/phase-11-source-v8.json'));
+  assert.equal(measurement.predecessor_commit, '82f847859397e5217f4a68b511b526524a1ab7d6');
+  assert.equal(hash(measurement.parent_manifest), measurement.parent_manifest_sha256_lf);
+  for (const flag of ['public_abi_changed', 'schema_changed', 'gpu_admission_policy_changed']) assert.equal(measurement[flag], false);
+  for (const [path, change] of Object.entries(measurement.changes)) {
+    assert.equal(change.before_sha256_lf, fixture.changes[path]?.after_sha256_lf ?? loader.changes[path]?.after_sha256_lf ?? retirement.changes[path]?.after_sha256_lf ?? controller.changes[path]?.after_sha256_lf ?? localization.changes[path]?.after_sha256_lf ?? successor.changes[path]?.after_sha256_lf ?? record.changes[path]?.after_sha256_lf ?? record.additions[path], path);
     assert.equal(hash(path), change.after_sha256_lf, path);
   }
 
@@ -99,4 +107,13 @@ test('Phase 11 does not turn software success into mandatory hardware or commerc
   for (const path of ['.github/workflows/foundation.yml', '.github/workflows/native-shells.yml', 'scripts/check-apple.sh']) {
     assert.ok(read(path).includes('tests/phase-11-hardening.test.mjs'), path);
   }
+});
+
+
+test('hosted iOS job budget preserves the complete package and app suites', () => {
+  const ios = read('.github/workflows/native-shells.yml').split('  ios-app:')[1];
+  assert.match(ios, /timeout-minutes: 60/);
+  assert.match(ios, /run: bash scripts\/check-apple\.sh/);
+  assert.match(ios, /run: bash scripts\/check-ios-shell\.sh/);
+  assert.match(ios, /if: always\(\)/);
 });

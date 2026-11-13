@@ -3,6 +3,7 @@ import Combine
 @testable import PixAuraCore
 import CPixAuraCore
 import CoreGraphics
+import ImageIO
 import Foundation
 import Darwin
 @testable import PixAuraAI
@@ -10,6 +11,102 @@ import Darwin
 @MainActor private final class ModelLifetimeProbe {
     weak var value: ManualEditorModel?
     init(_ value: ManualEditorModel) { self.value = value }
+}
+
+
+// Device-only facts are observations, never extra admission allowances.
+private func phase11ResourceReading() -> [String: Any] {
+    var reading = mach_task_basic_info_data_t()
+    var words = mach_msg_type_number_t(MemoryLayout.size(ofValue: reading) / MemoryLayout<integer_t>.size)
+    let status = withUnsafeMutablePointer(to: &reading) { pointer in
+        pointer.withMemoryRebound(to: integer_t.self, capacity: Int(words)) {
+            task_info(mach_task_self_, task_flavor_t(MACH_TASK_BASIC_INFO), $0, &words)
+        }
+    }
+    return ["kernel_status": status, "resident_bytes": reading.resident_size,
+            "process_high_water_resident_bytes": reading.resident_size_max,
+            "thermal_state": ProcessInfo.processInfo.thermalState.rawValue,
+            "low_power_mode": ProcessInfo.processInfo.isLowPowerModeEnabled]
+}
+private func phase11Check(_ code: Int32, _ boundary: String) throws {
+    guard code == 0 else { throw ManualEditorFailure(status: code, boundary: boundary) }
+}
+private func phase11Milliseconds<T>(_ work: () throws -> T) throws -> (T, Double) {
+    let start = DispatchTime.now().uptimeNanoseconds
+    let result = try work()
+    return (result, Double(DispatchTime.now().uptimeNanoseconds - start) / 1_000_000)
+}
+private final class Phase11DeviceInput {
+    let file: FileHandle
+    init(_ url: URL) throws { file = try FileHandle(forReadingFrom: url) }
+    deinit { try? file.close() }
+}
+private func phase11DeviceRead(_ raw: UnsafeMutableRawPointer?, _ output: UnsafeMutablePointer<UInt8>?, _ capacity: UInt64) -> Int64 {
+    guard let raw, let output, capacity > 0, capacity <= 65536 else { return -1 }
+    do {
+        let data = try Unmanaged<Phase11DeviceInput>.fromOpaque(raw).takeUnretainedValue().file.read(upToCount: Int(capacity)) ?? Data()
+        data.withUnsafeBytes { if let base = $0.baseAddress { UnsafeMutableRawPointer(output).copyMemory(from: base, byteCount: data.count) } }
+        return Int64(data.count)
+    } catch { return -1 }
+}
+private final class Phase11DeviceContext {
+    let pointer = UnsafeMutablePointer<pixaura_editor_context>.allocate(capacity: 1)
+    private var opened = false
+    init() { pointer.initialize(to: pixaura_editor_context()) }
+    deinit {
+        _ = close()
+        // Retain storage rather than free an owner if quiescence ever fails.
+        if !opened { pointer.deinitialize(count: 1); pointer.deallocate() }
+    }
+    func close() -> [String: Any] {
+        guard opened else { return ["stop_status": Int32(0), "destroy_status": Int32(0)] }
+        let stop = pixaura_editor_stop(pointer), destroy = pixaura_editor_destroy(pointer)
+        if destroy == 0 { opened = false }
+        return ["stop_status": stop, "destroy_status": destroy]
+    }
+    func open(root: URL, input: URL, capability: AppleCapabilitySnapshot) throws -> pixaura_execution_strategy {
+        let canonical: String = try root.withUnsafeFileSystemRepresentation { path in
+            let resolved = try XCTUnwrap(path.flatMap { realpath($0, nil) })
+            defer { free(resolved) }; return String(cString: resolved)
+        }
+        let path = Array(canonical.utf8), identity = Array(UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased().utf8)
+        let reader = try Phase11DeviceInput(input)
+        let count = UInt64(try input.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0)
+        var profile = capability.profile, observation = capability.observation, strategy = pixaura_execution_strategy()
+        let code = path.withUnsafeBufferPointer { path in identity.withUnsafeBufferPointer { identity in
+            pixaura_editor_open_policy(1, pointer, path.baseAddress, UInt64(path.count), identity.baseAddress, UInt64(identity.count),
+                phase11DeviceRead, Unmanaged.passUnretained(reader).toOpaque(), count, &profile, &observation, &strategy)
+        } }
+        withExtendedLifetime(reader) {}
+        try phase11Check(code, "Benchmark import"); opened = true; return strategy
+    }
+    func state() throws -> ManualEditorState {
+        var size: UInt64 = 0
+        try phase11Check(pixaura_editor_state(pointer, nil, 0, &size), "Benchmark state size")
+        guard size > 0, size <= 1048576 else { throw ManualEditorFailure(status: 14, boundary: "Benchmark state bounds") }
+        var data = Data(count: Int(size))
+        try phase11Check(data.withUnsafeMutableBytes { pixaura_editor_state(pointer, $0.bindMemory(to: UInt8.self).baseAddress, size, &size) }, "Benchmark state")
+        return try JSONDecoder().decode(ManualEditorState.self, from: data)
+    }
+}
+private func phase11SyntheticPNG(_ url: URL, width: Int, height: Int) throws {
+    var pixels = Data(count: width * height * 4)
+    pixels.withUnsafeMutableBytes { (buffer: UnsafeMutableRawBufferPointer) in
+        for y in 0..<height { for x in 0..<width {
+            let at = (y * width + x) * 4
+            buffer[at] = UInt8((x * 13 + y * 7) & 255)
+            buffer[at + 1] = UInt8((x * 3 + y * 11) & 255)
+            buffer[at + 2] = UInt8((x + y * 5) & 255); buffer[at + 3] = 255
+        } }
+    }
+    let space = try XCTUnwrap(CGColorSpace(name: CGColorSpace.sRGB))
+    let provider = try XCTUnwrap(CGDataProvider(data: pixels as CFData))
+    let image = try XCTUnwrap(CGImage(width: width, height: height, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: width * 4,
+        space: space, bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.last.rawValue), provider: provider,
+        decode: nil, shouldInterpolate: false, intent: .defaultIntent))
+    let destination = try XCTUnwrap(CGImageDestinationCreateWithURL(url as CFURL, "public.png" as CFString, 1, nil))
+    CGImageDestinationAddImage(destination, image, nil)
+    guard CGImageDestinationFinalize(destination) else { throw ManualEditorFailure(status: 12, boundary: "Benchmark fixture") }
 }
 
 final class ShellTests: XCTestCase {
@@ -374,6 +471,150 @@ final class ShellTests: XCTestCase {
             XCTAssertTrue(drew)
             XCTAssertEqual(displayed, [188, 188, 255, 255])
         }.value
+    }
+
+
+    func testReferenceWorkloadMeasurementHarness() async throws {
+        let data = try await Task.detached(priority: .userInitiated) { () throws -> Data in
+            let requested = ProcessInfo.processInfo.environment["PIXAURA_BENCHMARK_SAMPLES"]
+            guard requested == nil || requested == "100" else { throw ManualEditorFailure(status: 7, boundary: "Benchmark sample configuration") }
+            let samples = requested == nil ? 1 : 100, warmups = requested == nil ? 0 : 5
+            let directory = FileManager.default.temporaryDirectory.appendingPathComponent("reference-measurements-\(UUID())", isDirectory: true)
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: directory) }
+            let capabilities = AppleCapabilityOwner(); defer { capabilities.close() }
+            var registrySize: UInt64 = 0
+            XCTAssertEqual(pixaura_manual_registry_json(1, nil, 0, &registrySize), 11)
+            var registry = Data(count: Int(registrySize))
+            try phase11Check(registry.withUnsafeMutableBytes { pixaura_manual_registry_json(1, $0.bindMemory(to: UInt8.self).baseAddress, registrySize, &registrySize) }, "Benchmark registry")
+            struct Registry: Decodable { let tools: [ManualTool] }
+            let tools = try JSONDecoder().decode(Registry.self, from: registry).tools
+            let exposure = try XCTUnwrap(tools.firstIndex { $0.toolID == "pixaura.exposure" })
+            var cases: [[String: Any]] = [], unexpectedFailures = 0
+            for (width, height) in [(1024, 768), (3000, 2000), (4000, 3000)] {
+                let input = directory.appendingPathComponent("synthetic-\(width)x\(height).png")
+                try autoreleasepool { try phase11SyntheticPNG(input, width: width, height: height) }
+                var records: [[String: Any]] = [], resourceFailure = false
+                for index in 0..<(samples + warmups) {
+                    var record: [String: Any] = ["sample": index, "warmup": index < warmups, "before": phase11ResourceReading()]
+                    let project = directory.appendingPathComponent("project-\(UUID())", isDirectory: true)
+                    try FileManager.default.createDirectory(at: project, withIntermediateDirectories: true)
+                    var phase = "import"
+                    do {
+                        try autoreleasepool {
+                            let owner = Phase11DeviceContext()
+                            defer { record["cleanup"] = owner.close() }
+                            let capability = try capabilities.snapshot()
+                            record["policy_observation"] = ["process_budget_bytes": capability.observation.process_budget_bytes, "thermal": capability.observation.thermal, "memory_pressure": capability.observation.memory_pressure, "gpu_validation": capability.observation.gpu_validation]
+                            let (strategy, openTime) = try phase11Milliseconds { try owner.open(root: project, input: input, capability: capability) }
+                            record["import_ms"] = openTime
+                            record["strategy"] = ["tier": strategy.tier, "preview_edge": strategy.preview_edge, "runtime_cap_bytes": strategy.runtime_cap_bytes, "backend": strategy.backend]
+                            XCTAssertEqual(strategy.backend, 0, "Only existing CPU authority is permitted")
+                            let original = try owner.state(); XCTAssertEqual(original.revisionCount, 1)
+                            try phase11Check(pixaura_editor_select(owner.pointer, UInt32(exposure)), "Benchmark select")
+                            var value: Int32 = 1233
+                            try phase11Check(pixaura_editor_update(owner.pointer, &value, 1), "Benchmark update")
+                            var pixels = [UInt8](repeating: 0, count: 4 * 1024 * 1024)
+                            var previewWidth: UInt32 = 0, previewHeight: UInt32 = 0
+                            func render() throws {
+                                var request = pixaura_editor_request()
+                                try phase11Check(pixaura_editor_request_preview(owner.pointer, &request), "Benchmark preview request")
+                                try phase11Check(pixels.withUnsafeMutableBufferPointer { pixaura_editor_render(owner.pointer, &request, 720, 720, $0.baseAddress, UInt64($0.count), &previewWidth, &previewHeight) }, "Benchmark preview render")
+                                try phase11Check(pixaura_editor_current(owner.pointer, &request), "Benchmark preview current")
+                            }
+                            phase = "preview priming"; try render()
+                            // A rendered ticket is not reusable. A fresh gesture update
+                            // obtains a new native generation, as in ordinary dragging.
+                            value = 1234
+                            try phase11Check(pixaura_editor_update(owner.pointer, &value, 1), "Benchmark fresh update")
+                            phase = "warm preview"
+                            let (_, previewTime) = try phase11Milliseconds { try render() }
+                            record["warm_preview_ms"] = previewTime; record["preview_dimensions"] = [previewWidth, previewHeight]
+                            XCTAssertEqual(try owner.state().revisionID, original.revisionID)
+                            phase = "manual apply"
+                            let (_, applyTime) = try phase11Milliseconds { try phase11Check(pixaura_editor_action(owner.pointer, 1), "Benchmark manual Apply") }
+                            record["manual_apply_ms"] = applyTime
+                            let applied = try owner.state(); XCTAssertEqual(applied.revisionCount, 2); XCTAssertNotEqual(applied.revisionID, original.revisionID)
+                            var output = [UInt8](repeating: 0, count: 32 * 1024 * 1024)
+                            for (format, label) in [(UInt32(1), "jpeg"), (UInt32(2), "png")] {
+                                phase = label + " export"
+                                var request = pixaura_export_request(); try phase11Check(pixaura_export_bind(1, owner.pointer, &request), "Benchmark export binding")
+                                request.format = format; request.quality = format == 1 ? 90 : 0
+                                var count: UInt64 = 0, exportWidth: UInt32 = 0, exportHeight: UInt32 = 0, exportState: UInt32 = 0
+                                let (_, exportTime) = try phase11Milliseconds {
+                                    try phase11Check(output.withUnsafeMutableBufferPointer { pixaura_export_encode(1, owner.pointer, &request, nil, $0.baseAddress, UInt64($0.count), &count, &exportWidth, &exportHeight, &exportState) }, "Benchmark export")
+                                }
+                                XCTAssertEqual(exportState, 6); XCTAssertEqual(exportWidth, UInt32(width)); XCTAssertEqual(exportHeight, UInt32(height))
+                                XCTAssertEqual(Array(output.prefix(format == 1 ? 2 : 4)), format == 1 ? [0xff, 0xd8] : [0x89, 0x50, 0x4e, 0x47])
+                                record[label + "_export_ms"] = exportTime; record[label + "_bytes"] = count
+                                XCTAssertEqual(try owner.state().revisionID, applied.revisionID)
+                            }
+                            phase = "cancel"
+                            try phase11Check(pixaura_editor_select(owner.pointer, UInt32(exposure)), "Benchmark cancel select")
+                            try phase11Check(pixaura_editor_update(owner.pointer, &value, 1), "Benchmark cancel update")
+                            let (_, cancelTime) = try phase11Milliseconds { try phase11Check(pixaura_editor_action(owner.pointer, 0), "Benchmark cancel") }
+                            record["native_cancel_ms"] = cancelTime
+                            XCTAssertEqual(try owner.state().revisionID, applied.revisionID)
+                            record["status"] = "MEASURED"
+                        }
+                    } catch {
+                        let status = (error as? ManualEditorFailure)?.status ?? 14
+                        record["native_status"] = status; record["failure_phase"] = phase
+                        if status == 8 && width >= 3000 { record["status"] = "RESOURCE_REJECTED_NOT_PERFORMANCE_PASS"; resourceFailure = true }
+                        else { record["status"] = "FAILED"; unexpectedFailures += 1 }
+                    }
+                    record["after"] = phase11ResourceReading()
+                    if let cleanup = record["cleanup"] as? [String: Any] {
+                        XCTAssertEqual(cleanup["stop_status"] as? Int32, 0); XCTAssertEqual(cleanup["destroy_status"] as? Int32, 0)
+                    }
+                    records.append(record); try FileManager.default.removeItem(at: project)
+                    if record["status"] as? String != "MEASURED" { break }
+                }
+                if width == 4000 { XCTAssertTrue(resourceFailure, "12MP cannot bypass frozen working raster limits") }
+                cases.append(["width": width, "height": height, "encoded_bytes": try input.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0,
+                              "resource_rejected": resourceFailure, "records": records])
+                if resourceFailure {
+                    // A denied larger request cannot disable an ordinary small manual edit.
+                    let recoveryInput = directory.appendingPathComponent("synthetic-1024x768.png")
+                    let recoveryRoot = directory.appendingPathComponent("recovery-\(UUID())", isDirectory: true)
+                    try FileManager.default.createDirectory(at: recoveryRoot, withIntermediateDirectories: true)
+                    let recovery = Phase11DeviceContext(); defer { _ = recovery.close() }
+                    _ = try recovery.open(root: recoveryRoot, input: recoveryInput, capability: capabilities.snapshot())
+                    try phase11Check(pixaura_editor_select(recovery.pointer, UInt32(exposure)), "Benchmark manual recovery select")
+                    var value: Int32 = 100; try phase11Check(pixaura_editor_update(recovery.pointer, &value, 1), "Benchmark manual recovery update")
+                    try phase11Check(pixaura_editor_action(recovery.pointer, 1), "Benchmark manual recovery Apply")
+                    let recoveryValid = try recovery.state().revisionCount == 2
+                    let cleanup = recovery.close()
+                    let closed = cleanup["stop_status"] as? Int32 == 0 && cleanup["destroy_status"] as? Int32 == 0
+                    XCTAssertTrue(recoveryValid && closed)
+                    cases[cases.count - 1]["manual_recovery_validated"] = recoveryValid && closed
+                }
+            }
+            var model = utsname(); uname(&model)
+            let capacity = MemoryLayout.size(ofValue: model.machine)
+            let machine = withUnsafePointer(to: &model.machine) { $0.withMemoryRebound(to: CChar.self, capacity: capacity) { String(cString: $0) } }
+            #if targetEnvironment(simulator)
+            let physical = false
+            #else
+            let physical = true
+            #endif
+            #if DEBUG
+            let debug = true
+            #else
+            let debug = false
+            #endif
+            XCTAssertEqual(unexpectedFailures, 0)
+            return try JSONSerialization.data(withJSONObject: ["version": 1, "hardware": physical, "model": machine,
+                "os": ProcessInfo.processInfo.operatingSystemVersionString, "debug_compilation": debug,
+                "sampling_mode": samples == 100 ? "MEASUREMENT" : "SMOKE_NO_PERCENTILES", "samples_per_admitted_case": samples,
+                "warmups_per_admitted_case": warmups, "requested_preview_edge": 720,
+                "caller_preview_buffer_bytes": 4 * 1024 * 1024, "caller_export_buffer_bytes": 32 * 1024 * 1024,
+                "scope": "native CPU app-service operations; caller buffers and fixture generation included in process high-water; no UI frame/dispatch or new RSS ceiling",
+                "resource_policy": "actual AppleCapabilityOwner observations; no forced tier or enlarged budget", "cases": cases,
+                "unexpected_failures": unexpectedFailures], options: [.sortedKeys])
+        }.value
+        let attachment = XCTAttachment(data: data, uniformTypeIdentifier: "public.json")
+        attachment.name = "pixaura-reference-workload-measurements.json"; attachment.lifetime = .keepAlways; add(attachment)
     }
 
     func testNavigationPreservesSession() {

@@ -1,0 +1,32 @@
+{
+  "version": 8,
+  "subject": "actual-device-policy-reference-workload-measurement-harness",
+  "predecessor_commit": "82f847859397e5217f4a68b511b526524a1ab7d6",
+  "parent_manifest": "docs/reports/phase-11-source-v7.json",
+  "parent_manifest_sha256_lf": "8b4d118dbde6df2ea5603df3b4a67d4d89c9fd1efab0323d9175c44e756359b3",
+  "public_abi_changed": false,
+  "schema_changed": false,
+  "gpu_admission_policy_changed": false,
+  "changes": {
+    "platforms/ios/PixAuraAITests/ShellTests.swift": {
+      "before_sha256_lf": "72e6009638e18d0822a98f7295f23654dae23b4947860cd7d00de231dffd5b00",
+      "after_sha256_lf": "66a64e2f1e8963e97c1b520da3a08d6f2d1c2f7355d81a094a21b736b120093d"
+    },
+    "tests/helpers/phase-11-hashes.mjs": {
+      "before_sha256_lf": "e9fb194470c89fd151d97977315bb0461a41f967aa5d8352c274a1eb9b59f369",
+      "after_sha256_lf": "657cd270e844409747aedb96b40d27e1fe831da32464c27839a2e61cd416b77b"
+    },
+    "tests/phase-11-hardening.test.mjs": {
+      "before_sha256_lf": "3564a4bf0811b6b9854a990533f3b0479f600c377525af7516dafa0ccd2851d5",
+      "after_sha256_lf": "318e08c2763bd4615370da234c95492c40bad4a7e0d702c6e59d7611675fd1ab"
+    },
+    ".github/workflows/native-shells.yml": {
+      "before_sha256_lf": "c03ff4a3c4672ca2b6f88dd90bbc83c9942149bca14bc22def98b2503cdcb1cd",
+      "after_sha256_lf": "7b96e5c94605375039014691f06b902fe464db7629b03ba3a8b593ec8e0951ff"
+    },
+    "platforms/ios/PixAuraAIUITests/ShellUITests.swift": {
+      "before_sha256_lf": "3aa8c52b40e8cf8f45e6e6c0680455c4a4a5d331df1f0d10e07b56e6b25d5846",
+      "after_sha256_lf": "e7deb029950268776680b02655cc7322bbb4ba666068254bb9db4e50b07161da"
+    }
+  }
+}
