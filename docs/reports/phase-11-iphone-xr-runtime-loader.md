@@ -61,3 +61,34 @@ walkthroughs remain mandatory. Existing operator protocol:
 docs/plans/phase-11-external-validation.md. CPU VALIDATED; Metal/Vulkan UNKNOWN;
 DH-APPLE-METAL-01 DEFERRED / NOT WAIVED / NOT SATISFIED pending reviewed physical
 evidence. No Phase11 closure or Phase12 work.
+
+## First real physical Metal execution and bounded-consumer fixture successor
+
+Implementation23ea6ff556ef7c7fbf94c59aa97218128da47391 launched on the physicalXR.
+Controller exited0 and XCTestPassed1/1, zero skips. Exported JSON reports AppleA12
+GPU, iPhone11,8, iOS18.7.9(22H355), hardware/pipeline/dispatch true,
+expected_test_count=test_count=parity_passed=14, statusPASS. Engineering verification
+checked the attachment against the fresh controller source sidecar. Exact source
+uses allow_fallback=0, requires used_gpu=1 per case, waits for completed Metal
+commands without error before readback and shared CPU parity. Independent review
+is pending; this execution result does not promote apple.metal.v1 or discharge
+DH-APPLE-METAL-01 automatically. Formal classifications above remain unchanged.
+
+The subsequent broad physical app suite was NOT a pass:14/15 tests succeeded;
+testBoundedPreviewPlatformConsumer had6 cascading assertions after decode_open
+rejected its root with status6. Its test fixture used Foundation's
+resolvingSymlinksInPath, while production ManualEditor uses POSIX realpath to
+satisfy native O_NOFOLLOW_ANY storage validation. The fixture successor follows
+the existing production canonical-root contract, keeps all preview pixel/alpha/
+bounds assertions and adds a path-readiness JSON attachment containing booleans
+only. No native storage/security rule is relaxed and no production behavior is
+changed by this test correction. A physical rerun must verify this diagnosis.
+
+Local source204/204 PASS and unsigned physical-SDK build-for-testing PASS for the
+fixture successor. Additivev7 preservesv1–v6. Its new clean exactSHA still requires
+physical execution and full hosted7+3. Raw first Metal JSON, export manifest and
+XCTest summary are under signing-ready/metal-attachments,
+metal-evidence-sanitized.json, metal-xctest-summary-private.json; the exact fresh
+bundle directory is recorded in metal-result-path.txt. First broad-suite bundle
+is recorded in device-unit-result-path.txt. No stale result is counted as the
+successor's hardware evidence. No Phase11 closure or human walkthrough claim.

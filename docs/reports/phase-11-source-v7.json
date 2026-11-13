@@ -1,0 +1,24 @@
+{
+  "version": 7,
+  "subject": "physical-ios-fixture-posix-canonical-root",
+  "predecessor_commit": "23ea6ff556ef7c7fbf94c59aa97218128da47391",
+  "parent_manifest": "docs/reports/phase-11-source-v6.json",
+  "parent_manifest_sha256_lf": "5252446c8b3c4438e743a5bed97c1fa99602b3e6bd87e23ee3b3d1ed4de4293d",
+  "public_abi_changed": false,
+  "schema_changed": false,
+  "gpu_admission_policy_changed": false,
+  "changes": {
+    "platforms/ios/PixAuraAITests/ShellTests.swift": {
+      "before_sha256_lf": "c4a3c046742a7a8c8f79df11f91001e9c94ab7691fca9cfaf708dffa526942f9",
+      "after_sha256_lf": "72e6009638e18d0822a98f7295f23654dae23b4947860cd7d00de231dffd5b00"
+    },
+    "tests/helpers/phase-11-hashes.mjs": {
+      "before_sha256_lf": "248677e70aa6a8d6df6f32695f8998a590a4175c51f4d260bdea8a2dc1ef0297",
+      "after_sha256_lf": "e9fb194470c89fd151d97977315bb0461a41f967aa5d8352c274a1eb9b59f369"
+    },
+    "tests/phase-11-hardening.test.mjs": {
+      "before_sha256_lf": "adaa2a48a4f8122c6d4dc77b3fb523730fa5385d2c92dee4963ad131e5433fb0",
+      "after_sha256_lf": "3564a4bf0811b6b9854a990533f3b0479f600c377525af7516dafa0ccd2851d5"
+    }
+  }
+}

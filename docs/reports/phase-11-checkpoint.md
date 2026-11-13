@@ -279,3 +279,16 @@ V6 precommit: Debug andRelease unsignedphysicalSDK builds bothPASS; otool proves
 app executable nowcontains@executable_path/Frameworks. All204sourcechecksPASS in
 isolated checkout. Prospectivecanonicalproject has NO Teamsettings andmatches
 projectgenerator; localownerTeam/format edits willnotbe staged. Proceedcommit.
+
+V6 physicalcontroller onclean23ea6ff556ef7c7fbf94c59aa97218128da47391 PASS:
+XCTest1/1/0skips; exportedJSON AppleA12/iPhone11,8/iOS18.7.9, truehardware/
+pipeline/dispatch,14expected/14executed/14parity. Sourcefallback0/usedGPU1/completed
+command-before-readbackverified. Independentreviewpending; no formalDH discharge
+orprovideradmission. Broaderphysicalsuite14/15passed; boundedpreview fixture root
+rejectedstatus6 then5cascadingerrors. Fixture Foundation URLpathnormalization is
+replacedby production's POSIXrealpath contract; preserveallpixelassertions; add
+boolean-onlypathreadinessattachment. Local204sourcechecks andunsignedtestbuild
+PASS. Additivev7; no productionchange. Nextcommit/pushfixture successor, freshclean
+physicalMetalcontroller andall15units, exactSHA7+3 CI; collect scopedG8observations.
+V6CI Foundation43406518767/Native43406518751 stillrunningattempt1. PrimaryownerTeam
+changes remainunstaged; doNOTstageprojectfile. Phase11open;Phase12notstarted.

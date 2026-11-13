@@ -4,6 +4,7 @@ import Combine
 import CPixAuraCore
 import CoreGraphics
 import Foundation
+import Darwin
 @testable import PixAuraAI
 
 @MainActor private final class ModelLifetimeProbe {
@@ -328,7 +329,18 @@ final class ShellTests: XCTestCase {
             try FileManager.default.createDirectory(at: assets, withIntermediateDirectories: true)
             defer { try? FileManager.default.removeItem(at: root) }
             try Data(bytes).write(to: assets.appendingPathComponent(hash))
-            let path = Array(root.resolvingSymlinksInPath().path.utf8), digest = Array(hash.utf8)
+            // Native storage deliberately rejects symlink traversal. Foundation
+            // URL normalization need not produce the POSIX canonical device path.
+            let canonical: String = try root.withUnsafeFileSystemRepresentation { pointer in
+                let resolved = try XCTUnwrap(pointer.flatMap { realpath($0, nil) })
+                defer { free(resolved) }
+                return String(cString: resolved)
+            }
+            let foundation = root.resolvingSymlinksInPath().path
+            let readiness = try JSONSerialization.data(withJSONObject: ["foundation_matches_posix": foundation == canonical, "canonical_via_realpath": true], options: [.sortedKeys])
+            let attachment = XCTAttachment(data: readiness, uniformTypeIdentifier: "public.json")
+            attachment.name = "pixaura-preview-path-readiness.json"; attachment.lifetime = .keepAlways; self.add(attachment)
+            let path = Array(canonical.utf8), digest = Array(hash.utf8)
             let id = Array(UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased().utf8)
             var limits = pixaura_decode_limits(), context = pixaura_decode_context()
             XCTAssertEqual(pixaura_decode_default_limits(1, &limits), 0)

@@ -47,5 +47,13 @@ export function phase11PostV5Hash(path, predecessor) {
   const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v6.json', 'utf8'));
   const change = record.changes[path];
   if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase 11 device loader predecessor');
+  return phase11PostV6Hash(path, change?.after_sha256_lf ?? predecessor);
+}
+
+// Physical fixture root uses the existing POSIX canonical-path contract.
+export function phase11PostV6Hash(path, predecessor) {
+  const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v7.json', 'utf8'));
+  const change = record.changes[path];
+  if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase 11 physical fixture predecessor');
   return change?.after_sha256_lf ?? predecessor;
 }

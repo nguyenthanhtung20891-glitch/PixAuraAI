@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import test from 'node:test';
-import { phase11Hash, phase11SuccessorHash, phase11PostV2Hash, phase11PostV3Hash, phase11PostV4Hash, phase11PostV5Hash } from './helpers/phase-11-hashes.mjs';
+import { phase11Hash, phase11SuccessorHash, phase11PostV2Hash, phase11PostV3Hash, phase11PostV4Hash, phase11PostV5Hash, phase11PostV6Hash } from './helpers/phase-11-hashes.mjs';
 const read = p => fs.readFileSync(p, 'utf8').replaceAll('\r\n', '\n');
 const hash = p => crypto.createHash('sha256').update(read(p)).digest('hex');
 
@@ -62,6 +62,14 @@ test('Phase 11 source successor binds current hardening without rewriting histor
   for (const flag of ['public_abi_changed', 'schema_changed', 'gpu_admission_policy_changed']) assert.equal(loader[flag], false);
   for (const [path, change] of Object.entries(loader.changes)) {
     assert.equal(change.before_sha256_lf, retirement.changes[path]?.after_sha256_lf ?? controller.changes[path]?.after_sha256_lf ?? localization.changes[path]?.after_sha256_lf ?? successor.changes[path]?.after_sha256_lf ?? record.changes[path]?.after_sha256_lf ?? record.additions[path] ?? baseline.files[path] ?? ({ 'scripts/generate-ios-project.mjs': '8c1ed80ab608ada826757296657006d4704ae79d6fb54be101ac4f10f7c597e5' })[path], path);
+    assert.equal(hash(path), phase11PostV6Hash(path, change.after_sha256_lf), path);
+  }
+  const fixture = JSON.parse(read('docs/reports/phase-11-source-v7.json'));
+  assert.equal(fixture.predecessor_commit, '23ea6ff556ef7c7fbf94c59aa97218128da47391');
+  assert.equal(hash(fixture.parent_manifest), fixture.parent_manifest_sha256_lf);
+  for (const flag of ['public_abi_changed', 'schema_changed', 'gpu_admission_policy_changed']) assert.equal(fixture[flag], false);
+  for (const [path, change] of Object.entries(fixture.changes)) {
+    assert.equal(change.before_sha256_lf, loader.changes[path]?.after_sha256_lf ?? retirement.changes[path]?.after_sha256_lf ?? controller.changes[path]?.after_sha256_lf ?? localization.changes[path]?.after_sha256_lf ?? successor.changes[path]?.after_sha256_lf ?? record.changes[path]?.after_sha256_lf ?? record.additions[path], path);
     assert.equal(hash(path), change.after_sha256_lf, path);
   }
 
