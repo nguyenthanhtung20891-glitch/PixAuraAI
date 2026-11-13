@@ -39,5 +39,13 @@ export function phase11PostV4Hash(path, predecessor) {
   const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v5.json', 'utf8'));
   const change = record.changes[path];
   if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase 11 retirement predecessor');
+  return phase11PostV5Hash(path, change?.after_sha256_lf ?? predecessor);
+}
+
+// Physical-device framework resolution successor; prior records stay immutable.
+export function phase11PostV5Hash(path, predecessor) {
+  const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v6.json', 'utf8'));
+  const change = record.changes[path];
+  if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase 11 device loader predecessor');
   return change?.after_sha256_lf ?? predecessor;
 }

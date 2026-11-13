@@ -261,3 +261,21 @@ before expectingreviewReady. No product/runtime changes. Localall15 iOSunits and
 203 source checksPASS. Additivev5 preservesv1–v4. Next: review/commit/push test
 successor, observe new exact-SHA full7+3. Signingstill0identities/0profiles; physical
 Metal/G7/G8 NOTRUN, G11humanNOTOBSERVED; Phase11open, Phase12notstarted.
+
+## Physical signing and runtime loader successor
+
+Existing identity/profile now available; owner Team/format project changes kept
+local. Clean detached550fd9d physical controller: missing unusedUIrunner profile
+handled with ignored per-target local signing overlay; actualapp/units signed.
+Keychainwait ended; iPhone trust then required. After ownercontinue, testapp
+crashed beforeXCTest: embeddedPixAuraCore missing from app runtime searchpaths.
+Minimal fix addsstandard@executable_path/Frameworks toDebug/Release app andproject
+generator; focusedregression; additivev6. Local204sourcechecksPASS; Debugunsigned
+physicalSDKbuildPASS; Releasepending. Next review/stage canonicalproject WITHOUT
+ownerTeam/formatsettings, commit/push, requireexactnewSHA7+3 CI, move isolated
+physicalcheckout tocleannewSHA, rerunhardwarecontroller andverifyallJSON14parity,
+thenphysicalappunit/G7/G8 work. No Metalexecutionyet,no trustpromotion/closure.
+V6 precommit: Debug andRelease unsignedphysicalSDK builds bothPASS; otool proves
+app executable nowcontains@executable_path/Frameworks. All204sourcechecksPASS in
+isolated checkout. Prospectivecanonicalproject has NO Teamsettings andmatches
+projectgenerator; localownerTeam/format edits willnotbe staged. Proceedcommit.

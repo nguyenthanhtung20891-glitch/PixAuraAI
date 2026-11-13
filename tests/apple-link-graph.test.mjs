@@ -43,3 +43,13 @@ test('physical Apple controller preserves every hidden native link input', () =>
   }
   assert.doesNotMatch(script, /-allowProvisioningUpdates|\bKEEP_PRIVATE_EXTERNS=YES/);
 });
+
+// Simulator can resolve build-directory frameworks and hide a device launch defect.
+test('both app configurations resolve embedded frameworks on physical iOS', () => {
+  const project = read('platforms/ios/PixAuraAI.xcodeproj/project.pbxproj');
+  for (const id of ['000000000000000000000033', '000000000000000000000034']) {
+    const configuration = project.split('\n').find(line => line.startsWith(id + ' ='));
+    assert.ok(configuration, id);
+    assert.ok(configuration.includes('LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";'), id);
+  }
+});

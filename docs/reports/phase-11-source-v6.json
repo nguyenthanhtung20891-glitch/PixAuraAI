@@ -1,0 +1,32 @@
+{
+  "version": 6,
+  "subject": "physical-ios-embedded-framework-runtime-resolution",
+  "predecessor_commit": "550fd9d79fc761362764a39720f11c79af20e146",
+  "parent_manifest": "docs/reports/phase-11-source-v5.json",
+  "parent_manifest_sha256_lf": "48027cf19e02b9ab1f80bbeb6dadf5b79a172b98d11d09f9f0080db660fe8abd",
+  "public_abi_changed": false,
+  "schema_changed": false,
+  "gpu_admission_policy_changed": false,
+  "changes": {
+    "platforms/ios/PixAuraAI.xcodeproj/project.pbxproj": {
+      "before_sha256_lf": "d4c5d75557ed46570723af4d20cee446cc3e08f6810add5028a92db53af777ab",
+      "after_sha256_lf": "c6db48a517cc23476b9e3d6fb07f05bb8f238a11c13b7ca2744661ae6a77ea16"
+    },
+    "tests/apple-link-graph.test.mjs": {
+      "before_sha256_lf": "fb59b7819caf1040f93a274873e03fd19392aa24bcc7de257f581f19befebaf7",
+      "after_sha256_lf": "dce8f5b80e0ec9b42c2e85e9832e7558b7bf4edeeaa7a24e335ee1032cee92a7"
+    },
+    "tests/helpers/phase-11-hashes.mjs": {
+      "before_sha256_lf": "319bba64aebce005d44e5c644257190d8d0c8b8bc276ef523855a41ffecc0028",
+      "after_sha256_lf": "248677e70aa6a8d6df6f32695f8998a590a4175c51f4d260bdea8a2dc1ef0297"
+    },
+    "tests/phase-11-hardening.test.mjs": {
+      "before_sha256_lf": "0ab3042710c57a0d21d86e2054baa63b9095e4820db447084813e000c121d198",
+      "after_sha256_lf": "adaa2a48a4f8122c6d4dc77b3fb523730fa5385d2c92dee4963ad131e5433fb0"
+    },
+    "scripts/generate-ios-project.mjs": {
+      "before_sha256_lf": "8c1ed80ab608ada826757296657006d4704ae79d6fb54be101ac4f10f7c597e5",
+      "after_sha256_lf": "ef6ccbd1a7a5d4f43f91879882f16cfb999b42aaf65d213188da308cc235c9eb"
+    }
+  }
+}
