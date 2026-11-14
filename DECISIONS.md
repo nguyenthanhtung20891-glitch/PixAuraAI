@@ -1,5 +1,24 @@
 # Architectural decision index
 
+<!-- phase11-metal-acceptance-current -->
+## Current successor — independently accepted Apple hardware gate (2026-11-14)
+
+**DH-APPLE-METAL-01 = PASS** for physical iPhone XR, iOS18.7.9, Apple A12 GPU,
+exact source 33c809f6a4b91300491cc1e211a10dbdbccaf7f9, frozen14/14tile contract.
+The Product Owner supplied the independent Principal Architect acceptance after
+artifact review; engineering independently verified package/original-artifact
+hashes, source provenance and implementation CI before recording this decision.
+See [formal receipt](docs/reports/dh-apple-metal-01-acceptance.md) and its v1 JSON.
+This successor supersedes older DEFERRED/NOT SATISFIED status assertions only for
+this hardware gate; historical records and technical requirements remain intact.
+Hardware PASS is MANDATORY before Phase 11 hardening acceptance and is now met
+for this tested scope. It is not provider admission or all-device qualification.
+cpu.reference.v1 VALIDATED; apple.metal.v1 UNKNOWN; android.vulkan.v1 UNKNOWN.
+No production GPU enablement, runtime/ABI/schema/numerical/test/signing change.
+Phase 11 AUTHORIZED / IN PROGRESS; G7/G8/G10/G11 and Duo UI findings outstanding;
+NOT accepted or closed. Phase 12 NOT STARTED. No production readiness claim.
+<!-- phase11-metal-acceptance-end -->
+
 <!-- phase11-current -->
 ## Phase 11 — authorized hardening engineering
 

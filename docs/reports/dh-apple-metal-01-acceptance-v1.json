@@ -1,0 +1,148 @@
+{
+  "version": 1,
+  "decision_date": "2026-11-14",
+  "gate": "DH-APPLE-METAL-01",
+  "status": "PASS",
+  "decision_authority": "Independent Principal Architect decision supplied by the Product Owner in the formal acceptance instruction; recorded by engineering, not engineering self-review",
+  "tested_source_sha": "33c809f6a4b91300491cc1e211a10dbdbccaf7f9",
+  "scope": "Physical iPhone XR, iOS18.7.9(22H355), Apple A12 GPU; frozen gpu-tile-v1 14-case hardware certification only",
+  "archive_sha256": "bd8b8d75622e715a85b457be824c17bc39a156463fa62dc8ef95fcd0efe6ad8a",
+  "integrity_verification": {
+    "status": "PASS",
+    "source_sha": "33c809f6a4b91300491cc1e211a10dbdbccaf7f9",
+    "archive_sha256": "bd8b8d75622e715a85b457be824c17bc39a156463fa62dc8ef95fcd0efe6ad8a",
+    "included_payload_files": 48,
+    "package_verifier": "PASS",
+    "independently_recomputed_payload_hashes": "PASS",
+    "original_artifacts": [
+      {
+        "artifact": "metal-v9-controller-private.log",
+        "sha256": "7443cd0cdadeb9f1fc99ef9ce993f9d5de901fe69ad1933c9b4eaa5b7e1ce688",
+        "bytes": 62715,
+        "result": "PASS"
+      },
+      {
+        "artifact": "hardware.xcresult",
+        "tree_sha256": "10b906ee525aa37f05ed31860cdf0d30e398cf95bee225bc2176b50b2c61e411",
+        "files": 32,
+        "bytes": 297814,
+        "result": "PASS",
+        "note": null
+      },
+      {
+        "artifact": "units-v9-debug.xcresult",
+        "tree_sha256": "afb91ccabfc227dc622e89837307907940f9638c1f5645615342991d0145d158",
+        "files": 66,
+        "bytes": 313813,
+        "result": "PASS",
+        "note": null
+      },
+      {
+        "artifact": "units-v9-debug-private.log",
+        "sha256": "40c56c62406cd739b5b62cef317ebab069a8a775ca1a625337e081d68a4c8309",
+        "bytes": 28653,
+        "result": "PASS"
+      },
+      {
+        "artifact": "measurement-v9-physical-release.xcresult",
+        "tree_sha256": "469a6b8662857761c5267db43b94913c49e2bbae29bcdaaf6e73693f6c1350d4",
+        "files": 30,
+        "bytes": 293965,
+        "result": "PASS",
+        "note": null
+      },
+      {
+        "artifact": "measurement-v9-physical-release-private.log",
+        "sha256": "96f220e354642215a0e3aef11af14c31cf5e79db5821944df0c80a538db2096e",
+        "bytes": 2491,
+        "result": "PASS"
+      },
+      {
+        "artifact": "measurement-v9-physical-config-provenance.json",
+        "sha256": "3fad6f59fb9b78b6fd581f9d89180c9cd644e37678791ba7f4c8908d6a3a0ff8",
+        "bytes": 777,
+        "result": "PASS"
+      },
+      {
+        "artifact": "all-ui-v9.xcresult",
+        "tree_sha256": "6c4473ceb5da86d0d0fb3835fe527a84658119f5af3f8308c04c1cc7c998863b",
+        "files": 2424,
+        "bytes": 145474609,
+        "result": "PASS",
+        "note": null
+      },
+      {
+        "artifact": "conventional-ui-v9.xcresult",
+        "tree_sha256": "e84b7acafb54db3ce15eeef4c178919c264a8a4fc1a435eb0b5aefbdd978c5d5",
+        "files": 39,
+        "bytes": 2132823,
+        "result": "PASS",
+        "note": "Pre-disclosed generated index excluded; original payload checked."
+      },
+      {
+        "artifact": "metal-run/xcodebuild.log",
+        "sha256": "859f80648d8fe382990913fa3fa1dae173f03f118bd2ca013ead9ccb150919b6",
+        "result": "PASS"
+      },
+      {
+        "artifact": "metal-run/commit.txt",
+        "sha256": "a7bf7c4dcb7604052740459e48a6094a3568140dc71665fb807c93895d16fb3f",
+        "result": "PASS"
+      }
+    ],
+    "exact_source_snapshot_files": 13,
+    "original_hardware_attachment_sha256": "fbbb711e017ccab34f68f228bc0ec43ceba1ae2f13f945434d9dd6e707189976",
+    "hardware_xctest": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    "device": "iPhone XR / iPhone11,8",
+    "os": "iOS18.7.9 (22H355)",
+    "gpu": "Apple A12 GPU",
+    "parity": "14/14",
+    "scope": "Integrity/provenance verification; independent acceptance is the separately supplied Principal Architect decision, not engineering self-review."
+  },
+  "reviewed_implementation_ci": {
+    "foundation": {
+      "run_id": 43539539110,
+      "workflow_id": 372386439,
+      "head_sha": "33c809f6a4b91300491cc1e211a10dbdbccaf7f9",
+      "attempt": 1,
+      "required_jobs": 7,
+      "result": "SUCCESS"
+    },
+    "native": {
+      "run_id": 43539539102,
+      "workflow_id": 373262165,
+      "head_sha": "33c809f6a4b91300491cc1e211a10dbdbccaf7f9",
+      "attempt": 1,
+      "required_jobs": 3,
+      "result": "SUCCESS"
+    }
+  },
+  "physical_tests": {
+    "metal_xctest": "1/1 PASS",
+    "shared_cpu_gpu_parity": "14/14 PASS",
+    "app_units": "16/16 PASS",
+    "fallback_disabled": true,
+    "hardware_gpu_required": true
+  },
+  "provider_trust": {
+    "cpu.reference.v1": "VALIDATED",
+    "apple.metal.v1": "UNKNOWN",
+    "android.vulkan.v1": "UNKNOWN"
+  },
+  "production_gpu_enablement_changed": false,
+  "runtime_abi_schema_numerics_tests_signing_changed": false,
+  "phase_11": "AUTHORIZED / IN PROGRESS / NOT ACCEPTED OR CLOSED",
+  "phase_12": "NOT STARTED",
+  "remaining": [
+    "G7 privacy/traffic/OS permission and device acceptance observations",
+    "G8 supported Apple/Android cohorts, sustained thermal/pressure, UI targets and 12MP admission/export conflict",
+    "G10 binding entitlement policy, implementation and authorized store sandbox evidence",
+    "G11 human VoiceOver/TalkBack, focus, contrast and alternative-input walkthroughs",
+    "Unresolved local Duo UI:15/19PASS4behavioralFAIL; conventional same-source comparison4/4PASS"
+  ],
+  "documentation_successor_certification": "Requires both complete workflows on its own SHA; receipt supplied after observed completion. No Phase11 closure authority."
+}

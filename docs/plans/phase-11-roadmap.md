@@ -1,5 +1,18 @@
 # Phase 11 engineering roadmap
 
+## Current acceptance successor — 2026-11-14
+
+DH-APPLE-METAL-01 = PASS, limited to the reviewed physical XR/iOS18.7.9/A12,
+source33c809f6a4b91300491cc1e211a10dbdbccaf7f9 and14-case contract.
+See [formal decision](../reports/dh-apple-metal-01-acceptance.md).
+Workstream F hardware evidence and independent review are complete for this scope;
+integrated Phase11 acceptance is not complete. cpu.reference.v1 VALIDATED;
+apple.metal.v1 UNKNOWN; android.vulkan.v1 UNKNOWN. No provider admission or
+production enablement. G7/G8/G10/G11 and unresolved Duo UI findings remain.
+Phase11 IN PROGRESS, NOT CLOSED; Phase12 NOT STARTED. The original plan/table and
+its unavailable-device/deferred-status assertions below are preserved as dated
+planning history, superseded by this current acceptance record.
+
 Authority: Product Owner's Phase 11 master autonomous engineering mission,
 2026-11-12. Baseline: 874b6645c75cd227fbb974b891ff41991397acc2, main, clean.
 Phase 11 AUTHORIZED / IN PROGRESS. Phase 12 NOT STARTED. A–F below are internal

@@ -1,5 +1,24 @@
 # Quality gates and promotion policy
 
+<!-- phase11-metal-acceptance-current -->
+## Current successor — independently accepted Apple hardware gate (2026-11-14)
+
+**DH-APPLE-METAL-01 = PASS** for physical iPhone XR, iOS18.7.9, Apple A12 GPU,
+exact source 33c809f6a4b91300491cc1e211a10dbdbccaf7f9, frozen14/14tile contract.
+The Product Owner supplied the independent Principal Architect acceptance after
+artifact review; engineering independently verified package/original-artifact
+hashes, source provenance and implementation CI before recording this decision.
+See [formal receipt](docs/reports/dh-apple-metal-01-acceptance.md) and its v1 JSON.
+This successor supersedes older DEFERRED/NOT SATISFIED status assertions only for
+this hardware gate; historical records and technical requirements remain intact.
+Hardware PASS is MANDATORY before Phase 11 hardening acceptance and is now met
+for this tested scope. It is not provider admission or all-device qualification.
+cpu.reference.v1 VALIDATED; apple.metal.v1 UNKNOWN; android.vulkan.v1 UNKNOWN.
+No production GPU enablement, runtime/ABI/schema/numerical/test/signing change.
+Phase 11 AUTHORIZED / IN PROGRESS; G7/G8/G10/G11 and Duo UI findings outstanding;
+NOT accepted or closed. Phase 12 NOT STARTED. No production readiness claim.
+<!-- phase11-metal-acceptance-end -->
+
 <!-- phase11-current -->
 ## Phase 11 — authorized hardening engineering
 
@@ -1564,7 +1583,19 @@ check is PASS. Historical records below are evidence, not current scope authorit
 
 Phase 2 is CLOSED by the explicit [Product Owner/Architect decision](DECISIONS.md#phase-2-closure-decision-2026-10-08). Steps 1-11 are accepted FULL PASS; original first GPU pipeline implementation and hosted compile/regression are complete, with accepted physical Android Vulkan PASS 14/14. Apple physical Metal certification is DEFERRED, not waived, under DH-APPLE-METAL-01 below. Existing ceilings, CPU authority and GPU semantics remain unchanged. No new Phase 2 step is added; Phase 3 has not started and requires separate authorization. Historical milestone authorizations below do not reopen Phase 2.
 
-## DH-APPLE-METAL-01: Deferred physical Apple Metal certification
+<a id="dh-apple-metal-01-deferred-physical-apple-metal-certification"></a>
+## DH-APPLE-METAL-01: Physical Apple Metal hardware certification
+
+**Current status (2026-11-14): PASS**, independently accepted for physical iPhone XR,
+iOS18.7.9, Apple A12 GPU and the frozen14-case contract at source
+33c809f6a4b91300491cc1e211a10dbdbccaf7f9. Integrity/source/CI verification passed.
+[Decision and evidence receipt](docs/reports/dh-apple-metal-01-acceptance.md).
+Hardware PASS does not admit apple.metal.v1, which remains UNKNOWN. G7/G8/G10/G11
+and Phase11 acceptance remain outstanding; Phase12 NOT STARTED. The legacy anchor
+above preserves historical links. The original definition/deferral below remains
+freeze-time history; its technical and admission requirements are not weakened.
+
+### Historical gate definition and original deferral (status superseded)
 
 - **Status:** DEFERRED / NOT EXECUTED; no real Apple hardware is currently available. This is not PASS, a waiver or removal of the gate.
 - **Owner:** Product Owner/Architect; controlled physical Apple execution requires separately authorized device/signing access.

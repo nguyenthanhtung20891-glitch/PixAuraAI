@@ -327,3 +327,21 @@ V9 additionallocalregressions: fullDuo19->15PASS4behavioralFAIL, no diagnostic
 capturefailures; conventionaliPhone18ProsameOS/source4affectedtestsPASS4/4.
 Rawfilesall-ui-v9 andconventional-ui-v9, diagnosticsreport preservesdistinct
 failures. Duo reachability/toolbarinvestigationremainsopen, nothiddenorwaived.
+
+## 2026-11-14 independent DH-APPLE-METAL-01 acceptance recorded
+
+The Product Owner supplied the independent Principal Architect acceptance of the
+v9physical14/14Metal scope at33c809f6a4b91300491cc1e211a10dbdbccaf7f9.
+Before recordingPASS, engineering ran the original complete package verifier,
+independently recomputed all48payload hashes and retained original artifact
+hashes (including32-filehardware.xcresult), checked original attachment and
+exact Git source snapshots, and freshly verified Foundation43539539110 7/7 and
+Native43539539102 3/3, exactSHA attempt1. Every integrity/provenance checkPASS.
+Formal decision: dh-apple-metal-01-acceptance.md and immutable v1JSON.
+Canonical hardware gate nowPASS for reviewedXR18.7.9/A12/14case scope only.
+CPUVALIDATED; Metal/Vulkan providertrustUNKNOWN; no runtime/backend enablement,
+ABI/schema/numerical/test/signingchanges. Historical evidence unchanged.
+G7/G8/G10/G11, Duo4localUI failures and Phase11acceptance/closure remain open;
+Phase12NOTSTARTED. Documentation successor requires fresh exactSHA7+3CI; next
+actionreview/localchecks, commit/push docs only, observeallrequired jobs.
+Local independent verification: build/phase-11-iphone-xr/acceptance-verification-v9/.
