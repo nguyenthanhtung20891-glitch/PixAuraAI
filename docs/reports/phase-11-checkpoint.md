@@ -306,3 +306,24 @@ SHA7+3 CI, clean isolated checkout, fresh physical Metal/units/Release sampling.
 Preserve owner-only Team/format project changes unstaged. Raw local checkpoint:
 build/phase-11-iphone-xr/signing-ready/RESUME.md. G8/G10/G11 and independent
 Metal review remain outstanding; Phase11 remains IN PROGRESS, Phase12 NOT STARTED.
+
+## UI diagnostic correction successor (v9)
+
+V8 0ad9d75224973bda08d6eb59e1d2bd37fd77ed74: Foundation43441843381
+SUCCESS7/7 attempt1; Native43441843496 source/AndroidSUCCESS butiOSFAIL.
+All four failures are teardown screenshot requests after tests intentionally
+terminated the app; assertions had reached their normal terminal state.
+The hasSucceeded property is unsuitable during teardown. Correction uses actual
+failureCount>0 and requires an app still running before screenshots; no test
+assertion, wait, workflow selection or production behavior changes. V8 is not
+fully certified and is not rerun. Additive v9 manifest preserves v1-v8.
+Physical V8 retry reached launch but iOS certificate trust blocked XCTest.
+Owner confirmed opening app/trust online, authorizes continued physical testing.
+Existing certificate/profile/Team untouched. Next: corrected exact-source clean
+checkout Metal14/14, all16physicalunits, Release100-sample benchmark; fresh7+3CI.
+Phase11 remains IN PROGRESS, no independent acceptance/closure, Phase12NOTSTARTED.
+
+V9 additionallocalregressions: fullDuo19->15PASS4behavioralFAIL, no diagnostic
+capturefailures; conventionaliPhone18ProsameOS/source4affectedtestsPASS4/4.
+Rawfilesall-ui-v9 andconventional-ui-v9, diagnosticsreport preservesdistinct
+failures. Duo reachability/toolbarinvestigationremainsopen, nothiddenorwaived.

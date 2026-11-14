@@ -1,0 +1,24 @@
+{
+  "version": 9,
+  "subject": "failure-only-ui-diagnostics-preserve-terminated-app",
+  "predecessor_commit": "0ad9d75224973bda08d6eb59e1d2bd37fd77ed74",
+  "parent_manifest": "docs/reports/phase-11-source-v8.json",
+  "parent_manifest_sha256_lf": "3c67e6f356f42eb350108e3810c73d7f9bb62504bee99af0d400d7043f131981",
+  "public_abi_changed": false,
+  "schema_changed": false,
+  "gpu_admission_policy_changed": false,
+  "changes": {
+    "platforms/ios/PixAuraAIUITests/ShellUITests.swift": {
+      "before_sha256_lf": "e7deb029950268776680b02655cc7322bbb4ba666068254bb9db4e50b07161da",
+      "after_sha256_lf": "6d0e3bddbd0bd60d5459392b89ad8673c5b13b524a102e8e702516ef050d236a"
+    },
+    "tests/helpers/phase-11-hashes.mjs": {
+      "before_sha256_lf": "657cd270e844409747aedb96b40d27e1fe831da32464c27839a2e61cd416b77b",
+      "after_sha256_lf": "d4bc33e9e93c7010be475ae69f6740511c1c0fb33c660bb6a58373c8e98a2d6a"
+    },
+    "tests/phase-11-hardening.test.mjs": {
+      "before_sha256_lf": "318e08c2763bd4615370da234c95492c40bad4a7e0d702c6e59d7611675fd1ab",
+      "after_sha256_lf": "cac85a051cb50e7bb7e47624b66dbba741787cac99d2ed0638017c9ff658b62c"
+    }
+  }
+}

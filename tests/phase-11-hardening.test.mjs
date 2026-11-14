@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import test from 'node:test';
-import { phase11Hash, phase11SuccessorHash, phase11PostV2Hash, phase11PostV3Hash, phase11PostV4Hash, phase11PostV5Hash, phase11PostV6Hash, phase11PostV7Hash } from './helpers/phase-11-hashes.mjs';
+import { phase11Hash, phase11SuccessorHash, phase11PostV2Hash, phase11PostV3Hash, phase11PostV4Hash, phase11PostV5Hash, phase11PostV6Hash, phase11PostV7Hash, phase11PostV8Hash } from './helpers/phase-11-hashes.mjs';
 const read = p => fs.readFileSync(p, 'utf8').replaceAll('\r\n', '\n');
 const hash = p => crypto.createHash('sha256').update(read(p)).digest('hex');
 
@@ -78,6 +78,14 @@ test('Phase 11 source successor binds current hardening without rewriting histor
   for (const flag of ['public_abi_changed', 'schema_changed', 'gpu_admission_policy_changed']) assert.equal(measurement[flag], false);
   for (const [path, change] of Object.entries(measurement.changes)) {
     assert.equal(change.before_sha256_lf, fixture.changes[path]?.after_sha256_lf ?? loader.changes[path]?.after_sha256_lf ?? retirement.changes[path]?.after_sha256_lf ?? controller.changes[path]?.after_sha256_lf ?? localization.changes[path]?.after_sha256_lf ?? successor.changes[path]?.after_sha256_lf ?? record.changes[path]?.after_sha256_lf ?? record.additions[path], path);
+    assert.equal(hash(path), phase11PostV8Hash(path, change.after_sha256_lf), path);
+  }
+  const diagnostics = JSON.parse(read('docs/reports/phase-11-source-v9.json'));
+  assert.equal(diagnostics.predecessor_commit, '0ad9d75224973bda08d6eb59e1d2bd37fd77ed74');
+  assert.equal(hash(diagnostics.parent_manifest), diagnostics.parent_manifest_sha256_lf);
+  for (const flag of ['public_abi_changed', 'schema_changed', 'gpu_admission_policy_changed']) assert.equal(diagnostics[flag], false);
+  for (const [path, change] of Object.entries(diagnostics.changes)) {
+    assert.equal(change.before_sha256_lf, measurement.changes[path]?.after_sha256_lf, path);
     assert.equal(hash(path), change.after_sha256_lf, path);
   }
 

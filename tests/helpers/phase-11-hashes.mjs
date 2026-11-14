@@ -63,5 +63,13 @@ export function phase11PostV7Hash(path, predecessor) {
   const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v8.json', 'utf8'));
   const change = record.changes[path];
   if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase 11 device measurement predecessor');
+  return phase11PostV8Hash(path, change?.after_sha256_lf ?? predecessor);
+}
+
+// Failure diagnostics must preserve intentional application termination.
+export function phase11PostV8Hash(path, predecessor) {
+  const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v9.json', 'utf8'));
+  const change = record.changes[path];
+  if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase 11 UI diagnostics predecessor');
   return change?.after_sha256_lf ?? predecessor;
 }

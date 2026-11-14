@@ -7,14 +7,18 @@ final class ShellUITests: XCTestCase {
         continueAfterFailure = false
     }
     override func tearDownWithError() throws {
-        if testRun?.hasSucceeded == false {
+        if (testRun?.failureCount ?? 0) > 0 {
             let app = XCUIApplication()
             let tree = XCTAttachment(string: app.debugDescription)
             tree.name = "first-failure-accessibility-tree"; tree.lifetime = .keepAlways
             add(tree)
-            let screenshot = XCTAttachment(screenshot: app.screenshot())
-            screenshot.name = "first-failure-screen"; screenshot.lifetime = .keepAlways
-            add(screenshot)
+            // Tests may intentionally terminate the app; diagnostic collection
+            // must never turn that successful lifecycle assertion into failure.
+            if app.state != .notRunning {
+                let screenshot = XCTAttachment(screenshot: app.screenshot())
+                screenshot.name = "first-failure-screen"; screenshot.lifetime = .keepAlways
+                add(screenshot)
+            }
         }
         try super.tearDownWithError()
     }
