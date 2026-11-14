@@ -381,3 +381,19 @@ An explicit exact-path/hash successor inventory preserves the historical manifes
 and requires the proposal remain unapproved. No identical-SHA rerun.
 Native43615800342 is a separate predecessor run; final status retained locally.
 Next: validate staged tracked inventory and certify a new successor SHA.
+
+### Hosted iOS tests passed; large-text controller boot correction
+
+d5b5e156147b9cd558e44701b9b23b0c112b4bab: Foundation43616011252 SUCCESS7/7,
+Native43616011177 FAILED (source+AndroidSUCCESS, iOSfailure after17/17unit and
+19/19UI PASS). Selected Simulator was Shutdown when additional simctl UI setup ran.
+See phase-11-ios-controller-reconciliation.md and additive source-v12. Correction
+waits for boot before setup/restoration and runs focused accessibility on configured
+destination. No product/test-assertion/native/signing changes. Focused shutdown
+reproduction underway; next verify it, review/commit/push correction and require
+full fresh exact-SHA7+3. Predecessor not rerun. Phase11open; Phase12notauthorized.
+
+Focused controller verification completed: shutdown boot+largest text test PASS;
+distinct initial large->accessibility maximum->large restoration PASS. Dedicated
+Simulator original setting restored. Source208/208PASS. No test assertions changed.
+Commit/push corrected successor and observe all fresh exact-SHA7+3 next.

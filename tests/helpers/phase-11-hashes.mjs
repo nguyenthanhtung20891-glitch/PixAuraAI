@@ -79,5 +79,13 @@ export function phase11PostV9Hash(path, predecessor) {
   const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v10.json', 'utf8'));
   const change = record.changes[path];
   if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase11 remaining engineering predecessor');
+  return phase11PostV10Hash(path, change?.after_sha256_lf ?? predecessor);
+}
+
+// CI controller boot-readiness correction; prior source manifests are immutable.
+export function phase11PostV10Hash(path, predecessor) {
+  const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v12.json', 'utf8'));
+  const change = record.changes[path];
+  if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase11 controller predecessor');
   return change?.after_sha256_lf ?? predecessor;
 }

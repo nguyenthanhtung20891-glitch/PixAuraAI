@@ -1,0 +1,22 @@
+{
+  "version": 12,
+  "predecessor_commit": "d5b5e156147b9cd558e44701b9b23b0c112b4bab",
+  "parent_manifest": "docs/reports/phase-11-inventory-v11.json",
+  "parent_sha256_lf": "4e75814aae07c7ecb1721e8c3a89b22609d2deb8c26ce3f90c9427e93dd92263",
+  "runtime_abi_schema_numerics_changed": false,
+  "reason": "Boot selected Simulator before Dynamic Type setup and restoration; execute focused accessibility check on configured destination",
+  "changes": {
+    "scripts/check-ios-shell.sh": {
+      "before_sha256_lf": "29d67f103ac79f3d3eec97f2638bad1950673b824635f7be539be17f57c6d4e5",
+      "after_sha256_lf": "aefac210b36c112193f9facacaefee2b2591d6326a96eabea8425bdb94cfc18c"
+    },
+    "tests/helpers/phase-11-hashes.mjs": {
+      "before_sha256_lf": "42a680e2401623f9d2f8ca9e02cd15a6d1222a15cde96721c8c6f570e19fdcbb",
+      "after_sha256_lf": "d98f5e43a197e727f8c385a70ab3633e45e177c8aee07dbb0c1ee3bfbf920e4e"
+    },
+    "tests/phase-11-hardening.test.mjs": {
+      "before_sha256_lf": "db8abbb531b9fcac83f63ec6fc56e6d7fd22b89386ed161b9c6a0856c3ee05c1",
+      "after_sha256_lf": "c5cd6d310f1f14702fc5f9631ac8aff2a079f104eaeb75057553035a781fed25"
+    }
+  }
+}

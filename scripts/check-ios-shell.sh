@@ -28,8 +28,11 @@ xcodebuild -project platforms/ios/PixAuraAI.xcodeproj -scheme PixAuraAI \
 
 # A test name is not proof of the actual Dynamic Type environment. Preserve the
 # selected simulator's setting and explicitly exercise the largest supported size.
+# xcodebuild may use a clone and leave the selected device shut down.
+xcrun simctl bootstatus "$simulator_id" -b
 previous_content_size="$(xcrun simctl ui "$simulator_id" content_size)"
 restore_content_size() {
+    xcrun simctl bootstatus "$simulator_id" -b
     xcrun simctl ui "$simulator_id" content_size "$previous_content_size"
 }
 trap restore_content_size EXIT
@@ -39,6 +42,7 @@ xcodebuild -project platforms/ios/PixAuraAI.xcodeproj -scheme PixAuraAI \
     -configuration Debug -destination "platform=iOS Simulator,id=$simulator_id,arch=$simulator_arch" \
     -derivedDataPath "$workspace_path/build/ios-shell-simulator" \
     -resultBundlePath "$result_directory/large-text.xcresult" \
+    -parallel-testing-enabled NO \
     -only-testing:PixAuraAIUITests/ShellUITests/testPhase11BilingualExportAtAccessibilityTextSize \
     'KEEP_PRIVATE_EXTERNS=$(PIXAURA_PRIVATE_EXTERNS_$(TARGET_NAME))' \
     PIXAURA_PRIVATE_EXTERNS_CPixAuraSQLite=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraCodecs=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraSodium=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraMetal=YES \

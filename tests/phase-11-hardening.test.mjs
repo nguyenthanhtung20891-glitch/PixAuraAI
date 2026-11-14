@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import test from 'node:test';
-import { phase11Hash, phase11SuccessorHash, phase11PostV2Hash, phase11PostV3Hash, phase11PostV4Hash, phase11PostV5Hash, phase11PostV6Hash, phase11PostV7Hash, phase11PostV8Hash, phase11PostV9Hash } from './helpers/phase-11-hashes.mjs';
+import { phase11Hash, phase11SuccessorHash, phase11PostV2Hash, phase11PostV3Hash, phase11PostV4Hash, phase11PostV5Hash, phase11PostV6Hash, phase11PostV7Hash, phase11PostV8Hash, phase11PostV9Hash, phase11PostV10Hash } from './helpers/phase-11-hashes.mjs';
 const read = p => fs.readFileSync(p, 'utf8').replaceAll('\r\n', '\n');
 const hash = p => crypto.createHash('sha256').update(read(p)).digest('hex');
 
@@ -107,6 +107,13 @@ test('Phase 11 source successor binds current hardening without rewriting histor
 };
   for (const [path, change] of Object.entries(remaining.changes)) {
     assert.equal(change.before_sha256_lf, earlier[path] ?? unchanged[path], path);
+    assert.equal(hash(path), phase11PostV10Hash(path, change.after_sha256_lf), path);
+  }
+  const bootController = JSON.parse(read("docs/reports/phase-11-source-v12.json"));
+  assert.equal(bootController.predecessor_commit, "d5b5e156147b9cd558e44701b9b23b0c112b4bab");
+  assert.equal(hash(bootController.parent_manifest), bootController.parent_sha256_lf);
+  for (const [path, change] of Object.entries(bootController.changes)) {
+    assert.equal(change.before_sha256_lf, remaining.changes[path].after_sha256_lf, path);
     assert.equal(hash(path), change.after_sha256_lf, path);
   }
   for (const [path, digest] of Object.entries(remaining.additions)) assert.equal(hash(path), digest, path);
