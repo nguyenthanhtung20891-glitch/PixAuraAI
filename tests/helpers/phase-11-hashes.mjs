@@ -71,5 +71,13 @@ export function phase11PostV8Hash(path, predecessor) {
   const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v9.json', 'utf8'));
   const change = record.changes[path];
   if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase 11 UI diagnostics predecessor');
+  return phase11PostV9Hash(path, change?.after_sha256_lf ?? predecessor);
+}
+
+// Remaining Phase11 layout/security evidence; all prior receipts immutable.
+export function phase11PostV9Hash(path, predecessor) {
+  const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v10.json', 'utf8'));
+  const change = record.changes[path];
+  if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase11 remaining engineering predecessor');
   return change?.after_sha256_lf ?? predecessor;
 }

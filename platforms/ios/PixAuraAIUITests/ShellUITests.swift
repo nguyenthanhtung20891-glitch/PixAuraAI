@@ -53,10 +53,45 @@ final class ShellUITests: XCTestCase {
         XCTAssertTrue(app.wait(for: .runningForeground, timeout: 20))
     }
     private func revealReview(_ element: XCUIElement, in app: XCUIApplication) {
+        guard element.exists else { return }
+        let identifier = element.identifier
+        // Popup menu rows live in a separate presentation, not the editor scroll.
+        if identifier.hasPrefix("mode-") || identifier == "export-open" ||
+            identifier.hasPrefix("assist-goal-") || identifier.hasPrefix("auto-goal-") { return }
+        let categoryLabels = ["Geometry", "Tone/Color", "Detail", "Filters/Presets"]
+        let rowID = categoryLabels.contains(element.label) ? "manual-category-scroll" :
+            (identifier.hasPrefix("pixaura.") ? "manual-tool-scroll" : "")
+        if !rowID.isEmpty {
+            let row = app.scrollViews[rowID]
+            if row.exists {
+                for _ in 0..<8 where element.frame.midX > row.frame.minX + row.frame.width * 0.7 { row.swipeLeft() }
+                for _ in 0..<8 where element.frame.minX < row.frame.minX { row.swipeRight() }
+            }
+        }
         let scroll = app.scrollViews["review-scroll"]
-        guard scroll.exists else { return }
-        for _ in 0..<8 where !element.isHittable { scroll.swipeUp() }
-        for _ in 0..<8 where !element.isHittable { scroll.swipeDown() }
+        guard scroll.exists, element.exists else { return }
+        // Scroll the destination owner, not an unbounded nested child. UIKit's
+        // implicit tap/slider scrolling can leave the control outside the viewport.
+        // Preparation is bounded by the actual offscreen distance rather than
+        // assuming every viewport can traverse a long native inspection in8drags.
+        let distanceToTarget = abs(element.frame.midY - scroll.frame.midY)
+        let steps = min(40, max(8, Int(ceil(distanceToTarget / max(scroll.frame.height * 0.20, 1))) + 4))
+        for _ in 0..<steps {
+            let frame = element.frame
+            XCTContext.runActivity(named: "Reveal \(element.identifier): y=\(frame.minY), viewport=\(scroll.frame.minY)...\(scroll.frame.maxY)") { _ in }
+            let top = max(scroll.frame.minY, app.navigationBars.firstMatch.exists ? app.navigationBars.firstMatch.frame.maxY : app.frame.minY)
+            let bottom = min(scroll.frame.maxY, app.frame.maxY)
+            if element.isHittable && frame.minY >= top && frame.maxY <= bottom { return }
+            // Short controlled drags avoid overshooting a row when validation
+            // removes a tall preview and the content extent changes underneath it.
+            // Use the left padding gutter, away from sliders AND the scroll indicator.
+            let center = (top + bottom) / 2
+            let distance = min(0.4, max(0.1, abs(frame.midY - center) / max(scroll.frame.height, 1)))
+            let start = scroll.coordinate(withNormalizedOffset: CGVector(dx: 0.02, dy: 0.5))
+            let end = scroll.coordinate(withNormalizedOffset: CGVector(dx: 0.02,
+                dy: frame.midY > center ? 0.5 - distance : 0.5 + distance))
+            start.press(forDuration: 0.1, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.1)
+        }
     }
     func testPhase11BilingualExportAtAccessibilityTextSize() {
         for (language, locale, shareLabel) in [("en", "en_US", "Share"), ("vi", "vi_VN", "Chia sẻ")] {
@@ -183,7 +218,7 @@ final class ShellUITests: XCTestCase {
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
-            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; revealReview(query.firstMatch, in: app); query.firstMatch.tap()
         }
         tap("Open Manual editor"); tap("mode-auto")
         let cases = [("brightness","milli_linear = 100 (thousandths_linear_white)"), ("contrast","milli_stops = 250 (thousandths_log2_contrast_slope)"), ("exposure","milli_ev = 500 (thousandths_exposure_stop)"), ("highlights","milli_ev = -500 (thousandths_highlight_exposure_stop)"), ("saturation","milli_ratio = 1200 (thousandths_chroma_multiplier)"), ("shadows","milli_ev = 500 (thousandths_shadow_exposure_stop)"), ("temperature","kelvin = 7000 (daylight_white_kelvin)"), ("blur","milli_strength = 250 (thousandths_fixed_kernel_blend)"), ("sharpen","milli_amount = 250 (thousandths_fixed_kernel_unsharp)"), ("crop","x_ppm = 100000 (millionths_current_extent)"), ("rotate","quarter_turns = 1 (clockwise_quarter_turns)")]
@@ -205,7 +240,7 @@ final class ShellUITests: XCTestCase {
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
-            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; revealReview(query.firstMatch, in: app); query.firstMatch.tap()
         }
         tap("Open Manual editor"); tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request")
         let count = app.staticTexts["review-plan-count"]; XCTAssertTrue(count.waitForExistence(timeout: 20)); XCTAssertTrue(count.label.contains("3 planned action(s)."))
@@ -224,7 +259,7 @@ final class ShellUITests: XCTestCase {
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
-            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; revealReview(query.firstMatch, in: app); query.firstMatch.tap()
         }
         tap("Open Manual editor"); XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
         tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request")
@@ -248,7 +283,7 @@ final class ShellUITests: XCTestCase {
             func tap(_ id: String) {
                 let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
                 let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
-                guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+                guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; revealReview(query.firstMatch, in: app); query.firstMatch.tap()
             }
             tap("Open Manual editor"); XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
             tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request"); tap("review-preview-request")
@@ -272,7 +307,7 @@ final class ShellUITests: XCTestCase {
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
-            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; revealReview(query.firstMatch, in: app); query.firstMatch.tap()
         }
         tap("Open Manual editor")
         XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
@@ -303,7 +338,7 @@ final class ShellUITests: XCTestCase {
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
-            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; revealReview(query.firstMatch, in: app); query.firstMatch.tap()
         }
         func revisions(_ count: Int) { XCTAssertTrue(app.staticTexts["Committed revisions: \(count)"].waitForExistence(timeout: 20)) }
         func changeExposure() -> Bool {
@@ -316,7 +351,8 @@ final class ShellUITests: XCTestCase {
             guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Exposure gesture not ready"); return false }
             // One deliberate gesture, never a retry. XCTest's small 0.55 move
             // previously left the native-bound control at zero on the simulator.
-            slider.adjust(toNormalizedSliderPosition: 0.75)
+            revealReview(slider, in: app)
+        slider.adjust(toNormalizedSliderPosition: 0.75)
             let received = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
                 value.exists && value.label.hasPrefix("Exposure: ") && value.label != "Exposure: 0.0 EV" && app.buttons["Apply"].isEnabled
             }, object: nil)
@@ -342,7 +378,7 @@ final class ShellUITests: XCTestCase {
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
-            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; revealReview(query.firstMatch, in: app); query.firstMatch.tap()
         }
         tap("Open Manual editor"); XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
         tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request"); tap("auto-apply")
@@ -371,7 +407,7 @@ final class ShellUITests: XCTestCase {
             func tap(_ id: String) {
                 let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
                 let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
-                guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+                guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; revealReview(query.firstMatch, in: app); query.firstMatch.tap()
             }
             tap("Open Manual editor"); XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
             tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request"); tap("auto-apply")
@@ -390,7 +426,7 @@ final class ShellUITests: XCTestCase {
         func tap(_ id: String) {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
-            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+            guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; revealReview(query.firstMatch, in: app); query.firstMatch.tap()
         }
         tap("Open Manual editor"); XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
         tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request")
@@ -400,6 +436,7 @@ final class ShellUITests: XCTestCase {
         for id in ["Apply", "Approve", "Execute", "Run Plan", "Commit"] { XCTAssertFalse(app.buttons[id].exists, id) }
         tap("mode-manual"); tap("mode-auto"); XCTAssertFalse(app.buttons["auto-dismiss"].exists)
         tap("mode-manual"); tap("Tone/Color"); tap("pixaura.exposure")
+        revealReview(app.sliders["manual-slider"], in: app)
         app.sliders["manual-slider"].adjust(toNormalizedSliderPosition: 0.6); tap("Apply")
         XCTAssertTrue(app.staticTexts["Committed revisions: 2"].waitForExistence(timeout: 20))
         tap("mode-auto"); tap("auto-request"); tap("auto-dismiss")
@@ -412,7 +449,7 @@ final class ShellUITests: XCTestCase {
             func tap(_ id: String) {
                 let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
                 let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
-                guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; query.firstMatch.tap()
+                guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }; revealReview(query.firstMatch, in: app); query.firstMatch.tap()
             }
             tap("Open Manual editor"); XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
             tap("mode-auto"); tap("auto-goal"); tap("auto-goal-pixaura.exposure"); tap("auto-request")
@@ -421,7 +458,8 @@ final class ShellUITests: XCTestCase {
                 tap("auto-request"); tap("mode-manual"); tap("mode-auto"); XCTAssertFalse(app.buttons["auto-dismiss"].exists)
             } else { XCTAssertTrue(app.staticTexts["auto-error"].waitForExistence(timeout: 20)) }
             tap("mode-manual"); tap("Tone/Color"); tap("pixaura.exposure")
-            app.sliders["manual-slider"].adjust(toNormalizedSliderPosition: 0.6); tap("Apply")
+            revealReview(app.sliders["manual-slider"], in: app)
+        app.sliders["manual-slider"].adjust(toNormalizedSliderPosition: 0.6); tap("Apply")
             XCTAssertTrue(app.staticTexts["Committed revisions: 2"].waitForExistence(timeout: 20)); app.terminate()
         }
     }
@@ -447,6 +485,7 @@ final class ShellUITests: XCTestCase {
         tap("mode-assist")
         XCTAssertFalse(app.buttons["assist-use"].exists)
         tap("mode-manual"); tap("Tone/Color"); tap("pixaura.exposure")
+        revealReview(app.sliders["manual-slider"], in: app)
         app.sliders["manual-slider"].adjust(toNormalizedSliderPosition: 0.6)
         tap("Apply")
         XCTAssertTrue(app.staticTexts["Committed revisions: 2"].waitForExistence(timeout: 20))
@@ -457,6 +496,7 @@ final class ShellUITests: XCTestCase {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
             guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }
+            revealReview(query.firstMatch, in: app)
             query.firstMatch.tap()
         }
         func revisions(_ n: Int) {
@@ -472,6 +512,7 @@ final class ShellUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Exposure: 0.0 EV"].waitForExistence(timeout: 20))
         let slider = app.sliders["manual-slider"]
         XCTAssertTrue(slider.waitForExistence(timeout: 20))
+        revealReview(slider, in: app)
         slider.adjust(toNormalizedSliderPosition: 0.6)
         tap("Apply"); revisions(2)
         tap("Undo"); revisions(2); tap("Redo"); revisions(2)
@@ -486,6 +527,7 @@ final class ShellUITests: XCTestCase {
             let query = app.buttons.matching(NSPredicate(format: "(identifier == %@ OR label == %@) AND enabled == true", id, id))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in query.count == 1 }, object: nil)
             guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }
+            revealReview(query.firstMatch, in: app)
             query.firstMatch.tap()
         }
         tap("Open Manual editor")
@@ -494,6 +536,7 @@ final class ShellUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["assist-error"].waitForExistence(timeout: 20))
         XCTAssertTrue(app.staticTexts["Committed revisions: 1"].exists)
         tap("mode-manual"); tap("Tone/Color"); tap("pixaura.exposure")
+        revealReview(app.sliders["manual-slider"], in: app)
         app.sliders["manual-slider"].adjust(toNormalizedSliderPosition: 0.6)
         tap("Apply")
         XCTAssertTrue(app.staticTexts["Committed revisions: 2"].waitForExistence(timeout: 20))
@@ -570,12 +613,10 @@ final class ShellUITests: XCTestCase {
             guard waitForMatches(buttonPredicate(selected: false), count: 1, stage: "actionable") else { return false }
             let button = app.buttons[id].firstMatch
             print("PXUI action=\(sequence) id=\(id) stage=tap start_s=\(ProcessInfo.processInfo.systemUptime)")
-            // Let XCTest resolve a hittable point and scroll the specific button
-            // into view, as tap(_:) already does. A separate frame/window query
-            // after the readiness predicate triggered AX snapshot retries after
-            // crop cancellation (39621695967), before any tap was attempted.
-            // The postcondition below still proves actual semantic activation;
-            // existence or a coordinate event alone cannot satisfy this helper.
+            // Prepare the bounded destination viewport after crop cancellation
+            // changes content extent. The selected/control postcondition below
+            // still proves semantic activation; scrolling cannot satisfy it.
+            revealReview(button, in: app)
             button.tap()
             print("PXUI action=\(sequence) id=\(id) stage=tap-complete end_s=\(ProcessInfo.processInfo.systemUptime)")
             let control: NSPredicate
@@ -614,11 +655,13 @@ final class ShellUITests: XCTestCase {
         tap("Open Manual editor"); revisions(1)
         guard selectControl("Tone/Color"), selectControl("pixaura.exposure") else { return }
         XCTAssertTrue(app.sliders["manual-slider"].waitForExistence(timeout: 10))
+        revealReview(app.sliders["manual-slider"], in: app)
         app.sliders["manual-slider"].adjust(toNormalizedSliderPosition: 0.6)
         tap("Apply"); terminalGesture(); revisions(2)
         tap("Undo"); XCTAssertTrue(app.buttons["Redo"].isEnabled)
         tap("Redo"); revisions(2)
         guard selectControl("pixaura.exposure") else { return }
+        revealReview(app.sliders["manual-slider"], in: app)
         app.sliders["manual-slider"].adjust(toNormalizedSliderPosition: 0.4)
         tap("Cancel"); terminalGesture(); revisions(2)
         guard selectControl("Geometry"), selectControl("pixaura.rotate") else { return }

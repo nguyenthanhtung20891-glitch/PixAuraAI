@@ -4,6 +4,7 @@ import Combine
 import CPixAuraCore
 import CoreGraphics
 import ImageIO
+import Photos
 import Foundation
 import Darwin
 @testable import PixAuraAI
@@ -110,6 +111,24 @@ private func phase11SyntheticPNG(_ url: URL, width: Int, height: Int) throws {
 }
 
 final class ShellTests: XCTestCase {
+    func testPermissionClassificationAndFailedOverwritePreserveUserData() throws {
+        for status in [PHAuthorizationStatus.denied, .restricted, .notDetermined] {
+            XCTAssertFalse(ExportDestination.libraryAccess(status))
+        }
+        for status in [PHAuthorizationStatus.authorized, .limited] {
+            XCTAssertTrue(ExportDestination.libraryAccess(status))
+        }
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: false)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let existing = root.appendingPathComponent("existing", isDirectory: true)
+        try FileManager.default.createDirectory(at: existing, withIntermediateDirectories: false)
+        let retained = existing.appendingPathComponent("retained.bin")
+        let bytes = Data([1, 2, 3]); try bytes.write(to: retained)
+        XCTAssertThrowsError(try ExportDestination.writeAtomically(existing, Data([9])))
+        XCTAssertEqual(try Data(contentsOf: retained), bytes)
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: root.path), ["existing"])
+    }
     func testNativeDiagnosticPresentationPreservesRawStatusAndLocalizedMeaning() throws {
         let bundle = try XCTUnwrap(Bundle.main.path(forResource: "vi", ofType: "lproj").flatMap(Bundle.init(path:)))
         let failure = ManualEditorFailure(status: 7, boundary: "Preview")

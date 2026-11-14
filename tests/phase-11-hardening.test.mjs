@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import test from 'node:test';
-import { phase11Hash, phase11SuccessorHash, phase11PostV2Hash, phase11PostV3Hash, phase11PostV4Hash, phase11PostV5Hash, phase11PostV6Hash, phase11PostV7Hash, phase11PostV8Hash } from './helpers/phase-11-hashes.mjs';
+import { phase11Hash, phase11SuccessorHash, phase11PostV2Hash, phase11PostV3Hash, phase11PostV4Hash, phase11PostV5Hash, phase11PostV6Hash, phase11PostV7Hash, phase11PostV8Hash, phase11PostV9Hash } from './helpers/phase-11-hashes.mjs';
 const read = p => fs.readFileSync(p, 'utf8').replaceAll('\r\n', '\n');
 const hash = p => crypto.createHash('sha256').update(read(p)).digest('hex');
 
@@ -86,8 +86,30 @@ test('Phase 11 source successor binds current hardening without rewriting histor
   for (const flag of ['public_abi_changed', 'schema_changed', 'gpu_admission_policy_changed']) assert.equal(diagnostics[flag], false);
   for (const [path, change] of Object.entries(diagnostics.changes)) {
     assert.equal(change.before_sha256_lf, measurement.changes[path]?.after_sha256_lf, path);
+    assert.equal(hash(path), phase11PostV9Hash(path, change.after_sha256_lf), path);
+  }
+  const remaining = JSON.parse(read('docs/reports/phase-11-source-v10.json'));
+  assert.equal(remaining.predecessor_commit, '8387b167514b4a01f331ef05db32f22d5b4f9f5b');
+  assert.equal(hash(remaining.parent_manifest), remaining.parent_manifest_sha256_lf);
+  for (const flag of ['public_abi_changed','schema_changed','gpu_admission_policy_changed']) assert.equal(remaining[flag], false);
+  const earlier = {};
+  for (let version = 1; version <= 9; version++) {
+    const receipt = JSON.parse(read(`docs/reports/phase-11-source-v${version}.json`));
+    Object.assign(earlier, receipt.additions ?? {});
+    for (const [path, change] of Object.entries(receipt.changes)) earlier[path] = change.after_sha256_lf;
+  }
+  const unchanged = {
+  "platforms/android/app/src/androidTest/java/ai/pixaura/app/ExportDestinationTest.kt": "de3a9803436a5921488210a7e14c399bcae77719e650d44ac4c57f865792a232",
+  "scripts/check-ios-shell.sh": "77bf22052ad5d401eaba3b4dc0b251ae3e8690ca1a7e6aa8378f8a322e21df45",
+  "tests/foundation.test.mjs": "35a27fec031d87ba25a3e3f3e96537fa94b7c1f2bbf88182f3f651460a3acf34",
+  "tests/persistence.test.mjs": "a02184d152cda7eb05ac1cc1824e8c338bc42b678cd050997a0dcd3e3dd3ffbd",
+  "tests/review-edit.test.mjs": "defd315b06ecfdef476853b5ecdbdabf6f612c5d4ec33477f962ef338efdf18c"
+};
+  for (const [path, change] of Object.entries(remaining.changes)) {
+    assert.equal(change.before_sha256_lf, earlier[path] ?? unchanged[path], path);
     assert.equal(hash(path), change.after_sha256_lf, path);
   }
+  for (const [path, digest] of Object.entries(remaining.additions)) assert.equal(hash(path), digest, path);
 
 });
 

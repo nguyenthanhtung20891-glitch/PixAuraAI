@@ -55,7 +55,10 @@ test('authoritative documents and ADRs are present and substantive', () => {
   assert.ok(adrs.length >= 6);
   for (const file of adrs) {
     const content = fs.readFileSync(file, 'utf8');
-    for (const section of ['Status: Accepted', '## Context', '## Decision', '## Alternatives', '## Consequences', '## Validation']) {
+    const proposedEntitlement = path.basename(file) === '0024-entitlement-policy-proposal.md';
+    const status = proposedEntitlement ? 'Status: PROPOSED / NOT APPROVED / NOT IMPLEMENTED AS AN ACCESS GATE.' : 'Status: Accepted';
+    if (proposedEntitlement) assert.ok(content.includes('Authority required: Product Owner commercial policy and Principal Architect review.'));
+    for (const section of [status, '## Context', '## Decision', '## Alternatives', '## Consequences', '## Validation']) {
       assert.ok(content.includes(section), `${file}: missing ${section}`);
     }
   }

@@ -44,7 +44,7 @@ test('Apple SDK macro exception stays confined to the vendored SQLite target', (
   assert.match(sqlite, /\.unsafeFlags\(\["-Wno-ambiguous-macro"\], \.when\(platforms: \[\.macOS, \.iOS\]\)\)/);
   assert.doesNotMatch(owned, /-Wno-|-w\b/);
   assert.match(sqlite, /visibility/);
-  for (const [file, count] of [['scripts/check-apple.sh', 3], ['scripts/check-ios-shell.sh', 2]]) {
+  for (const [file, count] of [['scripts/check-apple.sh', 3], ['scripts/check-ios-shell.sh', 3]]) {
     const commands = read(file).match(/xcodebuild[^\n]*(?:\\\n[^\n]*)*(?:build|test)/g);
     assert.equal(commands.length, count, file);
     for (const command of commands) {

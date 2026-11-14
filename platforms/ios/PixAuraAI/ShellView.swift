@@ -30,22 +30,25 @@ struct ShellView: View {
             }
             .navigationTitle("PixAuraAI")
             .navigationDestination(for: Destination.self) { destination in
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text(model.probe)
-                        switch destination {
-                        case .editor:
-                            ManualEditorScreen(capabilities: capabilities, assistInitially: model.state.mode == .assisted, autoInitially: model.state.mode == .ai)
-                        case .projects:
-                            Text("Your projects will appear here.")
-                        case .settings:
-                            Text("Offline by default. No account, analytics or photo access requested.")
-                        case .home:
-                            Text("Home")
+                Group {
+                    if destination == .editor {
+                        ManualEditorScreen(capabilities: capabilities, assistInitially: model.state.mode == .assisted,
+                                           autoInitially: model.state.mode == .ai, onBack: { model.back() })
+                    } else {
+                        ScrollView {
+                            VStack(alignment: .leading, spacing: 16) {
+                                Text(model.probe)
+                                switch destination {
+                                case .projects: Text("Your projects will appear here.")
+                                case .settings: Text("Offline by default. No account, analytics or photo access requested.")
+                                case .home: Text("Home")
+                                case .editor: EmptyView()
+                                }
+                                Button("Back to Home") { model.back() }
+                                    .buttonStyle(.bordered).controlSize(.large)
+                            }.padding()
                         }
-                        Button("Back to Home") { model.back() }
-                            .buttonStyle(.bordered).controlSize(.large)
-                    }.padding()
+                    }
                 }
                 .navigationTitle(presented(destination.rawValue))
             }

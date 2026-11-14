@@ -345,3 +345,28 @@ G7/G8/G10/G11, Duo4localUI failures and Phase11acceptance/closure remain open;
 Phase12NOTSTARTED. Documentation successor requires fresh exactSHA7+3CI; next
 actionreview/localchecks, commit/push docs only, observeallrequired jobs.
 Local independent verification: build/phase-11-iphone-xr/acceptance-verification-v9/.
+
+## Remaining engineering successor — local validation complete, CI pending
+
+Baseline8387b167514b4a01f331ef05db32f22d5b4f9f5b. Planbeforeedits:
+docs/plans/phase-11-remaining-engineering.md. Integratedreport/blockermatrix:
+phase-11-remaining-engineering.md. Additivesource-v10 preservesv1-v9.
+UIboundededitorScrollView/fixednavigation and viewport/horizontal test-event
+preparation resolvepreservedDuo4failures; exactbehaviorassertions/20swaitsremain.
+FullDuo19/19UI+16/16ShellTestsPASS; conventional19/19+16/16PASS. English/Vietnamese
+verifiedlargestDynamicTypePASSonAXandDuo, previoussimsettingsrestored. Android
+affectedexport/security/en/vi200%text7/7PASSonownedisolatedARM64Emulator; owned
+AVDstopped, sharedemulatoruntouched. GenericiOSDebug/Releasebuildsandallrelease/
+modelscannersPASS. Source/docs208PASS; finalrefresh/checkbeforenewcommitrequired.
+G7sourcereview+targetednegativecoveragecomplete; actualdevice/traffic/permission
+observationsstillopen. G8denialsconformtofrozenlimits;12MPtargetconflictswith
+whole-rastercontract,boundedstreaming/tiledresolutionPROPOSEDnotimplemented.
+G11humanrunbookready,NOhumanobservationsinvented. ADR0024entitlementpolicyis
+PROPOSEDNOTAPPROVED; development-onlytransportalwaysUNTRUSTED,nevergrantsor
+persistsorintegratesstores. Commercialpolicy/architecture/storeprerequisitesopen.
+DH-APPLE-METAL-01PASS/CLOSEDacceptedscopenotrerun/reopened; CPUVALIDATED, Metal/
+VulkanproviderUNKNOWN. Sharedcore/ABI/Schema3/numerics/nativeApplyauthority/signing
+assetsunchanged. Ownerprimaryprojectdiffremainsunstaged. Phase11INPROGRESS;
+Phase12NOTAUTHORIZED. Nextreview/secrets/sourcechecks,commit/pushin-scopefiles,
+cleanisolatedcheckout,observefreshFoundation7+Native3 exactsuccessorSHAattempt1.
+Localresumablework: build/phase-11-iphone-xr/REMAINING-ENGINEERING-RESUME.md.

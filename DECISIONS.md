@@ -1,5 +1,15 @@
 # Architectural decision index
 
+## Proposed Phase 11 entitlement decision — not adopted
+
+[ADR0024: cross-platform entitlement and recovery policy](docs/adr/0024-entitlement-policy-proposal.md)
+is a review proposal only. It does not approve offline grace, family sharing,
+store verification architecture, a service or a runtime editing gate. Commercial
+policy, store configuration/accounts and authentic sandbox evidence remain open.
+See the [remaining engineering blocker matrix](docs/reports/phase-11-remaining-engineering.md).
+DH-APPLE-METAL-01 acceptedPASS and provider trust remain unchanged. Phase11 is
+INPROGRESS, not closed; Phase12NOTAUTHORIZED. Historical decisions below are intact.
+
 <!-- phase11-metal-acceptance-current -->
 ## Current successor — independently accepted Apple hardware gate (2026-11-14)
 

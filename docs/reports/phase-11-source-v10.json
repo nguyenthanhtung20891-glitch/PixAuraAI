@@ -1,0 +1,73 @@
+{
+  "version": 10,
+  "subject": "remaining-phase11-layout-security-and-untrusted-commerce-tooling",
+  "predecessor_commit": "8387b167514b4a01f331ef05db32f22d5b4f9f5b",
+  "parent_manifest": "docs/reports/phase-11-source-v9.json",
+  "parent_manifest_sha256_lf": "4277ccb4a40b73ac0f38b3dbfa598b6bc411ba6bf5c1e79c842ec99f05549898",
+  "public_abi_changed": false,
+  "schema_changed": false,
+  "gpu_admission_policy_changed": false,
+  "hardware_gate": "DH-APPLE-METAL-01 PASS unchanged; no Metal source/contract changes",
+  "changes": {
+    ".github/workflows/foundation.yml": {
+      "before_sha256_lf": "05b6ef7573d916e374ceaa74f2bb159fb3d844844cc27884340519756abe60b8",
+      "after_sha256_lf": "7852f2656e5a9dec74ec44cb38e8c4e4a754a0b00a407f4adb4b693bb60b98df"
+    },
+    ".github/workflows/native-shells.yml": {
+      "before_sha256_lf": "7b96e5c94605375039014691f06b902fe464db7629b03ba3a8b593ec8e0951ff",
+      "after_sha256_lf": "a9fd7e32dd0b4fbaffc94bc170e01a11943eb7d19fd175bdc24cb39f44c23740"
+    },
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/ExportDestinationTest.kt": {
+      "before_sha256_lf": "de3a9803436a5921488210a7e14c399bcae77719e650d44ac4c57f865792a232",
+      "after_sha256_lf": "581be377ccfed4bfa6ecb5a96b28e28b378a88d654a9f08358ff526ba135badb"
+    },
+    "platforms/ios/PixAuraAI/ManualEditorScreen.swift": {
+      "before_sha256_lf": "eaf5b44b24bdf5bda52289b47573326df64db3a748eb0fb95b11433cbfcb3540",
+      "after_sha256_lf": "c983d5d248b5cddb4a0d7367b70991538ee7f43b39097b07e7fd288198f5ebbc"
+    },
+    "platforms/ios/PixAuraAI/ShellView.swift": {
+      "before_sha256_lf": "a7c7c2680a650fc3fbf08b7f851975aac3fe83532141a67f137b081a121d0b9c",
+      "after_sha256_lf": "b1dd6a16f42daadffc8238bb21fa06ceb912b49ec162766ffe1631b3bad73fc2"
+    },
+    "platforms/ios/PixAuraAITests/ShellTests.swift": {
+      "before_sha256_lf": "66a64e2f1e8963e97c1b520da3a08d6f2d1c2f7355d81a094a21b736b120093d",
+      "after_sha256_lf": "eaf9643f9d86db439b9828af3a26694f8a385069fe65e813c5f44b1f8ea4e004"
+    },
+    "platforms/ios/PixAuraAIUITests/ShellUITests.swift": {
+      "before_sha256_lf": "6d0e3bddbd0bd60d5459392b89ad8673c5b13b524a102e8e702516ef050d236a",
+      "after_sha256_lf": "3fc4eaf16d4dbfaeca07b3e7920c3b431de2628b9f0310f3624dfb28d9d01ec3"
+    },
+    "scripts/check-apple.sh": {
+      "before_sha256_lf": "9063c25ded2821e32aa5a7e453635725a31e34df0e700778134295b917be832f",
+      "after_sha256_lf": "346634ed706b9ed492f815546e2d1f05eb0bcde1354036f261405440d71f4548"
+    },
+    "scripts/check-ios-shell.sh": {
+      "before_sha256_lf": "77bf22052ad5d401eaba3b4dc0b251ae3e8690ca1a7e6aa8378f8a322e21df45",
+      "after_sha256_lf": "29d67f103ac79f3d3eec97f2638bad1950673b824635f7be539be17f57c6d4e5"
+    },
+    "tests/foundation.test.mjs": {
+      "before_sha256_lf": "35a27fec031d87ba25a3e3f3e96537fa94b7c1f2bbf88182f3f651460a3acf34",
+      "after_sha256_lf": "c3a420d5b56eb4964bd7befefc92d7096742bca998b033e8e3753375f54ae9e2"
+    },
+    "tests/helpers/phase-11-hashes.mjs": {
+      "before_sha256_lf": "d4bc33e9e93c7010be475ae69f6740511c1c0fb33c660bb6a58373c8e98a2d6a",
+      "after_sha256_lf": "42a680e2401623f9d2f8ca9e02cd15a6d1222a15cde96721c8c6f570e19fdcbb"
+    },
+    "tests/persistence.test.mjs": {
+      "before_sha256_lf": "a02184d152cda7eb05ac1cc1824e8c338bc42b678cd050997a0dcd3e3dd3ffbd",
+      "after_sha256_lf": "d01ad67c72a93276870203a9478ec0d2e5838e82099354910bb1a7dff9812000"
+    },
+    "tests/phase-11-hardening.test.mjs": {
+      "before_sha256_lf": "cac85a051cb50e7bb7e47624b66dbba741787cac99d2ed0638017c9ff658b62c",
+      "after_sha256_lf": "db8abbb531b9fcac83f63ec6fc56e6d7fd22b89386ed161b9c6a0856c3ee05c1"
+    },
+    "tests/review-edit.test.mjs": {
+      "before_sha256_lf": "defd315b06ecfdef476853b5ecdbdabf6f612c5d4ec33477f962ef338efdf18c",
+      "after_sha256_lf": "d851f22b16eff75958f2200486e345b1027c44d176ff411bbdd05f95eb8e7741"
+    }
+  },
+  "additions": {
+    "scripts/entitlement-observation.mjs": "c71ac74214d186b05e8e9e41f19ce0fb2962d76db7411156c6067d4e57b8ea8f",
+    "tests/entitlement-observation.test.mjs": "a55b0ac2ffd4185b68b96179a276599a6c6f0a4480d8174a5f686a8e1e3aabc0"
+  }
+}

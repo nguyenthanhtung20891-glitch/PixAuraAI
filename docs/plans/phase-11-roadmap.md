@@ -1,5 +1,18 @@
 # Phase 11 engineering roadmap
 
+## Remaining software workstreams successor
+
+Current implementation evidence: [remaining engineering report and blocker matrix](../reports/phase-11-remaining-engineering.md).
+The four original Duo failures are resolved in the new local software regressions
+(19/19 Duo and19/19conventional, plus largest-text bilingual tests); historical
+failure evidence remains intact. Exact successor7+3CI certification is required.
+G7source/negative tests, G8frozen-policy analysis, G11automated reachability and
+operator runbook, and G10proposed ADR/development-only untrusted observation
+validation are documented separately from physical/human/policy/store acceptance.
+[ADR0024](../adr/0024-entitlement-policy-proposal.md) is PROPOSED, not approved.
+DH-APPLE-METAL-01 remainsPASS/CLOSED for accepted scope, providers unchanged.
+Phase11INPROGRESS, not closed; Phase12NOTAUTHORIZED.
+
 ## Current acceptance successor — 2026-11-14
 
 DH-APPLE-METAL-01 = PASS, limited to the reviewed physical XR/iOS18.7.9/A12,

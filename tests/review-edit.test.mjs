@@ -38,7 +38,12 @@ test('platform edit controls propose raw integers and render new native inspecti
  assert.ok(text('platforms/android/app/src/main/java/ai/pixaura/app/AutoProposalPanel.kt').includes('drafts.isEmpty() && auto.status'));
  assert.ok(text('platforms/ios/PixAuraAI/ManualEditorScreen.swift').includes('reviewDraftIdentity == review.reviewIdentity && !reviewDrafts.isEmpty'));
  assert.ok(text('platforms/ios/PixAuraAI/ManualEditorScreen.swift').includes('accessibilityElement(children: .contain).accessibilityIdentifier("review-edit-controls")'));
- assert.ok(text('platforms/ios/PixAuraAI/ManualEditorScreen.swift').includes('ScrollView { autoPanel }'));
+ const editor = text('platforms/ios/PixAuraAI/ManualEditorScreen.swift');
+ const layout = editor.slice(editor.indexOf('var body: some View {', editor.indexOf('private var modeSelector')), editor.indexOf('.fileImporter'));
+ assert.ok(layout.includes('}.accessibilityIdentifier("review-scroll")'));
+ assert.ok(layout.indexOf('modeSelector') < layout.indexOf('ScrollView {'));
+ assert.doesNotMatch(layout, /ScrollView \{ autoPanel \}/); // One bounded vertical owner, fixed navigation.
+ assert.ok(text('platforms/ios/PixAuraAI/ShellView.swift').includes('if destination == .editor {'));
  for(const p of ['platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt','platforms/ios/PixAuraAI/ManualEditorModel.swift'])for(const label of ['Invalid owner, session or edit request','Unsupported edit','Invalid resulting Plan','Invalid value or complete Plan parameters','Busy or allocation/resource unavailable','Stale review','Cancelled or owner stopped','Internal or unknown native failure','No document edit was applied by this request.'])assert.ok(text(p).includes(label),p+label);
 });
 test('complete retained workflows run new native/platform/allocation tests without shipping new hooks',()=>{

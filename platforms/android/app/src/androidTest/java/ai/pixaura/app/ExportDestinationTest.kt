@@ -49,6 +49,23 @@ class ExportDestinationTest {
             assertEquals(before.revisionId, editor.state().revisionId)
         } finally { editor.close() }
     }
+    @Test fun streamCloseFailureNeverPublishesAndRemovesOnlyPendingDestination() {
+        val uri = Uri.parse("content://synthetic.invalid/new-export")
+        var removed = 0
+        var published = false
+        val stream = object : java.io.ByteArrayOutputStream() {
+            override fun close() { throw IOException("synthetic close failure") }
+        }
+        val result = runCatching {
+            ExportDestination.savePending(insert = { uri }, open = { stream },
+                publish = { published = true }, remove = { target -> assertEquals(uri, target); removed++ },
+                bytes = byteArrayOf(1, 2, 3))
+        }
+        assertTrue(result.exceptionOrNull() is IOException)
+        assertFalse(published)
+        assertEquals(1, removed)
+        assertArrayEquals(byteArrayOf(1, 2, 3), stream.toByteArray())
+    }
     @Test fun partialDestinationIsRemovedAndShareIsNotDelivery() {
         val file = File(app.cacheDir, "partial-${UUID.randomUUID()}.bin")
         val uri = Uri.fromFile(file)

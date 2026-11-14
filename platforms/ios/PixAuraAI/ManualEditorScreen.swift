@@ -19,9 +19,11 @@ struct ManualEditorScreen: View {
     @StateObject private var model: ManualEditorModel
     private let assistInitially: Bool
     private let autoInitially: Bool
-    init(capabilities: AppleCapabilityOwner, assistInitially: Bool = false, autoInitially: Bool = false) {
+    private let onBack: () -> Void
+    init(capabilities: AppleCapabilityOwner, assistInitially: Bool = false, autoInitially: Bool = false, onBack: @escaping () -> Void = {}) {
         self.assistInitially = assistInitially
         self.autoInitially = autoInitially
+        self.onBack = onBack
         _model = StateObject(wrappedValue: ManualEditorModel(capabilities: capabilities))
     }
     @Environment(\.scenePhase) private var scenePhase
@@ -185,45 +187,45 @@ struct ManualEditorScreen: View {
     }
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            if model.assistance.enabled { assistPanel }
-            if model.autoProposal.enabled {
-                ScrollView { autoPanel }
-                    .accessibilityIdentifier("review-scroll")
+            // Stable navigation belongs outside scrolling editor content. It must
+            // survive mode/result transitions on compact multi-display runtimes.
+            HStack {
+                modeSelector
+                Button(String(localized: "Export")) { showingExport = true }
+                    .disabled(model.core == nil).accessibilityIdentifier("export-open")
             }
-            if let notice = model.assistance.notice { Text(presented(notice)).accessibilityIdentifier("assist-notice") }
-            Button(String(localized: "Open JPEG or PNG")) { picking = true }
-                .disabled(model.busy || model.exporting)
-                .accessibilityIdentifier("open-photo")
-                .accessibilityLabel(String(localized: "Open Photo"))
-            Group {
-                if let image = model.image {
-                    Image(decorative: image, scale: 1).resizable().scaledToFit().accessibilityHidden(false).accessibilityLabel("Current manual preview")
-                } else {
-                    Text(String(localized: "PixAuraAI edits a private copy on this device.")).accessibilityIdentifier("empty-purpose")
-                    Text(String(localized: "Open an image to edit locally"))
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    if model.assistance.enabled { assistPanel }
+                    if model.autoProposal.enabled {
+                        // The destination owns vertical scrolling. A nested unbounded
+                        // ScrollView can place review fields beyond its visible viewport.
+                        autoPanel
+                    }
+                    if let notice = model.assistance.notice { Text(presented(notice)).accessibilityIdentifier("assist-notice") }
+                    Button(String(localized: "Open JPEG or PNG")) { picking = true }
+                        .disabled(model.busy || model.exporting)
+                        .accessibilityIdentifier("open-photo")
+                        .accessibilityLabel(String(localized: "Open Photo"))
+                    Group {
+                        if let image = model.image {
+                            Image(decorative: image, scale: 1).resizable().scaledToFit().accessibilityHidden(false).accessibilityLabel("Current manual preview")
+                        } else {
+                            Text(String(localized: "PixAuraAI edits a private copy on this device.")).accessibilityIdentifier("empty-purpose")
+                            Text(String(localized: "Open an image to edit locally"))
+                        }
+                    }.frame(maxWidth: .infinity).frame(height: 180).accessibilityIdentifier("manual-preview")
+                    if model.busy { Text("Loading or saving…").accessibilityLabel("Editor busy") }
+                    if model.previewLoading { Text("Rendering preview; changes are not saved until Apply").accessibilityIdentifier("preview-loading") }
+                    if !model.autoProposal.enabled { manualControls }
+                    if model.autoProposal.enabled, let core = model.core { Text(String(format: String(localized: "Committed revisions: %lld"), Int64(core.revisionCount))).accessibilityIdentifier("revision-count") }
+                    Button("Back to Home") { onBack() }
                 }
-            }.frame(maxWidth: .infinity).frame(height: 180).accessibilityIdentifier("manual-preview")
-            if model.busy { Text("Loading or saving…").accessibilityLabel("Editor busy") }
-            if model.previewLoading { Text("Rendering preview; changes are not saved until Apply").accessibilityIdentifier("preview-loading") }
-            if !model.autoProposal.enabled { manualControls }
-            if model.autoProposal.enabled, let core = model.core { Text(String(format: String(localized: "Committed revisions: %lld"), Int64(core.revisionCount))).accessibilityIdentifier("revision-count") }
+            }.accessibilityIdentifier("review-scroll")
         }
+        .padding()
         .buttonStyle(.bordered)
         .controlSize(.large)
-        .toolbar {
-            // The shell scroll moves this selector off the top after a review
-            // scroll. The navigation bar keeps it hittable.
-            ToolbarItem(placement: .principal) {
-                // Keep toolbar identity stable when returning from review. Replacing
-                // the principal item can leave UIKit with an empty navigation bar.
-                modeSelector
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(String(localized: "Export")) { showingExport = true }
-                    .disabled(model.core == nil)
-                    .accessibilityIdentifier("export-open")
-            }
-        }
         .fileImporter(isPresented: $picking, allowedContentTypes: [.jpeg, .png]) { result in
             if case .success(let input) = result { model.importImage(input) }
             if case .failure(let error) = result { model.pickerFailure(error) }
@@ -260,7 +262,7 @@ struct ManualEditorScreen: View {
                         .accessibilityAddTraits(category == key ? .isSelected : [])
                 }
             }
-        }
+        }.accessibilityIdentifier("manual-category-scroll")
         if category == "filters_presets" { Text("No presets available. The shipping catalog is empty.") }
         else {
             ScrollView(.horizontal) {
@@ -269,7 +271,7 @@ struct ManualEditorScreen: View {
                         toolButton(entry.offset, entry.element)
                     }
                 }
-            }
+            }.accessibilityIdentifier("manual-tool-scroll")
         }
         if let tool = selected, let core = model.core {
             Text(presented(tool.name)).font(.headline)
