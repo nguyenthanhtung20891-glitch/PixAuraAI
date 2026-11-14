@@ -370,3 +370,14 @@ assetsunchanged. Ownerprimaryprojectdiffremainsunstaged. Phase11INPROGRESS;
 Phase12NOTAUTHORIZED. Nextreview/secrets/sourcechecks,commit/pushin-scopefiles,
 cleanisolatedcheckout,observefreshFoundation7+Native3 exactsuccessorSHAattempt1.
 Localresumablework: build/phase-11-iphone-xr/REMAINING-ENGINEERING-RESUME.md.
+
+### Exact-SHA CI remediation
+
+244bfeead60dc47bb909866d8a497b8e236db84c is NOT certified. Foundation
+43615800385 failed the frozen Phase7 tracked inventory on newly tracked proposed
+ADR0024. Reproduced in clean committed checkout: pre-commit git-ls-files omitted
+the untracked proposal. No runtime or UI failure caused this source-check failure.
+An explicit exact-path/hash successor inventory preserves the historical manifest
+and requires the proposal remain unapproved. No identical-SHA rerun.
+Native43615800342 is a separate predecessor run; final status retained locally.
+Next: validate staged tracked inventory and certify a new successor SHA.

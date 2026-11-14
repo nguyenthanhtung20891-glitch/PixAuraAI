@@ -1,0 +1,17 @@
+{
+  "version": 11,
+  "predecessor_commit": "244bfeead60dc47bb909866d8a497b8e236db84c",
+  "runtime_authority": false,
+  "reason": "Explicit additive inventory for unapproved ADR proposal; historical Phase7 inventory unchanged",
+  "parent_manifest": "docs/reports/phase-11-source-v10.json",
+  "parent_sha256_lf": "fe920bb7245f9cb06888eb9a14c80741f11b9a4992b66daf2394e358d9e3e057",
+  "changes": {
+    "tests/deterministic-admission.test.mjs": {
+      "before_sha256_lf": "16dc543f138a7b2b006c951216fd9971722c64613ee20f838dcb882dbeee5d8c",
+      "after_sha256_lf": "ccd9b984dbebdb5c9162f5635324cbfe150eb464fef886130e007eb31afba4dd"
+    }
+  },
+  "additions": {
+    "docs/adr/0024-entitlement-policy-proposal.md": "72b837d158f1902fcb99127de060e299c5b234642aea27bb586a2b3d54a65a3e"
+  }
+}
