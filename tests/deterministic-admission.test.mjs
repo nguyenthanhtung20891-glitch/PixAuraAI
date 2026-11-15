@@ -73,7 +73,7 @@ test('Phase 7 closure preserves the complete frozen runtime and contract invento
  assert.ok(proposal.includes('Status: Accepted'));
  const historical=fs.readFileSync('docs/reports/phase-11-adr0024-proposed-history.md','utf8');
  assert.equal(hash(historical.slice(historical.indexOf('# 0024'))),successor.additions['docs/adr/0024-entitlement-policy-proposal.md']);
- const added=new Set([...Object.keys(successor.additions),...Object.keys(read('docs/reports/phase-11-source-v13.json').additions),'docs/contracts/full-review-experience-v1.md',...Object.keys(preview.additions),...Object.keys(inspection.additions),...Object.keys(editing.additions),...Object.keys(result.additions),...Object.keys(exportContract.additions),...Object.keys(exportEngine.additions),...Object.keys(exportAndroid.additions),...Object.keys(exportApple.additions),...Object.keys(productUx.additions),...Object.keys(locale.additions)]);
+ const added=new Set([...Object.keys(successor.additions),...Object.keys(read('docs/reports/phase-11-source-v13.json').additions),...Object.keys(read('docs/reports/phase-11-source-v14.json').additions),'docs/contracts/full-review-experience-v1.md',...Object.keys(preview.additions),...Object.keys(inspection.additions),...Object.keys(editing.additions),...Object.keys(result.additions),...Object.keys(exportContract.additions),...Object.keys(exportEngine.additions),...Object.keys(exportAndroid.additions),...Object.keys(exportApple.additions),...Object.keys(productUx.additions),...Object.keys(locale.additions)]);
  assert.deepEqual(paths.filter(p=>!added.has(p)),Object.keys(m.sha256).sort(),'no unreviewed runtime/contract addition or removal');
  for(const [p,digest] of Object.entries(m.sha256)){
   const b=fs.readFileSync(p),s=b.toString('utf8');

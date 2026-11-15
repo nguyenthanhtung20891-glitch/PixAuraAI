@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {phase11PostV13Hash} from './helpers/phase-11-hashes.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
@@ -9,9 +10,9 @@ test('G8/G10 source successor preserves native ABI/kernels and all prior records
   assert.equal(m.predecessor_commit, 'eb61735be29eb365db76fa57b74170c6656c9efd');
   assert.equal(hash(m.parent_manifest), m.parent_sha256_lf);
   for (const flag of ['public_abi_changed', 'project_schema_changed', 'certified_numerical_kernels_changed', 'gpu_admission_policy_changed', 'application_quota_enforcement_enabled', 'full_12mp_pipeline_claimed', 'store_product_ids_or_credentials_invented']) assert.equal(m[flag], false, flag);
-  for (const [p, c] of Object.entries(m.changes)) { assert.match(c.before_sha256_lf, /^[a-f0-9]{64}$/); assert.equal(hash(p), c.after_sha256_lf, p); }
-  for (const [p, digest] of Object.entries(m.additions)) assert.equal(hash(p), digest, p);
-  for (const [p, digest] of Object.entries(m.protected_native_fingerprints)) assert.equal(hash(p), digest, p);
+  for (const [p, c] of Object.entries(m.changes)) { assert.match(c.before_sha256_lf, /^[a-f0-9]{64}$/); assert.equal(hash(p), phase11PostV13Hash(p, c.after_sha256_lf), p); }
+  for (const [p, digest] of Object.entries(m.additions)) assert.equal(hash(p), phase11PostV13Hash(p, digest), p);
+  for (const [p, digest] of Object.entries(m.protected_native_fingerprints)) assert.equal(hash(p), phase11PostV13Hash(p, digest), p);
 });
 test('Owner-approved policy fixes quotas while recovery/native authority and future-phase boundaries stay explicit', () => {
   const p = JSON.parse(read('docs/reports/phase-11-commercial-approval-v1.json'));
@@ -32,4 +33,12 @@ test('store SDK and verifier cannot silently become shipping telemetry or a purc
   assert.ok(app.includes('androidTestImplementation("com.android.billingclient:billing:9.1.0")'));
   assert.ok(read('platforms/ios/PixAuraAI/ShellModel.swift').includes('case .verified(let transaction)'));
   assert.ok(read('packages/commerce/quota.hpp').includes('friend class NativeCommercialOwner'));
+});
+
+test('Strict compiler successor binds every corrected file without mutating v13 evidence', () => {
+  const m = JSON.parse(read('docs/reports/phase-11-source-v14.json'));
+  assert.equal(m.predecessor_commit, '24f7aeb5424bc4f8a3a80ce8cf96a5710f27fbce');
+  assert.equal(hash(m.parent_manifest), m.parent_sha256_lf);
+  for (const [p, c] of Object.entries(m.changes)) assert.equal(hash(p), c.after_sha256_lf, p);
+  for (const [p, h] of Object.entries(m.additions)) assert.equal(hash(p), h, p);
 });

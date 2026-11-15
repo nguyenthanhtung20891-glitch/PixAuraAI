@@ -50,8 +50,10 @@ int main(int argc,char** argv){
         auto bad=l.reserve(hex(110),hex(1,64),true,c);CHECK(!LedgerTestAccess::complete(l,bad.token,true,false,"",c));CHECK(l.state(c).ai==0);
         std::atomic<unsigned> allowed{0};std::vector<std::thread> threads;std::mutex tokens_lock;std::vector<std::string> tokens;
         for(unsigned i=0;i<12;++i)threads.emplace_back([&,i]{auto r=l.reserve(hex(200+i),hex(1,64),true,c);if(r.decision==Admission::allowed){++allowed;std::lock_guard<std::mutex> lock(tokens_lock);tokens.push_back(r.token);}});
-        for(auto& t:threads)t.join();CHECK(allowed==3&&l.state(c).pending==3);
-        for(const auto& t:tokens)CHECK(LedgerTestAccess::complete(l,t,true,false,"native-valid-test-capsule",c));CHECK(l.state(c).ai==3);
+        for(auto& t:threads){t.join();}
+        CHECK(allowed==3&&l.state(c).pending==3);
+        for(const auto& t:tokens){CHECK(LedgerTestAccess::complete(l,t,true,false,"native-valid-test-capsule",c));}
+        CHECK(l.state(c).ai==3);
         delivered=tokens[0];CHECK(LedgerTestAccess::complete(l,delivered,true,false,"must-not-replace",c));CHECK(l.recover_delivery(delivered)=="native-valid-test-capsule");CHECK(l.state(c).ai==3);CHECK(LedgerTestAccess::complete(l,delivered,false,false,"",c));CHECK(l.state(c).ai==3);
         // Wall/timezone changes neither advance quota date nor reverse it.
         auto changed=c;changed.utc_seconds+=86400*100;CHECK(l.state(changed).day==20000);changed.utc_seconds=1;CHECK(l.state(changed).day==20000);
@@ -77,7 +79,7 @@ auto revoked=l.reserve(hex(700),hex(90,64),true,reboot);CHECK(revoked.decision==
         // from a failed verification. Unverified facts never grant paid access.
         LedgerTestAccess::fact(l,{Entitlement::subscription,true,false,reboot.utc_seconds-1,false});
         std::vector<std::string> online_expired;
-        for(unsigned i=0;i<3;++i){auto r=l.reserve(hex(800+i),hex(90,64),true,reboot);if(i<2){CHECK(r.decision==Admission::allowed);online_expired.push_back(r.token);}else CHECK(r.decision==Admission::ai_limit);}
+        for(unsigned i=0;i<3;++i){auto request=l.reserve(hex(800+i),hex(90,64),true,reboot);if(i<2){CHECK(request.decision==Admission::allowed);online_expired.push_back(request.token);}else CHECK(request.decision==Admission::ai_limit);}
         for(const auto& t:online_expired)CHECK(!LedgerTestAccess::complete(l,t,false,false,"",reboot));
         LedgerTestAccess::fact(l,{Entitlement::subscription,true,false,reboot.utc_seconds-7*86400+1,true});auto grace=l.reserve(hex(701),hex(91,64),true,reboot);CHECK(grace.decision==Admission::allowed);CHECK(LedgerTestAccess::complete(l,grace.token,true,false,"valid-capsule",reboot));CHECK(l.state(reboot).ai==1);
         LedgerTestAccess::fact(l,{Entitlement::subscription,true,false,reboot.utc_seconds-7*86400,true});auto end=l.reserve(hex(702),hex(92,64),true,reboot);CHECK(end.decision==Admission::allowed);CHECK(LedgerTestAccess::complete(l,end.token,true,false,"valid-capsule",reboot));CHECK(l.state(reboot).ai==2);

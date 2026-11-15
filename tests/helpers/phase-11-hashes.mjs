@@ -95,5 +95,13 @@ export function phase11PostV12Hash(path, predecessor) {
   const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v13.json', 'utf8'));
   const change = record.changes[path];
   if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase11 G8/G10 predecessor');
+  return phase11PostV13Hash(path, change?.after_sha256_lf ?? predecessor);
+}
+
+// Test-only strict compiler portability; v13 evidence remains immutable.
+export function phase11PostV13Hash(path, predecessor) {
+  const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v14.json', 'utf8'));
+  const change = record.changes[path];
+  if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase11 compiler predecessor');
   return change?.after_sha256_lf ?? predecessor;
 }
