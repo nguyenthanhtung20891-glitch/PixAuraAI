@@ -1,5 +1,5 @@
 import test from 'node:test';
-import {phase11PostV13Hash, phase11PostV14Hash} from './helpers/phase-11-hashes.mjs';
+import {phase11PostV13Hash, phase11PostV14Hash, phase11PostV15Hash} from './helpers/phase-11-hashes.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
@@ -47,6 +47,15 @@ test('Tile compiler successor preserves all prior manifests and exact corrected 
   const m = JSON.parse(read('docs/reports/phase-11-source-v15.json'));
   assert.equal(m.predecessor_commit, '27a875a44a395a59e7e8599e1c001fa67a06ce91');
   assert.equal(hash(m.parent_manifest), m.parent_sha256_lf);
+  for (const [p, c] of Object.entries(m.changes)) assert.equal(hash(p), phase11PostV15Hash(p, c.after_sha256_lf), p);
+  for (const [p, h] of Object.entries(m.additions)) assert.equal(hash(p), phase11PostV15Hash(p, h), p);
+});
+
+test('Native exit and Android first-exception diagnostics preserve failure authority', () => {
+  const m = JSON.parse(read('docs/reports/phase-11-source-v16.json'));
+  assert.equal(hash(m.parent_manifest), m.parent_sha256_lf);
   for (const [p, c] of Object.entries(m.changes)) assert.equal(hash(p), c.after_sha256_lf, p);
   for (const [p, h] of Object.entries(m.additions)) assert.equal(hash(p), h, p);
+  assert.match(read('packages/core/tests/run_native_test.py'), /sys.exit\(0 if result.returncode == 0 else 1\)/);
+  assert.match(read('scripts/check-android-emulator.sh'), /AndroidRuntime:E TestRunner:I/);
 });

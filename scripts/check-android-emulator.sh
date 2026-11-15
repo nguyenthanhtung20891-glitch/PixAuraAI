@@ -319,7 +319,7 @@ echo "Executing JNI/Compose tests (independent budget ${test_timeout}s)"
 # Preserve bounded engineering rows as they occur; the final 200-line diagnostic
 # tail alone can lose early CPU/provider measurements during later UI tests.
 timeout --kill-after=5s "${test_timeout}s" "$adb" -s "$ANDROID_SERIAL" logcat -v brief \
-    -s PixAuraEvaluation:I '*:S' > "$evidence/segmentation.log" 2>&1 &
+    -s PixAuraEvaluation:I AndroidRuntime:E TestRunner:I '*:S' > "$evidence/segmentation.log" 2>&1 &
 evaluation_pid=$!
 transport_run="$("$node_command" -e 'process.stdout.write(require("node:crypto").randomBytes(16).toString("hex"))')"
 transport_path="/data/local/tmp/pixaura-gpu-$transport_run"

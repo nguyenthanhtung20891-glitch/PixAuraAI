@@ -110,5 +110,12 @@ export function phase11PostV14Hash(path, predecessor) {
   const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v15.json', 'utf8'));
   const change = record.changes[path];
   if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase11 tile compiler predecessor');
+  return phase11PostV15Hash(path, change?.after_sha256_lf ?? predecessor);
+}
+
+export function phase11PostV15Hash(path, predecessor) {
+  const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v16.json', 'utf8'));
+  const change = record.changes[path];
+  if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase11 exit diagnostics predecessor');
   return change?.after_sha256_lf ?? predecessor;
 }
