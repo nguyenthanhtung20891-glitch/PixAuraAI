@@ -26,7 +26,7 @@ AI-Assisted Manual: analysis and suggestions explain likely improvements and tra
 | P09 | Advisor foundation | Explain suggestions and limitations without changing project |
 | P10 | Adaptive capability | Manual tools work at minimum tier; AI tier follows measured capability and memory pressure |
 | P11 | Privacy and accessibility | No image-content network traffic; system pickers; accessible controls and compare alternatives |
-| P12 | Licensing | 14-day trial, $0.99/month, $19.99 lifetime; local tools never consume AI credits |
+| P12 | Licensing | 14-day trial; Free5 distinct photos/day +3 successful AI proposals/day; $0.99/month or $19.99 lifetime removes quotas; recovery always available |
 
 Subject features belong to MVP but are capability-gated, not promised on every device. Provide clear reasons, reduced-resolution alternatives and manual masking where AI is unavailable. Supported first import/export formats are SDR JPEG and PNG; HEIF decoding via platform codec is later unless validated in Phase 2. RAW, HDR editing, generative fill, object synthesis, cloud collaboration and video are outside MVP.
 

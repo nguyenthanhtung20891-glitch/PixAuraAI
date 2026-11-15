@@ -1,97 +1,113 @@
-# 0024 — Cross-platform entitlement and recovery policy (PROPOSED)
+# 0024 — Approved commercial policy and entitlement boundaries
 
-Status: PROPOSED / NOT APPROVED / NOT IMPLEMENTED AS AN ACCESS GATE.
-Authority required: Product Owner commercial policy and Principal Architect review.
-This document does not approve seven-day grace, family sharing or new cloud services.
-No real purchase or sandbox outcome is claimed. Schema 3/editing ABI unchanged.
+Status: Accepted
+Decision supplied by Product Owner in Phase11 Final Engineering Mission G8+G10,
+2026-11-15. Principal Architect accepted v12 software within its certified scope.
+This acceptance is commercial policy/direction, not Phase11 closure or store evidence.
+Supersedes the prior proposed policy; original certified proposal is retained in Git
+and docs/reports/phase-11-adr0024-proposed-history.md. Schema3/editing ABI unchanged.
 
-## Context — existing baseline and architecture
+## Context
 
-MONETIZATION.md specifies a 14-day local app-access trial beginning at the first
-successful edit, reference USD $0.99/month and $19.99 lifetime, no consumable AI
-credits, independent platform purchases, recovery viewing/export after expiry,
-no interruption of in-progress work, and indefinitely offline verified lifetime.
-Prices require approved localized store configuration. There is currently no
-StoreKit, BillingClient, verifier or secure entitlement cache in either app.
-The native editing/history/approval core remains authoritative for edits; licensing
-must never grant Plan approval, publish a preview or interrupt stop/join/destroy.
+Local photo ownership, native HUMAN Apply, source-bound single-use approval and
+ordinary history remain authoritative. Quota or entitlement state never grants native
+editing authority. No PixAuraAI account is required solely to edit. Completely offline
+anti-abuse is limited; uninstall, storage rollback, rooted devices and lost trusted time
+cannot be made fraud-proof without invasive identifiers, which are prohibited.
 
-Smallest design: platform store adapters -> verified immutable observations ->
-shared documented access projection -> platform presentation. Keep store identifiers,
-signatures and credentials out of image/document storage, logs and exports. No new
-native ABI or document schema. A future native edit-admission integration requires
-separate architectural review; UI state is never native editing authorization.
+## Decision
 
-## Decision — proposed rules, pending approval
+Fourteen calendar days from the first successful committed edit; timestamp anchored
+in UTC, expires at the same UTC time14 dates later. Trial removes Free photo/AI quotas.
+Preview, failed/cancelled actions and mere requests never start or renew the trial.
 
-| Topic | Proposal / preserved baseline | Approval or evidence still required |
-| --- | --- | --- |
-| Trial eligibility/start | First successful committed edit establishes start exactly once, not install/preview/failed Apply; capture UTC and monotonic elapsed evidence; reinstall limitation acknowledged, no invasive device ID | Precise eligible actions (including restore/import), reinstall/backup semantics and clock uncertainty handling |
-| Trial expiry | 14-day elapsed eligibility, use monotonic evidence where available; rollback never deletes or locks recovery data | Across reboot/clock rollback policy; do not silently grant a new trial or choose a grace duration |
-| Subscription | Only authenticated store evidence grants time-limited entitlement; cancellation of renewal is distinct from immediate expiration | Product IDs, renewal/store billing-grace treatment, transition policy and signed sandbox evidence |
-| Offline subscription | Last verified expiry plus an explicit approved grace policy; unverified JSON never extends access | Proposed seven days is NOT adopted. Owner must approve duration, stale/unknown evidence and clock-risk behavior |
-| Lifetime | Verified non-consumable entitlement cached securely, works offline indefinitely as baseline requires | Refund/revocation handling when next online and family-sharing policy; cannot promise detection while offline |
-| Pending/unverified | No new entitlement from a pending purchase, local boolean, digest, unsigned cache or restore request | Approved recovery messaging; no false purchase success |
-| Refund/revoke | Verified store updates supersede older evidence; retire stale generation/cache atomically | Retroactivity/family-sharing/account-switch policy; sandbox refund/revocation observations |
-| Restore | Explicit user action, requery authoritative store state, merge by immutable evidence/generation; restore is not purchase | Accounts, IDs, environment/configuration, pending/error/offline behavior acceptance |
-| Recovery | Existing project viewing and last approved revision export remain available after expiry and cache/verifier failure | Validate all denial/error paths; never erase images/history, revoke explicit approvals mid-flight or auto-Apply |
-| Safe boundaries | Reconcile policy before next new editing admission; already admitted edit/export finishes under its original native authority | Precisely define future admission boundary with native owner, no UI-only permission |
+Free access: five distinct immutable source identities per UTC calendar day across
+opening/importing for editing, editing and ordinary export; three successfully delivered
+valid usable AI proposals per day. Reopen/adjust/preview/history/export of an already
+admitted source consumes no additional photo. Multi-action proposal counts once.
+Rejected/malformed, resource-denied, failed, cancelled-before-result, stale requests
+and redisplay consume no AI use. Future voice wake/transcription/clarification does
+not independently count; Phase14 is planning only.
 
-Secure cache proposal: iOS Keychain and Android Keystore-backed authenticated
-storage, version/environment/store binding, atomic replacement, no photo content.
-A cached verdict is not a store verifier. Handle missing/corrupt/rolled-back cache,
-key invalidation/reinstall and unavailable network without losing recovery access.
-Never embed App Store/Play service credentials in the application. No platform
-secure-storage or signing entitlement is changed by this proposed ADR.
+Paid subscription reference USD0.99/month and lifetime USD19.99 remove both quotas.
+Storefront prices/product IDs require legitimate store configuration. Subscription
+paid cache may extend only to the exclusive boundary last verified expiry+7days,
+not seven days from a verification failure. Verified revocation/refund supersedes
+older facts; renewal cancellation alone is not immediate revocation. Verified lifetime
+works offline indefinitely until authoritative revocation/refund is available. No
+unverified purchase callback, observation envelope or unsigned cache grants paid access.
+StoreKit2 on Apple and Google Play Billing on Android are required platform adapters.
+A minimal Android verification backend may handle strictly necessary store transaction
+metadata, with authenticated signed results; no photos, conversation, voice, history,
+analytics, quotas or PixAuraAI account. No deployment/account/credential invented.
 
-## Store trust boundary and unresolved architecture
+Recovery viewing and export of the last approved saved revision are unconditional
+routes outside commercial admission, including corrupt/unavailable ledger/cache,
+quota exhaustion, expiry and verification failure. Never delete or lock user content.
+An already admitted edit/export finishes; changes affect subsequent admissions only.
+Commercial reservation is not document approval, revision publication or export Apply.
 
-Apple StoreKit wraps transactions in verification results; only verified values
-can reach a future grant projection. Refund/revoked products are absent from
-current entitlements. Restore must requery store truth, not trust a local flag.
-See [VerificationResult](https://developer.apple.com/documentation/storekit/verificationresult),
-[currentEntitlements](https://developer.apple.com/documentation/storekit/transaction/currententitlements)
-and [AppStore.sync](https://developer.apple.com/documentation/storekit/appstore/sync()).
+### Deterministic time and persistence
 
-Google recommends secure backend purchase verification, handling PENDING separately
-and acknowledging genuine PURCHASED transactions appropriately. See
-[Billing integration](https://developer.android.com/google/play/billing/integrate)
-and [security guidance](https://developer.android.com/google/play/billing/security).
-This creates an unresolved architecture choice against the no-account/server-required
-editing baseline: approve a minimal purchase-verification service (store data only,
-no photos), or explicitly review a constrained on-device trust model and risks.
-Neither option is selected or implemented here. Public-client possession of a
-purchase token, hash or signature string alone is not accepted verification.
+UTC00:00 is the daily boundary, labelled to users with local-time equivalent. Timezone
+changes do not create a new quota day. Persist logical UTC high-water and last monotonic
+uptime under serialized durable transactions. Within one boot, advance by elapsed
+monotonic time; ignore untrusted wall-clock jumps/rollback. After reboot/uptime rollback,
+retain the previous high-water, restart monotonic accumulation and flag time uncertainty
+until authenticated time reconciles forward. Do not count powered-off time as proved.
+Never move backward or grant multiple days by changing device date/timezone. Device
+boot tokens are local ephemeral OS facts, not server identifiers or fingerprints.
 
-## Safe pre-approval infrastructure
+Under uncertain time, new trial/subscription time-based grants fall back to remaining
+Free access pending trusted reconciliation; verified lifetime and all recovery remain
+available. Already authorized work finishes. This conservative offline limitation must
+be presented plainly, not described as fraud-proof. First installation seeds local time;
+reinstall/deletion of all local state cannot be securely distinguished offline.
 
-Development-only bounded observation validation may check transport shape and
-produce an explicitly UNTRUSTED record. It must not grant access, contain purchase
-credentials, access stores, persist licensing state or change runtime editing.
-Synthetic tests of that boundary are not sandbox purchase evidence.
+Local protected/no-backup separate commercial database (format1, NOT project Schema3)
+holds only current-day source digests/counters, pending leases and bounded recoverable
+AI delivery capsules. A single exclusive owner serializes reserve/check/commit with
+SQLite FULL durability. Pending reservations count against capacity; concurrent callers
+cannot overspend. Native success/provenance proof is required before completion.
+Failed/cancelled pending work releases capacity. Pending Free reservations carry
+across UTC midnight and consume capacity until terminal; successful delivery is
+charged to its actual logical UTC delivery day. A retry of the same native request
+identity returns its original reservation, even across midnight. AI delivery backlog
+cannot exhaust the separate ordinary-manual reservation path. A valid usable proposal capsule and
+its one charge commit together before delivery; a crash before commit charges nothing,
+a crash afterward leaves a recoverable usable result. Acknowledge clears the capsule;
+old acknowledged tombstones/source hashes are pruned at rollover. Never send these
+records to a server. No unbounded user usage history or photo bytes in this ledger.
 
-Acceptance after policy approval requires actual signed iOS/Android sandbox
-trial/renewal/expiry/refund/revoke/restore/pending/offline/cache-corruption flows,
-secure-cache key lifecycle and recovery regressions. Human-owned store accounts,
-product configuration, contracts and credentials remain external prerequisites.
+Secure paid caches use platform Keychain / Keystore authenticated storage, environment,
+product and source-store binding and verified generation/version evidence. Cache failure
+falls back to Free/recovery; never resets trial as a purchase benefit. Runtime integration
+must coordinate the native success/delivery boundary; no UI-only quota enforcement.
 
 ## Alternatives
 
-Store-native verification and authenticated local caching reduce server dependence,
-but cannot manufacture cross-device revocation freshness while offline. A dedicated
-verification service changes the privacy/deployment architecture and requires explicit
-approval. Unverified local purchase flags are rejected as entitlement authority.
+Local timezone resets and action-counting photos are rejected: timezone gaming and
+repeated-action charges violate approved policy. Request-time AI charging is rejected.
+A broad cloud account/analytics service is rejected. Unsigned Android client purchase
+flags are rejected as verification. Minimal metadata-only verification is allowed.
 
 ## Consequences
 
-No proposed policy takes effect before the required decisions. Store integration,
-secure caching and runtime access projection remain unimplemented; manual editing
-and recovery behavior are unchanged. Hardware certification grants no entitlement.
+Approved policy is now frozen. Product IDs, exact store price/tax configuration,
+store accounts/contracts, signing and authentic sandbox outcomes are external gates.
+Family purchase sharing/cross-platform entitlement sharing is not enabled by default;
+any extension requires a separate decision. SDK dependency privacy must be reviewed.
+Standalone component tests do not establish deployed end-to-end quota enforcement.
+New native admission/durable-delivery bridge must preserve the frozen ABI or receive
+explicit versioned compatibility approval before production wiring.
 
 ## Validation
 
-Before adoption, review every unresolved policy above and define deterministic
-state-transition tests. After approved implementation, require authentic signed
-sandbox purchase, pending, expiry, restore, revocation and offline/cache recovery
-evidence on both platforms. The development envelope tests prove rejection and
-untrusted status only; they cannot certify store transactions or grant access.
+Require source dedup across all journeys, concurrent cap stress, rollback/cancel/fault
+and real process-crash recovery, midnight/timezone/reboot/device-date tests, trial14day
+and exclusive7day grace boundaries, lifetime/revocation and unconditional recovery.
+Both platforms require authentic signed store sandbox pending/purchase/restore/renewal/
+expiry/refund/revoke/offline/cache recovery evidence. Synthetic facts/keys are tests only.
+Official APIs: [StoreKit verification](https://developer.apple.com/documentation/storekit/verificationresult),
+[Play security](https://developer.android.com/google/play/billing/security),
+[Play SDK releases](https://developer.android.com/google/play/billing/release-notes).

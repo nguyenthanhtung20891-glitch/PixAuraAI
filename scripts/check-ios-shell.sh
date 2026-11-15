@@ -17,6 +17,8 @@ done
 node scripts/check-model-release.mjs "$workspace_path/build/ios-shell-device/Build/Products/Release-iphoneos/PixAuraAI.app/PixAuraAI"
 python3 tests/apple-release-scanner.test.py
 python3 scripts/check-apple-release.py "$workspace_path/build/ios-shell-device/Build/Products/Release-iphoneos/PixAuraAI.app"
+# Account-free Simulator identity is required by Keychain. This never uses or
+# changes a development team, certificate, provisioning profile or device signing.
 result_directory="$(mktemp -d "$workspace_path/build/ios-shell-results.XXXXXX")"
 xcodebuild -project platforms/ios/PixAuraAI.xcodeproj -scheme PixAuraAI \
     -configuration Debug -destination "platform=iOS Simulator,id=$simulator_id,arch=$simulator_arch" \
@@ -24,7 +26,7 @@ xcodebuild -project platforms/ios/PixAuraAI.xcodeproj -scheme PixAuraAI \
     -resultBundlePath "$result_directory/tests.xcresult" \
     'KEEP_PRIVATE_EXTERNS=$(PIXAURA_PRIVATE_EXTERNS_$(TARGET_NAME))' \
     PIXAURA_PRIVATE_EXTERNS_CPixAuraSQLite=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraCodecs=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraSodium=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraMetal=YES \
-    ARCHS="$simulator_arch" ONLY_ACTIVE_ARCH=YES EXCLUDED_ARCHS= CODE_SIGNING_ALLOWED=NO test
+    ARCHS="$simulator_arch" ONLY_ACTIVE_ARCH=YES EXCLUDED_ARCHS= CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= AD_HOC_CODE_SIGNING_ALLOWED=YES test
 
 # A test name is not proof of the actual Dynamic Type environment. Preserve the
 # selected simulator's setting and explicitly exercise the largest supported size.
@@ -46,4 +48,4 @@ xcodebuild -project platforms/ios/PixAuraAI.xcodeproj -scheme PixAuraAI \
     -only-testing:PixAuraAIUITests/ShellUITests/testPhase11BilingualExportAtAccessibilityTextSize \
     'KEEP_PRIVATE_EXTERNS=$(PIXAURA_PRIVATE_EXTERNS_$(TARGET_NAME))' \
     PIXAURA_PRIVATE_EXTERNS_CPixAuraSQLite=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraCodecs=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraSodium=YES PIXAURA_PRIVATE_EXTERNS_CPixAuraMetal=YES \
-    ARCHS="$simulator_arch" ONLY_ACTIVE_ARCH=YES EXCLUDED_ARCHS= CODE_SIGNING_ALLOWED=NO test
+    ARCHS="$simulator_arch" ONLY_ACTIVE_ARCH=YES EXCLUDED_ARCHS= CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= AD_HOC_CODE_SIGNING_ALLOWED=YES test

@@ -1,5 +1,19 @@
 # Delivery roadmap
 
+## Product Owner future planning successor — 2026-11-15
+
+Phase11 remains IN PROGRESS; v12 software independently accepted in certified scope.
+Current mission G8 tiled direction and G10 approved policy only. Future roadmap:
+
+| Phase | Planning-only decision | Execution authority |
+| --- | --- | --- |
+|12|Beta and release readiness|NOT AUTHORIZED / NOT STARTED|
+|13|UI/UX redesign, visual identity, application icon and accessible professional photo-editing experience|PLANNING ONLY / NOT AUTHORIZED|
+|14|PixAura Voice Agent, privacy-first conversational photo editor|PLANNING ONLY / NOT IMPLEMENTED / NOT AUTHORIZED|
+
+These entries neither grant phase authority nor replace existing acceptance gates.
+Historical roadmap assertions below remain freeze-time evidence.
+
 <!-- phase11-metal-acceptance-current -->
 ## Current successor — independently accepted Apple hardware gate (2026-11-14)
 

@@ -5,6 +5,7 @@ import CPixAuraCore
 import CoreGraphics
 import ImageIO
 import Photos
+import Security
 import Foundation
 import Darwin
 @testable import PixAuraAI
@@ -111,6 +112,29 @@ private func phase11SyntheticPNG(_ url: URL, width: Int, height: Int) throws {
 }
 
 final class ShellTests: XCTestCase {
+    func testStoreAdapterRequiresLegitimateConfiguration() throws {
+        let cache = ProtectedCommercialCache(service: "ai.pixaura.tests.unconfigured")
+        XCTAssertThrowsError(try AppleStoreEntitlementAdapter(products: [:], environment: "Sandbox", cache: cache))
+        XCTAssertThrowsError(try AppleStoreEntitlementAdapter(products: ["synthetic.fixture": .lifetime], environment: "Xcode", cache: cache))
+    }
+    func testProtectedCommercialCacheRoundTripAndBound() throws {
+        let cache = ProtectedCommercialCache(service: "ai.pixaura.tests.cache." + UUID().uuidString)
+        defer { try? cache.remove() }
+        XCTAssertNil(try cache.read())
+        let bytes = Data("synthetic cache test; not a store transaction".utf8)
+        try cache.write(bytes); XCTAssertEqual(try cache.read(), bytes)
+        let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: cache.service, kSecAttrAccount as String: "commercial-state-v1",
+            kSecReturnAttributes as String: true]
+        var attributes: CFTypeRef?
+        XCTAssertEqual(SecItemCopyMatching(query as CFDictionary, &attributes), errSecSuccess)
+        let values = try XCTUnwrap(attributes as? [String: Any])
+        XCTAssertEqual(values[kSecAttrAccessible as String] as? String, kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly as String)
+        XCTAssertFalse(values[kSecAttrSynchronizable as String] as? Bool ?? false)
+        XCTAssertThrowsError(try cache.write(Data(repeating: 0, count: 16385)))
+        XCTAssertEqual(try cache.read(), bytes)
+        try cache.remove(); XCTAssertNil(try cache.read())
+    }
     func testPermissionClassificationAndFailedOverwritePreserveUserData() throws {
         for status in [PHAuthorizationStatus.denied, .restricted, .notDetermined] {
             XCTAssertFalse(ExportDestination.libraryAccess(status))

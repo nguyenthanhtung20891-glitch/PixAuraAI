@@ -7,3 +7,5 @@ dependencyResolutionManagement {
 }
 rootProject.name = "PixAuraAI"
 include(":app")
+
+include(":store-integration")

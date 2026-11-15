@@ -22,6 +22,7 @@ android {
     externalNativeBuild { cmake { path = file("../native/CMakeLists.txt"); version = "3.22.1" } }
     sourceSets["main"].java.srcDir("../bridge/src/main/kotlin")
     sourceSets["androidTest"].assets.srcDir("../../../tests/fixtures")
+    sourceSets["androidTest"].java.srcDir("../store-integration/src/main/java")
     buildFeatures { compose = true }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -58,6 +59,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.10.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.10.0")
     testImplementation("junit:junit:4.13.2")
+    // Isolated SDK construction proof only; no Billing runtime/transitives in shipping app.
+    androidTestImplementation("com.android.billingclient:billing:9.1.0") { isTransitive = false }
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test:runner:1.7.0")
     // Compose's transitive Espresso 3.5.0 uses removed Android 16 InputManager APIs.

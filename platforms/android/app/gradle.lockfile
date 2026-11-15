@@ -117,6 +117,7 @@ androidx.versionedparcelable:versionedparcelable:1.1.1=debugAndroidTestCompileCl
 androidx.window:window-core-android:1.5.0=debugAndroidTestRuntimeClasspath,debugRuntimeClasspath,debugUnitTestRuntimeClasspath,releaseRuntimeClasspath,releaseUnitTestRuntimeClasspath
 androidx.window:window-core:1.5.0=debugAndroidTestRuntimeClasspath,debugRuntimeClasspath,debugUnitTestRuntimeClasspath,releaseRuntimeClasspath,releaseUnitTestRuntimeClasspath
 androidx.window:window:1.5.0=debugAndroidTestRuntimeClasspath,debugRuntimeClasspath,debugUnitTestRuntimeClasspath,releaseRuntimeClasspath,releaseUnitTestRuntimeClasspath
+com.android.billingclient:billing:9.1.0=androidTestImplementationDependenciesMetadata,debugAndroidTestCompileClasspath,debugAndroidTestRuntimeClasspath
 com.android.tools.ddms:ddmlib:31.13.2=_internal-unified-test-platform-android-device-provider-ddmlib
 com.android.tools.emulator:proto:31.13.2=_internal-unified-test-platform-android-test-plugin-host-emulator-control
 com.android.tools.utp:android-device-provider-ddmlib-proto:31.13.2=_internal-unified-test-platform-android-device-provider-ddmlib

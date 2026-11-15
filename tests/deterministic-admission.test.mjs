@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import {execFileSync} from 'node:child_process';
+import {phase11PostV12Hash} from './helpers/phase-11-hashes.mjs';
 import {resultReviewHash,reviewEditHash} from './helpers/review-edit-hashes.mjs';
 const read=p=>JSON.parse(fs.readFileSync(p,'utf8'));
 const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
@@ -65,12 +66,14 @@ test('Phase 7 closure preserves the complete frozen runtime and contract invento
  assert.equal(successor.predecessor_commit,'244bfeead60dc47bb909866d8a497b8e236db84c');
  assert.equal(successor.runtime_authority,false);
  assert.equal(hash(fs.readFileSync(successor.parent_manifest,'utf8').replaceAll('\r\n','\n')),successor.parent_sha256_lf);
- assert.equal(hash(fs.readFileSync('tests/deterministic-admission.test.mjs','utf8').replaceAll('\r\n','\n')),successor.changes['tests/deterministic-admission.test.mjs'].after_sha256_lf);
+ assert.equal(hash(fs.readFileSync('tests/deterministic-admission.test.mjs','utf8').replaceAll('\r\n','\n')),phase11PostV12Hash('tests/deterministic-admission.test.mjs',successor.changes['tests/deterministic-admission.test.mjs'].after_sha256_lf));
  assert.deepEqual(Object.keys(successor.additions),['docs/adr/0024-entitlement-policy-proposal.md']);
- for(const [p,digest] of Object.entries(successor.additions)) assert.equal(hash(fs.readFileSync(p,'utf8').replaceAll('\r\n','\n')),digest,p);
+ for(const [p,digest] of Object.entries(successor.additions)) assert.equal(hash(fs.readFileSync(p,'utf8').replaceAll('\r\n','\n')),phase11PostV12Hash(p,digest),p);
  const proposal=fs.readFileSync('docs/adr/0024-entitlement-policy-proposal.md','utf8');
- assert.ok(proposal.includes('Status: PROPOSED / NOT APPROVED / NOT IMPLEMENTED AS AN ACCESS GATE.'));
- const added=new Set([...Object.keys(successor.additions),'docs/contracts/full-review-experience-v1.md',...Object.keys(preview.additions),...Object.keys(inspection.additions),...Object.keys(editing.additions),...Object.keys(result.additions),...Object.keys(exportContract.additions),...Object.keys(exportEngine.additions),...Object.keys(exportAndroid.additions),...Object.keys(exportApple.additions),...Object.keys(productUx.additions),...Object.keys(locale.additions)]);
+ assert.ok(proposal.includes('Status: Accepted'));
+ const historical=fs.readFileSync('docs/reports/phase-11-adr0024-proposed-history.md','utf8');
+ assert.equal(hash(historical.slice(historical.indexOf('# 0024'))),successor.additions['docs/adr/0024-entitlement-policy-proposal.md']);
+ const added=new Set([...Object.keys(successor.additions),...Object.keys(read('docs/reports/phase-11-source-v13.json').additions),'docs/contracts/full-review-experience-v1.md',...Object.keys(preview.additions),...Object.keys(inspection.additions),...Object.keys(editing.additions),...Object.keys(result.additions),...Object.keys(exportContract.additions),...Object.keys(exportEngine.additions),...Object.keys(exportAndroid.additions),...Object.keys(exportApple.additions),...Object.keys(productUx.additions),...Object.keys(locale.additions)]);
  assert.deepEqual(paths.filter(p=>!added.has(p)),Object.keys(m.sha256).sort(),'no unreviewed runtime/contract addition or removal');
  for(const [p,digest] of Object.entries(m.sha256)){
   const b=fs.readFileSync(p),s=b.toString('utf8');

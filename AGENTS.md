@@ -1,5 +1,18 @@
 # PixAuraAI Autonomous Engineering Contract
 
+## Current successor — Phase11 G8/G10 approved continuation (2026-11-15)
+
+Product Owner supplied independent Principal Architect acceptance of v12 software
+at eb61735be29eb365db76fa57b74170c6656c9efd (Foundation43620986563SUCCESS7/7;
+Native43620986552SUCCESS3/3, exactSHA attempt1). Approved commercial rules are
+ADR0024/MONETIZATION; tiled CPU architectural direction authorized, not silent
+replacement of frozen whole-raster contracts. See phase-11-g8-g10-execution plan.
+Phase11 AUTHORIZED / IN PROGRESS, NOT accepted/closed; Phase12 NOT STARTED and
+NOT AUTHORIZED. Phases13–14 planning only. HUMAN Apply/native ownership/Schema3/
+ABI/numerical contracts remain protected. DH-APPLE-METAL-01 PASS/CLOSED accepted
+scope unchanged; CPUVALIDATED, Metal/VulkanprovidersUNKNOWN. Owner signing diff
+must remain local/unstaged. Historical blocks below remain immutable assertions.
+
 <!-- phase11-metal-acceptance-current -->
 ## Current successor — independently accepted Apple hardware gate (2026-11-14)
 

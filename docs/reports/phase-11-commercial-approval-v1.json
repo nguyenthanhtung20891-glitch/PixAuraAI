@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "decision_source": "Product Owner supplied Phase 11 Final Engineering Mission G8 + G10, 2026-11-15",
+  "v12_software_independent_acceptance": "ACCEPTED within certified scope at eb61735be29eb365db76fa57b74170c6656c9efd",
+  "commercial_policy": "APPROVED; ADR0024 and MONETIZATION",
+  "trial_calendar_days": 14,
+  "free_distinct_sources_per_utc_day": 5,
+  "free_successful_usable_ai_proposals_per_utc_day": 3,
+  "subscription_reference_usd": "0.99",
+  "lifetime_reference_usd": "19.99",
+  "subscription_offline_grace_days": 7,
+  "recovery_view_last_approved_export": "ALWAYS AVAILABLE subject to native ownership",
+  "paid_and_trial_remove_daily_quotas": true,
+  "minimal_android_transaction_metadata_verifier": "ALLOWED; no photo/conversation/voice/history/analytics collection",
+  "tiled_cpu_direction": "APPROVED; exact frozen contract replacements require separate compatibility acceptance",
+  "phase_11": "IN PROGRESS; NOT CLOSED",
+  "phases_12_13_14": "PLANNING ONLY; NOT AUTHORIZED FOR IMPLEMENTATION",
+  "production_store_ids_or_credentials_supplied": false,
+  "store_or_human_or_physical_evidence_invented": false
+}

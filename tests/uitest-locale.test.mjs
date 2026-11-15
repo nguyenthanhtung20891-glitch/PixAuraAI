@@ -30,7 +30,7 @@ test('iOS UI tests launch the English catalog without changing device language',
   assert.match(vi, /"Committed revisions: %lld" = "Số bản sửa đã lưu: %lld";/);
   const project = read('platforms/ios/PixAuraAI.xcodeproj/project.pbxproj');
   assert.equal(project.split('SWIFT_TREAT_WARNINGS_AS_ERRORS = YES').length - 1, 2);
-  assert.match(read('scripts/check-ios-shell.sh'), /CODE_SIGNING_ALLOWED=NO test/);
+  assert.match(read('scripts/check-ios-shell.sh'), /CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= AD_HOC_CODE_SIGNING_ALLOWED=YES test/);
   const report = JSON.parse(read('docs/reports/phase-10.1-uitest-locale-v1.json'));
   assert.equal(report.mac_studio_xcode_27_2_observed, false);
   assert.equal(report.apple_metal_v1, 'UNKNOWN');

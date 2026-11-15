@@ -1,5 +1,16 @@
 # Architectural decision index
 
+## Current commercial decision successor — 2026-11-15
+
+Product Owner APPROVED ADR0024 trial/Free5photos+3AI/day, paid quota removal,
+7day offline subscription grace and metadata-only Android verification direction.
+See [approved ADR](docs/adr/0024-entitlement-policy-proposal.md), MONETIZATION,
+[approval receipt](docs/reports/phase-11-commercial-approval-v1.json) and
+[execution checkpoint](docs/reports/phase-11-g8-g10-checkpoint.md). Earlier proposed
+assertions below are historical and superseded. Tiled CPU direction approved;
+exact native representation/receipt/inbox proposals await compatibility acceptance.
+Phase11 remains open; Phases12–14 planning only, not implementation authority.
+
 ## Proposed Phase 11 entitlement decision — not adopted
 
 [ADR0024: cross-platform entitlement and recovery policy](docs/adr/0024-entitlement-policy-proposal.md)

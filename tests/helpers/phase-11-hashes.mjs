@@ -87,5 +87,13 @@ export function phase11PostV10Hash(path, predecessor) {
   const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v12.json', 'utf8'));
   const change = record.changes[path];
   if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase11 controller predecessor');
+  return phase11PostV12Hash(path, change?.after_sha256_lf ?? predecessor);
+}
+
+// Approved G8/G10 direction; existing ABI/schema/numerical/hardware evidence preserved.
+export function phase11PostV12Hash(path, predecessor) {
+  const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v13.json', 'utf8'));
+  const change = record.changes[path];
+  if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase11 G8/G10 predecessor');
   return change?.after_sha256_lf ?? predecessor;
 }

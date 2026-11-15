@@ -96,7 +96,12 @@ test('Apple simulator commands share the native host architecture across package
     const script = read(file);
     assert.match(script, /source scripts\/ios-simulator-architecture\.sh/);
     assert.match(script, /platform=iOS Simulator,id=\$simulator_id,arch=\$simulator_arch/);
-    assert.match(script, /ARCHS="\$simulator_arch" ONLY_ACTIVE_ARCH=YES EXCLUDED_ARCHS= CODE_SIGNING_ALLOWED=NO test/);
+    const simulatorSigning = file === 'scripts/check-ios-shell.sh'
+      ? 'CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= AD_HOC_CODE_SIGNING_ALLOWED=YES'
+      : 'CODE_SIGNING_ALLOWED=NO';
+    assert.ok(script.includes('ARCHS="$simulator_arch" ONLY_ACTIVE_ARCH=YES EXCLUDED_ARCHS= ' + simulatorSigning + ' test'));
+    assert.doesNotMatch(script, /-allowProvisioningUpdates|DEVELOPMENT_TEAM=[A-Za-z0-9]+/);
+
     // Device builds retain normal SDK-selected architecture and signing policy.
     const deviceCommand = script.match(/xcodebuild[^\n]*(?:\\\n[^\n]*)*CODE_SIGNING_ALLOWED=NO build/);
     assert.ok(deviceCommand, `${file}: device build missing`);

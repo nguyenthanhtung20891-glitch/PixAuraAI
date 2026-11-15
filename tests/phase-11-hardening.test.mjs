@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import test from 'node:test';
-import { phase11Hash, phase11SuccessorHash, phase11PostV2Hash, phase11PostV3Hash, phase11PostV4Hash, phase11PostV5Hash, phase11PostV6Hash, phase11PostV7Hash, phase11PostV8Hash, phase11PostV9Hash, phase11PostV10Hash } from './helpers/phase-11-hashes.mjs';
+import { phase11Hash, phase11SuccessorHash, phase11PostV2Hash, phase11PostV3Hash, phase11PostV4Hash, phase11PostV5Hash, phase11PostV6Hash, phase11PostV7Hash, phase11PostV8Hash, phase11PostV9Hash, phase11PostV10Hash, phase11PostV12Hash } from './helpers/phase-11-hashes.mjs';
 const read = p => fs.readFileSync(p, 'utf8').replaceAll('\r\n', '\n');
 const hash = p => crypto.createHash('sha256').update(read(p)).digest('hex');
 
@@ -114,7 +114,7 @@ test('Phase 11 source successor binds current hardening without rewriting histor
   assert.equal(hash(bootController.parent_manifest), bootController.parent_sha256_lf);
   for (const [path, change] of Object.entries(bootController.changes)) {
     assert.equal(change.before_sha256_lf, remaining.changes[path].after_sha256_lf, path);
-    assert.equal(hash(path), change.after_sha256_lf, path);
+    assert.equal(hash(path), phase11PostV12Hash(path, change.after_sha256_lf), path);
   }
   for (const [path, digest] of Object.entries(remaining.additions)) assert.equal(hash(path), digest, path);
 
@@ -140,7 +140,8 @@ test('Phase 11 does not turn software success into mandatory hardware or commerc
   assert.match(active, /Phase 12 NOT STARTED/);
   const plan = read('docs/plans/phase-11-roadmap.md');
   assert.match(plan, /human.*walkthrough/i);
-  assert.match(plan, /offline subscription grace requiring|offline grace still proposed/);
+  assert.match(read('MONETIZATION.md'), /last verified expiry\+7days/);
+  assert.match(read('docs/adr/0024-entitlement-policy-proposal.md'), /Status: Accepted/);
   for (const path of ['.github/workflows/foundation.yml', '.github/workflows/native-shells.yml', 'scripts/check-apple.sh']) {
     assert.ok(read(path).includes('tests/phase-11-hardening.test.mjs'), path);
   }
