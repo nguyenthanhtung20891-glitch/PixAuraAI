@@ -1,0 +1,29 @@
+{
+  "version": 15,
+  "predecessor_commit": "27a875a44a395a59e7e8599e1c001fa67a06ce91",
+  "parent_manifest": "docs/reports/phase-11-source-v14.json",
+  "parent_sha256_lf": "fba3f3cce3e9bbbf6c1152de2f1f30d933d795d6a784b7b4a82eaa4f7ce918a7",
+  "production_runtime_changed": false,
+  "assertions_weakened": false,
+  "changes": {
+    "packages/core/src/tiled_cpu.cpp": {
+      "before_sha256_lf": "3f7e27705e9cf0a16f13a9fc4ac177bc8b88143149f8ad40961512d9228192da",
+      "after_sha256_lf": "5695df7f9972932e828bdf1d6baa585ebe519fbb9fef7833055c694f77b9562c"
+    },
+    "tests/deterministic-admission.test.mjs": {
+      "before_sha256_lf": "adda9a22a44801fbacf7a8abdf231feea9f5db672e071e1c1f84eb6911e96833",
+      "after_sha256_lf": "cfaed4aa95b5c99c58c8b7535b7312904503e6c9c76ad5ce301b71b436a3ff4a"
+    },
+    "tests/helpers/phase-11-hashes.mjs": {
+      "before_sha256_lf": "f708d9faff1c3332eafbc0db9cde6642ef02af84946cebb8fcc7743048727b19",
+      "after_sha256_lf": "37f6180a8fb357d2400d56ec042030b53c946811a67816de91a650d1cabb2902"
+    },
+    "tests/phase-11-g8-g10.test.mjs": {
+      "before_sha256_lf": "504b7b1be4d7d1fd491d27f68f84ee93cdea0562650fa879af0d1ab4e1cc28db",
+      "after_sha256_lf": "6c120658b5a44d3d47b971fd223aa075f903f271d17749735dd03aaea4e454e7"
+    }
+  },
+  "additions": {
+    "docs/reports/phase-11-tile-compiler-successor.md": "4a1dcede25d189846258d0d448d71495fad08a4e7f5e89ab805ada1e44b4f180"
+  }
+}

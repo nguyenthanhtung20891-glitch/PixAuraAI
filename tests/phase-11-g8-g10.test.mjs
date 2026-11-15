@@ -1,5 +1,5 @@
 import test from 'node:test';
-import {phase11PostV13Hash} from './helpers/phase-11-hashes.mjs';
+import {phase11PostV13Hash, phase11PostV14Hash} from './helpers/phase-11-hashes.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
@@ -38,6 +38,14 @@ test('store SDK and verifier cannot silently become shipping telemetry or a purc
 test('Strict compiler successor binds every corrected file without mutating v13 evidence', () => {
   const m = JSON.parse(read('docs/reports/phase-11-source-v14.json'));
   assert.equal(m.predecessor_commit, '24f7aeb5424bc4f8a3a80ce8cf96a5710f27fbce');
+  assert.equal(hash(m.parent_manifest), m.parent_sha256_lf);
+  for (const [p, c] of Object.entries(m.changes)) assert.equal(hash(p), phase11PostV14Hash(p, c.after_sha256_lf), p);
+  for (const [p, h] of Object.entries(m.additions)) assert.equal(hash(p), phase11PostV14Hash(p, h), p);
+});
+
+test('Tile compiler successor preserves all prior manifests and exact corrected sources', () => {
+  const m = JSON.parse(read('docs/reports/phase-11-source-v15.json'));
+  assert.equal(m.predecessor_commit, '27a875a44a395a59e7e8599e1c001fa67a06ce91');
   assert.equal(hash(m.parent_manifest), m.parent_sha256_lf);
   for (const [p, c] of Object.entries(m.changes)) assert.equal(hash(p), c.after_sha256_lf, p);
   for (const [p, h] of Object.entries(m.additions)) assert.equal(hash(p), h, p);

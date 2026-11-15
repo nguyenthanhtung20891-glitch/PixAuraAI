@@ -4,7 +4,8 @@
 #include <cstring>
 namespace pixaura::tiled {
 Budget::Budget(uint64_t cap,uint64_t retained):cap_(cap),retained_(retained){
-    if(!cap||cap>134217728||retained>cap)throw document::Failure{8};peak_=retained;
+    if(!cap||cap>134217728||retained>cap){throw document::Failure{8};}
+    peak_=retained;
 }
 Budget::Lease Budget::reserve(uint64_t bytes){
     std::lock_guard<std::mutex> lock(mutex_);
