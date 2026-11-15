@@ -1,0 +1,33 @@
+{
+  "version": 17,
+  "predecessor_commit": "6d206416c28e9028958e40d370b54eefc5487fd9",
+  "parent_manifest": "docs/reports/phase-11-source-v16.json",
+  "parent_sha256_lf": "22c13f42ddf2814c079bf1f1f43c0a6e5e8d8d11c685e157167a2999981c24c2",
+  "production_runtime_changed": false,
+  "assertions_weakened": false,
+  "changes": {
+    "packages/core/tests/tiled_cpu_test.cpp": {
+      "before_sha256_lf": "586054ff79c2e54d8f17e4c7a62cd790dc109ff5308bba52fbcf74eadf63bbf5",
+      "after_sha256_lf": "4604f91672c1d83bd9d1e7f269ae43bf70b70b9aac8b8346b2e301698ca2b2d2"
+    },
+    "tests/android-emulator.test.mjs": {
+      "before_sha256_lf": "935428bc2290a321bf0d0617c5f9802548eca13c3b35047a66ea5cc317d50993",
+      "after_sha256_lf": "f435c4fee1a0ca76097645bbbf51eed6d7c6c6e56429a246abaf7ee4995548ad"
+    },
+    "tests/deterministic-admission.test.mjs": {
+      "before_sha256_lf": "52ed7a344de22a28c28da528c4838eb1ec58706093887dafc0fb2694014e5d62",
+      "after_sha256_lf": "b5cf52c18aceff2f7f5a1740e522278220b02ad382e2319523f0fd0072f2d6f9"
+    },
+    "tests/helpers/phase-11-hashes.mjs": {
+      "before_sha256_lf": "c4c5da81f7886074b87c016361bd775976e20a047918e8f70fd8575198192447",
+      "after_sha256_lf": "159340345703e483dd67be904494315e87f4146772cacf61512555b3a6588921"
+    },
+    "tests/phase-11-g8-g10.test.mjs": {
+      "before_sha256_lf": "f8c16aff169d49390b9d811d584cc0b2d6d8ce670d610552fd5491d88de8b88b",
+      "after_sha256_lf": "c43222d9829051bbfeac2ad2a80d8a1db6c827546a62648d4ca4873b8b16186d"
+    }
+  },
+  "additions": {
+    "docs/reports/phase-11-explicit-exit-successor.md": "ccb44c3e8039ca7878cbd5460d7394d6b2313feda3fd2082a3f60d09d54788ff"
+  }
+}

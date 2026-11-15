@@ -70,4 +70,5 @@ int main(){
     Output concurrent(1,1);try{tiled::evaluate(1,1,stack,shared,sample,concurrent);CHECK(false);}catch(const document::Failure& e){CHECK(e.code==8&&concurrent.aborted);}
     {std::lock_guard<std::mutex> lock(mutex);release=true;}cv.notify_all();worker.join();CHECK(shared.inflight()==0&&shared.peak()<=700000);
     std::printf("tile parity %u; normalized12MP pixels %llu; peak reserved %llu (not physical RSS/import/export)\n",parity,static_cast<unsigned long long>(large.count),static_cast<unsigned long long>(m.peak_reserved));
+    return 0;
 }

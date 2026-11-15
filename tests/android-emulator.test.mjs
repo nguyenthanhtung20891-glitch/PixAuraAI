@@ -151,7 +151,7 @@ case "$*" in
     rm "$MOCK_STATE_DIRECTORY/artifact/evidence.json" "$MOCK_STATE_DIRECTORY/artifact/publish.sh"
     rmdir "$MOCK_STATE_DIRECTORY/artifact" ;;
   'logcat -d -t 200') echo synthetic-logcat ;;
-  'logcat -v brief -s PixAuraEvaluation:I *:S')
+  'logcat -v brief -s PixAuraEvaluation:I AndroidRuntime:E TestRunner:I *:S')
     if [[ "$MOCK_SCENARIO" != missing-segmentation ]]; then
       echo 'PXSEG ${JSON.stringify({evaluation_version:1,metric_version:1,case_id:'mock-log-transport-only',width:1,height:1,threshold:[1,2],expected_sha256:'0'.repeat(64),predictor:'all-background',candidate_state:'BASELINE',production_selection:'UNRESOLVED',provider_id:null,manifest_sha256:null,payload_sha256:null,counts:[0,0,0,1],iou:[1,1],dice:[1,1],accuracy:[1,1],precision:[1,1],recall:[1,1]})}'
     fi
