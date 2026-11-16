@@ -27,7 +27,7 @@ static void drop(Budget* b,void* v) { if(v){Block* p=(Block*)v-1;b->live-=p->dat
 
 typedef struct Stream {
     Budget budget;
-    jmp_buf jump;
+    jmp_buf* jump;
     struct jpeg_compress_struct jpeg;
     struct jpeg_error_mgr error;
     struct jpeg_destination_mgr destination;
@@ -35,23 +35,26 @@ typedef struct Stream {
     pixaura_private_row_v2 row;pixaura_private_bytes_v2 write;void* user;
     uint8_t chunk[65536];uint8_t* rgba;uint8_t* rgb;
 } Stream;
-static void jpeg_error(j_common_ptr c){Stream* s=(Stream*)c->client_data;if(!s->budget.status)s->budget.status=MALFORMED;longjmp(s->jump,1);}
+static void jpeg_error(j_common_ptr c){Stream* s=(Stream*)c->client_data;if(!s->budget.status)s->budget.status=MALFORMED;longjmp(*s->jump,1);}
 static void jpeg_warning(j_common_ptr c,int level){if(level<0)jpeg_error(c);}
-static void emit(Stream* s,const uint8_t* p,size_t n){int32_t code=s->write(s->user,p,n);if(code){s->budget.status=code;longjmp(s->jump,1);}}
+static void emit(Stream* s,const uint8_t* p,size_t n){int32_t code=s->write(s->user,p,n);if(code){s->budget.status=code;longjmp(*s->jump,1);}}
 static void output_init(j_compress_ptr c){Stream* s=(Stream*)c->client_data;s->destination.next_output_byte=s->chunk;s->destination.free_in_buffer=sizeof(s->chunk);}
 static boolean output_full(j_compress_ptr c){Stream* s=(Stream*)c->client_data;emit(s,s->chunk,sizeof(s->chunk));output_init(c);return TRUE;}
 static void output_end(j_compress_ptr c){Stream* s=(Stream*)c->client_data;emit(s,s->chunk,sizeof(s->chunk)-s->destination.free_in_buffer);}
-static void stream_png_error(png_structp p,png_const_charp text){Stream* s=(Stream*)png_get_error_ptr(p);(void)text;if(!s->budget.status)s->budget.status=MALFORMED;longjmp(s->jump,1);}
+static void stream_png_error(png_structp p,png_const_charp text){Stream* s=(Stream*)png_get_error_ptr(p);(void)text;if(!s->budget.status)s->budget.status=MALFORMED;longjmp(*s->jump,1);}
 static png_voidp png_allocate(png_structp p,png_alloc_size_t n){return take(&((Stream*)png_get_mem_ptr(p))->budget,(size_t)n);}
 static void png_release(png_structp p,png_voidp v){drop(&((Stream*)png_get_mem_ptr(p))->budget,v);}
 static void png_output(png_structp p,png_bytep data,png_size_t n){emit((Stream*)png_get_io_ptr(p),data,n);}
 int32_t pixaura_private_stream_encode_v2(uint32_t format,uint32_t w,uint32_t h,int quality,size_t scratch,
     pixaura_private_row_v2 row,pixaura_private_bytes_v2 write,void* user){
-    Stream* s;int32_t status=0;uint32_t y;
-    if((format!=1&&format!=2)||!w||!h||w>16384||h>16384||!row||!write||quality<1||quality>100||scratch<sizeof(Stream)+(size_t)w*7)return LIMIT;
+    /* MSVC jmp_buf has explicit alignment. Keep it as an aligned C stack
+     * object instead of introducing hidden padding in the codec state. Its
+     * lifetime covers all callbacks, including cleanup after longjmp. */
+    jmp_buf jump;Stream* s;int32_t status=0;uint32_t y;
+    if((format!=1&&format!=2)||!w||!h||w>16384||h>16384||!row||!write||quality<1||quality>100||scratch<sizeof(Stream)+sizeof(jump)+(size_t)w*7)return LIMIT;
     s=(Stream*)calloc(1,sizeof(Stream));if(!s)return LIMIT;
-    s->budget.limit=scratch-sizeof(Stream);s->budget.fail_after=-1;s->row=row;s->write=write;s->user=user;
-    if(setjmp(s->jump)){status=s->budget.status?s->budget.status:MALFORMED;goto done;}
+    s->jump=&jump;s->budget.limit=scratch-sizeof(Stream)-sizeof(jump);s->budget.fail_after=-1;s->row=row;s->write=write;s->user=user;
+    if(setjmp(jump)){status=s->budget.status?s->budget.status:MALFORMED;goto done;}
     s->rgba=(uint8_t*)take(&s->budget,(size_t)w*4);if(!s->rgba){status=LIMIT;goto done;}
     if(format==1){
         s->rgb=(uint8_t*)take(&s->budget,(size_t)w*3);if(!s->rgb){status=LIMIT;goto done;}

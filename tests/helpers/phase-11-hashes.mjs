@@ -131,5 +131,13 @@ export function phase11PostV17Hash(path, predecessor) {
   const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v18.json', 'utf8'));
   const change = record.changes[path];
   if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase11 bounded integration predecessor');
+  return phase11PostV18Hash(path, change?.after_sha256_lf ?? predecessor);
+}
+
+// Private C codec MSVC layout successor; v18 failure/evidence remain immutable.
+export function phase11PostV18Hash(path, predecessor) {
+  const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v19.json', 'utf8'));
+  const change = record.changes[path];
+  if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase11 codec layout predecessor');
   return change?.after_sha256_lf ?? predecessor;
 }
