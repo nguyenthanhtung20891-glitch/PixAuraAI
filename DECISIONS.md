@@ -1,5 +1,16 @@
 # Architectural decision index
 
+## Phase11 v18 supplied acceptance and bounded integration
+
+Product Owner supplied independent Principal Architect acceptance of v17 at
+4cf0642119ea39149615b93588068c56a85d48ff, Foundation43704934062 7/7SUCCESS
+and Native43704933931 3/3SUCCESS, exactSHA attempt1. Internal v2 reader/stage/
+stream and private native commercial coordination authorized. No silent public
+ABI/Schema3/numerical change. Remaining proposed publisher receipt and app bridge
+compatibility requests: docs/contracts/phase-11-v18-compatibility-requests.md.
+These requests are NOT accepted by engineering self-review. No Phase11 closure.
+
+
 ## Current commercial decision successor — 2026-11-15
 
 Product Owner APPROVED ADR0024 trial/Free5photos+3AI/day, paid quota removal,

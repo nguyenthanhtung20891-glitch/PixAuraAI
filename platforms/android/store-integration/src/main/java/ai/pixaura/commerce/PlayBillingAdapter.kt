@@ -3,6 +3,7 @@ package ai.pixaura.commerce
 import android.app.Activity
 import android.content.Context
 import ai.pixaura.app.commerce.VerifiedGoogleRecord
+import ai.pixaura.app.commerce.VerifiedNativeStoreHandoffV1
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -21,8 +22,10 @@ import java.security.MessageDigest
 // a Purchase/PURCHASED callback is NEVER a grant by itself.
 class PlayBillingAdapter(context: Context, private val products: Map<String, String>,
     private val verify: (Purchase, (VerifiedGoogleRecord?) -> Unit) -> Unit,
-    private val persist: (VerifiedGoogleRecord) -> Unit, private val unavailable: () -> Unit) : AutoCloseable {
+    private val persist: (VerifiedGoogleRecord) -> Unit, private val unavailable: () -> Unit,
+    private val nativeSink: ((VerifiedNativeStoreHandoffV1) -> Unit)? = null) : AutoCloseable {
     private val closed = AtomicBoolean(false)
+    private val handoffGate = Any()
     private val client: BillingClient
     init {
         require(products.isNotEmpty() && products.size <= 8 && products.keys.all { it.isNotEmpty() && it.length <= 128 } && products.values.all { it in setOf(BillingClient.ProductType.SUBS, BillingClient.ProductType.INAPP) })
@@ -35,8 +38,8 @@ class PlayBillingAdapter(context: Context, private val products: Map<String, Str
     fun connect(ready: (Boolean) -> Unit) {
         if (closed.get()) { ready(false); return }
         client.startConnection(object : BillingClientStateListener {
-            override fun onBillingSetupFinished(result: BillingResult) { if (!closed.get()) ready(result.responseCode == BillingClient.BillingResponseCode.OK) }
-            override fun onBillingServiceDisconnected() { if (!closed.get()) ready(false) }
+            override fun onBillingSetupFinished(result: BillingResult) { synchronized(handoffGate) { if (!closed.get()) ready(result.responseCode == BillingClient.BillingResponseCode.OK) } }
+            override fun onBillingServiceDisconnected() { synchronized(handoffGate) { if (!closed.get()) ready(false) } }
         })
     }
     fun queryCatalog(type: String, callback: (List<ProductDetails>?) -> Unit) {
@@ -76,11 +79,20 @@ class PlayBillingAdapter(context: Context, private val products: Map<String, Str
             if (!closed.get() && record != null && record.productId == purchase.products[0]) {
                 val hash = MessageDigest.getInstance("SHA-256").digest(purchase.purchaseToken.toByteArray()).joinToString("") { "%02x".format(it) }
                 if (record.tokenSha256 != hash || (purchase.isSuspended && record.status == "active")) return@verification
-                try { persist(record) } catch (_: Exception) { unavailable(); return@verification } // No acknowledgment without durable cache.
-                if (!purchase.isAcknowledged && record.status == "active") client.acknowledgePurchase(
-                    AcknowledgePurchaseParams.newBuilder().setPurchaseToken(purchase.purchaseToken).build()) { /* store retry reconciles on restore */ }
+                try {
+                    synchronized(handoffGate) {
+                        if (closed.get()) return@verification
+                        persist(record)
+                        if (closed.get()) return@verification // Persistence may reentrantly retire the owner.
+                        nativeSink?.invoke(VerifiedNativeStoreHandoffV1.fresh(record)) // Signature-verified object only; never Purchase or a paid UI flag.
+                    }
+                } catch (_: Exception) { synchronized(handoffGate) { if (!closed.get()) unavailable() }; return@verification } // No acknowledgment without durable cache.
+                synchronized(handoffGate) {
+                    if (!closed.get() && !purchase.isAcknowledged && record.status == "active") client.acknowledgePurchase(
+                        AcknowledgePurchaseParams.newBuilder().setPurchaseToken(purchase.purchaseToken).build()) { /* store retry reconciles on restore */ }
+                }
             }
         }
     }
-    override fun close() { if (closed.compareAndSet(false, true)) client.endConnection() }
+    override fun close() { val stop = synchronized(handoffGate) { closed.compareAndSet(false, true) }; if (stop) client.endConnection() }
 }

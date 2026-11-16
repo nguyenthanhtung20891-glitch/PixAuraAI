@@ -1,5 +1,5 @@
 import test from 'node:test';
-import {phase11PostV13Hash, phase11PostV14Hash, phase11PostV15Hash, phase11PostV16Hash} from './helpers/phase-11-hashes.mjs';
+import {phase11PostV13Hash, phase11PostV14Hash, phase11PostV15Hash, phase11PostV16Hash, phase11PostV17Hash} from './helpers/phase-11-hashes.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
@@ -63,8 +63,8 @@ test('Native exit and Android first-exception diagnostics preserve failure autho
 test('Explicit successful native exit and exact fake-ADB diagnostic arguments are source-bound', () => {
   const m = JSON.parse(read('docs/reports/phase-11-source-v17.json'));
   assert.equal(hash(m.parent_manifest), m.parent_sha256_lf);
-  for (const [p, c] of Object.entries(m.changes)) assert.equal(hash(p), c.after_sha256_lf, p);
-  for (const [p, h] of Object.entries(m.additions)) assert.equal(hash(p), h, p);
+  for (const [p, c] of Object.entries(m.changes)) assert.equal(hash(p), phase11PostV17Hash(p, c.after_sha256_lf), p);
+  for (const [p, h] of Object.entries(m.additions)) assert.equal(hash(p), phase11PostV17Hash(p, h), p);
   assert.match(read('packages/core/tests/tiled_cpu_test.cpp'), /return 0;\s*}\s*$/);
   assert.match(read('tests/android-emulator.test.mjs'), /logcat -v brief -s PixAuraEvaluation:I AndroidRuntime:E TestRunner:I/);
 });

@@ -24,6 +24,14 @@ class CommercialCacheTest {
         .put("expires", 0).put("issuedAt", time).put("nonce", nonce).put("tokenSha256", token).toString()
     private fun signed(k: KeyPair, payload: String): String = Base64.getEncoder().encodeToString(Signature.getInstance("SHA256withECDSA").apply { initSign(k.private); update(payload.toByteArray()) }.sign())
     private fun record(k: KeyPair, time: Long = 2000000000): VerifiedGoogleRecord { val p = payload(time); return VerifiedGoogleRecord.verify(p, signed(k, p), k.public, context.packageName, products, "SANDBOX", nonce, token) }
+    @Test fun actualOsClockHasStableLocalBootAndMonotonicSamples() {
+        val source = AndroidCommercialClockSourceV1(context)
+        val first = source.sample(); val second = source.sample()
+        assertTrue(first.utcSeconds >= 0 && first.uptimeSeconds >= 0)
+        assertTrue(second.uptimeSeconds >= first.uptimeSeconds)
+        assertEquals(first.bootToken, second.bootToken)
+        assertTrue(first.bootToken.matches(Regex("[a-f0-9]{32}")))
+    }
     @Test fun signatureBindingAndUnverifiedInputsFailClosed() {
         val k = keys(); val p = payload(); val signature = signed(k, p)
         assertEquals("active", record(k).status)
@@ -32,6 +40,19 @@ class CommercialCacheTest {
         }
         try { VerifiedGoogleRecord.verify(p, signature, keys().public, context.packageName, products, "SANDBOX", nonce, token); fail("wrong key") } catch (_: Exception) { }
         try { VerifiedGoogleRecord.verify(p, signature, k.public, context.packageName, products, "SANDBOX", nonce, "c".repeat(64)); fail("wrong transaction") } catch (_: Exception) { }
+    }
+    @Test fun signedCacheReplayLabelsEvidenceAndStopsBeforeOwnerTeardown() {
+        val k = keys(); val namespace = "native-replay-test-" + UUID.randomUUID().toString(); val cache = ProtectedCommercialCache(context, namespace)
+        val events = mutableListOf<VerifiedNativeStoreHandoffV1>()
+        val replay = GoogleProtectedCacheReplayV1(cache, k.public, products, "SANDBOX") { events.add(it) }
+        try {
+            cache.write(record(k)); replay.replay()
+            assertEquals(1, events.size); assertEquals(VerifiedNativeStoreHandoffV1.Origin.PROTECTED_CACHE, events.single().origin)
+            assertEquals("synthetic.fixture", events.single().record.productId)
+            replay.close()
+            try { replay.replay(); fail("closed native handoff") } catch (_: IllegalStateException) { }
+            assertEquals(1, events.size)
+        } finally { replay.close(); cache.clear() }
     }
     @Test fun keystoreCacheRejectsCorruptionAndStaleFactsAndRecoversOnlyFromVerifiedFact() {
         val k = keys(); val namespace = "commercial-test-" + UUID.randomUUID().toString(); val cache = ProtectedCommercialCache(context, namespace)

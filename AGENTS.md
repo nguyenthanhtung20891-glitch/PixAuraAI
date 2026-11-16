@@ -1,5 +1,19 @@
 # PixAuraAI Autonomous Engineering Contract
 
+## Current successor — Phase11 v18 bounded integration (2026-11-15)
+
+Product Owner supplied independent Principal Architect acceptance of v17 software
+at4cf0642119ea39149615b93588068c56a85d48ff, Foundation43704934062 7/7SUCCESS
+and Native43704933931 3/3SUCCESS exactSHA attempt1. v18 authorizes additive
+original-reader-v2/stage-plan-v2/stream-writer-v2 and private native commercial
+owner where frozen contracts permit. Preserve publicABI, Schema3, numerical
+kernels, native/HumanApply authority, signing assets and v1–v17 evidence. Stop
+only conflicting integration for explicit versioned compatibility acceptance.
+Plan docs/plans/phase-11-v18-integration.md; checkpoint phase-11-v18-checkpoint.md.
+Phase11 INPROGRESS, v18 not accepted/closed. No Phases12–14 implementation.
+DH-APPLE-METAL-01 PASS/CLOSED unchanged; CPUVALIDATED; GPUprovidersUNKNOWN.
+
+
 ## Current successor — Phase11 G8/G10 approved continuation (2026-11-15)
 
 Product Owner supplied independent Principal Architect acceptance of v12 software

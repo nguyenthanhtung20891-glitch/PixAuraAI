@@ -62,9 +62,16 @@ struct ProtectedCommercialCache {
 }
 enum StoreAccessError: Error { case unconfigured, unavailable, unverified, stale; case keychain(OSStatus) }
 
+struct VerifiedStoreHandoffV1: Sendable {
+    enum Origin: Sendable { case storeVerified, protectedCache }
+    let record: AppleStoreEntitlementAdapter.Record
+    let origin: Origin
+    fileprivate init(record: AppleStoreEntitlementAdapter.Record, origin: Origin) { self.record = record; self.origin = origin }
+}
+
 actor AppleStoreEntitlementAdapter {
-    enum Kind: String, Codable { case subscription, lifetime }
-    struct Record: Codable, Equatable {
+    enum Kind: String, Codable, Sendable { case subscription, lifetime }
+    struct Record: Codable, Equatable, Sendable {
         let productID: String
         let kind: Kind
         let transactionID: UInt64
@@ -78,12 +85,14 @@ actor AppleStoreEntitlementAdapter {
     private let products: [String: Kind]
     private let environment: String
     private let cache: ProtectedCommercialCache
+    private let nativeSink: (@Sendable (VerifiedStoreHandoffV1) async throws -> Void)?
     private var generation: UInt64 = 0
-    init(products: [String: Kind], environment: String, cache: ProtectedCommercialCache) throws {
+    init(products: [String: Kind], environment: String, cache: ProtectedCommercialCache,
+         nativeSink: (@Sendable (VerifiedStoreHandoffV1) async throws -> Void)? = nil) throws {
         guard !products.isEmpty, products.count <= 8,
               products.keys.allSatisfy({ !$0.isEmpty && $0.utf8.count <= 128 }),
               ["Sandbox", "Production"].contains(environment) else { throw StoreAccessError.unconfigured }
-        self.products = products; self.environment = environment; self.cache = cache
+        self.products = products; self.environment = environment; self.cache = cache; self.nativeSink = nativeSink
     }
     // These are cached previously verified store facts, not a current clock/access
     // grant. Native quota projection must separately reconcile trusted time/revocation.
@@ -94,6 +103,16 @@ actor AppleStoreEntitlementAdapter {
               Set(snapshot.records.map(\.productID)).count == snapshot.records.count,
               snapshot.records.allSatisfy({ products[$0.productID] == $0.kind && $0.environment == environment }) else { throw StoreAccessError.unverified }
         return snapshot.records
+    }
+    // Restores authenticated app-Keychain facts; native owner still determines
+    // trusted time/offline grace/revocation. This is not a platform paid boolean.
+    func replayProtectedCacheToNative() async throws {
+        guard let nativeSink else { throw StoreAccessError.unconfigured }
+        let expected = generation
+        for record in try cached() {
+            guard generation == expected, !Task.isCancelled else { throw StoreAccessError.stale }
+            try await nativeSink(VerifiedStoreHandoffV1(record: record, origin: .protectedCache))
+        }
     }
     func availableProducts() async throws -> [Product] {
         try await Product.products(for: Array(products.keys))
@@ -148,7 +167,40 @@ actor AppleStoreEntitlementAdapter {
         if let previous = records.first(where: { $0.productID == record.productID }), (previous.signedAt > record.signedAt || (previous.signedAt == record.signedAt && previous.transactionID == record.transactionID && previous.revoked && !record.revoked)) { throw StoreAccessError.stale }
         records.removeAll { $0.productID == record.productID }; records.append(record)
         try cache.write(JSONEncoder().encode(Snapshot(version: 1, records: records.sorted { $0.productID < $1.productID })))
-        // Finish only after durable protected cache write. Unverified/pending results never finish/grant.
+        if let nativeSink { try await nativeSink(VerifiedStoreHandoffV1(record: record, origin: .storeVerified)) }
+        // Finish only after durable cache and configured native handoff. Unverified/pending results never finish/grant.
         await transaction.finish(); return record
+    }
+}
+
+// Local OS timing only. No boot facts are logged, uploaded or treated as trusted
+// absolute time. Native ledger owns rollback/UTC/quota semantics.
+import Darwin
+struct CommercialClockObservationV1: Equatable, Sendable {
+    let utcSeconds: Int64
+    let uptimeSeconds: Int64
+    let bootToken: String
+}
+final class AppleCommercialClockSourceV1: Sendable {
+    private let bootToken: String
+    private let numerator: Double
+    private let denominator: Double
+    init() throws {
+        var boot = timeval(); var length = MemoryLayout<timeval>.size
+        guard sysctlbyname("kern.boottime", &boot, &length, nil, 0) == 0,
+              length == MemoryLayout<timeval>.size, boot.tv_sec > 0,
+              boot.tv_usec >= 0, boot.tv_usec < 1_000_000 else { throw StoreAccessError.unavailable }
+        bootToken = String(format: "%016llx%016llx", UInt64(boot.tv_sec), UInt64(boot.tv_usec))
+        var timebase = mach_timebase_info_data_t()
+        guard mach_timebase_info(&timebase) == KERN_SUCCESS, timebase.numer > 0, timebase.denom > 0 else { throw StoreAccessError.unavailable }
+        numerator = Double(timebase.numer); denominator = Double(timebase.denom)
+    }
+    func sample() throws -> CommercialClockObservationV1 {
+        let utc = Date().timeIntervalSince1970
+        let uptime = Double(mach_continuous_time()) * numerator / denominator / 1_000_000_000
+        guard utc.isFinite, uptime.isFinite, utc >= 0, uptime >= 0,
+              utc < Double(Int64.max), uptime < Double(Int64.max) else { throw StoreAccessError.unavailable }
+        return CommercialClockObservationV1(utcSeconds: Int64(utc.rounded(.down)),
+            uptimeSeconds: Int64(uptime.rounded(.down)), bootToken: bootToken)
     }
 }

@@ -10,6 +10,12 @@ import Foundation
 import Darwin
 @testable import PixAuraAI
 
+private actor NativeStoreHandoffCollectorV1 {
+    private var events: [VerifiedStoreHandoffV1] = []
+    func append(_ event: VerifiedStoreHandoffV1) { events.append(event) }
+    func values() -> [VerifiedStoreHandoffV1] { events }
+}
+
 @MainActor private final class ModelLifetimeProbe {
     weak var value: ManualEditorModel?
     init(_ value: ManualEditorModel) { self.value = value }
@@ -112,6 +118,35 @@ private func phase11SyntheticPNG(_ url: URL, width: Int, height: Int) throws {
 }
 
 final class ShellTests: XCTestCase {
+    func testProtectedStoreReplayIsLabelledCachedNotAnAuthenticatedPurchase() async throws {
+        let cache = ProtectedCommercialCache(service: "ai.pixaura.test.handoff.\(UUID().uuidString)")
+        defer { try? cache.remove() }
+        // Synthetic protected-cache fixture only; no StoreKit purchase/transaction claimed.
+        let record = AppleStoreEntitlementAdapter.Record(productID: "synthetic.fixture", kind: .lifetime,
+            transactionID: 1, signedAt: Date(timeIntervalSince1970: 2_000_000_000), expires: nil, revoked: false, environment: "Sandbox")
+        struct Snapshot: Encodable { let version: Int; let records: [AppleStoreEntitlementAdapter.Record] }
+        try cache.write(JSONEncoder().encode(Snapshot(version: 1, records: [record])))
+        let collector = NativeStoreHandoffCollectorV1()
+        let adapter = try AppleStoreEntitlementAdapter(products: ["synthetic.fixture": .lifetime], environment: "Sandbox", cache: cache,
+            nativeSink: { event in await collector.append(event) })
+        try await adapter.replayProtectedCacheToNative()
+        let events = await collector.values()
+        XCTAssertEqual(events.count, 1)
+        XCTAssertEqual(events.first?.record.productID, "synthetic.fixture")
+        if case .protectedCache = events[0].origin {} else { XCTFail("Cache replay must not claim a fresh store verification") }
+        await adapter.stop()
+    }
+
+    func testCommercialClockSamplesLocalOSWithoutTrustOrNetworkClaims() throws {
+        let source = try AppleCommercialClockSourceV1()
+        let first = try source.sample(); let second = try source.sample()
+        XCTAssertGreaterThanOrEqual(first.utcSeconds, 0)
+        XCTAssertGreaterThanOrEqual(second.uptimeSeconds, first.uptimeSeconds)
+        XCTAssertEqual(first.bootToken, second.bootToken)
+        XCTAssertEqual(first.bootToken.count, 32)
+        XCTAssertNotNil(first.bootToken.range(of: "^[0-9a-f]{32}$", options: .regularExpression))
+    }
+
     func testStoreAdapterRequiresLegitimateConfiguration() throws {
         let cache = ProtectedCommercialCache(service: "ai.pixaura.tests.unconfigured")
         XCTAssertThrowsError(try AppleStoreEntitlementAdapter(products: [:], environment: "Sandbox", cache: cache))

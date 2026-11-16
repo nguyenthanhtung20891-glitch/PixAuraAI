@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "classification": "synthetic native host fixture; not mobile performance qualification",
+  "source": {"width":4000,"height":3000,"rgba":"x%256,y%256,(x+y)%256,alpha=(x+y)%5==0?0:255","png_bytes":5686469,"sha256":"cfa348c80a1df3cf8d5ed3cfddf0c854a68c1d2f9f12d97de7ac9d09ee2f998a"},
+  "operations":[{"type":"exposure","value":1000},{"type":"blur","value":250}],
+  "jpeg":{"quality":93,"bytes":7603091,"sha256":"fcbaa63eebe28b82efe3652fbb667a0f2a0197fdc7ea46869601578ad1e575a4"},
+  "png":{"bytes":6873346,"sha256":"6ef9f8568dfecca507d9a22c723a501ea0374424041aadc3db76ecb563341594"},
+  "oracle":"Every decoded PNG pixel compared bitwise against independent fixed-neighborhood v1 CPU evaluation; v2 region planner is not used to compute expected pixels.",
+  "scope":"Internal native source/revision/preview/stream pipeline. Public v1 editor bridge and Schema3 unchanged. No shipping 12MP app claim."
+}

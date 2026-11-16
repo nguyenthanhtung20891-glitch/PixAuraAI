@@ -1,3 +1,16 @@
+## v18 qualification successor (2026-11-16)
+
+Internal native 12MP source/edit/history/FIT/stream proofs now exist, including
+all12MdecodedPNGpixel parity. Shipping editor integration remains STOPPED at
+CR18-01/CR18-02 (docs/contracts/phase-11-v18-compatibility-requests.md); the older
+row below describes its freeze-time implementation state, not current host proofs.
+Do not run physical app12MP/commerce acceptance against an unintegrated UI. First
+obtain bridge/receipt approval and exactSHA integration CI, then use the cohorts
+and real store/human protocol below. Keep every raw sample; record rejected sizes
+and native status codes separately from admitted latency. Quota denial is not a
+performance sample. Never raise caps/downsample to make a tier pass. Existing XR
+raw benchmarks and Metal certification remain immutable. No new physical claim.
+
 # Phase11 minimal external acceptance runbook
 
 All rows NOT OBSERVED for this successor until an identified operator supplies raw
