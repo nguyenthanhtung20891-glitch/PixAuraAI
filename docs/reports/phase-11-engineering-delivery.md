@@ -36,6 +36,25 @@ delivery message, not in this file (a file cannot name its own SHA).
      `../bridge/src/main/kotlin` and stages exactly one `:app` file. No new dependency,
      no lock change, no JNI linking. This would have failed any root Gradle build.
 
+5. Portability and CI-budget defects that macOS/clang hid and hosted CI exposed
+   (all fixed without weakening any test, warning, sanitizer or assertion):
+   - GCC 13 `-Werror`: `-Wmisleading-indentation` in several v2 sources and a
+     dangling `std::initializer_list` in `quota.cpp` `recognized_schema` that made
+     the Linux Debug build segfault (now a `std::vector`).
+   - MSVC `/W4 /WX`: C4456/C4457 shadowing, C4244 fill narrowing, C3538 mixed
+     `auto` declarators, C4996 `_open` (now `_sopen_s` wrappers), `_Static_assert` in C
+     (portable typedef check), and hidden-DLL-symbol link errors in four v2 test
+     targets (tests now compile the internal sources they exercise; `manual_tools.cpp`
+     is isolated in a static proof library with consistent export linkage).
+   - Linux UBSan: C consumer linked as C++ (`LINKER_LANGUAGE CXX`).
+   - Swift 6.2 / Xcode 26.6: `asyncAfter` capture replaced by a one-shot timer.
+   - Android hosted emulator (slow, 2 cores): UI tests clicked busy-disabled chips and
+     buttons; tests now wait until the control is enabled before clicking. Assertions
+     are unchanged.
+   - Job budgets that the grown suites exceed on hosted runners: sanitizer job 15 -> 45 min,
+     iOS job 60 -> 120 min (the 20 UI tests alone take about 35 min), per-test timeouts
+     of the sanitized 12 MP tests 120 -> 600 s. No check was removed or skipped.
+
 ## Local evidence (this Mac Studio, commit `78cddf6` unless noted)
 
 | Check | Result |
@@ -51,6 +70,14 @@ delivery message, not in this file (a file cannot name its own SHA).
 | Android release APK isolation scan | PASS |
 | NDK boundary builds `arm64-v8a` and `armeabi-v7a`, API 26 | PASS (both) |
 | Node source suite in a clean clone | 254/263; the 9 failures are all `android-emulator.test.mjs` orchestrator tests that require GNU `realpath -m`/`timeout` and are covered by Linux CI |
+
+Re-verification after the portability fixes: macOS host 93/93; Linux GCC 13 Debug
+(Docker, `-Werror`) 93/93; Linux clang ASan/UBSan 95/95; Swift/iOS 35 unit + 20 UI on a
+pristine simulator; Gradle strict chain PASS; node 254/263 (same 9 Linux-only).
+Known local-only observation: `ShellTest` fails on my hand-made arm64 `pixaura-ci-like`
+AVD (that AVD shows a 128 dp top inset and a Pixel Launcher ANR) but passes on the
+`pixel_6` arm64 AVD (90/90) and on the hosted x86_64 CI emulator; the other 89 tests
+pass on the small-screen AVD. Treated as an AVD artefact, not claimed as a product fix.
 
 Notes on test integrity: iOS UI tests persist the Free quota ledger in the app
 container, so they are only meaningful on a pristine simulator; a reused simulator
