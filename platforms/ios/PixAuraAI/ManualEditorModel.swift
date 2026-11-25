@@ -56,27 +56,14 @@ struct AssistUiState {
 /// Application work lanes only. Core owns descriptors/gesture/history; queues
 /// retain one latest integer payload and one latest preview, never slider tasks.
 private final class EditorWorker {
-    // Send only a synchronized notification handle across the store callback
-    // boundary. Neither the native editor nor this worker is declared Sendable.
-    // Editor state is read exclusively after dispatch to its existing command lane.
-    private final class StoreObservationV3: @unchecked Sendable {
-        private let gate = NSLock()
-        private weak var worker: EditorWorker?
-        private weak var editor: ManualEditor?
-        init(worker: EditorWorker, editor: ManualEditor) { self.worker = worker; self.editor = editor }
-        func notify() {
-            gate.lock(); let queue = worker?.commands; gate.unlock()
-            queue?.async { self.deliver() }
-        }
-        private func deliver() {
-            gate.lock(); let worker = worker, editor = editor; gate.unlock()
-            if let worker, let editor { worker.emitCommercial(editor) }
-        }
-    }
+    // Only a dispatch source (Sendable) crosses the store callback boundary. Its
+    // handler runs on the existing command lane, so the native editor and this
+    // worker are never shared across threads and neither is declared Sendable.
     private let capabilities: AppleCapabilityOwner
     private let runtimes: NativeEditorRuntimePoolV2
     private var ownerLease: NativeEditorRuntimePoolV2.Lease?
     private var storeSubscriptionV3: UUID?
+    private var storeSignalV3: DispatchSourceUserDataAdd?
     private var subscription: UUID?
     private var latestCapability: AppleCapabilitySnapshot?
     private var applyingCapability = false
@@ -84,7 +71,7 @@ private final class EditorWorker {
         self.capabilities = capabilities; self.runtimes = runtimes
         subscription = try? capabilities.subscribe { [weak self] value in self?.receiveCapability(value) }
     }
-    deinit { if let subscription { capabilities.unsubscribe(subscription) }; if let storeSubscriptionV3 { ownerLease?.runtime.removeStoreObserverV3(storeSubscriptionV3) }; owner?.close(); try? ownerLease?.close() }
+    deinit { if let subscription { capabilities.unsubscribe(subscription) }; if let storeSubscriptionV3 { ownerLease?.runtime.removeStoreObserverV3(storeSubscriptionV3) }; storeSignalV3?.cancel(); owner?.close(); try? ownerLease?.close() }
     private func receiveCapability(_ value: AppleCapabilitySnapshot) {
         lock.lock(); latestCapability = value.retainingPressure(from: latestCapability)
         let schedule = !applyingCapability; applyingCapability = true; lock.unlock()
@@ -185,13 +172,20 @@ private final class EditorWorker {
             let editor = try ManualEditor(root: root, importing: input, capability: snapshot, runtimeV2: lease.runtime)
             // Optional presentation observation must not reject an already
             // successful native import or consume quota without usable editing.
-            let observation = StoreObservationV3(worker: self, editor: editor)
-            storeSubscriptionV3 = try? lease.runtime.observeStoreChangesV3 { observation.notify() }
+            let signal = DispatchSource.makeUserDataAddSource(queue: commands)
+            signal.setEventHandler { [weak self, weak editor] in
+                if let self, let editor { self.emitCommercial(editor) }
+            }
+            signal.resume()
+            if let token = try? lease.runtime.observeStoreChangesV3({ signal.add(data: 1) }) {
+                storeSubscriptionV3 = token; storeSignalV3 = signal
+            } else { signal.cancel() }
             ownerLease = lease; return editor
         } catch { try? lease.close(); throw error }
     }
     private func closeOwner() throws {
         if let storeSubscriptionV3 { ownerLease?.runtime.removeStoreObserverV3(storeSubscriptionV3) }; storeSubscriptionV3 = nil
+        storeSignalV3?.cancel(); storeSignalV3 = nil
         let previous = owner; owner = nil; previous?.close()
         let lease = ownerLease; ownerLease = nil; try lease?.close()
     }

@@ -33,7 +33,7 @@
     },
     "CMakeLists.txt": {
       "before_sha256_lf": "c262274678a1b2500bfae1d195883af3ece46552985137a4de9c3f613b98d35b",
-      "after_sha256_lf": "6783d102a3bbcfb7e988a2ad942d463b3beaebb22cbfb8cccc164df5996af019"
+      "after_sha256_lf": "4eb2e1eae8da838b60f32606a3bba0c0f7142ebf0f42f44e6ab8f17d2b2746e4"
     },
     "DECISIONS.md": {
       "before_sha256_lf": "4f6ce424cb0b249d226107fbf327fdfd590459180657eb07d9d66f9c8a29bacd",
@@ -165,7 +165,7 @@
     },
     "platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt": {
       "before_sha256_lf": "938f2296ed814d2045a9bf9f87e8720ea0e2b8ee8e1151edfeea9479410d8831",
-      "after_sha256_lf": "5b55b9374019da70df2f9c1de8bfdd552f62f008d45d50ece1289fbb559277c4"
+      "after_sha256_lf": "87197a68928b56e61254be73f1a8e9672acae6d36d2739971abc9abc2ca43512"
     },
     "platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorScreen.kt": {
       "before_sha256_lf": "2ac6a000fc140e4d9780f1aa93669cc57f0d4422db8239de5877787b0f5c01c2",
@@ -177,7 +177,7 @@
     },
     "platforms/android/app/src/main/java/ai/pixaura/app/commerce/ProtectedCommercialCache.kt": {
       "before_sha256_lf": "13014344bfd37e043c68f9f0f765633a82652d8534a0500fb4b5a93046bcb6e9",
-      "after_sha256_lf": "550f5d3f2b27ee69fce70292c4169d39ff8a72bb4f2eff7908fa1d9208543f3d"
+      "after_sha256_lf": "c9c48007ea919e89ab6c0141dfaa574e5b886881d3cb8b0af671c5cbeb776f38"
     },
     "platforms/android/app/src/main/java/ai/pixaura/app/commerce/VerifiedGoogleRecord.kt": {
       "before_sha256_lf": "f923847c4e6c33d256f5aba6d5d44e678a6f995595f33a9d26c147a920d1c157",
@@ -201,7 +201,7 @@
     },
     "platforms/ios/PixAuraAI/ManualEditorModel.swift": {
       "before_sha256_lf": "c3e3d608430f7b948bcfb44176f1dcfe31f05dc7c5b834710183426ec33d00d9",
-      "after_sha256_lf": "1a98bdccc6cd16a6e1ed399b6ebcc015d8e667e9b8aedab979e1d0d48546b6b7"
+      "after_sha256_lf": "e1fa243692d19f2b9b3f426f6665bd9a428183de95f95bb1de9c6906da4f656a"
     },
     "platforms/ios/PixAuraAI/ManualEditorScreen.swift": {
       "before_sha256_lf": "c983d5d248b5cddb4a0d7367b70991538ee7f43b39097b07e7fd288198f5ebbc",
@@ -209,7 +209,7 @@
     },
     "platforms/ios/PixAuraAI/ShellModel.swift": {
       "before_sha256_lf": "173a74779b23dd997a98c5c7f7338051bcb5359da6b25d91817362d208a35880",
-      "after_sha256_lf": "76e788b899632f85b18b7d03021eee7461cad74c4bb6e3995f597623f808f980"
+      "after_sha256_lf": "aaea03a510fa7c7262a928e18898b7b61f57953278e03a9249761dadc445e1bc"
     },
     "platforms/ios/PixAuraAI/en.lproj/Localizable.strings": {
       "before_sha256_lf": "df52030ced62b054c6b9be35368df06109b8c93a70b96362393bb40788346c32",
@@ -221,7 +221,7 @@
     },
     "platforms/ios/PixAuraAITests/ShellTests.swift": {
       "before_sha256_lf": "497b9b878d980104ede434e21dd4df3300aa13257c936d136731e73005ea88ee",
-      "after_sha256_lf": "2629dc29397723222d644cdd2d930e5dc788c59b8d36f69d6d9c818bd8433dc8"
+      "after_sha256_lf": "2e42892d7b2a9f8e060a786be778b5311ee30f3123b2c56c4f535b684aa024e4"
     },
     "platforms/ios/PixAuraAIUITests/ShellUITests.swift": {
       "before_sha256_lf": "3fc4eaf16d4dbfaeca07b3e7920c3b431de2628b9f0310f3624dfb28d9d01ec3",
@@ -289,13 +289,13 @@
     }
   },
   "additions": {
-    "docs/contracts/commercial-store-ingress-v2.md": "1316a5632af784f5fe790c3c6083e0711f6efaacf13f1e8122e93867e0b2ac61",
+    "docs/contracts/commercial-store-ingress-v2.md": "c720a2affde9943724306d37876255724e3220210d7458c958dafd29ffc8259b",
     "docs/contracts/decoded-row-store-v2.md": "fed4c47a4d7d15ab6f19aef9773fcc01264058c6157f107941dd5e9773a581f1",
     "docs/contracts/preview-frame-probe-v2.md": "04cfb3ef294cdcd05b7777a97abd3ffb2c974cbf867c9791dc3a13248282d132",
     "docs/plans/phase-11-final-completion.md": "08e486e9bf69ab572edb22353f7c2f240690616bb411598542f4cf8fa79b1820",
     "docs/reports/phase-11-12mp-input-memory-gap.md": "8b378d3d8a3ba4cdc4414449ff290a878c178fd42441de98f6e60537d27f1ca4",
     "docs/reports/phase-11-final-acceptance-matrix.md": "0df87b17a191b49d2fbda95ccd51249cd3e762d0cac07190676e6e160ee3d168",
-    "docs/reports/phase-11-final-checkpoint.md": "14c02afd26424be411b6f82836a2a79e6a71be21494eeb4bb008e9d58488bb92",
+    "docs/reports/phase-11-final-checkpoint.md": "5cc17002fe743716978722e2d5b1963d67c6f675c8f88ce2b8b1967ab0a86d50",
     "packages/commerce/coordinator_v2.cpp": "ccdd3f658892521def3f8a3b93ad3d28646e31debb38702e988760e0b14c5d1c",
     "packages/commerce/coordinator_v2.hpp": "91e5f6172162947494c9b13a75ed9ca8ab253679806119d807a6b50835203299",
     "packages/commerce/coordinator_v2_crash.py": "a2196784fb8c6a0e0afb5ddb91508489035dd2bff13e672b73d94df1b9ffae00",
@@ -303,7 +303,7 @@
     "packages/commerce/receipt_key_v2.cpp": "2457e90e4832cd83e2bc07b20fff218a96ce5da23739ea11440b584d0117c0a7",
     "packages/commerce/receipt_key_v2.hpp": "02f9b05164d01f75d247ddbe42110bcdae3aab5a284e40b11e2246099c7dd069",
     "packages/commerce/store_journal_v3_crash.py": "1100428b5b3bd8d3bbfeeb80c379300649c18e7a7ed505df6793d0aab46697e0",
-    "packages/commerce/store_record_v2_test.cpp": "93955f5032bf8054360de8ca1ab47f97abaa72a3288ba32fad51df2a725828c5",
+    "packages/commerce/store_record_v2_test.cpp": "c062c90dc1e90307e8a64eff87dcec0d5c41e4e73040c24f30721460edf0f330",
     "packages/core/include/pixaura/editor_v2.h": "dc6d4c2eab93a074be2f10e15358f8266b1113bc06a17e0b5049746913acb6b0",
     "packages/core/include/pixaura/store_ingress_v3.h": "769cecfc6056faa455d1e37ecfd8b49ed4785605a065cac763cb918d6e5c46c2",
     "packages/core/src/publication_v2.hpp": "3c63afc868515074cfc9da05268bcedbbe5aaa4822b39229810d496171365003",
@@ -315,7 +315,7 @@
     "packages/core/src/v2/commerce/receipt_key_v2.cpp": "800bd76d39defd82a0aaff71b86c78e4b7ee558ef8f5343a2045cf9e1f6a0a6c",
     "packages/core/src/v2/commerce/receipt_key_v2.hpp": "a5039cc5f9a04ef208172d42a671f760823c1d6e1cd514706d952b99cff196cb",
     "packages/core/src/v2/commerce/store_journal_v3.hpp": "da08a362c2d2e952c048a6e53e0a3ac7f33deffabd34b82726964d20438f0b30",
-    "packages/core/src/v2/commerce/store_journal_v3.inc": "f35a455cf3cdfe987fd9e5235bb7a2a18b37cbf669b1c495df53607421d7fff1",
+    "packages/core/src/v2/commerce/store_journal_v3.inc": "eeb787964eeb73295a66762e54f6f0ce39acc9f0efeb37848dbbebd998b8d1a3",
     "packages/core/src/v2/commerce/store_record_v2.hpp": "74596d8aa20b50c2851618d484ae097d48ca5eec53472802eb90ac7972ba1939",
     "packages/core/src/v2/commerce/verified_store_v3.hpp": "35eea81632960888ff93fba32dc883e0040764db0828f288844354e184383f59",
     "packages/core/src/v2/editor/api_v2.cpp": "6a17b6a3f2948776e0ee1c5bfc41e641306a4b103639177862b289d60ed0e5dd",
@@ -323,7 +323,7 @@
     "packages/core/src/v2/editor/context_v2.cpp": "b5de2765518f4dac995d78c90f53c739e0fcf6935f6267108b0f16daf3528a3e",
     "packages/core/src/v2/editor/context_v2.hpp": "ff1438706ab5c470f008c9ac70be57d6a7374f3e1e4046dc528a6058522dee45",
     "packages/core/src/v2/editor/resource_admission_v2.hpp": "c6bb427ef2358326782c9d9dbea054fba4f9e7e48e45fbb5aa6f9871533564f5",
-    "packages/core/src/v2/editor/store_ingress_v3.inc": "0df100a7d7c164c6149b26d2c73ff15e2983c6893242a7af7e49bca088884d7b",
+    "packages/core/src/v2/editor/store_ingress_v3.inc": "ad847a0e860421e2a14c462b09c8888774c18f3d972d572d97f195c67f8045e1",
     "packages/core/src/v2/integration/decoded_rows_v2.hpp": "bba1cd8cf2c30e4656dd6bcd70b2f549201930d378828a141b0da6b2641df064",
     "packages/core/src/v2/integration/original_reader_v2.cpp": "9746885ed816a6ab0d39ddd53aecbb175681dce268a59eb788b42f15ce7a4919",
     "packages/core/src/v2/integration/original_reader_v2.hpp": "9ce7faf02fce742be2b864254f4a08df5a31db56d82396c392056a9a9798928c",
@@ -337,9 +337,9 @@
     "packages/core/src/v2/integration/stream_codec_v2.h": "334aae578f16dfdbfdb017ee3007105802c54a4c881bb389ebcc7faee2897c5c",
     "packages/core/src/v2/integration/stream_writer_v2.cpp": "8c80a9d8ea5d3a6bd0faa92190df50aa12b9dff7524f42e8b48ff300a4f99920",
     "packages/core/src/v2/integration/stream_writer_v2.hpp": "1f822780c3a4e13409cfd699380e12486487de66d90b7fca4dab18f92ee1c706",
-    "packages/core/swift/Sources/EditorV2.swift": "d725b46fa41ffc2a1efa8ee6b06b2747fa941aba61b0978d5da6e3840af0174b",
-    "packages/core/swift/Sources/StoreIngressV3.swift": "8b93a4115ad95e9cc4d091f1eb5cd07c40785dc991bd998a2f18e6d127b4e64f",
-    "packages/core/swift/Tests/EditorV2Tests.swift": "1097bdfab21a71e5fdef4ca8fd882c681c9892e7d7777226c4c937f14ac4943b",
+    "packages/core/swift/Sources/EditorV2.swift": "13aa4cb9e4de382b0dd0384155820118f986601acca8dd929435d48b400e6e0e",
+    "packages/core/swift/Sources/StoreIngressV3.swift": "02587db5d9494e0db63de168f39f855cf1dcd0f2c2cd8a67c41235d787eb346f",
+    "packages/core/swift/Tests/EditorV2Tests.swift": "c5c0cbe17400965d9a0b8d7113e839384294ef38270ce94cc4ac32819177cc35",
     "packages/core/tests/editor_v2_c_consumer.c": "58c0ab85fadf5d6fd170ddaa41600164b18376b780b3aee86124c19dbda70986",
     "packages/core/tests/publication_v2_crash.py": "479665b2f53193d0d442ba757e18660a91683f85cc1607c49be90eb13a30dbe0",
     "packages/core/tests/publication_v2_test.cpp": "e39169deb78bee806306273b04c59f897fc56718ee3550715df5a781ce4a6a9e",
@@ -355,7 +355,7 @@
     "packages/editor/row_codec_v2_test.cpp": "7cab8e998db54c7e4f3b76538fbb41fa25ab92d8071cad0ceff18f017dca5730",
     "platforms/android/app/src/androidTest/java/ai/pixaura/app/EditorV2Test.kt": "acc853da418371b176e65ee757fd37d283d0b702c9f2bbf5b036716e1f4f155d",
     "platforms/android/app/src/androidTest/java/ai/pixaura/app/NativeEditorRuntimePoolV2Test.kt": "a817e093f3754ac590e6249758c79859f1a5362a09e70fe37bd59c939c8f8d67",
-    "platforms/android/app/src/androidTest/java/ai/pixaura/app/NativeStoreIngressV3Test.kt": "a5e51175214b9912a003640507f5004e356a7df07bb9ee689f3bef429f93d0b0",
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/NativeStoreIngressV3Test.kt": "b79e130cbfeca9fe0cf6efe79773801665e75918f971a0b7fbbbc1b5ba5a1d5a",
     "platforms/android/app/src/androidTest/java/ai/pixaura/app/VersionedEditorTestHooks.kt": "87880f5595c24b19cd99193f6997a1f17c449fe43189421ea4a2776f24b4f3ee",
     "platforms/android/app/src/androidTest/java/ai/pixaura/app/commerce/NativeEditorInstallationKeyV2Test.kt": "fd3073c891987ade7d2e2829a46bd48818a15358dd875d64e74cd6f775199f1d",
     "platforms/android/app/src/main/java/ai/pixaura/app/NativeEditorRuntimePoolV2.kt": "3ea99c17407b90e2b59ed5a590693227b1eeb4841e8d50c16c79c8b65e3bc5b7",
@@ -363,10 +363,11 @@
     "platforms/android/app/src/main/java/ai/pixaura/app/commerce/GoogleNativeStoreVerifierV3.kt": "00477d9713738ed073d73d1cd2b2ba0fe642b563d3680f8d9c7b0eef145f230e",
     "platforms/android/app/src/main/java/ai/pixaura/app/commerce/NativeEditorInstallationKeyV2.kt": "b21d04dc85bae3a7696ddb577cdec5befb2ed5898158eac955760c8116865927",
     "platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/BitmapLifetimeV2.kt": "a3acc7e878ab4da2b312291770c9d73200d12d6847d3a1264be2b0c371c76f26",
-    "platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/EditorV2.kt": "b00262f50c438098daf592003484bd1ab93b42d63520e2ef1fbda2773773ee13",
-    "platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/StoreIngressV3.kt": "ded9bf0d510f96cf041b606194412eda8f8cbfd57bd5a8d597944e34a30e36f2",
+    "platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/EditorV2.kt": "33b04a21875e30475037c305f66b70ed91b6557749523be620c683cf40dbcd85",
+    "platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/StoreIngressV3.kt": "691d545f5740628edb3f2cc5d87d0704d598a113d2e77f492d166f0a952ba995",
     "platforms/android/native/editor_v2_bridge.inc": "0e0d65718acc1db6d2bc070aa8ce69b3d7913d55712146ad9aec7aefb99e1920",
     "platforms/android/native/store_ingress_v3_bridge.inc": "482a627913bafa1f8bae194a9fbe8615af0063a772ccb617a7ee3ced38db324b",
+    "scripts/benchmarks/phase-11-editor-v2-host.py": "275d15f9eeb3b306602e32d42cbf9f5edb898a4e5faafc3cad936bd39ed927d3",
     "scripts/codex-gh.py": "a889d030486a57e885c6e744ebfd70d5bf6e40bb05fc17d81db1af0f5949d75f",
     "tests/codex-gh-portable.test.mjs": "8e618e47e8ec7808141af583b92e8f109e601ef555656affbe825509e77d9ef3",
     "tests/helpers/phase-11-versioned-contracts.mjs": "c2ce2ea5654c7ba752dba652e16dc9a0e7c25c1c4bd4e58b261ef66230d63f87",
