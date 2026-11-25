@@ -2207,3 +2207,14 @@ actual gaps, finish tests and evidence. Then legitimate source audit/staging exc
 ownerPBX/rootfixtures, commit/push main, exact-final-SHA Foundation7/7 + Native3/3,
 ONE consolidated review package. Phase11 IN PROGRESS, not closed; external physical,
 real store/provider/account/Billing admission and human G11 gates remain pending.
+
+## 2026-11-25 takeover closing entry
+
+Successor agent audited the recovered tree, committed it on `phase-11-integration`
+(owner PBX excluded and unchanged), fixed the iOS unchecked-Sendable store handle,
+refreshed source-v20, and fixed the Android `:store-integration` compile module.
+Local receipts: host 93/93, sanitizer 95/95, Swift 7/7, iOS 35 units + 20 UI,
+Android 90/90 on arm64 emulator, Gradle strict chain, release scans, both NDK ABIs.
+Store-ingress truncated-structure fix verified by ASan. See
+phase-11-engineering-delivery.md. Phase 11 IN PROGRESS pending independent review;
+G7/G8/G10/G11 external gates unchanged.
