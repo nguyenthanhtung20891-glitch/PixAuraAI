@@ -33,7 +33,7 @@
     },
     "CMakeLists.txt": {
       "before_sha256_lf": "c262274678a1b2500bfae1d195883af3ece46552985137a4de9c3f613b98d35b",
-      "after_sha256_lf": "975b1155efcac1d85a288b06d5c9c3a3ef3a646591e262d8eec9f35b61227595"
+      "after_sha256_lf": "ba6451a81fe0949b30e33b90ff88b2b7015747088fc7c9c34b3e9f218473f3bd"
     },
     "DECISIONS.md": {
       "before_sha256_lf": "4f6ce424cb0b249d226107fbf327fdfd590459180657eb07d9d66f9c8a29bacd",
@@ -234,10 +234,6 @@
     "platforms/ios/PixAuraAIUITests/ShellUITests.swift": {
       "before_sha256_lf": "3fc4eaf16d4dbfaeca07b3e7920c3b431de2628b9f0310f3624dfb28d9d01ec3",
       "after_sha256_lf": "0484fab6b8b18474b00dae9d150ba1a523d7fcfeddcdb54421817c95dd21607f"
-    },
-    "scripts/check-sanitizers.sh": {
-      "before_sha256_lf": "87b0beaf76db0a88ff1a8dca002fdf906702a44d4c0ea818109f8b9933264243",
-      "after_sha256_lf": "2a8e4578766d880445268c9564d3a6c8afb93d43afd39c9d178037b823bbdabe"
     },
     "tests/capability.test.mjs": {
       "before_sha256_lf": "a7ddc6d860720705745584eae1e4618215d4f5c44b6ad1044c73ebfa98a23f4c",
