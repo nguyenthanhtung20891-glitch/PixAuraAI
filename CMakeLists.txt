@@ -219,10 +219,17 @@ if(BUILD_TESTING)
     pixaura_strict(row_codec_v2_test)
     add_test(NAME row_codec_v2_test COMMAND row_codec_v2_test)
     set_tests_properties(row_codec_v2_test PROPERTIES TIMEOUT 120)
-    add_executable(resource_admission_runtime_test packages/editor/resource_admission_runtime_test.cpp packages/core/src/manual_tools.cpp
+    # manual_tools.cpp also defines exported C entry points; compile it as its own translation
+    # unit set with the building definition so Windows dllexport/dllimport linkage stays consistent.
+    add_library(pixaura_manual_proof STATIC packages/core/src/manual_tools.cpp)
+    target_include_directories(pixaura_manual_proof PUBLIC packages/core/include)
+    target_compile_features(pixaura_manual_proof PUBLIC cxx_std_17)
+    target_compile_definitions(pixaura_manual_proof PRIVATE PIXAURA_SHARED PIXAURA_BUILDING)
+    pixaura_strict(pixaura_manual_proof)
+    add_executable(resource_admission_runtime_test packages/editor/resource_admission_runtime_test.cpp
         packages/core/src/document.cpp packages/core/src/evaluation.cpp packages/core/src/geometry.cpp
         packages/core/src/working.cpp packages/core/src/decode.cpp)
-    target_link_libraries(resource_admission_runtime_test PRIVATE pixaura_core pixaura_storage pixaura_codecs)
+    target_link_libraries(resource_admission_runtime_test PRIVATE pixaura_core pixaura_manual_proof pixaura_storage pixaura_codecs)
     pixaura_strict(resource_admission_runtime_test)
     add_test(NAME resource_admission_runtime_test COMMAND resource_admission_runtime_test)
     add_executable(resource_admission_v2_test packages/editor/resource_admission_v2_test.cpp)
