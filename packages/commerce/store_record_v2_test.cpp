@@ -92,7 +92,7 @@ int main(int argc,char** argv){try{
         const auto first=journal.accept(fact(point=="revoked"),os),again=journal.accept(fact(point=="revoked"),os);
         CHECK(first.replay()&&again.replay()&&first.identity()==again.identity()&&ledger.state(os).trial_start==-1);return 0;
     }
-    const auto body=store_v2::canonical(catalog,record),seal=key.authenticate(body);
+    const auto body=store_v2::canonical(catalog,record);const auto seal=key.authenticate(body);
     auto verified=store_v2::AuthenticatedCache::verify(catalog,body,seal,key);CHECK(verified.value().expires==2000&&verified.value().signed_at==1000);
     rejects([&]{store_v2::AuthenticatedCache::verify(catalog,body,seal,other);});
     rejects([&]{store_v2::AuthenticatedCache::verify(catalog,body,"",key);});

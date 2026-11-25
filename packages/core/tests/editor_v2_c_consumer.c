@@ -9,9 +9,11 @@
 #include <direct.h>
 #include <io.h>
 #include <process.h>
+#include <share.h>
+#include <sys/stat.h>
+static int file_open(const char* path,int flags,int mode){int fd=-1;return _sopen_s(&fd,path,flags,_SH_DENYNO,mode)==0?fd:-1;}
 #define make_dir(p) _mkdir(p)
 #define process_id _getpid
-#define file_open _open
 #define file_close _close
 #ifndef O_BINARY
 #define O_BINARY _O_BINARY
@@ -24,10 +26,10 @@
 #define file_close close
 #define O_BINARY 0
 #endif
-_Static_assert(sizeof(pixaura_v2_state)==112,"state v2 ABI");
-_Static_assert(sizeof(pixaura_v2_preview)==40,"preview v2 ABI");
-_Static_assert(sizeof(pixaura_v2_advisory)==128,"advisory v2 ABI");
-_Static_assert(sizeof(pixaura_v2_commit_result)==336,"commit observation v2 ABI");
+typedef char pixaura_abi_check_2808[(sizeof(pixaura_v2_state)==112)?1:-1];
+typedef char pixaura_abi_check_9562[(sizeof(pixaura_v2_preview)==40)?1:-1];
+typedef char pixaura_abi_check_2755[(sizeof(pixaura_v2_advisory)==128)?1:-1];
+typedef char pixaura_abi_check_6887[(sizeof(pixaura_v2_commit_result)==336)?1:-1];
 #define CHECK(x) do{if(!(x)){fprintf(stderr,"C v2 consumer line %d\n",__LINE__);return 1;}}while(0)
 int main(int argc,char** argv){
     CHECK(argc==2);char root[4096],project[4096],path[4096];
@@ -44,7 +46,7 @@ int main(int argc,char** argv){
     pixaura_v2_handle runtime=0,editor=0,sentinel=123;
     CHECK(pixaura_v2_runtime_create(1,absolute_root,strlen(absolute_root),synthetic_key,32,&sentinel)==2&&sentinel==123);
     CHECK(pixaura_v2_runtime_create(2,absolute_root,strlen(absolute_root),synthetic_key,32,&runtime)==0&&runtime);
-    const int input=file_open(argv[1],O_RDONLY|O_BINARY);CHECK(input>=0);
+    const int input=file_open(argv[1],O_RDONLY|O_BINARY,0);CHECK(input>=0);
     struct stat metadata;CHECK(stat(argv[1],&metadata)==0);
     const int32_t opened=pixaura_v2_editor_open(2,runtime,absolute_project,strlen(absolute_project),input,(uint64_t)metadata.st_size,1,&editor);
     if(opened)fprintf(stderr,"v2 import bytes=%llu native-status=%d\n",(unsigned long long)metadata.st_size,opened);

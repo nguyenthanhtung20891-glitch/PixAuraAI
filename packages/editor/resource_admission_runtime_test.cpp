@@ -14,7 +14,9 @@
 #include <fcntl.h>
 #ifdef _WIN32
 #include <io.h>
-#define fd_open _open
+#include <share.h>
+#include <sys/stat.h>
+static int fd_open(const char* path,int flags,int mode=0){int fd=-1;return _sopen_s(&fd,path,flags,_SH_DENYNO,mode)==0?fd:-1;}
 #define fd_close _close
 #else
 #include <unistd.h>

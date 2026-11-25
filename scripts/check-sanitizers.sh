@@ -8,4 +8,4 @@ cmake --version
 cmake -S . -B build/sanitize -G Ninja -DCMAKE_BUILD_TYPE=Debug \
     -DPIXAURA_SANITIZERS=ON -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
 cmake --build build/sanitize
-ctest --test-dir build/sanitize --output-on-failure -V
+ctest --test-dir build/sanitize --output-on-failure -V -j 2

@@ -21,7 +21,7 @@
   "changes": {
     ".github/workflows/foundation.yml": {
       "before_sha256_lf": "5d0b399205358af99a4d075c59eef1e13540421e4c8e98ba918ca3b11105e054",
-      "after_sha256_lf": "c82b9d82fa00a2e60eca09adf6df3f4e30b95a5a64d5691ce8c109aab2d21b9a"
+      "after_sha256_lf": "c653b1dbe90f30e9d2e882b482ef70b70397c4ddd52ab110e3e9c8da650070d8"
     },
     ".github/workflows/native-shells.yml": {
       "before_sha256_lf": "7756900c10b2e181577b3cb3cf06f23b5b4b14089bc3884409a87387c410bcee",
@@ -33,7 +33,7 @@
     },
     "CMakeLists.txt": {
       "before_sha256_lf": "c262274678a1b2500bfae1d195883af3ece46552985137a4de9c3f613b98d35b",
-      "after_sha256_lf": "9173dddd1bd211f4076ea02f9b077bd32ebd025881e68c591558041ef7dc7906"
+      "after_sha256_lf": "22bef98c00250b6fea6e2ffa30f7c755adab88340a1870ad628096382e6b1628"
     },
     "DECISIONS.md": {
       "before_sha256_lf": "4f6ce424cb0b249d226107fbf327fdfd590459180657eb07d9d66f9c8a29bacd",
@@ -235,6 +235,10 @@
       "before_sha256_lf": "3fc4eaf16d4dbfaeca07b3e7920c3b431de2628b9f0310f3624dfb28d9d01ec3",
       "after_sha256_lf": "0484fab6b8b18474b00dae9d150ba1a523d7fcfeddcdb54421817c95dd21607f"
     },
+    "scripts/check-sanitizers.sh": {
+      "before_sha256_lf": "87b0beaf76db0a88ff1a8dca002fdf906702a44d4c0ea818109f8b9933264243",
+      "after_sha256_lf": "2a8e4578766d880445268c9564d3a6c8afb93d43afd39c9d178037b823bbdabe"
+    },
     "tests/capability.test.mjs": {
       "before_sha256_lf": "a7ddc6d860720705745584eae1e4618215d4f5c44b6ad1044c73ebfa98a23f4c",
       "after_sha256_lf": "79a0eb5fce2f2fb2bc0290c0d6ec372647cfb8a14a2ea040bb45a2be4bd54dcd"
@@ -312,7 +316,7 @@
     "packages/commerce/receipt_key_v2.cpp": "2457e90e4832cd83e2bc07b20fff218a96ce5da23739ea11440b584d0117c0a7",
     "packages/commerce/receipt_key_v2.hpp": "02f9b05164d01f75d247ddbe42110bcdae3aab5a284e40b11e2246099c7dd069",
     "packages/commerce/store_journal_v3_crash.py": "1100428b5b3bd8d3bbfeeb80c379300649c18e7a7ed505df6793d0aab46697e0",
-    "packages/commerce/store_record_v2_test.cpp": "502f9378a3aa8817db3966787f5c602c3d656d1590dc8e4734772d16b4aac507",
+    "packages/commerce/store_record_v2_test.cpp": "84d9c2a6ee61d4753fe6dd67b8caca8d6b3bb8c07b947e336ed5d38a484bf3fe",
     "packages/core/include/pixaura/editor_v2.h": "dc6d4c2eab93a074be2f10e15358f8266b1113bc06a17e0b5049746913acb6b0",
     "packages/core/include/pixaura/store_ingress_v3.h": "769cecfc6056faa455d1e37ecfd8b49ed4785605a065cac763cb918d6e5c46c2",
     "packages/core/src/publication_v2.hpp": "3c63afc868515074cfc9da05268bcedbbe5aaa4822b39229810d496171365003",
@@ -349,7 +353,7 @@
     "packages/core/swift/Sources/EditorV2.swift": "13aa4cb9e4de382b0dd0384155820118f986601acca8dd929435d48b400e6e0e",
     "packages/core/swift/Sources/StoreIngressV3.swift": "02587db5d9494e0db63de168f39f855cf1dcd0f2c2cd8a67c41235d787eb346f",
     "packages/core/swift/Tests/EditorV2Tests.swift": "c5c0cbe17400965d9a0b8d7113e839384294ef38270ce94cc4ac32819177cc35",
-    "packages/core/tests/editor_v2_c_consumer.c": "58c0ab85fadf5d6fd170ddaa41600164b18376b780b3aee86124c19dbda70986",
+    "packages/core/tests/editor_v2_c_consumer.c": "74190d2ab8d6ce01c88ca15ef75b38ac323fbc9415ee4588b4d9b2dceee9bdb6",
     "packages/core/tests/publication_v2_crash.py": "479665b2f53193d0d442ba757e18660a91683f85cc1607c49be90eb13a30dbe0",
     "packages/core/tests/publication_v2_test.cpp": "e39169deb78bee806306273b04c59f897fc56718ee3550715df5a781ce4a6a9e",
     "packages/editor/context_v2.cpp": "f0ba8ecb850558689c2aab4e13822543a201e81e7c4b48d2d5296ec2c247c3b9",
@@ -357,9 +361,9 @@
     "packages/editor/context_v2_test.cpp": "bde0349918e4ebc0c8207303f8d8a81f945e1e3536fa95bba5782a1d63e8bcda",
     "packages/editor/decoded_rows_v2_test.cpp": "462643d9f022a854f3e235e411943eb9f2532416d54ef8622eeeac45dc165adf",
     "packages/editor/generate_adversarial_source_v2.py": "8d7a5631caf547b15735e1f0b1c81374c4a558fc48aefd2402af30e26e48e2af",
-    "packages/editor/low_tier_application_v2_test.cpp": "28c8e1456646277639c04eb14a9274b4fe21e6b9892b7ba35ba2361ff11e520b",
+    "packages/editor/low_tier_application_v2_test.cpp": "71acdb2dd876ab637176ec2bf1f2e475b84615a94f8f8187f1e828233f08a90a",
     "packages/editor/original_reader_v2_budget_test.cpp": "4f28c0711e5b00a97faa5f8299a4dd8ecf21a0e31d6a5fc4972eeee4012e56ce",
-    "packages/editor/resource_admission_runtime_test.cpp": "b731a892cae20004adc08d84a6887ef68e18b0aefefd25d54e9bf113576401f2",
+    "packages/editor/resource_admission_runtime_test.cpp": "55271dab316b4a9f43ac5ef44d0a49b5754a33400f7018d7d31a0944a6f47729",
     "packages/editor/resource_admission_v2_test.cpp": "87c08162c1e42117cd7781bfc687429a92b5fa32de525104a479579cb5a923d5",
     "packages/editor/row_codec_v2_test.cpp": "7cab8e998db54c7e4f3b76538fbb41fa25ab92d8071cad0ceff18f017dca5730",
     "platforms/android/app/src/androidTest/java/ai/pixaura/app/EditorV2Test.kt": "acc853da418371b176e65ee757fd37d283d0b702c9f2bbf5b036716e1f4f155d",
