@@ -36,7 +36,8 @@ test('Phase 9 Step 6 binds the export journey without closing the phase', () => 
   const contract = text('docs/contracts/export-file-lifecycle-v1.md');
   for (const id of ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N']) assert.ok(contract.includes(`| ${id} |`), id);
   assert.equal(text('platforms/android/app/src/main/java/ai/pixaura/app/ExportDestination.kt').includes('http'), false);
-  assert.equal(text('platforms/ios/PixAuraAI/ManualEditorModel.swift').includes('URL('), false);
+  // Match Swift URL construction, not ImageIO's local CreateWithURL symbol.
+  assert.doesNotMatch(text('platforms/ios/PixAuraAI/ManualEditorModel.swift'), /\bURL\s*\(|URLSession|https?:\/\//);
   assert.ok(text('scripts/check-android-release.py').includes('pixaura_test_'));
   assert.ok(text('scripts/check-apple-release.py').includes('check-android-release.py'));
   for (const p of files) {

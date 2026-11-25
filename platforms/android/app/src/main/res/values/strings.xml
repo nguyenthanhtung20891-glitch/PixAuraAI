@@ -190,4 +190,18 @@
     <string name="phase11_context_source">Reviewed source: %1$s. Apply rechecks the current source.</string>
     <string name="phase11_context_completed">Edit applied. Ordinary revision %1$s. Undo is available in Manual.</string>
     <string name="phase11_context_zoom">Shared view zoom: %1$d×</string>
+    <string name="access_recovery">Recovery mode. Inspect and export your last approved saved revision. New editing is unavailable.</string>
+    <string name="access_free">Free: %1$d of 5 photos and %2$d of 3 AI proposals used today. Resets at 00:00 UTC.</string>
+    <string name="access_trial">Trial active. Daily photo and AI limits do not apply.</string>
+    <string name="access_subscription">Verified subscription active. Daily limits do not apply.</string>
+    <string name="access_lifetime">Verified lifetime access. Daily limits do not apply.</string>
+    <string name="access_clock">Device clock is uncertain. Daily limits use protected local time.</string>
+    <string name="access_photo_denied">Daily photo limit reached. Saved photos remain recoverable.</string>
+    <string name="access_ai_denied">Daily AI proposal limit reached. Manual editing remains available.</string>
+    <string name="access_unavailable">Editing admission unavailable. Inspect or export your saved revision.</string>
+    <string name="show_original">Show Original</string>
+    <string name="show_edited_preview">Show Edited Preview</string>
+    <string name="original_source">Original source</string>
+    <string name="edited_preview">Edited preview</string>
+    <string name="access_reset_local">Next reset locally: %1$s.</string>
 </resources>

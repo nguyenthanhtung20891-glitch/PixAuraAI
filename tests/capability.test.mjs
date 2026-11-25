@@ -1,3 +1,4 @@
+import {assertLegacySchema3Boundary} from './helpers/phase-11-versioned-contracts.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -16,7 +17,7 @@ test('capability foundation has bounded versioned data and no execution or persi
   const editor = read('packages/core/src/editor_api.cpp');
   for (const call of ['pixaura_policy_configure(version,&s.raster', 'pixaura_policy_update(version,&s.raster', 'pixaura_policy_query(version,&s.raster']) assert.ok(editor.includes(call));
   assert.ok(!/PIXAURA_TIER_|PIXAURA_POLICY_(NORMAL|SEVERE|CRITICAL)|physical_memory_bytes\s*[<>=]/.test(editor));
-  assert.ok(!fs.existsSync('packages/core/src/storage_schema_v4.hpp'));
+  assertLegacySchema3Boundary();
 });
 
 test('synthetic profiles are test-only inputs, not physical evidence or tier selection', () => {
@@ -71,7 +72,7 @@ test('cross-tier certification is bounded, test-only and consumes common canonic
   assert.ok(read('packages/core/swift/Tests/CrossTierReplayTests.swift').includes('pixaura_test_cross_tier_replay'));
   assert.ok(read('platforms/android/app/src/androidTest/java/ai/pixaura/app/CrossTierReplayTest.kt').includes('nativeCertify'));
   assert.match(read('docs/contracts/cross-tier-replay-certification-v1.md'), /Failed admission must preserve BOTH/);
-  assert.ok(!fs.existsSync('packages/core/src/storage_schema_v4.hpp'));
+  assertLegacySchema3Boundary();
 });
 
 test('budget authority is pure shared preflight and cannot bypass existing owners', () => {
@@ -82,7 +83,7 @@ test('budget authority is pure shared preflight and cannot bypass existing owner
   for (const authority of ['pixaura_decode_default_limits', 'pixaura_working_default_limits', 'PIXAURA_GPU_MAX_PIXELS']) assert.ok(core.includes(authority));
   assert.ok(!/budget|Budget/.test(read('packages/core/src/editor_api.cpp')));
   assert.ok(!/Budget|budget_admit/.test(read('platforms/ios/PixAuraAI/ManualEditorScreen.swift')));
-  assert.ok(!fs.existsSync('packages/core/src/storage_schema_v4.hpp'));
+  assertLegacySchema3Boundary();
   assert.match(read('docs/contracts/budget-admission-v1.md'), /not a\s+reservation/);
 });
 

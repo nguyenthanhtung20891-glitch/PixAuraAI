@@ -186,3 +186,20 @@
 "Reviewed source: %@. Apply rechecks the current source." = "Reviewed source: %@. Apply rechecks the current source.";
 "Edit applied. Ordinary revision %@. Undo is available in Manual." = "Edit applied. Ordinary revision %@. Undo is available in Manual.";
 "Shared view zoom: %.1f×" = "Shared view zoom: %.1f×";
+
+"Recovery mode. Inspect and export your last approved saved revision. New editing is unavailable." = "Recovery mode. Inspect and export your last approved saved revision. New editing is unavailable.";
+"Free: %1$lld of 5 photos and %2$lld of 3 AI proposals used today. Resets at 00:00 UTC." = "Free: %1$lld of 5 photos and %2$lld of 3 AI proposals used today. Resets at 00:00 UTC.";
+"Trial active. Daily photo and AI limits do not apply." = "Trial active. Daily photo and AI limits do not apply.";
+"Verified subscription active. Daily limits do not apply." = "Verified subscription active. Daily limits do not apply.";
+"Verified lifetime access. Daily limits do not apply." = "Verified lifetime access. Daily limits do not apply.";
+"Device clock is uncertain. Daily limits use protected local time." = "Device clock is uncertain. Daily limits use protected local time.";
+"Daily photo limit reached. Saved photos remain recoverable." = "Daily photo limit reached. Saved photos remain recoverable.";
+"Daily AI proposal limit reached. Manual editing remains available." = "Daily AI proposal limit reached. Manual editing remains available.";
+"Editing admission unavailable. Inspect or export your saved revision." = "Editing admission unavailable. Inspect or export your saved revision.";
+
+"Show Original" = "Show Original";
+"Show Edited Preview" = "Show Edited Preview";
+"Original source" = "Original source";
+"Edited preview" = "Edited preview";
+
+"Next reset locally: %@." = "Next reset locally: %@.";

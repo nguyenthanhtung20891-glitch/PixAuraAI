@@ -16,10 +16,16 @@ import java.io.OutputStream
 
 /** Platform destination only. Encoded bytes are already a committed-revision projection. */
 internal object ExportDestination {
-    fun savePending(insert: () -> Uri, open: (Uri) -> OutputStream?, publish: (Uri) -> Unit, remove: (Uri) -> Unit, bytes: ByteArray): Uri {
+    fun savePending(insert: () -> Uri, open: (Uri) -> OutputStream?, publish: (Uri) -> Unit, remove: (Uri) -> Unit, bytes: ByteArray): Uri =
+        savePendingStream(insert, open, publish, remove) { it.write(bytes) }
+
+    fun savePending(insert: () -> Uri, open: (Uri) -> OutputStream?, publish: (Uri) -> Unit, remove: (Uri) -> Unit, source: File): Uri =
+        savePendingStream(insert, open, publish, remove) { output -> source.inputStream().use { it.copyTo(output, 65536) } }
+
+    private fun savePendingStream(insert: () -> Uri, open: (Uri) -> OutputStream?, publish: (Uri) -> Unit, remove: (Uri) -> Unit, write: (OutputStream) -> Unit): Uri {
         val uri = insert()
         try {
-            open(uri)?.use { stream -> stream.write(bytes) } ?: throw IOException("missing destination")
+            open(uri)?.use(write) ?: throw IOException("missing destination")
             publish(uri)
             return uri
         } catch (failure: Throwable) {
@@ -29,8 +35,16 @@ internal object ExportDestination {
     }
 
     @RequiresApi(29)
-    fun saveToPhotos(resolver: ContentResolver, name: String, mime: String, bytes: ByteArray): Uri {
-        return savePending(
+    fun saveToPhotos(resolver: ContentResolver, name: String, mime: String, bytes: ByteArray): Uri =
+        saveToPhotosStream(resolver, name, mime) { it.write(bytes) }
+
+    @RequiresApi(29)
+    fun saveToPhotos(resolver: ContentResolver, name: String, mime: String, source: File): Uri =
+        saveToPhotosStream(resolver, name, mime) { output -> source.inputStream().use { it.copyTo(output, 65536) } }
+
+    @RequiresApi(29)
+    private fun saveToPhotosStream(resolver: ContentResolver, name: String, mime: String, write: (OutputStream) -> Unit): Uri {
+        return savePendingStream(
             insert = {
                 val values = ContentValues().apply {
                     put(MediaStore.MediaColumns.DISPLAY_NAME, name)
@@ -47,7 +61,7 @@ internal object ExportDestination {
                 if (resolver.update(uri, done, null, null) != 1) throw IOException("save failure")
             },
             remove = { resolver.delete(it, null, null) },
-            bytes = bytes)
+            write = write)
     }
 
     fun writeDocument(resolver: ContentResolver, uri: Uri, bytes: ByteArray) {
@@ -57,6 +71,27 @@ internal object ExportDestination {
             runCatching { resolver.delete(uri, null, null) }
             throw failure
         }
+    }
+
+    fun writeDocument(resolver: ContentResolver, uri: Uri, source: File) {
+        try {
+            resolver.openOutputStream(uri, "wt")?.use { output -> source.inputStream().use { it.copyTo(output, 65536) } }
+                ?: throw IOException("missing destination")
+        } catch (failure: Throwable) {
+            runCatching { resolver.delete(uri, null, null) }
+            throw failure
+        }
+    }
+
+    fun cacheUri(context: Context, name: String, source: File): Uri {
+        require(name == "PixAuraAI.jpg" || name == "PixAuraAI.png")
+        val dir = File(File(context.cacheDir, "export"), java.util.UUID.randomUUID().toString())
+        check(dir.mkdirs())
+        val file = File(dir, name)
+        try {
+            file.outputStream().use { output -> source.inputStream().use { it.copyTo(output, 65536) } }
+            return FileProvider.getUriForFile(context, context.packageName + ".export", file)
+        } catch (failure: Throwable) { file.delete(); dir.delete(); throw failure }
     }
 
     fun cacheUri(context: Context, name: String, bytes: ByteArray): Uri {

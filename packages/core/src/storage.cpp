@@ -3,6 +3,7 @@
 #include "storage_schema.hpp"
 #include "storage_schema_v2.hpp"
 #include "storage_schema_v3.hpp"
+#include "storage_schema_v4.hpp"
 #include "detail.hpp"
 #include "tone.hpp"
 #include "sha256.hpp"
@@ -50,9 +51,17 @@ String schema_digest(sqlite3* db) {
 }
 String expected_schema(uint32_t version) {
     sqlite3* raw=nullptr;const auto rc=sqlite3_open_v2(":memory:",&raw,SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_PRIVATECACHE,nullptr);
-    struct Close{sqlite3* db;~Close(){if(db)sqlite3_close(db);}}close{raw};checked(rc);exec(raw,version==1?schema_sql:version==2?schema_v2_sql:schema_v3_sql);return schema_digest(raw);
+    struct Close{sqlite3* db;~Close(){if(db)sqlite3_close(db);}}close{raw};checked(rc);exec(raw,version==1?schema_sql:version==2?schema_v2_sql:schema_v3_sql);if(version==4)exec(raw,schema_v4_addition);return schema_digest(raw);
 }
 template<class T>T unwrap(document::Result<T> r){if(r.code)throw document::Failure{r.code,r.index};return std::move(r.value);}
+String revision_digest_v2(const document::ImageDocument& doc,const document::Id& id){
+    const document::Revision* revision=nullptr;for(const auto& r:doc.revisions())if(r.id==id)revision=&r;require(revision!=nullptr);
+    Sha256 hash;const auto add=[&](std::string_view value){const auto n=std::to_string(value.size());hash.update(reinterpret_cast<const uint8_t*>(n.data()),n.size());const uint8_t separator=':';hash.update(&separator,1);hash.update(reinterpret_cast<const uint8_t*>(value.data()),value.size());};
+    add("PIXAURA_NATIVE_REVISION_DIGEST_V2");add(doc.identity().project.text());add(doc.identity().document.text());add(doc.source().sha256.text());add(std::to_string(doc.source().byte_length));
+    const auto& m=doc.source().metadata;add(std::to_string(m.width));add(std::to_string(m.height));add(std::to_string(m.orientation));add(m.codec);add(m.has_alpha?"1":"0");add(m.icc?std::string_view(m.icc->text()):std::string_view{});
+    add(revision->id.text());add(revision->parent?std::string_view(revision->parent->text()):std::string_view{});add(revision->actor);add(revision->plan?std::string_view(revision->plan->text()):std::string_view{});
+    add(unwrap(document::serialize_evaluation(unwrap(document::replay(doc,id)))));return hash.finish();
+}
 // SQLite JSON encodes normalized rows; the existing bounded C++ parser remains
 // the semantic authority. JSON here is a derived read result, never a stored blob.
 constexpr const char* load_sql=R"sql(
@@ -66,8 +75,9 @@ FROM documents d JOIN assets a ON a.hash=d.source WHERE d.singleton=1
 )sql";
 }
 struct Repository::Impl {
-    AssetStore assets;sqlite3* db=nullptr;String schema_hash_v1, schema_hash_v2, schema_hash_v3;int progress_count=0;
-    explicit Impl(std::string_view root):assets(root),schema_hash_v1(expected_schema(1)),schema_hash_v2(expected_schema(2)),schema_hash_v3(expected_schema(3)) {
+    AssetStore assets;sqlite3* db=nullptr;String schema_hash_v1, schema_hash_v2, schema_hash_v3,schema_hash_v4;uint32_t maximum_schema;int progress_count=0;
+    explicit Impl(std::string_view root,uint32_t maximum):assets(root),schema_hash_v1(expected_schema(1)),schema_hash_v2(expected_schema(2)),schema_hash_v3(expected_schema(3)),schema_hash_v4(expected_schema(4)),maximum_schema(maximum) {
+        require(maximum==3||maximum==4,4);
         require(sqlite3_libversion_number()==SQLITE_VERSION_NUMBER,4);
         const auto path=assets.files_->database_path();
         const auto rc=sqlite3_open_v2(path.c_str(),&db,SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_FULLMUTEX|SQLITE_OPEN_PRIVATECACHE|SQLITE_OPEN_NOFOLLOW,nullptr);
@@ -85,7 +95,7 @@ struct Repository::Impl {
                 require(scalar(db,"SELECT count(*) FROM sqlite_schema")==0&&scalar(db,"PRAGMA application_id")==0,4);
                 exec(db,"PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;");
                 Transaction tx(db,true);exec(db,schema_sql);tx.commit();
-            }else require(v==1||v==2||v==3,4);
+            }else require(v>=1&&v<=maximum_schema,4);
             require(scalar(db,"PRAGMA application_id")==1346979905,4);validate_schema();
             Statement journal(db,"PRAGMA journal_mode=WAL");require(journal.row()&&journal.text(0)=="wal");require(!journal.row());
             exec(db,"PRAGMA synchronous=FULL; PRAGMA wal_autocheckpoint=1000; PRAGMA journal_size_limit=16777216; PRAGMA max_page_count=65536;");
@@ -101,11 +111,18 @@ struct Repository::Impl {
         if(assets.files_->wal_bytes()>33554432)checked(sqlite3_wal_checkpoint_v2(db,nullptr,SQLITE_CHECKPOINT_TRUNCATE,nullptr,nullptr));
         require(assets.files_->wal_bytes()<=33554432,8);
     }
-    uint32_t validate_schema(uint32_t migration_target=0){const auto v=scalar(db,"PRAGMA user_version");require(v==1||v==2||v==3,4);require(migration_target==0||((v==1&&migration_target==2)||(v==2&&migration_target==3)),4);const auto format=migration_target?migration_target:static_cast<uint32_t>(v);require(scalar(db,"PRAGMA application_id")==1346979905,4);require(schema_digest(db)==(format==1?schema_hash_v1:format==2?schema_hash_v2:schema_hash_v3));return format;}
+    uint32_t validate_schema(uint32_t migration_target=0){const auto v=scalar(db,"PRAGMA user_version");require(v>=1&&v<=maximum_schema,4);require(migration_target==0||((v==1&&migration_target==2)||(v==2&&migration_target==3)||(v==3&&migration_target==4&&maximum_schema==4)),4);const auto format=migration_target?migration_target:static_cast<uint32_t>(v);require(scalar(db,"PRAGMA application_id")==1346979905,4);require(schema_digest(db)==(format==1?schema_hash_v1:format==2?schema_hash_v2:format==3?schema_hash_v3:schema_hash_v4));return format;}
     void verify_database(uint32_t migration_target=0) {
         progress_count=0;validate_schema(migration_target);Statement quick(db,"PRAGMA quick_check(1)");require(quick.row()&&quick.text(0)=="ok"&&!quick.row());
         Statement fk(db,"PRAGMA foreign_key_check");require(!fk.row());
         require(scalar(db,"SELECT count(*) FROM documents")==1);
+        if(validate_schema(migration_target)==4){
+            require(scalar(db,"SELECT count(*) FROM publication_origin")==1);
+            const auto baseline=scalar(db,"SELECT baseline_revisions FROM publication_origin WHERE singleton=1");
+            const auto total=scalar(db,"SELECT count(*) FROM revisions");require(baseline>=1&&baseline<=total);
+            require(scalar(db,"SELECT count(*) FROM publication_receipts")==total-baseline);
+            require(scalar(db,"SELECT count(*) FROM publication_receipts r JOIN documents d ON d.id=r.document JOIN assets a ON a.hash=d.source JOIN revisions v ON v.document=r.document AND v.id=r.revision WHERE r.project!=d.project OR r.source!=d.source OR r.bytes!=a.bytes OR r.parent!=v.parent OR r.ordinal!=v.seq-(SELECT baseline_revisions FROM publication_origin)+1 OR r.epoch>d.epoch OR (r.kind='manual_apply' AND v.actor!='manual') OR (r.kind='approved_ai_apply' AND v.actor!='ai')")==0);
+        }
         for(const auto* sql:{"SELECT count(*) FROM operations","SELECT count(*) FROM revisions"})require(scalar(db,sql)<=4096,8);
         require(scalar(db,"SELECT count(*) FROM redo")<=4095,8);
         require(scalar(db,"SELECT count(*) FROM stacks")<=1048576,8);
@@ -115,19 +132,37 @@ struct Repository::Impl {
     Loaded load(uint32_t migration_target=0) {
         verify_database(migration_target);String query(load_sql);
         if(validate_schema(migration_target)>=2){const auto at=query.find("ELSE json_object('x_ppm'");require(at!=String::npos);query.insert(at,"WHEN 'pixaura.brightness' THEN json_object('milli_linear',brightness) WHEN 'pixaura.contrast' THEN json_object('milli_stops',contrast) WHEN 'pixaura.highlights' THEN json_object('milli_ev',highlights) WHEN 'pixaura.shadows' THEN json_object('milli_ev',shadows) WHEN 'pixaura.saturation' THEN json_object('milli_ratio',saturation) WHEN 'pixaura.temperature' THEN json_object('kelvin',temperature) ");}
-        if(validate_schema(migration_target)==3){const auto at=query.find("ELSE json_object('x_ppm'");require(at!=String::npos);query.insert(at,"WHEN 'pixaura.blur' THEN json_object('milli_strength',blur) WHEN 'pixaura.sharpen' THEN json_object('milli_amount',sharpen) ");}
+        if(validate_schema(migration_target)>=3){const auto at=query.find("ELSE json_object('x_ppm'");require(at!=String::npos);query.insert(at,"WHEN 'pixaura.blur' THEN json_object('milli_strength',blur) WHEN 'pixaura.sharpen' THEN json_object('milli_amount',sharpen) ");}
         Statement q(db,query.c_str());require(q.row());const auto json=q.text(0),session=q.text(1);const auto generation=q.number(2),epoch=q.number(3);require(epoch>0&&epoch<=document::max_generation&&generation<=document::max_generation);
         auto snapshot=unwrap(document::restore_generation(unwrap(document::deserialize(json,session)),generation));require(!q.row());
         assets.verify({snapshot->source().sha256.text(),snapshot->source().byte_length});
         if(snapshot->source().metadata.icc){Statement icc(db,"SELECT bytes FROM assets WHERE hash=?");icc.text(1,snapshot->source().metadata.icc->text());require(icc.row());assets.verify({snapshot->source().metadata.icc->text(),icc.number(0)});require(!icc.row());}
         return {std::move(snapshot),epoch};
     }
+    document::Vector<NativeCommitReceiptV2> receipts(ReceiptAuthorityV2& authority){
+        require(validate_schema()==4,4);auto loaded=load();
+        document::Vector<NativeCommitReceiptV2> values;String preceding;uint64_t ordinal=0;
+        Statement q(db,"SELECT event,project,document,revision,parent,session,source,bytes,epoch,kind,logical_utc,wall_utc,uptime,boot,uncertain,utc_authenticated,seal,ordinal,prior_seal,revision_digest FROM publication_receipts ORDER BY ordinal");
+        while(q.row()){
+            NativeCommitReceiptV2 r;r.event_=q.text(0);r.project_=q.text(1);r.document_=q.text(2);r.revision_=q.text(3);r.parent_=q.text(4);r.session_=q.text(5);r.source_=q.text(6);r.bytes_=q.number(7);r.epoch_=q.number(8);r.kind_=q.text(9);
+            for(int col=10;col<=12;++col)require(q.number(col)<=uint64_t(INT64_MAX-366LL*86400),6);
+            r.time_={static_cast<int64_t>(q.number(10)),static_cast<int64_t>(q.number(11)),static_cast<int64_t>(q.number(12)),q.text(13),q.number(14)!=0,q.number(15)!=0};
+            r.seal_=q.text(16);r.ordinal_=q.number(17);r.prior_seal_=q.text(18);r.revision_digest_=q.text(19);
+            require(r.revision_digest_==revision_digest_v2(*loaded.snapshot,document::Id::parse(r.revision_)),6);
+            require(r.ordinal_==++ordinal&&r.prior_seal_==preceding,6);
+            const auto expected=authority.authenticate(r.canonical());require(expected.size()==64,6);
+            unsigned different=0;for(unsigned i=0;i<64;++i)different|=unsigned(static_cast<unsigned char>(expected[i])^static_cast<unsigned char>(r.seal_[i]));require(!different,6);
+            if(!values.empty())require(r.time_.logical_utc>=values.back().time_.logical_utc,6);
+            preceding=r.seal_;values.push_back(std::move(r));
+        }
+        return values;
+    }
     void insert_asset(const Asset& a){assets.verify(a);Statement q(db,"INSERT INTO assets(hash,bytes) VALUES(?,?) ON CONFLICT(hash) DO NOTHING");q.text(1,a.digest);q.number(2,a.bytes);q.done();Statement check(db,"SELECT bytes FROM assets WHERE hash=?");check.text(1,a.digest);require(check.row()&&check.number(0)==a.bytes&&!check.row());}
     void append(const document::ImageDocument& doc,std::size_t old_operations,std::size_t old_revisions) {
         const auto& id=doc.identity().document.text();
         const auto version=validate_schema();
         for(std::size_t i=old_operations;i<doc.operations().size();++i) {
-            const auto& op=doc.operations()[i];require(version>=2||!tone::find(op.type),4);require(version==3||!detail::find(op.type),4);
+            const auto& op=doc.operations()[i];require(version>=2||!tone::find(op.type),4);require(version>=3||!detail::find(op.type),4);
             Statement q(db,version==1?"INSERT INTO operations(document,id,seq,type,ov,pv,ev,turns,x,y,w,h) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)":version==2?"INSERT INTO operations VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)":"INSERT INTO operations VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");q.text(1,id);q.text(2,op.id.text());q.number(3,i);q.text(4,op.type);q.number(5,op.operation_version);q.number(6,op.parameter_version);for(int col=7;col<=(version==1?12:version==2?18:20);++col)q.null(col);
             if(const auto* p=std::get_if<document::Exposure>(&op.parameters))q.signed_number(7,p->milli_ev);
             if(const auto* p=std::get_if<document::Rotate>(&op.parameters))q.number(8,p->quarter_turns);
@@ -154,9 +189,26 @@ struct Repository::Impl {
         try{fault(Point::after_commit);return {epoch,checkpoint_locked()};}catch(...){return {epoch,false};}
     }
 };
-Repository::Repository(std::string_view root):impl_(std::make_unique<Impl>(root)){}
+Repository::Repository(std::string_view root):Repository(root,3){}
+Repository::Repository(std::string_view root,uint32_t maximum):impl_(std::make_unique<Impl>(root,maximum)){}
 Repository::~Repository()=default;
 uint32_t Repository::version(){std::lock_guard<std::mutex> lock(mutex_);impl_->progress_count=0;return impl_->validate_schema();}
+void Repository::fence_v2(uint64_t expected,const std::function<void()>& delivery){
+    std::lock_guard<std::mutex> lock(mutex_);impl_->admit_write();Transaction fence(impl_->db,true);const auto loaded=impl_->load();require(loaded.epoch==expected,9);delivery();
+    // Deliberately ROLLBACK empty transaction. No project mutation and no false
+    // claim of cross-database/WAL atomicity; writer lock covers ledger COMMIT.
+}
+uint64_t Repository::epoch_v2(){std::lock_guard<std::mutex> lock(mutex_);Transaction tx(impl_->db,false);impl_->validate_schema();const auto epoch=scalar(impl_->db,"SELECT epoch FROM documents WHERE singleton=1");tx.commit();return epoch;}
+uint64_t Repository::metadata_reservation_v2(){
+    std::lock_guard<std::mutex> lock(mutex_);Transaction tx(impl_->db,false);impl_->verify_database();
+    const auto operations=scalar(impl_->db,"SELECT count(*) FROM operations"),revisions=scalar(impl_->db,"SELECT count(*) FROM revisions"),stacks=scalar(impl_->db,"SELECT count(*) FROM stacks"),redo=scalar(impl_->db,"SELECT count(*) FROM redo");
+    // Fixed-schema integer/ID strings have bounded serialized lengths. Include
+    // SQL JSON output, parser AST/maps, native vectors/strings, and overlapping
+    // validation copies. No process-RSS ceiling or change to project limits.
+    const uint64_t json=2048+operations*512+revisions*256+(stacks+redo)*48;
+    const uint64_t bound=1048576+json*16+operations*1024+revisions*512+(stacks+redo)*128;
+    tx.commit();return bound;
+}
 Loaded Repository::read(){std::lock_guard<std::mutex> lock(mutex_);Transaction tx(impl_->db,false);auto value=impl_->load();tx.commit();return value;}
 Loaded Repository::open_session(std::string_view fresh) {
     return open_session(fresh,0);
@@ -181,17 +233,54 @@ Saved Repository::create(const document::ImageDocument& doc) {
 }
 Saved Repository::apply(std::string_view command,uint64_t expected_epoch) {
     std::lock_guard<std::mutex> lock(mutex_);impl_->admit_write();Transaction tx(impl_->db,true);auto prior=impl_->load();require(prior.epoch==expected_epoch,9);require(prior.epoch<document::max_generation,8);
-    auto next=unwrap(document::transition(*prior.snapshot,command));impl_->append(*next,prior.snapshot->operations().size(),prior.snapshot->revisions().size());impl_->redo(*next);
+    auto next=unwrap(document::transition(*prior.snapshot,command));require(impl_->validate_schema()!=4||next->revisions().size()==prior.snapshot->revisions().size(),4);impl_->append(*next,prior.snapshot->operations().size(),prior.snapshot->revisions().size());impl_->redo(*next);
     Statement q(impl_->db,"UPDATE documents SET current=?,generation=?,epoch=epoch+1 WHERE epoch=?");q.text(1,next->current().text());q.number(2,next->session().generation);q.number(3,expected_epoch);q.done();require(sqlite3_changes(impl_->db)==1,9);fault(Point::in_transaction);
 #ifdef PIXAURA_CERTIFICATION_TESTING
     if(agent_transaction_failure){agent_transaction_failure=false;throw document::Failure{12};}
 #endif
     tx.commit();return impl_->after_commit(expected_epoch+1);
 }
+document::Vector<NativeCommitReceiptV2> Repository::receipts_v2(ReceiptAuthorityV2& authority){
+    std::lock_guard<std::mutex> lock(mutex_);Transaction tx(impl_->db,false);auto values=impl_->receipts(authority);tx.commit();for(auto& value:values)value.validated_after_commit_=true;return values;
+}
+NativeCommitReceiptV2 Repository::publish_v2(std::string_view command,uint64_t expected_epoch,PublicationClockV2& clock,ReceiptAuthorityV2& authority){
+    std::lock_guard<std::mutex> lock(mutex_);impl_->admit_write();Transaction tx(impl_->db,true);require(impl_->validate_schema()==4,4);
+    auto prior=impl_->load();require(prior.epoch==expected_epoch,9);require(expected_epoch<document::max_generation,8);
+    auto previous=impl_->receipts(authority);
+    auto next=unwrap(document::transition(*prior.snapshot,command));
+    require(next->revisions().size()==prior.snapshot->revisions().size()+1&&next->current()==next->revisions().back().id,7);
+    const auto& revision=next->revisions().back();require(revision.parent&&*revision.parent==prior.snapshot->current(),9);
+    require(revision.actor=="manual"||revision.actor=="ai",7);
+    NativeCommitReceiptV2 r;unsigned char nonce[16];sqlite3_randomness(sizeof(nonce),nonce);static constexpr char hex[]="0123456789abcdef";
+    for(auto byte:nonce){r.event_+=hex[byte>>4];r.event_+=hex[byte&15];}
+    const auto& doc=*next;r.project_=doc.identity().project.text();r.document_=doc.identity().document.text();r.revision_=revision.id.text();r.parent_=revision.parent->text();r.session_=doc.session().id.text();r.source_=doc.source().sha256.text();r.bytes_=doc.source().byte_length;r.epoch_=expected_epoch+1;
+    r.kind_=revision.actor=="manual"?"manual_apply":"approved_ai_apply";r.revision_digest_=revision_digest_v2(doc,revision.id);r.ordinal_=previous.size()+1;if(!previous.empty())r.prior_seal_=previous.back().seal_;
+    // Sample at the real native publication stage, never at gesture/intent/import.
+    // This is a logical event time sealed by the successful transaction, not a
+    // claim to measure physical fsync completion or authenticate device wall UTC.
+    r.time_=clock.sample_at_publication();(void)document::Id::parse(r.time_.boot);
+    const auto maximum=INT64_MAX-366LL*86400;
+    require(r.time_.logical_utc>=0&&r.time_.logical_utc<=maximum&&r.time_.observed_wall_utc>=0&&r.time_.observed_wall_utc<=maximum&&r.time_.uptime_seconds>=0&&r.time_.uptime_seconds<=maximum,7);
+    if(!previous.empty()){
+        const auto& old=previous.back().time_;int64_t floor=old.logical_utc;
+        const bool same=r.time_.boot==old.boot&&r.time_.uptime_seconds>=old.uptime_seconds;
+        if(same){const auto delta=r.time_.uptime_seconds-old.uptime_seconds;require(delta<=maximum-floor,8);floor+=delta;}
+        else if(!r.time_.utc_authenticated)r.time_.uncertain=true;
+        if(!r.time_.utc_authenticated)r.time_.logical_utc=floor;
+        else require(r.time_.logical_utc>=floor,9);
+    }
+    r.seal_=authority.authenticate(r.canonical());(void)document::Digest::parse(r.seal_);
+    impl_->append(doc,prior.snapshot->operations().size(),prior.snapshot->revisions().size());impl_->redo(doc);
+    Statement update(impl_->db,"UPDATE documents SET current=?,generation=?,epoch=epoch+1 WHERE epoch=?");update.text(1,doc.current().text());update.number(2,doc.session().generation);update.number(3,expected_epoch);update.done();require(sqlite3_changes(impl_->db)==1,9);
+    Statement q(impl_->db,"INSERT INTO publication_receipts(event,ordinal,prior_seal,project,document,revision,parent,session,source,bytes,epoch,kind,logical_utc,wall_utc,uptime,boot,uncertain,utc_authenticated,seal,revision_digest) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+    q.text(1,r.event_);q.number(2,r.ordinal_);q.text(3,r.prior_seal_);q.text(4,r.project_);q.text(5,r.document_);q.text(6,r.revision_);q.text(7,r.parent_);q.text(8,r.session_);q.text(9,r.source_);q.number(10,r.bytes_);q.number(11,r.epoch_);q.text(12,r.kind_);q.signed_number(13,r.time_.logical_utc);q.signed_number(14,r.time_.observed_wall_utc);q.signed_number(15,r.time_.uptime_seconds);q.text(16,r.time_.boot);q.number(17,r.time_.uncertain);q.number(18,r.time_.utc_authenticated);q.text(19,r.seal_);q.text(20,r.revision_digest_);q.done();
+    fault(Point::in_transaction);impl_->receipts(authority);tx.commit();(void)impl_->after_commit(r.epoch_);r.validated_after_commit_=true;return r;
+}
 bool Repository::checkpoint(){std::lock_guard<std::mutex> lock(mutex_);return impl_->checkpoint_locked();}
 void Repository::migrate(uint32_t expected,uint32_t target) {
     std::lock_guard<std::mutex> lock(mutex_);
-    require((expected==1&&(target==1||target==2))||(expected==2&&(target==2||target==3))||(expected==3&&target==3),4);
+    require((expected==1&&(target==1||target==2))||(expected==2&&(target==2||target==3))||(expected==3&&(target==3||target==4))||(expected==4&&target==4),4);
+    require(target<=impl_->maximum_schema,4);
     impl_->admit_write();Transaction tx(impl_->db,true);require(impl_->validate_schema()==expected,4);
     {Statement quick(impl_->db,"PRAGMA quick_check(1)");require(quick.row()&&quick.text(0)=="ok"&&!quick.row());Statement fk(impl_->db,"PRAGMA foreign_key_check");require(!fk.row());}
     const auto populated=scalar(impl_->db,"SELECT count(*) FROM documents")!=0;
@@ -201,7 +290,16 @@ void Repository::migrate(uint32_t expected,uint32_t target) {
     else for(const auto* table:{"assets","operations","revisions","stacks","redo"}){
         String query("SELECT count(*) FROM ");query.append(table);require(scalar(impl_->db,query.c_str())==0);
     }
-    if(expected!=target){
+    if(expected==3&&target==4){
+        require(populated,6);
+        fault(Point::migration_copy);exec(impl_->db,schema_v4_addition);
+        exec(impl_->db,"INSERT INTO publication_origin SELECT 1,count(*) FROM revisions;");fault(Point::migration_schema);
+        require(schema_digest(impl_->db)==impl_->schema_hash_v4);
+        if(populated){const auto after=impl_->load(4);require(unwrap(document::serialize(*after.snapshot))==before&&after.epoch==prior->epoch);}
+        else require(impl_->validate_schema(4)==4);
+        require(scalar(impl_->db,"SELECT count(*) FROM publication_receipts")==0);
+        fault(Point::migration_validate);exec(impl_->db,"PRAGMA user_version=4;");
+    } else if(expected!=target){
         // The Architect explicitly authorizes transactionally replacing only
         // the operation table. Deferred FKs are verified before COMMIT; no IDs,
         // navigation rows, envelope values or assets are regenerated.

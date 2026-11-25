@@ -96,7 +96,7 @@ class AndroidCapabilityIntegrationTest {
     }
     @Test fun malformedJniAndSyntheticSeamCannotClaimTrustOrRaiseCeilings() = editor { editor, _ ->
         editor.configureCapability(snapshot())
-        val storage = ManualEditor::class.java.getDeclaredField("storage").apply { isAccessible = true }.get(editor) as ByteBuffer
+        val storage = ManualEditor::class.java.getDeclaredField("legacyStorage").apply { isAccessible = true }.get(editor) as ByteBuffer
         val update = ManualEditor::class.java.getDeclaredMethod("nativePolicyUpdate", ByteBuffer::class.java, LongArray::class.java).apply { isAccessible = true }
         val before = editor.executionStrategy()
         for (invalid in listOf(longArrayOf(), longArrayOf(1, -1, 1, 0, 2, Long.MAX_VALUE, 2),

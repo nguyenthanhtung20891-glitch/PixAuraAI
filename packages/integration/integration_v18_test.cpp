@@ -87,7 +87,10 @@ static int independent_oracle(){
     std::printf("real12MP decoded PNG independent v1 fixed-neighborhood oracle %llu/12000000 pixels bitwise PASS\n",static_cast<unsigned long long>(compared));return 0;
 }
 int main(int argc,char** argv){
-    if(argc==2&&std::string(argv[1])=="--oracle-only")return independent_oracle();
+    if(argc==2&&std::string(argv[1])=="--oracle-only"){
+        try{return independent_oracle();}
+        catch(const document::Failure& error){std::fprintf(stderr,"independent PNG oracle native failure code=%d\n",error.code);return 1;}
+    }
     const bool real_only=argc==2&&std::string(argv[1])=="--real-only";
     if(!real_only){
     auto encoded=png(259,131);tiled::Budget budget(134217728,encoded.capacity());
@@ -138,6 +141,7 @@ int main(int argc,char** argv){
             const auto code=format==1?pixaura_codec_encode_jpeg(preview.pixels->data(),reader.width(),reader.height(),93,encoded_reference.data(),encoded_reference.size(),&written,32u<<20):pixaura_codec_encode_png(preview.pixels->data(),reader.width(),reader.height(),encoded_reference.data(),encoded_reference.size(),&written,32u<<20);
             CHECK(!code);encoded_reference.resize(written);Bytes bytes;
             CHECK(integration::stream_export_v2(plan,format,93,b,bytes)==written&&bytes.sealed&&!bytes.aborted&&bytes.bytes==encoded_reference);
+            if(format==2){Bytes png_zero;CHECK(integration::stream_export_v2(plan,format,0,b,png_zero)==written&&png_zero.sealed&&!png_zero.aborted&&png_zero.bytes==encoded_reference);}
             if(format==1){
                 integration::OriginalReaderV2 jpeg(bytes.bytes.data(),bytes.bytes.size(),b);
                 auto admitted=decode::admit(bytes.bytes.data(),bytes.bytes.size(),decode::defaults());decode::Source original(decode::Vector<uint8_t>(bytes.bytes.begin(),bytes.bytes.end()),std::move(admitted));

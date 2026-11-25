@@ -39,6 +39,19 @@ struct ManualEditorScreen: View {
     @State private var savingFile = false
     @State private var shareItem: ShareItem?
     private let categories = [("geometry", "Geometry"), ("tone_color", "Tone/Color"), ("detail", "Detail"), ("filters_presets", "Filters/Presets")]
+    private var accessDescription: String {
+        if model.recoveryOnly { return String(localized: "Recovery mode. Inspect and export your last approved saved revision. New editing is unavailable.") }
+        guard let state = model.commercial else { return String(localized: "Editing admission unavailable. Inspect or export your saved revision.") }
+        switch state.access {
+        case 1: return String(localized: "Trial active. Daily photo and AI limits do not apply.")
+        case 2: return String(localized: "Verified subscription active. Daily limits do not apply.")
+        case 3: return String(localized: "Verified lifetime access. Daily limits do not apply.")
+        default:
+            let usage = String(format: NSLocalizedString("Free: %1$lld of 5 photos and %2$lld of 3 AI proposals used today. Resets at 00:00 UTC.", comment: "Native daily usage"), Int64(state.photos), Int64(state.ai))
+            guard let local = CommercialResetPresentationV2.local(day: state.day) else { return usage }
+            return usage+" "+String(format: NSLocalizedString("Next reset locally: %@.", comment: "Native UTC boundary in local timezone"), local)
+        }
+    }
     private var selected: ManualTool? {
         guard let index = model.core?.selected, model.tools.indices.contains(index) else { return nil }
         return model.tools[index]
@@ -185,6 +198,32 @@ struct ManualEditorScreen: View {
             }
         }.accessibilityIdentifier("mode-selector")
     }
+    @ViewBuilder private var previewSurface: some View {
+        Group {
+            if let image = model.image {
+                Image(decorative: image, scale: 1).resizable().scaledToFit().accessibilityHidden(false).accessibilityLabel(model.showingOriginal ? Text("Original source") : Text("Current manual preview"))
+            } else {
+                Text(String(localized: "PixAuraAI edits a private copy on this device.")).accessibilityIdentifier("empty-purpose")
+                Text(String(localized: "Open an image to edit locally"))
+            }
+        }.frame(maxWidth: .infinity).frame(height: 180).accessibilityIdentifier("manual-preview")
+        .overlay(alignment: .topLeading) {
+            // Background work must not move a control during a tap.
+            // These notices occupy the existing preview surface.
+            VStack(alignment: .leading) {
+                if model.busy { Text("Loading or saving…").accessibilityLabel("Editor busy") }
+                if model.previewLoading { Text("Rendering preview; changes are not saved until Apply").accessibilityIdentifier("preview-loading") }
+            }.background(Color(.systemBackground).opacity(0.95))
+        }
+        .overlay(alignment: .bottomTrailing) {
+            if model.core != nil && !model.autoProposal.enabled {
+                Button(model.showingOriginal ? "Show Edited Preview" : "Show Original") { model.toggleOriginalPreview() }
+                    .disabled(model.busy).accessibilityIdentifier("manual-before-after")
+                    .accessibilityValue(model.showingOriginal ? Text("Original source") : Text("Edited preview"))
+                    .background(Color(.systemBackground).opacity(0.95))
+            }
+        }
+    }
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // Stable navigation belongs outside scrolling editor content. It must
@@ -196,6 +235,12 @@ struct ManualEditorScreen: View {
             }
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
+                    if model.core != nil {
+                        Text(accessDescription).accessibilityIdentifier("commercial-access")
+                        if model.commercial?.clockUncertain == true {
+                            Text(String(localized: "Device clock is uncertain. Daily limits use protected local time.")).accessibilityIdentifier("commercial-clock")
+                        }
+                    }
                     if model.assistance.enabled { assistPanel }
                     if model.autoProposal.enabled {
                         // The destination owns vertical scrolling. A nested unbounded
@@ -207,16 +252,7 @@ struct ManualEditorScreen: View {
                         .disabled(model.busy || model.exporting)
                         .accessibilityIdentifier("open-photo")
                         .accessibilityLabel(String(localized: "Open Photo"))
-                    Group {
-                        if let image = model.image {
-                            Image(decorative: image, scale: 1).resizable().scaledToFit().accessibilityHidden(false).accessibilityLabel("Current manual preview")
-                        } else {
-                            Text(String(localized: "PixAuraAI edits a private copy on this device.")).accessibilityIdentifier("empty-purpose")
-                            Text(String(localized: "Open an image to edit locally"))
-                        }
-                    }.frame(maxWidth: .infinity).frame(height: 180).accessibilityIdentifier("manual-preview")
-                    if model.busy { Text("Loading or saving…").accessibilityLabel("Editor busy") }
-                    if model.previewLoading { Text("Rendering preview; changes are not saved until Apply").accessibilityIdentifier("preview-loading") }
+                    previewSurface
                     if !model.autoProposal.enabled { manualControls }
                     if model.autoProposal.enabled, let core = model.core { Text(String(format: String(localized: "Committed revisions: %lld"), Int64(core.revisionCount))).accessibilityIdentifier("revision-count") }
                     Button("Back to Home") { onBack() }
@@ -331,17 +367,18 @@ struct ManualEditorScreen: View {
     private var exportSheet: some View {
         ScrollView { exportPanel.padding() }
             .accessibilityIdentifier("export-scroll")
-            .fileExporter(isPresented: $savingFile, document: exportDocument, contentType: model.exportFileType, defaultFilename: "PixAuraAI") { result in
-                savingFile = false
-                model.finishFileExport(result)
+            .sheet(isPresented: $savingFile, onDismiss: {
+                if model.exportFile != nil { model.noteExportCancelled() }
+            }) {
+                if let url = model.exportFile {
+                    ExportDocumentPicker(url: url) { result in
+                        savingFile = false; model.finishFileExport(result)
+                    }
+                }
             }
             .sheet(item: $shareItem) { item in
                 ActivityShare(url: item.url) { completed in model.finishShare(completed: completed) }
             }
-    }
-    private var exportDocument: ExportFile? {
-        guard let bytes = model.exportFile else { return nil }
-        return ExportFile(bytes: bytes, kind: model.exportFileType)
     }
     private var exportPanel: some View {
         let blocked = model.busy || model.exporting
@@ -375,13 +412,29 @@ struct ManualEditorScreen: View {
 }
 
 private struct ShareItem: Identifiable { let id = UUID(); let url: URL }
-private struct ExportFile: FileDocument {
-    static var readableContentTypes: [UTType] { [.jpeg, .png] }
-    var bytes: Data
-    var kind: UTType
-    init(bytes: Data, kind: UTType) { self.bytes = bytes; self.kind = kind }
-    init(configuration _: ReadConfiguration) throws { bytes = Data(); kind = .jpeg }
-    func fileWrapper(configuration _: WriteConfiguration) throws -> FileWrapper { FileWrapper(regularFileWithContents: bytes) }
+private struct ExportDocumentPicker: UIViewControllerRepresentable {
+    let url: URL
+    let completed: (Result<URL, Error>) -> Void
+    func makeCoordinator() -> Coordinator { Coordinator(completed) }
+    func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
+        let picker = UIDocumentPickerViewController(forExporting: [url], asCopy: true)
+        picker.delegate = context.coordinator; return picker
+    }
+    func updateUIViewController(_: UIDocumentPickerViewController, context _: Context) {}
+    final class Coordinator: NSObject, UIDocumentPickerDelegate {
+        let completed: (Result<URL, Error>) -> Void
+        private var finished = false
+        init(_ completed: @escaping (Result<URL, Error>) -> Void) { self.completed = completed }
+        func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+            guard !finished else { return }; finished = true
+            guard let url = urls.first else { completed(.failure(CocoaError(.fileWriteUnknown))); return }
+            completed(.success(url))
+        }
+        func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+            guard !finished else { return }; finished = true
+            completed(.failure(CocoaError(.userCancelled)))
+        }
+    }
 }
 private struct ActivityShare: UIViewControllerRepresentable {
     let url: URL

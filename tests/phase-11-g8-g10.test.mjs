@@ -32,7 +32,8 @@ test('store SDK and verifier cannot silently become shipping telemetry or a purc
   assert.doesNotMatch(read('platforms/android/app/src/main/AndroidManifest.xml'), /uses-permission/);
   assert.ok(app.includes('androidTestImplementation("com.android.billingclient:billing:9.1.0")'));
   assert.ok(read('platforms/ios/PixAuraAI/ShellModel.swift').includes('case .verified(let transaction)'));
-  assert.ok(read('packages/commerce/quota.hpp').includes('friend class NativeCommercialOwner'));
+  assert.match(read('packages/commerce/quota.hpp'), /#include "\.\.\/core\/src\/v2\/commerce\/quota.hpp"/);
+  assert.ok(read('packages/core/src/v2/commerce/quota.hpp').includes('friend class NativeCommercialOwner'));
 });
 
 test('Strict compiler successor binds every corrected file without mutating v13 evidence', () => {

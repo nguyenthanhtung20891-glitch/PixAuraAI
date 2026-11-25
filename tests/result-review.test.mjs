@@ -1,3 +1,4 @@
+import {phase11HumanApplyHash} from './helpers/phase-11-versioned-contracts.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import crypto from 'node:crypto';
 import {resultReviewHash} from './helpers/review-edit-hashes.mjs';
 const text=p=>fs.readFileSync(p,'utf8').replaceAll('\r\n','\n'),read=p=>JSON.parse(text(p)),hash=s=>crypto.createHash('sha256').update(s).digest('hex');
@@ -15,7 +16,7 @@ test('Step 5 reads ordinary history and freezes the certified Step 4 engines',()
  for(const [p,h] of Object.entries(m.additions))assert.equal(hash(text(p)),resultReviewHash(p,h),p);
  for(const p of Object.keys(prior.additions))assert.equal(hash(text(p)),resultReviewHash(p,prior.additions[p]),p);
  assert.equal(hash(text('packages/core/src/editor_api.cpp').replace('#include "pixaura/result_review.h"\n','').replace('#include "result_review_boundary.hpp"\n','').replace('#include "pixaura/export.h"\n','').replace('#include "export_boundary.hpp"\n','')),prior.changes['packages/core/src/editor_api.cpp'].after_sha256_lf);
- for(const [p,b] of Object.entries(m.human_apply_bodies)){const source=text(p);assert.equal(hash(source.slice(source.indexOf(b.start),source.indexOf(b.end))),b.sha256_lf,p);}
+ for(const [p,b] of Object.entries(m.human_apply_bodies)){const source=text(p);assert.equal(hash(source.slice(source.indexOf(b.start),source.indexOf(b.end))),phase11HumanApplyHash(p,b.sha256_lf),p);}
 });
 test('result query reconciles a publication receipt and render cannot paint a preview as history',()=>{
  const s=text('packages/core/src/result_review_boundary.hpp');

@@ -1,8 +1,10 @@
 #ifndef PIXAURA_STORAGE_HPP
 #define PIXAURA_STORAGE_HPP
 #include "document.hpp"
+#include "publication_v2.hpp"
 #include <memory>
 #include <mutex>
+#include <functional>
 namespace pixaura::storage {
 using document::String;
 constexpr uint32_t storage_version = 1;
@@ -43,12 +45,21 @@ class Repository {
 public:
     // Root must be an existing caller-owned OS-private directory, never a user filename.
     explicit Repository(std::string_view private_root);
+    // Explicit v2 opt-in; default/v1 owners never recognize Schema4.
+    Repository(std::string_view private_root,uint32_t maximum_schema);
     ~Repository();
     Repository(const Repository&) = delete;
     Repository& operator=(const Repository&) = delete;
     uint32_t version();
     // Inspection/current-session refresh. Editing reopen must acquire a fresh
     // OS-generated session via open_session, invalidating earlier candidates.
+    // Conservative native parser/snapshot payload bound, computed from bounded
+    // SQL counts BEFORE a v2 owner allocates its full immutable graph.
+    uint64_t metadata_reservation_v2();
+    uint64_t epoch_v2();
+    // Empty writer reservation fences native epoch/source validation through
+    // durable advisory acknowledgment; no revision or receipt is published.
+    void fence_v2(uint64_t expected_epoch,const std::function<void()>&);
     Loaded read();
     Loaded open_session(std::string_view fresh_session);
     // Prepared reopen rejects if inspected state changed before acquisition.
@@ -56,6 +67,8 @@ public:
     Loaded open_session(std::string_view fresh_session, uint64_t expected_epoch);
     Saved create(const document::ImageDocument&);
     Saved apply(std::string_view command, uint64_t expected_epoch);
+    NativeCommitReceiptV2 publish_v2(std::string_view command,uint64_t expected_epoch,PublicationClockV2&,ReceiptAuthorityV2&);
+    document::Vector<NativeCommitReceiptV2> receipts_v2(ReceiptAuthorityV2&);
     bool checkpoint();
     // Explicit verified same-version no-op or transactional 1->2 / 2->3 migration.
     // Ordinary open preserves the existing version and never migrates.

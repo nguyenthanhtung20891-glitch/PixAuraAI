@@ -1,5 +1,28 @@
 # PixAuraAI Autonomous Engineering Contract
 
+## Tool-portability successor — read-only CI inspection (2026-11-24)
+
+PowerShell is unavailable on the current Mac. When `pwsh` is unavailable, use
+`scripts/codex-gh.py` for bounded read-only PixAuraAI Actions inspection; retain
+`scripts/codex-gh.ps1` for PowerShell environments. Both bind the existing canonical
+repository and allowed inspection operations. No credential/configuration changes,
+arbitrary API routes, reruns, repository settings or foreign repositories. This
+engineering portability record is not independent phase acceptance or closure.
+
+## Current successor — Phase11 full completion / versioned integration
+
+Product Owner supersedes v19-only scope with ALL remaining Phase11 engineering.
+Principal Architect supplied v18ACCEPTED at2f823a55c36271b19847fade7134aa9b460b715d,
+Foundation43809264602SUCCESS7/7;Native43809264489SUCCESS3/3exactSHAattempt1.
+CR18-01Schema4/publisher-v2/native receipt and CR18-02editor-context-v2/platform
+bridges APPROVED. Versioned storage.cpp/storage.hpp extensions are in scope;
+unrelated fingerprints, numerical kernels and existing publicv1ABI remain frozen.
+No reinterpretation ofSchema3 or v1handles. Plan phase-11-final-completion.md;
+checkpoint phase-11-final-checkpoint.md. Complete independent work despite external
+physical/store/human gates; no arbitrary milestone stop. Phase11INPROGRESS, not
+closed; noPhases12–14. MetalhardwarePASSclosed, GPUprovidersUNKNOWN unchanged.
+Owner signing/project edits stay local/excluded; no signing/account modification.
+
 ## Current successor — Phase11 v18 bounded integration (2026-11-15)
 
 Product Owner supplied independent Principal Architect acceptance of v17 software

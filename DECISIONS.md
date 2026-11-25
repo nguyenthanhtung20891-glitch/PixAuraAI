@@ -1,5 +1,15 @@
 # Architectural decision index
 
+## Phase11 final mission — supplied CR18-01/CR18-02 acceptance
+
+Principal Architect independently accepted v18 software at2f823a55c36271b19847fade7134aa9b460b715d;
+Product Owner now authorizes full remaining Phase11 completion, additiveSchema4/
+NativeCommitReceiptV2 and editor-context-v2/sharedplatformbridges. This supersedes
+the PROPOSED status in frozen v18compatibility requests, not their invariants.
+Versioned opt-in extensions preserve v1ABI, untouchedSchema3 and ordinary history;
+clock provenance must distinguish local logical time from authenticatedUTC.
+Engineering does not accept its own new implementation. No Phase11closure.
+
 ## Phase11 v18 supplied acceptance and bounded integration
 
 Product Owner supplied independent Principal Architect acceptance of v17 at

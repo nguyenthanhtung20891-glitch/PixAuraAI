@@ -1,3 +1,4 @@
+import CryptoKit
 import XCTest
 import Combine
 @testable import PixAuraCore
@@ -118,6 +119,127 @@ private func phase11SyntheticPNG(_ url: URL, width: Int, height: Int) throws {
 }
 
 final class ShellTests: XCTestCase {
+    // Each XCTest case represents a fresh synthetic installation. Reopen and
+    // multiple models WITHIN that case retain the same native ledger and key.
+    // Never reset the real application installation or its reboot high-water.
+    private let modelInstallationRoot = FileManager.default.temporaryDirectory.appendingPathComponent("model-installation-\(UUID())", isDirectory: true)
+    private let modelKeyService = "ai.pixaura.tests.model-installation.\(UUID())"
+    @MainActor private lazy var modelRuntimes = NativeEditorRuntimePoolV2(root: modelInstallationRoot, keyService: modelKeyService)
+
+    func testQuotaResetLocalPresentationUsesNativeDayAcrossTimezonesAndDST() throws {
+        let east = try XCTUnwrap(TimeZone(secondsFromGMT: 7*3600))
+        let west = try XCTUnwrap(TimeZone(secondsFromGMT: -8*3600))
+        for locale in [Locale(identifier: "en_US_POSIX"), Locale(identifier: "vi_VN")] {
+            XCTAssertTrue(try XCTUnwrap(CommercialResetPresentationV2.local(day: 0, timeZone: east, locale: locale)).hasPrefix("1970-01-02 07:00 ("))
+            XCTAssertTrue(try XCTUnwrap(CommercialResetPresentationV2.local(day: 0, timeZone: west, locale: locale)).hasPrefix("1970-01-01 16:00 ("))
+            let zone = try XCTUnwrap(TimeZone(identifier: "America/Los_Angeles"))
+            XCTAssertEqual(CommercialResetPresentationV2.local(day: 19791, timeZone: zone, locale: locale), "2024-03-09 16:00 (America/Los_Angeles)")
+            XCTAssertEqual(CommercialResetPresentationV2.local(day: 19792, timeZone: zone, locale: locale), "2024-03-10 17:00 (America/Los_Angeles)")
+        }
+        XCTAssertNil(CommercialResetPresentationV2.local(day: -1))
+        XCTAssertNil(CommercialResetPresentationV2.local(day: Int64.max))
+    }
+    func testAppleSignedCacheDERRejectsPatternConfusionTruncationAndDuplicateExtensions() throws {
+        func der(_ tag: UInt8, _ bytes: Data) -> Data {
+            var output = Data([tag]); if bytes.count < 128 { output.append(UInt8(bytes.count)) }
+            else { output.append(contentsOf: [0x81, UInt8(bytes.count)]) }; output.append(bytes); return output
+        }
+        let oid: [UInt8] = [0x2a,0x86,0x48,0x86,0xf7,0x63,0x64,0x06,0x0b,0x01]
+        let item = der(0x30, der(6, Data(oid)) + der(4, Data([5,0])))
+        let syntheticGrammar = der(0x30, der(0x30, der(0xa3, der(0x30, item))))
+        // Structural grammar only, never a trusted certificate/purchase.
+        XCTAssertTrue(try AppleStoreJwsV2.hasExtension(syntheticGrammar, oid: oid))
+        let unrelated = der(0x30, der(0x30, der(0x0c, Data(oid))))
+        XCTAssertFalse(try AppleStoreJwsV2.hasExtension(unrelated, oid: oid))
+        let duplicate = der(0x30, der(0x30, der(0xa3, der(0x30, item + item))))
+        XCTAssertThrowsError(try AppleStoreJwsV2.hasExtension(duplicate, oid: oid))
+        for length in 0..<syntheticGrammar.count { XCTAssertThrowsError(try AppleStoreJwsV2.hasExtension(syntheticGrammar.prefix(length), oid: oid)) }
+        XCTAssertThrowsError(try AppleStoreJwsV2.hasExtension(Data([0x30,0x80,0,0]), oid: oid))
+        XCTAssertThrowsError(try AppleStoreJwsV2.hasExtension(Data([0x30,0x81,1,0]), oid: oid))
+    }
+    func testAppleSignedCacheES256ChecksActualSignatureAndRejectsChangedBytes() throws {
+        let key = try P256.Signing.PrivateKey(rawRepresentation: Data(repeating: 1, count: 32))
+        let message = Data("synthetic cryptographic vector only; no store transaction".utf8)
+        let signature = try key.signature(for: message).rawRepresentation
+        XCTAssertTrue(try AppleStoreJwsV2.validSignature(publicKey: key.publicKey.x963Representation, message: message, signature: signature))
+        XCTAssertFalse(try AppleStoreJwsV2.validSignature(publicKey: key.publicKey.x963Representation, message: message + Data([0]), signature: signature))
+        for index in signature.indices { var changed = signature; changed[index] ^= 1
+            XCTAssertFalse(try AppleStoreJwsV2.validSignature(publicKey: key.publicKey.x963Representation, message: message, signature: changed))
+        }
+        XCTAssertThrowsError(try AppleStoreJwsV2.validSignature(publicKey: Data(), message: message, signature: signature))
+        XCTAssertThrowsError(try AppleStoreJwsV2.validSignature(publicKey: key.publicKey.x963Representation, message: message, signature: signature.prefix(63)))
+    }
+    func testAppleSignedCacheRejectsUnsignedMalformedAndUnconfiguredEvidence() throws {
+        let inputs = ["", "e30.e30.AA", "=.e30.AA", "e30.e30.AA.extra", String(repeating: "a", count: 12289)]
+        for input in inputs {
+            XCTAssertThrowsError(try AppleStoreJwsV2.verify(input, products: ["test.synthetic.lifetime": .lifetime], environment: "Sandbox", application: "test.synthetic.application"))
+        }
+        XCTAssertThrowsError(try AppleStoreJwsV2.verify("e30.e30.AA", products: [:], environment: "Sandbox", application: "test.synthetic.application"))
+        XCTAssertThrowsError(try AppleStoreJwsV2.verify("e30.e30.AA", products: ["test.synthetic.lifetime": .lifetime], environment: "Xcode", application: "test.synthetic.application"))
+    }
+    func testAppleNativeStoreVerifierRejectsRawFreshDataWithoutActualSDKFence() throws {
+        let application = try XCTUnwrap(Bundle.main.bundleIdentifier)
+        let cache = ProtectedAppleSignedCacheV2(service: "test.synthetic.no-write.\(UUID())", application: application,
+            products: ["test.synthetic.lifetime": .lifetime], environment: "Sandbox")
+        let verifier = try AppleNativeStoreVerifierV3(cache: cache)
+        XCTAssertEqual(verifier.configuration.store, 1)
+        XCTAssertEqual(verifier.configuration.keyIdentity, "63343abfb89a6a03ebb57e9b3f5fa7be7c4f5c756f3017b3a8c488c3653e9179")
+        XCTAssertThrowsError(try verifier.verifySignedProof(Data("e30.e30.AA".utf8), origin: .fresh, nativeNonce: String(repeating: "a", count: 32)))
+        XCTAssertThrowsError(try verifier.verifySignedProof(Data("e30.e30.AA".utf8), origin: .cached, nativeNonce: ""))
+        let unconfigured = ProtectedAppleSignedCacheV2(service: "test.synthetic.no-write", application: application,
+            products: [:], environment: "Sandbox")
+        XCTAssertThrowsError(try AppleNativeStoreVerifierV3(cache: unconfigured))
+    }
+    func testAppleSignedCacheOrderingDoesNotForgetRevocationOrAcceptAmbiguousRenewal() {
+        func record(_ signed: TimeInterval, revoked: Bool = false, id: UInt64 = 1, expiry: TimeInterval = 2000) -> AppleStoreEntitlementAdapter.Record {
+            .init(productID: "test.synthetic.subscription", kind: .subscription, transactionID: id, signedAt: Date(timeIntervalSince1970: signed), expires: Date(timeIntervalSince1970: expiry), revoked: revoked, environment: "Sandbox")
+        }
+        // Metadata ordering only, not a signed transaction or native grant.
+        let active = record(1000), revoked = record(1000, revoked: true)
+        XCTAssertTrue(ProtectedAppleSignedCacheV2.permitsReplacement(active, active))
+        XCTAssertTrue(ProtectedAppleSignedCacheV2.permitsReplacement(active, revoked))
+        XCTAssertFalse(ProtectedAppleSignedCacheV2.permitsReplacement(revoked, active))
+        XCTAssertTrue(ProtectedAppleSignedCacheV2.permitsReplacement(revoked, record(1001)))
+        XCTAssertFalse(ProtectedAppleSignedCacheV2.permitsReplacement(active, record(999)))
+        XCTAssertFalse(ProtectedAppleSignedCacheV2.permitsReplacement(active, record(1000, id: 2, expiry: 3000)))
+        XCTAssertTrue(ProtectedAppleSignedCacheV2.permitsReplacement(revoked, record(1001, id: 2, expiry: 3000)))
+        var other = record(1001)
+        other = .init(productID: "test.other.subscription", kind: other.kind, transactionID: other.transactionID, signedAt: other.signedAt, expires: other.expires, revoked: other.revoked, environment: other.environment)
+        XCTAssertFalse(ProtectedAppleSignedCacheV2.permitsReplacement(active, other))
+    }
+    func testSignedCacheProductIsolationPreservesIndependentResultsAndReportsFailures() throws {
+        // Enumeration behavior only. Integers are synthetic markers, never
+        // authenticated transactions or entitlement grants.
+        var visited: [String] = []
+        let result = ProtectedAppleSignedCacheV2.collectIndependently(products: ["z.valid", "a.corrupt", "m.absent"]) { product -> Int? in
+            visited.append(product)
+            if product == "a.corrupt" { throw StoreAccessError.unverified }
+            return product == "z.valid" ? 7 : nil
+        }
+        XCTAssertEqual(visited, ["a.corrupt", "m.absent", "z.valid"])
+        XCTAssertEqual(result.values, [7])
+        XCTAssertEqual(result.rejected, ["a.corrupt"])
+        let cache = ProtectedAppleSignedCacheV2(service: "ai.pixaura.tests.isolation-\(UUID())", application: "test.synthetic.application", products: ["a.corrupt": .subscription, "z.absent": .lifetime], environment: "Sandbox")
+        let item = ProtectedCommercialCache(service: cache.serviceName(for: "a.corrupt"))
+        defer { try? item.remove() }
+        let malformed = Data("{not signed}".utf8)
+        try item.write(malformed)
+        let replay = try cache.readAvailable()
+        XCTAssertTrue(replay.values.isEmpty)
+        XCTAssertEqual(replay.rejected, ["a.corrupt"])
+        XCTAssertThrowsError(try cache.read())
+        XCTAssertEqual(try item.read(), malformed)
+    }
+    func testAppleSignedProtectedCacheCannotPromoteUnsignedLegacyOrMalformedMetadata() throws {
+        let cache = ProtectedAppleSignedCacheV2(service: "ai.pixaura.tests.signed-cache-\(UUID())", application: "test.synthetic.application", products: ["test.synthetic.lifetime": .lifetime], environment: "Sandbox")
+        let item = ProtectedCommercialCache(service: cache.serviceName(for: "test.synthetic.lifetime")); defer { try? item.remove() }
+        XCTAssertTrue(try cache.read().isEmpty)
+        try item.write(Data("{\"version\":1,\"records\":[]}".utf8))
+        XCTAssertThrowsError(try cache.read())
+        try item.write(Data("{\"version\":2,\"jws\":\"e30.e30.AA\"}".utf8))
+        XCTAssertThrowsError(try cache.read())
+        try item.remove(); XCTAssertTrue(try cache.read().isEmpty)
+    }
     func testProtectedStoreReplayIsLabelledCachedNotAnAuthenticatedPurchase() async throws {
         let cache = ProtectedCommercialCache(service: "ai.pixaura.test.handoff.\(UUID().uuidString)")
         defer { try? cache.remove() }
@@ -152,6 +274,70 @@ final class ShellTests: XCTestCase {
         XCTAssertThrowsError(try AppleStoreEntitlementAdapter(products: [:], environment: "Sandbox", cache: cache))
         XCTAssertThrowsError(try AppleStoreEntitlementAdapter(products: ["synthetic.fixture": .lifetime], environment: "Xcode", cache: cache))
     }
+    func testNativeReceiptKeyIsStableAndDoesNotReplaceMalformedOrStoreKeys() throws {
+        let service = "ai.pixaura.tests.native-key." + UUID().uuidString
+        let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service, kSecAttrAccount as String: "native-receipt-key-v2",
+            kSecAttrSynchronizable as String: false]
+        defer { SecItemDelete(query as CFDictionary); try? ProtectedCommercialCache(service: service).remove() }
+        let storeCache = ProtectedCommercialCache(service: service)
+        try storeCache.write(Data([1, 2, 3]))
+        let owner = NativeEditorInstallationKeyV2(service: service)
+        XCTAssertThrowsError(try owner.readOrCreate(allowCreate: false))
+        let first = try owner.readOrCreate(); XCTAssertEqual(first.count, 32)
+        XCTAssertEqual(try owner.readOrCreate(), first)
+        XCTAssertEqual(try storeCache.read(), Data([1, 2, 3]))
+        XCTAssertEqual(SecItemUpdate(query as CFDictionary, [kSecValueData as String: Data([9])] as CFDictionary), errSecSuccess)
+        XCTAssertThrowsError(try owner.readOrCreate())
+        var read = query; read[kSecReturnData as String] = true
+        var result: CFTypeRef?; XCTAssertEqual(SecItemCopyMatching(read as CFDictionary, &result), errSecSuccess)
+        XCTAssertEqual(result as? Data, Data([9]))
+    }
+
+    func testNativeRuntimePoolSharesOwnerRetainsImagesAndRecoversLostKey() throws {
+        let files = FileManager.default
+        let root = files.temporaryDirectory.appendingPathComponent("native-pool-\(UUID())")
+        let project = root.appendingPathComponent("project")
+        try files.createDirectory(at: project, withIntermediateDirectories: true)
+        let service = "ai.pixaura.tests.pool." + UUID().uuidString
+        let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service, kSecAttrAccount as String: "native-receipt-key-v2",
+            kSecAttrSynchronizable as String: false]
+        defer { SecItemDelete(query as CFDictionary); try? files.removeItem(at: root) }
+        let fixture = try XCTUnwrap(Bundle(for: ShellTests.self).url(forResource: "fixtures", withExtension: "json"))
+        let entries = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: fixture)) as? [String: [String: Any]])
+        let input = root.appendingPathComponent("synthetic.png")
+        try Data(try XCTUnwrap(entries["png"]?["bytes"] as? [UInt8])).write(to: input)
+        let capabilities = AppleCapabilityOwner(signals: AppTestAppleSignals()); defer { capabilities.close() }
+        let snapshot = try capabilities.snapshot()
+        let pool = NativeEditorRuntimePoolV2(root: root, keyService: service)
+        let first = try pool.acquire(snapshot), sibling = try pool.acquire(snapshot)
+        XCTAssertTrue(first.runtime === sibling.runtime); try sibling.close()
+        let editor = try EditorContextV2(runtime: first.runtime, root: project, importing: input, explicitlyMigrateSchema3: true)
+        var frame: EditorFrameV2? = try editor.preview(width: 64, height: 48)
+        var image: CGImage? = try frame?.image(); XCTAssertNotNil(image); frame = nil
+        editor.close(); try first.close()
+        let retained = try pool.acquire(snapshot)
+        XCTAssertTrue(retained.runtime === first.runtime, "displayed image keeps native resource owner alive")
+        try retained.close(); image = nil
+        let fresh = try pool.acquire(snapshot)
+        XCTAssertFalse(fresh.runtime === first.runtime, "last data provider retirement permits idle close")
+        try fresh.close()
+        let ledger = root.appendingPathComponent("commercial-v2.sqlite")
+        let before = try Data(contentsOf: ledger)
+        XCTAssertEqual(SecItemDelete(query as CFDictionary), errSecSuccess)
+        let recovery = try pool.acquire(snapshot)
+        let recovered = try EditorContextV2(runtime: recovery.runtime, root: project, explicitlyMigrateSchema3: true)
+        XCTAssertTrue(try recovered.state().recoveryOnly)
+        XCTAssertThrowsError(try recovered.select(4))
+        let output = root.appendingPathComponent("recovered.png")
+        let exported = try recovered.beginExport(format: 2, quality: 0)
+        XCTAssertGreaterThan(try exported.run(to: output).bytes, 0)
+        recovered.close(); try recovery.close()
+        XCTAssertEqual(try Data(contentsOf: ledger), before)
+        XCTAssertThrowsError(try NativeEditorInstallationKeyV2(service: service).readOrCreate(allowCreate: false))
+    }
+
     func testProtectedCommercialCacheRoundTripAndBound() throws {
         let cache = ProtectedCommercialCache(service: "ai.pixaura.tests.cache." + UUID().uuidString)
         defer { try? cache.remove() }
@@ -205,6 +391,28 @@ final class ShellTests: XCTestCase {
         await fulfillment(of: [ready], timeout: 20)
         withExtendedLifetime(subscription) {}
     }
+    func testStagedExportNamesAreReadableAndCleanupCannotEscapeOwnedNamespace() throws {
+        let first = try ExportDestination.stagingLocation(format: 2)
+        let second = try ExportDestination.stagingLocation(format: 1)
+        defer { ExportDestination.removeStage(first); ExportDestination.removeStage(second) }
+        XCTAssertEqual(first.lastPathComponent, "PixAuraAI.png")
+        XCTAssertEqual(second.lastPathComponent, "PixAuraAI.jpg")
+        XCTAssertNotEqual(first.deletingLastPathComponent(), second.deletingLastPathComponent())
+        try Data([1, 2, 3]).write(to: first)
+        try Data([4, 5]).write(to: second)
+        XCTAssertThrowsError(try ExportDestination.stagingLocation(format: 99))
+        XCTAssertEqual(try Data(contentsOf: first), Data([1, 2, 3]))
+        let outsideDirectory = FileManager.default.temporaryDirectory.appendingPathComponent("phase11-stage-\(UUID())", isDirectory: true)
+        try FileManager.default.createDirectory(at: outsideDirectory, withIntermediateDirectories: false)
+        defer { try? FileManager.default.removeItem(at: outsideDirectory) }
+        let outside = outsideDirectory.appendingPathComponent("PixAuraAI.png")
+        try Data([9]).write(to: outside)
+        ExportDestination.removeStage(outside)
+        XCTAssertEqual(try Data(contentsOf: outside), Data([9]))
+        ExportDestination.removeStage(first)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: first.deletingLastPathComponent().path))
+        XCTAssertEqual(try Data(contentsOf: second), Data([4, 5]))
+    }
     func testShareCacheRejectsPathNamesBeforeRemovingCurrentExport() throws {
         let token = UUID().uuidString
         let safe = try ExportDestination.cacheFile(name: "phase11-\(token).png", bytes: Data([1, 2, 3]))
@@ -217,6 +425,91 @@ final class ShellTests: XCTestCase {
             XCTAssertFalse(FileManager.default.fileExists(atPath: outside.path), "cache name must not escape its directory")
         }
     }
+    @MainActor func testFreeAIQuotaPresentationTracksDeliveryAndKeepsManualApplyAvailable() async throws {
+        let file = try XCTUnwrap(Bundle(for: ShellTests.self).url(forResource: "fixtures", withExtension: "json"))
+        let fixtures = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [String: [String: Any]])
+        let input = FileManager.default.temporaryDirectory.appendingPathComponent("free-ai-\(UUID()).png")
+        try Data(try XCTUnwrap(fixtures["png"]?["bytes"] as? [UInt8])).write(to: input)
+        defer { try? FileManager.default.removeItem(at: input) }
+        let capability = AppleCapabilityOwner(signals: AppTestAppleSignals()); defer { capability.close() }
+        let model = ManualEditorModel(capabilities: capability, runtimes: modelRuntimes)
+        model.importImage(input); await waitFor(model.$core) { $0?.revisionCount == 1 }
+        XCTAssertEqual(model.commercial?.access, 0); XCTAssertEqual(model.commercial?.trialStart, -1)
+        model.setAutoMode(true); await waitFor(model.$autoProposal) { $0.choices.count == 11 }
+        model.chooseAuto(0)
+        for delivered in 1...3 {
+            model.requestAuto(); await waitFor(model.$autoProposal) { $0.status == .reviewReady && !$0.inFlight }
+            XCTAssertEqual(model.commercial?.ai, UInt32(delivered))
+            XCTAssertEqual(model.core?.revisionCount, 1); XCTAssertEqual(model.commercial?.trialStart, -1)
+            model.cancelAuto(); model.interrupt(); await waitFor(model.$busy) { !$0 }
+        }
+        model.requestAuto(); await waitFor(model.$autoProposal) { $0.status == .failed && !$0.inFlight }
+        let denied = "Daily AI proposal limit reached. Manual editing remains available."
+        XCTAssertEqual(model.autoProposal.error, denied); XCTAssertNil(model.autoProposal.review)
+        model.setAssistMode(true); await waitFor(model.$assistance) { $0.choices.count == 11 }
+        model.chooseAdvice(0); model.requestAdvice()
+        await waitFor(model.$assistance) { $0.status == .failed && !$0.inFlight }
+        XCTAssertEqual(model.assistance.error, denied); XCTAssertNil(model.assistance.advice)
+        model.setAssistMode(false); model.select(4); await waitFor(model.$core) { $0?.active == true }
+        model.update([1000]); model.action(1); await waitFor(model.$core) { $0?.revisionCount == 2 }
+        XCTAssertEqual(model.commercial?.access, 1); XCTAssertEqual(model.commercial?.ai, 3)
+        model.close(); await waitFor(model.$core) { $0 == nil }
+    }
+    @MainActor func testProductionTwelveMegapixelImportApplyHistoryAndFullExportStages() async throws {
+        let input = FileManager.default.temporaryDirectory.appendingPathComponent("app-12mp-\(UUID()).png")
+        try await Task.detached { try autoreleasepool { try phase11SyntheticPNG(input, width: 4000, height: 3000) } }.value
+        defer { try? FileManager.default.removeItem(at: input) }
+        let capability = AppleCapabilityOwner(signals: AppTestAppleSignals()); defer { capability.close() }
+        let model = ManualEditorModel(capabilities: capability, runtimes: modelRuntimes)
+        defer {
+            let diagnostics: [String: Any] = ["busy": model.busy, "preview_loading": model.previewLoading,
+                "image_present": model.image != nil, "revision_count": model.core?.revisionCount ?? -1,
+                "error": model.error ?? "none"]
+            if let bytes = try? JSONSerialization.data(withJSONObject: diagnostics, options: [.sortedKeys]) {
+                let attachment = XCTAttachment(data: bytes, uniformTypeIdentifier: "public.json")
+                attachment.name = "production-12mp-final-interaction-state"; attachment.lifetime = .keepAlways; add(attachment)
+            }
+        }
+
+        model.importImage(input)
+        await waitFor(model.$image) { $0 != nil }
+        XCTAssertNil(model.error); XCTAssertNotNil(model.commercial)
+        let source = try XCTUnwrap(model.core?.revisionID)
+        model.select(4); await waitFor(model.$core) { $0?.active == true }
+        model.update([1000]); model.action(1)
+        await waitFor(model.$core) { $0?.revisionCount == 2 }
+        let committed = try XCTUnwrap(model.core?.revisionID)
+        XCTAssertNotEqual(committed, source); XCTAssertEqual(model.commercial?.access, 1)
+        XCTAssertGreaterThanOrEqual(try XCTUnwrap(model.commercial?.trialStart), 0)
+        var exports: [[String: Any]] = []
+        for format: UInt32 in [1, 2] {
+            model.prepareFileExport(format: format, quality: 93)
+            await waitFor(model.$exportFile) { $0 != nil }
+            let output = try XCTUnwrap(model.exportFile)
+            let decoded = try XCTUnwrap(CGImageSourceCreateWithURL(output as CFURL, nil))
+            let facts = try XCTUnwrap(CGImageSourceCopyPropertiesAtIndex(decoded, 0, nil) as? [CFString: Any])
+            XCTAssertEqual(facts[kCGImagePropertyPixelWidth] as? Int, 4000)
+            XCTAssertEqual(facts[kCGImagePropertyPixelHeight] as? Int, 3000)
+            let bytes = try output.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
+            XCTAssertGreaterThan(bytes, 0); XCTAssertEqual(model.core?.revisionID, committed)
+            XCTAssertEqual(model.core?.revisionCount, 2)
+            exports.append(["format": format, "width": 4000, "height": 3000, "encoded_bytes": bytes])
+            // The application stage is real. No system document-picker delivery
+            // is claimed by this model test; cancel closes/removes that stage.
+            model.finishFileExport(.failure(NSError(domain: NSCocoaErrorDomain, code: NSUserCancelledError)))
+            XCTAssertFalse(FileManager.default.fileExists(atPath: output.path))
+        }
+        model.action(2); await waitFor(model.$core) { $0?.revisionID == source }
+        model.action(3); await waitFor(model.$core) { $0?.revisionID == committed }
+        model.close(); await waitFor(model.$core) { $0 == nil }
+        model.reopen(); await waitFor(model.$core) { $0?.revisionID == committed }
+        XCTAssertEqual(model.core?.revisionCount, 2)
+        let evidence: [String: Any] = ["environment": "iOS application model with synthetic OS profile; not physical cohort qualification", "input_width": 4000, "input_height": 3000, "human_apply_revision_count": 2, "trial_from_native_commit": true, "exports": exports, "system_document_picker_delivery": false]
+        let attachment = XCTAttachment(data: try JSONSerialization.data(withJSONObject: evidence, options: [.sortedKeys]), uniformTypeIdentifier: "public.json")
+        attachment.name = "pixaura-application-v2-12mp.json"; attachment.lifetime = .keepAlways; add(attachment)
+        model.close(); await waitFor(model.$core) { $0 == nil }
+    }
+
     @MainActor func testFailedImportsRemoveOnlyUnpublishedRootsAndKeepManualHistory() async throws {
         let fixture = try XCTUnwrap(Bundle(for: ShellTests.self).url(forResource: "fixtures", withExtension: "json"))
         let entries = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: fixture)) as? [String: [String: Any]])
@@ -226,7 +519,7 @@ final class ShellTests: XCTestCase {
         try Data([0, 1, 2, 3]).write(to: invalid)
         defer { try? FileManager.default.removeItem(at: input); try? FileManager.default.removeItem(at: invalid) }
         let capability = AppleCapabilityOwner(signals: AppTestAppleSignals()); defer { capability.close() }
-        let model = ManualEditorModel(capabilities: capability)
+        let model = ManualEditorModel(capabilities: capability, runtimes: modelRuntimes)
         model.importImage(input); await waitFor(model.$core) { $0?.revisionCount == 1 }
         model.select(4); await waitFor(model.$core) { $0?.active == true }
         model.update([100]); model.action(1); await waitFor(model.$core) { $0?.revisionCount == 2 }
@@ -244,6 +537,26 @@ final class ShellTests: XCTestCase {
         model.update([200]); model.action(1); await waitFor(model.$core) { $0?.revisionCount == 3 }
         model.close(); await waitFor(model.$core) { $0 == nil }
     }
+    @MainActor func testOptionalStoreObserverExhaustionDoesNotRejectNativeImportOrHumanApply() async throws {
+        let file = try XCTUnwrap(Bundle(for: ShellTests.self).url(forResource: "fixtures", withExtension: "json"))
+        let fixtures = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [String: [String: Any]])
+        let input = FileManager.default.temporaryDirectory.appendingPathComponent("store-observer-\(UUID()).png")
+        try Data(try XCTUnwrap(fixtures["png"]?["bytes"] as? [UInt8])).write(to: input)
+        defer { try? FileManager.default.removeItem(at: input) }
+        let capability = AppleCapabilityOwner(signals: AppTestAppleSignals()); defer { capability.close() }
+        let lease = try modelRuntimes.acquire(capability.snapshot())
+        let observers = try (0..<8).map { _ in try lease.runtime.observeStoreChangesV3 {} }
+        defer { observers.forEach { lease.runtime.removeStoreObserverV3($0) }; try? lease.close() }
+        XCTAssertThrowsError(try lease.runtime.observeStoreChangesV3 {})
+        let model = ManualEditorModel(capabilities: capability, runtimes: modelRuntimes)
+        model.importImage(input); await waitFor(model.$core) { $0?.revisionCount == 1 }
+        XCTAssertNil(model.error); XCTAssertEqual(model.commercial?.photos, 1)
+        XCTAssertEqual(model.commercial?.trialStart, -1)
+        model.select(4); await waitFor(model.$core) { $0?.active == true }
+        model.update([1000]); model.action(1); await waitFor(model.$core) { $0?.revisionCount == 2 }
+        XCTAssertNil(model.error); XCTAssertEqual(model.commercial?.access, 1)
+        model.close(); await waitFor(model.$core) { $0 == nil }
+    }
     @MainActor func testExportFileAndShareDoNotMutateHistory() async throws {
         let file = try XCTUnwrap(Bundle(for: ShellTests.self).url(forResource: "fixtures", withExtension: "json"))
         let fixtures = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [String: [String: Any]])
@@ -251,7 +564,7 @@ final class ShellTests: XCTestCase {
         try Data(try XCTUnwrap(fixtures["png"]?["bytes"] as? [UInt8])).write(to: input)
         defer { try? FileManager.default.removeItem(at: input) }
         let capability = AppleCapabilityOwner(signals: AppTestAppleSignals()); defer { capability.close() }
-        let model = ManualEditorModel(capabilities: capability)
+        let model = ManualEditorModel(capabilities: capability, runtimes: modelRuntimes)
         model.importImage(input); await waitFor(model.$core) { $0?.revisionCount == 1 }
         let revision = try XCTUnwrap(model.core?.revisionID)
         model.shareExport(format: 1, quality: 0)
@@ -270,7 +583,11 @@ final class ShellTests: XCTestCase {
         model.finishShare(completed: false)
         XCTAssertEqual(model.exportStatus, "Share sheet closed. Delivery to another app is not confirmed.")
         model.prepareFileExport(format: 1, quality: 90)
-        await waitFor(model.$exportFile) { $0?.starts(with: Data([0xFF, 0xD8])) == true }
+        await waitFor(model.$exportFile) { url in
+            guard let url, let file = try? FileHandle(forReadingFrom: url) else { return false }
+            defer { try? file.close() }
+            return (try? file.read(upToCount: 2)) == Data([0xFF, 0xD8])
+        }
         XCTAssertEqual(model.core?.revisionID, revision)
         model.finishFileExport(.failure(NSError(domain: NSCocoaErrorDomain, code: NSUserCancelledError)))
         XCTAssertEqual(model.exportStatus, "Save cancelled")
@@ -294,7 +611,7 @@ final class ShellTests: XCTestCase {
         try Data(try XCTUnwrap(fixtures["png"]?["bytes"] as? [UInt8])).write(to: input)
         defer { try? FileManager.default.removeItem(at: input) }
         let capability = AppleCapabilityOwner(signals: AppTestAppleSignals()); defer { capability.close() }
-        let model = ManualEditorModel(capabilities: capability)
+        let model = ManualEditorModel(capabilities: capability, runtimes: modelRuntimes)
         model.importImage(input); await waitFor(model.$core) { $0?.revisionCount == 1 }
         let source = try XCTUnwrap(model.core?.revisionID)
         let edges = [(0,1),(1,0),(0,2),(2,0),(1,2),(2,1)]
@@ -313,8 +630,10 @@ final class ShellTests: XCTestCase {
         model.close(); await waitFor(model.$core) { $0 == nil }
         XCTAssertNil(model.autoProposal.review); XCTAssertFalse(model.autoProposal.enabled)
         model.reopen(); await waitFor(model.$core) { $0?.revisionID == source }
-        mode(2); model.chooseAuto(0); model.requestAuto()
+        mode(2); await waitFor(model.$autoProposal) { $0.choices.count == 11 }
+        model.chooseAuto(0); model.requestAuto()
         await waitFor(model.$autoProposal) { $0.status == .reviewReady && !$0.inFlight }
+        if model.autoProposal.review == nil { print("Auto review diagnostic: status=\(model.autoProposal.status) inFlight=\(model.autoProposal.inFlight) busy=\(model.busy) error=\(model.autoProposal.error ?? "none") choices=\(model.autoProposal.choices.count) access=\(model.commercial?.access ?? UInt32.max) clockUncertain=\(model.commercial?.clockUncertain ?? true) ai=\(model.commercial?.ai ?? UInt32.max)") }
         let review = try XCTUnwrap(model.autoProposal.review)
         model.applyAutoFromHuman(review); model.applyAutoFromHuman(review)
         await waitFor(model.$autoProposal) { $0.status == .completed && !$0.inFlight }
@@ -335,7 +654,7 @@ final class ShellTests: XCTestCase {
         try Data(try XCTUnwrap(fixtures["png"]?["bytes"] as? [UInt8])).write(to: input)
         defer { try? FileManager.default.removeItem(at: input) }
         let capability = AppleCapabilityOwner(signals: AppTestAppleSignals()); defer { capability.close() }
-        let model = ManualEditorModel(capabilities: capability)
+        let model = ManualEditorModel(capabilities: capability, runtimes: modelRuntimes)
         model.importImage(input); await waitFor(model.$core) { $0?.revisionCount == 1 }
         let source = try XCTUnwrap(model.core?.revisionID)
         model.setAutoMode(true)
@@ -350,6 +669,7 @@ final class ShellTests: XCTestCase {
         XCTAssertEqual(model.core?.revisionID, source)
         model.requestAuto()
         await waitFor(model.$autoProposal) { $0.status == .reviewReady && $0.review != nil && !$0.inFlight }
+        if model.autoProposal.review == nil { print("Interrupt recovery diagnostic: status=\(model.autoProposal.status) inFlight=\(model.autoProposal.inFlight) busy=\(model.busy) error=\(model.autoProposal.error ?? "none") choices=\(model.autoProposal.choices.count) access=\(model.commercial?.access ?? UInt32.max) clockUncertain=\(model.commercial?.clockUncertain ?? true) ai=\(model.commercial?.ai ?? UInt32.max)") }
         model.interrupt()
         XCTAssertNil(model.autoProposal.proposal)
         XCTAssertNil(model.autoProposal.review)
@@ -388,7 +708,7 @@ final class ShellTests: XCTestCase {
         try Data(try XCTUnwrap(fixtures["png"]?["bytes"] as? [UInt8])).write(to: input)
         defer { try? FileManager.default.removeItem(at: input) }
         let capability = AppleCapabilityOwner(signals: AppTestAppleSignals()); defer { capability.close() }
-        let model = ManualEditorModel(capabilities: capability)
+        let model = ManualEditorModel(capabilities: capability, runtimes: modelRuntimes)
         model.importImage(input); await waitFor(model.$core) { $0?.revisionCount == 1 }
         let source = try XCTUnwrap(model.core?.revisionID)
         model.setAutoMode(true); await waitFor(model.$autoProposal) { $0.choices.count == 11 }
@@ -427,7 +747,7 @@ final class ShellTests: XCTestCase {
 
     @MainActor func testObservableOwnerDestructionClosesNativeStateWithoutViewCallback() async throws {
         let capability = AppleCapabilityOwner(signals: AppTestAppleSignals()); defer { capability.close() }
-        var model: ManualEditorModel? = ManualEditorModel(capabilities: capability)
+        var model: ManualEditorModel? = ManualEditorModel(capabilities: capability, runtimes: modelRuntimes)
         let file = try XCTUnwrap(Bundle(for: ShellTests.self).url(forResource: "fixtures", withExtension: "json"))
         let fixtures = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [String: [String: Any]])
         let input = FileManager.default.temporaryDirectory.appendingPathComponent("owner-lifecycle-\(UUID()).png")
@@ -447,7 +767,7 @@ final class ShellTests: XCTestCase {
             queue.async { done.resume() }
         }
         XCTAssertThrowsError(try editor.state()) { XCTAssertEqual(($0 as? ManualEditorFailure)?.status, 13) }
-        let reopened = ManualEditorModel(capabilities: capability)
+        let reopened = ManualEditorModel(capabilities: capability, runtimes: modelRuntimes)
         reopened.reopen(); await waitFor(reopened.$core) { $0?.revisionID == source }
         XCTAssertNil(reopened.autoProposal.review); XCTAssertNil(reopened.assistance.advice)
         reopened.close(); await waitFor(reopened.$core) { $0 == nil }

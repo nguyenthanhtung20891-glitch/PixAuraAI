@@ -24,13 +24,88 @@ class ManualEditorTest {
         val values = json.getJSONObject("png").getJSONArray("bytes")
         return File(app.cacheDir, "editor-test-${UUID.randomUUID()}.png").apply { writeBytes(ByteArray(values.length()) { values.getInt(it).toByte() }) }
     }
-    private fun waitFor(predicate: () -> Boolean) = compose.waitUntil(20_000, predicate)
+    private fun waitFor(predicate: () -> Boolean) {
+        try { compose.waitUntil(20_000, predicate) }
+        catch (failure: androidx.compose.ui.test.ComposeTimeoutException) {
+            val state = compose.activity.manualModel.state.value
+            throw AssertionError("Editor wait failed: error=${state.error}; busy=${state.busy}; preview=${state.previewLoading}; core=${state.core}; image=${state.image?.width}x${state.image?.height}", failure)
+        }
+    }
     private fun openFixture(): File {
         compose.onNodeWithText("Open Manual editor").performClick()
         val file = fixture()
         compose.runOnUiThread { compose.activity.manualModel.importFile(file) }
         waitFor { compose.activity.manualModel.state.value.image != null && !compose.activity.manualModel.state.value.busy }
         return file
+    }
+    @Test fun productionTwelveMegapixelWorkflowKeepsFullExportsAndNativeTrial() {
+        val file = File(app.cacheDir, "application-12mp-${UUID.randomUUID()}.png")
+        val bitmap = android.graphics.Bitmap.createBitmap(4000, 3000, android.graphics.Bitmap.Config.ARGB_8888)
+        try {
+            val row = IntArray(4000)
+            for (y in 0 until 3000) {
+                for (x in row.indices) row[x] = (255 shl 24) or (((x * 13 + y * 7) and 255) shl 16) or (((x * 3 + y * 11) and 255) shl 8) or ((x + y * 5) and 255)
+                bitmap.setPixels(row, 0, row.size, 0, y, row.size, 1)
+            }
+            file.outputStream().use { assertTrue(bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)) }
+        } finally { bitmap.recycle() }
+        try {
+            compose.onNodeWithText("Open Manual editor").performClick()
+            val model = compose.activity.manualModel
+            compose.runOnUiThread { model.importFile(file) }
+            waitFor { model.state.value.image != null && !model.state.value.previewLoading && !model.state.value.busy }
+            assertNotNull(model.state.value.commercial)
+            compose.onNodeWithTag("commercial-access").assertExists()
+            val original = requireNotNull(model.state.value.core).revisionId
+            compose.onNodeWithText("Tone/Color").performClick()
+            compose.onNodeWithText("Exposure").performScrollTo().performClick()
+            waitFor { model.state.value.core?.active == true && !model.state.value.busy }
+            compose.onNodeWithContentDescription("Exposure value").performSemanticsAction(SemanticsActions.SetProgress) { it(1000f) }
+            waitFor { model.state.value.core?.values == listOf(1000) && !model.state.value.previewLoading }
+            compose.onNodeWithText("Apply").performScrollTo().performClick()
+            waitFor { model.state.value.core?.revisionCount == 2 && !model.state.value.previewLoading }
+            val committed = requireNotNull(model.state.value.core).revisionId
+            assertNotEquals(original, committed); assertEquals(1, model.state.value.commercial?.access)
+            assertTrue(requireNotNull(model.state.value.commercial).trialStart >= 0)
+            compose.onNodeWithTag("manual-before-after").performScrollTo().performClick()
+            waitFor { model.state.value.showingOriginal && !model.state.value.previewLoading }
+            compose.onNodeWithTag("manual-before-after").assert(SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.StateDescription, "Original source"))
+            assertEquals(committed, model.state.value.core?.revisionId); assertEquals(2, model.state.value.core?.revisionCount)
+            compose.onNodeWithTag("manual-before-after").performScrollTo().performClick()
+            waitFor { !model.state.value.showingOriginal && !model.state.value.previewLoading }
+            compose.onNodeWithTag("manual-before-after").assert(SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.StateDescription, "Edited preview"))
+            assertEquals(committed, model.state.value.core?.revisionId); assertEquals(2, model.state.value.core?.revisionCount)
+
+            for (format in listOf(1, 2)) {
+                val directory = File(app.cacheDir, "export/app-12mp-${UUID.randomUUID()}").apply { assertTrue(mkdirs()) }
+                val output = File(directory, if (format == 1) "synthetic.jpg" else "synthetic.png").apply { assertTrue(createNewFile()) }
+                try {
+                    val uri = androidx.core.content.FileProvider.getUriForFile(app, app.packageName + ".export", output)
+                    compose.runOnUiThread { assertTrue(model.reserveExport()); model.saveToDocument(uri, format, 93) }
+                    waitFor { !model.state.value.exporting && model.state.value.exportStatus in listOf("Saved", "Export failed") }
+                    assertEquals("Saved", model.state.value.exportStatus); assertNull(model.state.value.error)
+                    val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                    android.graphics.BitmapFactory.decodeFile(output.path, bounds)
+                    assertEquals(4000, bounds.outWidth); assertEquals(3000, bounds.outHeight); assertTrue(output.length() > 0)
+                    val digest = java.security.MessageDigest.getInstance("SHA-256")
+                    output.inputStream().use { stream -> val buffer = ByteArray(65536); while (true) { val count = stream.read(buffer); if (count < 0) break; digest.update(buffer, 0, count) } }
+                    println("PIXAURA_APPLICATION_12MP=" + JSONObject().put("environment", "Android ARM64 emulator; not physical device qualification")
+                        .put("input_width", 4000).put("input_height", 3000).put("format", format)
+                        .put("output_width", bounds.outWidth).put("output_height", bounds.outHeight).put("encoded_bytes", output.length())
+                        .put("sha256", digest.digest().joinToString("") { "%02x".format(it.toInt() and 255) })
+                        .put("native_cap_bytes", model.capabilityStrategy.value?.cap).put("forced_cpu", model.capabilityStrategy.value?.forcedCpu)
+                        .put("revision_count", model.state.value.core?.revisionCount).put("trial_access", model.state.value.commercial?.access))
+                    assertEquals(committed, model.state.value.core?.revisionId); assertEquals(2, model.state.value.core?.revisionCount)
+                } finally { output.delete(); directory.delete() }
+            }
+            compose.onNodeWithText("Undo").performScrollTo().performClick()
+            waitFor { model.state.value.core?.revisionId == original && !model.state.value.previewLoading }
+            compose.onNodeWithText("Redo").performScrollTo().performClick()
+            waitFor { model.state.value.core?.revisionId == committed && !model.state.value.previewLoading }
+            compose.activityRule.scenario.recreate()
+            waitFor { compose.activity.manualModel.state.value.core?.revisionId == committed && compose.activity.manualModel.state.value.image != null && !compose.activity.manualModel.state.value.previewLoading }
+            assertEquals(2, compose.activity.manualModel.state.value.core?.revisionCount)
+        } finally { file.delete() }
     }
     @Test fun sharedOwnerEveryToolChurnHistoryReopenAndFences() {
         val file = fixture(); val root = File(app.noBackupFilesDir, "editor-boundary-${UUID.randomUUID()}").apply { mkdir() }

@@ -135,6 +135,14 @@ internal class AndroidCapabilityOwner(private val signals: CapabilitySignals) : 
 
 class PixAuraApplication : Application() {
     internal lateinit var capabilityOwner: AndroidCapabilityOwner
+    internal val storeVerifierV3: ai.pixaura.app.commerce.GoogleNativeStoreVerifierV3? by lazy {
+        try { ai.pixaura.app.commerce.GoogleNativeStoreVerifierV3.fromConfiguredApplication(this) }
+        catch (_: Exception) { null } // No legitimate configuration: checkout and store ingress stay disabled.
+    }
+    internal val editorRuntimes: NativeEditorRuntimePoolV2 by lazy { NativeEditorRuntimePoolV2(this, storeVerifier = storeVerifierV3) }
+    internal val storeOwnerV3: ai.pixaura.app.commerce.GoogleNativeStoreOwnerV3? by lazy {
+        storeVerifierV3?.let { ai.pixaura.app.commerce.GoogleNativeStoreOwnerV3(this, it, editorRuntimes) }
+    }
     private var startedActivities = 0
     private val lifecycle = object : ActivityLifecycleCallbacks {
         override fun onActivityStarted(activity: Activity) {

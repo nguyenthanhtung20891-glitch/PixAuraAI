@@ -17,7 +17,8 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 class AssistTestHooks {
     private external fun nativeControl(context: ByteBuffer, command: Int, value: Int): Int
     fun control(editor: ManualEditor, command: Int, value: Int = 0): Int {
-        val field = ManualEditor::class.java.getDeclaredField("storage").apply { isAccessible = true }
+        VersionedEditorTestHooks.control(editor, 1, command, value)?.let { return it }
+        val field = ManualEditor::class.java.getDeclaredField("legacyStorage").apply { isAccessible = true }
         return nativeControl(field.get(editor) as ByteBuffer, command, value)
     }
 }

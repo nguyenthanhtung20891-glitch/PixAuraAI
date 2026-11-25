@@ -3,6 +3,9 @@ import Combine
 import CoreGraphics
 import Photos
 import UIKit
+#if DEBUG
+import ImageIO
+#endif
 import UniformTypeIdentifiers
 import PixAuraCore
 
@@ -53,15 +56,35 @@ struct AssistUiState {
 /// Application work lanes only. Core owns descriptors/gesture/history; queues
 /// retain one latest integer payload and one latest preview, never slider tasks.
 private final class EditorWorker {
+    // Send only a synchronized notification handle across the store callback
+    // boundary. Neither the native editor nor this worker is declared Sendable.
+    // Editor state is read exclusively after dispatch to its existing command lane.
+    private final class StoreObservationV3: @unchecked Sendable {
+        private let gate = NSLock()
+        private weak var worker: EditorWorker?
+        private weak var editor: ManualEditor?
+        init(worker: EditorWorker, editor: ManualEditor) { self.worker = worker; self.editor = editor }
+        func notify() {
+            gate.lock(); let queue = worker?.commands; gate.unlock()
+            queue?.async { self.deliver() }
+        }
+        private func deliver() {
+            gate.lock(); let worker = worker, editor = editor; gate.unlock()
+            if let worker, let editor { worker.emitCommercial(editor) }
+        }
+    }
     private let capabilities: AppleCapabilityOwner
+    private let runtimes: NativeEditorRuntimePoolV2
+    private var ownerLease: NativeEditorRuntimePoolV2.Lease?
+    private var storeSubscriptionV3: UUID?
     private var subscription: UUID?
     private var latestCapability: AppleCapabilitySnapshot?
     private var applyingCapability = false
-    init(capabilities: AppleCapabilityOwner) {
-        self.capabilities = capabilities
+    init(capabilities: AppleCapabilityOwner, runtimes: NativeEditorRuntimePoolV2 = .shared) {
+        self.capabilities = capabilities; self.runtimes = runtimes
         subscription = try? capabilities.subscribe { [weak self] value in self?.receiveCapability(value) }
     }
-    deinit { if let subscription { capabilities.unsubscribe(subscription) }; owner?.close() }
+    deinit { if let subscription { capabilities.unsubscribe(subscription) }; if let storeSubscriptionV3 { ownerLease?.runtime.removeStoreObserverV3(storeSubscriptionV3) }; owner?.close(); try? ownerLease?.close() }
     private func receiveCapability(_ value: AppleCapabilitySnapshot) {
         lock.lock(); latestCapability = value.retainingPressure(from: latestCapability)
         let schedule = !applyingCapability; applyingCapability = true; lock.unlock()
@@ -114,14 +137,21 @@ private final class EditorWorker {
     private var renderingNow = false
     private var latestCandidate: (ManualEditor, ManualEditor.Candidate)?
     private var installing = false
-    var refresh: (@MainActor (UInt64, ManualEditor?, ManualEditorState?, CGImage?, String?) -> Void)?
-    var candidate: (@MainActor (ManualEditor, ManualEditor.Candidate) -> Void)?
+    var refresh: (@MainActor (UInt64, ManualEditor?, ManualEditorState?, CGImage?, String?, CommercialStateV2?, Bool) -> Void)?
+    var commercialChanged: (@MainActor (ManualEditor, CommercialStateV2?) -> Void)?
+    var candidate: (@MainActor (ManualEditor, ManualEditor.Candidate) -> ManualEditor.PreviewInstallation)?
     var previewError: (@MainActor (ManualEditor, String) -> Void)?
     var reviewInvalidated: (@MainActor (ManualEditor) -> Void)?
     private func emit(_ epoch: UInt64, _ error: String? = nil) {
         let editor = owner
         let state = try? editor?.state(), image = editor?.displayedImage()
-        DispatchQueue.main.async { self.refresh?(epoch, editor, state, image, error) }
+        let commercial = try? editor?.commercialStateV2(), recovery = (try? editor?.recoveryOnlyV2()) ?? (editor != nil)
+        DispatchQueue.main.async { self.refresh?(epoch, editor, state, image, error, commercial, recovery) }
+    }
+    private func emitCommercial(_ editor: ManualEditor) {
+        guard owner === editor else { return }
+        let state = try? editor.commercialStateV2()
+        DispatchQueue.main.async { self.commercialChanged?(editor, state) }
     }
     func send(_ epoch: UInt64, _ work: @escaping (EditorWorker) throws -> Void) {
         commands.async { self.latestEpoch = epoch; do { try work(self); self.emit(epoch) } catch { self.emit(epoch, error.localizedDescription) } }
@@ -147,30 +177,52 @@ private final class EditorWorker {
         var policy = URLResourceValues(); policy.isExcludedFromBackup = true; try root.setResourceValues(policy)
         return root
     }
+    private func configured(_ root: URL, importing input: URL? = nil) throws -> ManualEditor {
+        guard owner == nil, ownerLease == nil else { throw ManualEditorFailure(status: 15, boundary: "Editor owners") }
+        let snapshot = try initialCapability()
+        let lease = try runtimes.acquire(snapshot)
+        do {
+            let editor = try ManualEditor(root: root, importing: input, capability: snapshot, runtimeV2: lease.runtime)
+            // Optional presentation observation must not reject an already
+            // successful native import or consume quota without usable editing.
+            let observation = StoreObservationV3(worker: self, editor: editor)
+            storeSubscriptionV3 = try? lease.runtime.observeStoreChangesV3 { observation.notify() }
+            ownerLease = lease; return editor
+        } catch { try? lease.close(); throw error }
+    }
+    private func closeOwner() throws {
+        if let storeSubscriptionV3 { ownerLease?.runtime.removeStoreObserverV3(storeSubscriptionV3) }; storeSubscriptionV3 = nil
+        let previous = owner; owner = nil; previous?.close()
+        let lease = ownerLease; ownerLease = nil; try lease?.close()
+    }
     func reopen() throws {
         if owner == nil, let name = UserDefaults.standard.string(forKey: "manual-project"), UUID(uuidString: name) != nil {
-            owner = try ManualEditor(root: projectRoot().appendingPathComponent(name), capability: initialCapability())
+            owner = try configured(projectRoot().appendingPathComponent(name))
         }
         if owner != nil { try preview() }
     }
     func importImage(_ input: URL) throws {
         let scoped = input.startAccessingSecurityScopedResource()
         defer { if scoped { input.stopAccessingSecurityScopedResource() } }
+        let previousName = UserDefaults.standard.string(forKey: "manual-project")
         let name = UUID().uuidString
         var directory = try projectRoot().appendingPathComponent(name, isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false,
             attributes: [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication])
-        let replacement: ManualEditor
         do {
             var policy = URLResourceValues(); policy.isExcludedFromBackup = true; try directory.setResourceValues(policy)
-            replacement = try ManualEditor(root: directory, importing: input, capability: initialCapability())
+            // Retire the old decoded source before admitting another 12 MP
+            // decoder. Saved history remains durable throughout replacement.
+            clearPending(); try closeOwner()
+            owner = try configured(directory, importing: input)
         } catch {
-            // This fresh root has not been published or selected. Never remove
-            // the current owner, a retained revision, or the picker source.
             try? FileManager.default.removeItem(at: directory)
+            if owner == nil, let previousName, UUID(uuidString: previousName) != nil {
+                owner = try? configured(projectRoot().appendingPathComponent(previousName))
+                try? preview()
+            }
             throw error
         }
-        clearPending(); owner?.close(); owner = replacement
         UserDefaults.standard.set(name, forKey: "manual-project"); try preview()
     }
     private func clearPending() { lock.lock(); latestValues = nil; latestPreview = nil; latestCandidate = nil; lock.unlock() }
@@ -193,6 +245,37 @@ private final class EditorWorker {
         // Same nonisolated owner-lane scheduling as send/cancel; never join on UI.
         commands.async { self.close() }
     }
+    private let exportingQueue = DispatchQueue(label: "ai.pixaura.editor.export", qos: .userInitiated)
+    private var exportCancelled = false
+    private var exportOwner: ManualEditor?
+    func exportStaged(format: UInt32, quality: UInt32, completion: @escaping (URL?, String?) -> Void) {
+        lock.lock(); exportCancelled = false; lock.unlock()
+        commands.async {
+            guard let owner = self.owner else { DispatchQueue.main.async { completion(nil, "Export failed. Nothing was saved.") }; return }
+            do {
+                let prepared = try owner.prepareExport(format: format, quality: quality)
+                let url = try ExportDestination.stagingLocation(format: format)
+                self.lock.lock(); self.exportOwner = owner; let cancelled = self.exportCancelled; self.lock.unlock()
+                if cancelled { try owner.exportCancel() }
+                self.exportingQueue.async {
+                    let result: Result<URL, Error> = Result {
+                        self.lock.lock(); let cancelled = self.exportCancelled; self.lock.unlock()
+                        if cancelled { throw ManualEditorFailure(status: 13, boundary: "Export") }
+                        _ = try owner.exportStaged(to: url, format: format, quality: quality, prepared: prepared)
+                        return url
+                    }
+                    self.lock.lock(); self.exportOwner = nil; self.lock.unlock()
+                    self.commands.async {
+                        self.emit(self.latestEpoch)
+                        DispatchQueue.main.async {
+                            switch result { case .success(let url): completion(url, nil)
+                            case .failure(let error): ExportDestination.removeStage(url); completion(nil, ExportDestination.message(error)) }
+                        }
+                    }
+                }
+            } catch { DispatchQueue.main.async { completion(nil, ExportDestination.message(error)) } }
+        }
+    }
     func exportRevision(format: UInt32, quality: UInt32) throws -> ManualEditor.EncodedExport {
         guard let owner else { throw ManualEditorFailure(status: 13, boundary: "Export") }
         let before = try owner.state()
@@ -203,7 +286,10 @@ private final class EditorWorker {
         }
         return encoded
     }
-    func cancelExport() { try? owner?.exportCancel() }
+    func cancelExport() {
+        lock.lock(); exportCancelled = true; let active = exportOwner; lock.unlock()
+        try? active?.exportCancel()
+    }
     func close() {
         #if DEBUG
         lock.lock(); let previewToDrain = activeReviewPreview; lock.unlock()
@@ -218,7 +304,7 @@ private final class EditorWorker {
             try? owner?.cancelAdvice(); _ = owner?.adviceTestControl(2)
         }
         #endif
-        owner?.close(); owner = nil
+        try? closeOwner()
     }
     #if DEBUG
     func adviceFixtureFailure() { _ = owner?.adviceTestControl(3, 2) }
@@ -247,17 +333,24 @@ private final class EditorWorker {
                 self.lock.lock(); self.assistWorking = false; self.lock.unlock()
                 DispatchQueue.main.async { completion(.failure(ManualEditorFailure(status: 13, boundary: "Advice"))) }; return
             }
+            let prepared: ManualEditor.PreparedAdvisory?
+            do { prepared = try editor.prepareAdvisory(index) }
+            catch {
+                self.lock.lock(); self.assistWorking = false; self.lock.unlock()
+                DispatchQueue.main.async { completion(.failure(error)) }; return
+            }
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("--assist-test-pause") { _ = editor.adviceTestControl(0, 0) }
             #endif
             self.advising.async {
-                let result = Result { try editor.requestAdvice(index) }
+                let result = Result { try editor.requestAdvice(index, prepared: prepared) }
                 self.commands.async {
                     let checked: Result<ManualEditor.AssistAdvice, Error> = Result {
                         guard self.owner === editor else { throw ManualEditorFailure(status: 9, boundary: "Advice") }
                         let advice = try result.get(); try editor.inspectAdvice(advice); return advice
                     }
                     self.lock.lock(); self.assistWorking = false; self.lock.unlock()
+                    self.emitCommercial(editor)
                     DispatchQueue.main.async { completion(checked) }
                 }
             }
@@ -356,6 +449,25 @@ private final class EditorWorker {
                 self.lock.lock(); self.assistWorking = false; self.lock.unlock()
                 DispatchQueue.main.async { completion(.failure(ManualEditorFailure(status: 13, boundary: "Auto proposal"))) }; return
             }
+            let prepared: ManualEditor.PreparedAdvisory?
+            #if DEBUG
+            let candidate: Data?
+            #endif
+            do {
+                #if DEBUG
+                if ProcessInfo.processInfo.arguments.contains("--inspection-test-multi") {
+                    let binding = String(decoding: try editor.agentBinding(), as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
+                    let actions = "{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":101},\"tool_id\":\"pixaura.exposure\"},{\"action_index\":1,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_linear\":-123},\"tool_id\":\"pixaura.brightness\"},{\"action_index\":2,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"quarter_turns\":1},\"tool_id\":\"pixaura.rotate\"}"
+                    let bytes = Data("{\"actions\":[\(actions)],\"binding\":\(binding),\"plan_version\":1}\n".utf8)
+                    candidate = bytes; prepared = try editor.preparePlanCandidate(bytes)
+                } else { candidate = nil; prepared = try editor.prepareAdvisory(index) }
+                #else
+                prepared = try editor.prepareAdvisory(index)
+                #endif
+            } catch {
+                self.lock.lock(); self.assistWorking = false; self.lock.unlock()
+                DispatchQueue.main.async { completion(.failure(error)) }; return
+            }
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("--auto-test-pause") { _ = editor.autoTestControl(0, 2) }
             if ProcessInfo.processInfo.arguments.contains("--auto-test-failure") { _ = editor.autoTestControl(3, 2) }
@@ -363,13 +475,9 @@ private final class EditorWorker {
             self.advising.async {
                 let result = Result {
                     #if DEBUG
-                    if ProcessInfo.processInfo.arguments.contains("--inspection-test-multi") {
-                        let binding = String(decoding: try editor.agentBinding(), as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
-                        let actions = "{\"action_index\":0,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_ev\":101},\"tool_id\":\"pixaura.exposure\"},{\"action_index\":1,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"milli_linear\":-123},\"tool_id\":\"pixaura.brightness\"},{\"action_index\":2,\"operation_version\":1,\"parameter_version\":1,\"parameters\":{\"quarter_turns\":1},\"tool_id\":\"pixaura.rotate\"}"
-                        return try editor.inspectionCandidateTest(Data("{\"actions\":[\(actions)],\"binding\":\(binding),\"plan_version\":1}\n".utf8))
-                    }
+                    if let candidate { return try editor.inspectionCandidateTest(candidate, prepared: prepared) }
                     #endif
-                    return try editor.requestAuto(index)
+                    return try editor.requestAuto(index, prepared: prepared)
                 }
                 self.commands.async {
                     let checked: Result<(ManualEditor.AutoProposal, ManualEditor.AutoReview), Error> = Result {
@@ -377,6 +485,7 @@ private final class EditorWorker {
                         let proposal = try result.get(); return (proposal, try editor.prepareAutoReview(proposal))
                     }
                     self.lock.lock(); self.assistWorking = false; self.lock.unlock()
+                    self.emitCommercial(editor)
                     DispatchQueue.main.async { completion(checked) }
                 }
             }
@@ -431,10 +540,12 @@ private final class EditorWorker {
         if state.active && !state.approvalPending { try owner.update(state.values) }
         try preview()
     }
+    private var showingOriginal = false
+    func showOriginal(_ original: Bool) throws { showingOriginal = original; try preview(refreshFacts: false) }
     private func preview(refreshFacts: Bool = true) throws {
         guard let owner else { return }
         if refreshFacts { try owner.applyCapability(initialCapability()) }
-        let request = try owner.request()
+        let request = try owner.request(original: showingOriginal)
         lock.lock(); latestPreview = (owner, request)
         let schedule = !renderingNow; renderingNow = true; lock.unlock()
         if schedule { rendering.async { self.drainPreview() } }
@@ -464,15 +575,28 @@ private final class EditorWorker {
         }
     }
     @MainActor private func installLatest() {
-        lock.lock(); let work = latestCandidate; latestCandidate = nil; installing = false; lock.unlock()
-        if let work { candidate?(work.0, work.1) }
+        lock.lock(); let work = latestCandidate; latestCandidate = nil; lock.unlock()
+        let result = work.map { candidate?($0.0, $0.1) ?? .discarded } ?? .discarded
+        lock.lock()
+        // One pending frame only. A newer worker result always wins; BUSY never
+        // authorizes pixels and never replaces a newer source/request result.
+        if result == .busy, latestCandidate == nil { latestCandidate = work }
+        let more = latestCandidate != nil; installing = more; lock.unlock()
+        if more {
+            commands.async {
+                DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(16)) { self.installLatest() }
+            }
+        }
     }
 }
 
 @MainActor
 final class ManualEditorModel: ObservableObject {
+    @Published private(set) var commercial: CommercialStateV2?
+    @Published private(set) var recoveryOnly = false
     @Published private(set) var tools: [ManualTool] = []
     @Published private(set) var core: ManualEditorState?
+    @Published private(set) var showingOriginal = false
     @Published private(set) var image: CGImage?
     @Published private(set) var busy = false
     @Published private(set) var error: String?
@@ -481,7 +605,7 @@ final class ManualEditorModel: ObservableObject {
     @Published private(set) var exportStatus: String?
     @Published private(set) var shareURL: URL?
     @Published private(set) var shareGeneration = 0
-    @Published private(set) var exportFile: Data?
+    @Published private(set) var exportFile: URL?
     @Published private(set) var exportFileType: UTType = .jpeg
     @Published private(set) var assistance = AssistUiState()
     @Published private(set) var autoProposal = AutoUiState()
@@ -496,22 +620,28 @@ final class ManualEditorModel: ObservableObject {
     private var editor: ManualEditor?
     private var epoch: UInt64 = 0
     private nonisolated(unsafe) var lifecycleObservers: [NSObjectProtocol] = []
-    init(capabilities: AppleCapabilityOwner = AppleCapabilityOwner()) {
-        worker = EditorWorker(capabilities: capabilities)
-        worker.refresh = { [weak self] epoch, editor, state, image, error in
+    init(capabilities: AppleCapabilityOwner = AppleCapabilityOwner(), runtimes: NativeEditorRuntimePoolV2 = .shared) {
+        worker = EditorWorker(capabilities: capabilities, runtimes: runtimes)
+        worker.refresh = { [weak self] epoch, editor, state, image, error, commercial, recovery in
             guard let self, self.epoch == epoch else { return }
             self.editor = editor; self.tools = editor?.tools ?? []
-            self.core = state; self.image = image
+            self.core = state; self.image = image; self.commercial = commercial; self.recoveryOnly = recovery
             self.busy = false; self.error = error
             if self.core?.active != true || error != nil { self.previewLoading = false }
             if self.assistance.enabled && self.assistance.choices.isEmpty { self.loadAdviceChoices() }
             if self.autoProposal.enabled && self.autoProposal.choices.isEmpty { self.loadAutoChoices() }
         }
-        worker.candidate = { [weak self] editor, candidate in
+        worker.commercialChanged = { [weak self] editor, state in
             guard let self, self.editor === editor else { return }
-            if !editor.install(candidate, replace: { self.image = $0; self.previewLoading = false
+            self.commercial = state
+        }
+        worker.candidate = { [weak self] editor, candidate in
+            guard let self, self.editor === editor else { return .discarded }
+            let result = editor.installStatus(candidate, replace: { self.image = $0; self.previewLoading = false
                 if self.error?.hasPrefix("Preview failure") == true { self.error = nil }
-            }) { self.previewLoading = false }
+            })
+            if result == .discarded { self.previewLoading = false }
+            return result
         }
         worker.previewError = { [weak self] editor, error in
             guard let self, self.editor === editor else { return }
@@ -572,6 +702,9 @@ final class ManualEditorModel: ObservableObject {
     }
     private func adviceFailure(_ failure: Error) {
         switch (failure as? ManualEditorFailure)?.status {
+        case 3001: assistance.status = .failed; assistance.error = "Daily photo limit reached. Saved photos remain recoverable."
+        case 3002: assistance.status = .failed; assistance.error = "Daily AI proposal limit reached. Manual editing remains available."
+        case 3003: assistance.status = .failed; assistance.error = "Editing admission unavailable. Inspect or export your saved revision."
         case 3, 9: assistance.status = .stale; assistance.error = "This advice has expired. Request new guidance for the current image."
         case 13: assistance.status = .cancelled; assistance.error = "Advice cancelled or stopped. Manual editing is available."
         case 8: assistance.status = .failed; assistance.error = "Advice is busy or resources are limited. You can keep editing manually."
@@ -640,6 +773,9 @@ final class ManualEditorModel: ObservableObject {
     }
     private func autoFailure(_ error: Error) {
         switch (error as? ManualEditorFailure)?.status {
+        case 3001: autoProposal.status = .failed; autoProposal.error = "Daily photo limit reached. Saved photos remain recoverable."
+        case 3002: autoProposal.status = .failed; autoProposal.error = "Daily AI proposal limit reached. Manual editing remains available."
+        case 3003: autoProposal.status = .failed; autoProposal.error = "Editing admission unavailable. Inspect or export your saved revision."
         case 3, 9: autoProposal.status = .stale; autoProposal.error = "Proposal expired after an editing change. Request a new proposal."
         case 13: autoProposal.status = .cancelled; autoProposal.error = "Proposal cancelled or stopped. Nothing was applied."
         case 8: autoProposal.status = .failed; autoProposal.error = "Provider busy or resources limited. Manual editing is available."
@@ -756,6 +892,12 @@ final class ManualEditorModel: ObservableObject {
     func reopen() { send { try $0.reopen() } }
     func recover() { invalidateAdvice(); send { $0.close(); try $0.reopen() } }
     func importImage(_ input: URL) { invalidateAdvice(); send { try $0.importImage(input) } }
+    func toggleOriginalPreview() {
+        guard core != nil, !busy else { return }
+        showingOriginal.toggle(); previewLoading = true
+        let original = showingOriginal
+        send { try $0.showOriginal(original) }
+    }
     func select(_ index: Int) { invalidateAdvice(); send { try $0.select(index) } }
     func update(_ values: [Int32]) { invalidateAdvice(); guard let core else { return }; epoch += 1; previewLoading = true; worker.update(values, editID: core.editID, epoch: epoch) }
     func action(_ action: UInt32) { invalidateAdvice(); send { try $0.action(action) } }
@@ -820,11 +962,12 @@ final class ManualEditorModel: ObservableObject {
     func noteExportCancelled() { endExport("Save cancelled", error: nil) }
     func finishShare(completed: Bool) {
         guard shareURL != nil || exporting else { return }
-        if let shareURL { try? FileManager.default.removeItem(at: shareURL) }
+        if let shareURL { ExportDestination.removeStage(shareURL) }
         shareURL = nil
         endExport(completed ? "Share sheet closed. Delivery to another app is not confirmed." : "Share cancelled", error: nil)
     }
     func finishFileExport(_ result: Result<URL, Error>) {
+        if let exportFile { ExportDestination.removeStage(exportFile) }
         exportFile = nil
         switch result {
         case .success: endExport("Saved", error: nil)
@@ -836,47 +979,28 @@ final class ManualEditorModel: ObservableObject {
     }
     func saveToPhotos(format: UInt32, quality: Int) {
         guard let jpeg = exportQuality(format, quality), beginExport() else { return }
-        let model = self
-        worker.exportThen({ worker in
-            try worker.exportRevision(format: format, quality: jpeg).bytes
-        }) { bytes, message in
-            guard let bytes else {
-                DispatchQueue.main.async { model.endExport("Export failed", error: message) }
-                return
-            }
-            ExportDestination.saveToPhotos(bytes) { status, detail in
-                DispatchQueue.main.async { model.endExport(status, error: detail) }
+        worker.exportStaged(format: format, quality: jpeg) { url, message in
+            guard let url else { self.endExport("Export failed", error: message); return }
+            ExportDestination.saveToPhotos(url) { status, detail in
+                ExportDestination.removeStage(url)
+                DispatchQueue.main.async { self.endExport(status, error: detail) }
             }
         }
     }
     func prepareFileExport(format: UInt32, quality: Int) {
         guard let jpeg = exportQuality(format, quality), beginExport() else { return }
-        let model = self
-        worker.exportThen({ worker in
-            try worker.exportRevision(format: format, quality: jpeg).bytes
-        }) { bytes, message in
-            DispatchQueue.main.async {
-                guard let bytes else { model.endExport("Export failed", error: message); return }
-                model.exportFileType = format == 1 ? .jpeg : .png
-                model.exportFile = bytes
-                model.exportStatus = "Choose a destination"
-            }
+        worker.exportStaged(format: format, quality: jpeg) { url, message in
+            guard let url else { self.endExport("Export failed", error: message); return }
+            self.exportFileType = format == 1 ? .jpeg : .png
+            self.exportFile = url; self.exportStatus = "Choose a destination"
         }
     }
     func shareExport(format: UInt32, quality: Int) {
         guard let jpeg = exportQuality(format, quality), beginExport() else { return }
-        let model = self
-        let name = format == 1 ? "PixAuraAI.jpg" : "PixAuraAI.png"
-        worker.exportThen({ worker in
-            let encoded = try worker.exportRevision(format: format, quality: jpeg)
-            return try ExportDestination.cacheFile(name: name, bytes: encoded.bytes)
-        }) { url, message in
-            DispatchQueue.main.async {
-                guard let url else { model.endExport("Export failed", error: message); return }
-                model.shareURL = url
-                model.shareGeneration += 1
-                model.exportStatus = "Opening the share sheet. Delivery is not confirmed."
-            }
+        worker.exportStaged(format: format, quality: jpeg) { url, message in
+            guard let url else { self.endExport("Export failed", error: message); return }
+            self.shareURL = url; self.shareGeneration += 1
+            self.exportStatus = "Opening the share sheet. Delivery is not confirmed."
         }
     }
     private func beginExport() -> Bool {
@@ -885,6 +1009,7 @@ final class ManualEditorModel: ObservableObject {
         return true
     }
     private func endExport(_ status: String, error: String?) {
+        if let exportFile { ExportDestination.removeStage(exportFile) }
         exporting = false; busy = false; exportStatus = status; self.error = error; exportFile = nil
     }
     private func exportQuality(_ format: UInt32, _ quality: Int) -> UInt32? {
@@ -917,8 +1042,33 @@ final class ManualEditorModel: ObservableObject {
         Self.fixtureOpened = true
         send { worker in
             let url = FileManager.default.temporaryDirectory.appendingPathComponent("editor-ui-fixture.png")
-            let fixture = Data(base64Encoded: "iVBORw0KGgoAAAANSUhEUgAAAAIAAAADCAYAAAC56t6BAAAAHElEQVR4nGP4z8DwHwwZGP6DAQMjE/N/Fla2BgCpRQuLxbxPlAAAAABJRU5ErkJggg==")!
-            try fixture.write(to: url); defer { try? FileManager.default.removeItem(at: url) }
+            if ProcessInfo.processInfo.arguments.contains("--editor-test-12mp") {
+                // Synthetic INPUT only. Actual import, rendering, publication,
+                // history and export always use the shipping native pipeline.
+                try autoreleasepool {
+                    let width = 4000, height = 3000
+                    var pixels = Data(count: width * height * 4)
+                    pixels.withUnsafeMutableBytes { (bytes: UnsafeMutableRawBufferPointer) in
+                        for y in 0..<height { for x in 0..<width {
+                            let i = (y * width + x) * 4
+                            bytes[i] = UInt8((x * 13 + y * 7) & 255); bytes[i + 1] = UInt8((x * 3 + y * 11) & 255)
+                            bytes[i + 2] = UInt8((x + y * 5) & 255); bytes[i + 3] = 255
+                        } }
+                    }
+                    guard let space = CGColorSpace(name: CGColorSpace.sRGB), let provider = CGDataProvider(data: pixels as CFData),
+                        let image = CGImage(width: width, height: height, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: width * 4,
+                            space: space, bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.last.rawValue), provider: provider,
+                            decode: nil, shouldInterpolate: false, intent: .defaultIntent),
+                        let destination = CGImageDestinationCreateWithURL(url as CFURL, "public.png" as CFString, 1, nil)
+                    else { throw ManualEditorFailure(status: 8, boundary: "Synthetic UI input") }
+                    CGImageDestinationAddImage(destination, image, nil)
+                    guard CGImageDestinationFinalize(destination) else { throw ManualEditorFailure(status: 12, boundary: "Synthetic UI input") }
+                }
+            } else {
+                let fixture = Data(base64Encoded: "iVBORw0KGgoAAAANSUhEUgAAAAIAAAADCAYAAAC56t6BAAAAHElEQVR4nGP4z8DwHwwZGP6DAQMjE/N/Fla2BgCpRQuLxbxPlAAAAABJRU5ErkJggg==")!
+                try fixture.write(to: url)
+            }
+            defer { try? FileManager.default.removeItem(at: url) }
             try worker.importImage(url)
             if ProcessInfo.processInfo.arguments.contains("--assist-test-failure") { worker.adviceFixtureFailure() }
         }
@@ -941,6 +1091,67 @@ enum ExportDestination {
         case 13: return "Export stopped. Nothing was saved."
         default: return "Export failed. Nothing was saved."
         }
+    }
+    private static let stagingGeneration = UUID().uuidString
+    static func stagingLocation(format: UInt32) throws -> URL {
+        guard format == 1 || format == 2 else { throw ManualEditorFailure(status: 7, boundary: "Export format") }
+        let manager = FileManager.default
+        var root = manager.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("export-v2", isDirectory: true)
+        let attributes: [FileAttributeKey: Any] = [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication, .posixPermissions: 0o700]
+        try manager.createDirectory(at: root, withIntermediateDirectories: true, attributes: attributes)
+        let rootValues = try root.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
+        guard rootValues.isDirectory == true, rootValues.isSymbolicLink != true else { throw ManualEditorFailure(status: 12, boundary: "Export staging") }
+        var policy = URLResourceValues(); policy.isExcludedFromBackup = true; try root.setResourceValues(policy)
+        let generation = root.appendingPathComponent(stagingGeneration, isDirectory: true)
+        if !manager.fileExists(atPath: generation.path) {
+            // A launch-scoped namespace keeps active scene exports separate from
+            // crash leftovers. Only recognised owned names are removed; symlinks
+            // are never followed and enumeration work is bounded per launch.
+            if let entries = manager.enumerator(at: root, includingPropertiesForKeys: [.isSymbolicLinkKey], options: [.skipsSubdirectoryDescendants]) {
+                var inspected = 0
+                while inspected < 256, let child = entries.nextObject() as? URL {
+                    inspected += 1
+                    let name = child.lastPathComponent
+                    guard name != stagingGeneration,
+                          UUID(uuidString: name) != nil || UUID(uuidString: child.deletingPathExtension().lastPathComponent) != nil else { continue }
+                    try? manager.removeItem(at: child)
+                }
+            }
+            try manager.createDirectory(at: generation, withIntermediateDirectories: true, attributes: attributes)
+        }
+        let generationValues = try generation.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
+        guard generationValues.isDirectory == true, generationValues.isSymbolicLink != true else { throw ManualEditorFailure(status: 12, boundary: "Export staging") }
+        let directory = generation.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try manager.createDirectory(at: directory, withIntermediateDirectories: false, attributes: attributes)
+        return directory.appendingPathComponent(format == 1 ? "PixAuraAI.jpg" : "PixAuraAI.png")
+    }
+    static func removeStage(_ url: URL) {
+        let directory = url.deletingLastPathComponent(), generation = directory.deletingLastPathComponent()
+        let root = generation.deletingLastPathComponent()
+        let expected = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("export-v2", isDirectory: true)
+        guard ["PixAuraAI.jpg", "PixAuraAI.png"].contains(url.lastPathComponent),
+              UUID(uuidString: directory.lastPathComponent) != nil,
+              generation.lastPathComponent == stagingGeneration,
+              root.standardizedFileURL == expected.standardizedFileURL else { return }
+        for folder in [root, generation, directory] {
+            guard let values = try? folder.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey]),
+                  values.isDirectory == true, values.isSymbolicLink != true else { return }
+        }
+        try? FileManager.default.removeItem(at: url)
+        try? FileManager.default.removeItem(at: directory)
+    }
+    static func saveToPhotos(_ url: URL, completion: @escaping @Sendable (String, String?) -> Void) {
+        let finish: @Sendable (PHAuthorizationStatus) -> Void = { status in
+            guard libraryAccess(status) else { completion("Export failed", "Photo library permission was denied. Nothing was saved."); return }
+            PHPhotoLibrary.shared().performChanges {
+                let options = PHAssetResourceCreationOptions(); options.shouldMoveFile = false
+                PHAssetCreationRequest.forAsset().addResource(with: .photo, fileURL: url, options: options)
+            } completionHandler: { saved, error in
+                completion(saved ? "Saved" : "Export failed", saved ? nil : error.map { message($0) } ?? "Export failed. Nothing was saved.")
+            }
+        }
+        let current = PHPhotoLibrary.authorizationStatus(for: .addOnly)
+        if current == .notDetermined { PHPhotoLibrary.requestAuthorization(for: .addOnly, handler: finish) } else { finish(current) }
     }
     static func saveToPhotos(_ bytes: Data, completion: @escaping @Sendable (String, String?) -> Void) {
         let finish: @Sendable (PHAuthorizationStatus) -> Void = { status in

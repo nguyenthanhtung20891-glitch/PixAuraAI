@@ -189,4 +189,18 @@
     <string name="phase11_context_source">Nguồn đã xem xét: %1$s. Áp dụng sẽ kiểm tra lại nguồn hiện tại.</string>
     <string name="phase11_context_completed">Đã áp dụng chỉnh sửa. Bản sửa thông thường %1$s. Có thể Hoàn tác trong chế độ Thủ công.</string>
     <string name="phase11_context_zoom">Tỷ lệ phóng to chung: %1$d×</string>
+    <string name="access_recovery">Chế độ khôi phục. Xem và xuất bản sửa đã lưu được duyệt gần nhất. Hiện không thể sửa mới.</string>
+    <string name="access_free">Miễn phí: hôm nay đã dùng %1$d/5 ảnh và %2$d/3 đề xuất AI. Đặt lại lúc 00:00 UTC.</string>
+    <string name="access_trial">Đang dùng thử. Không áp dụng giới hạn ảnh và AI hằng ngày.</string>
+    <string name="access_subscription">Gói đăng ký đã xác minh đang có hiệu lực. Không áp dụng giới hạn hằng ngày.</string>
+    <string name="access_lifetime">Quyền trọn đời đã xác minh. Không áp dụng giới hạn hằng ngày.</string>
+    <string name="access_clock">Đồng hồ thiết bị chưa chắc chắn. Giới hạn hằng ngày dùng thời gian cục bộ được bảo vệ.</string>
+    <string name="access_photo_denied">Đã đạt giới hạn ảnh hằng ngày. Ảnh đã lưu vẫn có thể khôi phục.</string>
+    <string name="access_ai_denied">Đã đạt giới hạn đề xuất AI hằng ngày. Bạn vẫn có thể sửa thủ công.</string>
+    <string name="access_unavailable">Chưa thể cho phép sửa. Hãy xem hoặc xuất bản sửa đã lưu.</string>
+    <string name="show_original">Xem ảnh gốc</string>
+    <string name="show_edited_preview">Xem bản chỉnh sửa xem trước</string>
+    <string name="original_source">Nguồn ảnh gốc</string>
+    <string name="edited_preview">Bản chỉnh sửa xem trước</string>
+    <string name="access_reset_local">Lần đặt lại tiếp theo theo giờ địa phương: %1$s.</string>
 </resources>

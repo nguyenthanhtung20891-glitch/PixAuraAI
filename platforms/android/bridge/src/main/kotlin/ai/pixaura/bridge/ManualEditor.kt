@@ -1,10 +1,15 @@
 package ai.pixaura.bridge
 
 import android.graphics.Bitmap
+import android.os.ParcelFileDescriptor
+import android.system.Os
+import android.system.OsConstants
+import java.io.File
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.UUID
+import java.security.MessageDigest
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import org.json.JSONObject
@@ -21,13 +26,29 @@ class EditorFailure(val status: Int, val boundary: String) : Exception("$boundar
  * Bitmap copies, bounded synchronous worker admission, stop/join/destroy.
  * Construct and call IO/render/approval on application workers, never UI thread.
  */
-class ManualEditor internal constructor(root: String, input: InputStream?, bytes: Long, initialCapability: AndroidCapabilitySnapshot?) : AutoCloseable {
+class ManualEditor internal constructor(root: String, input: InputStream?, bytes: Long, initialCapability: AndroidCapabilitySnapshot?, private val versioned: EditorContextV2? = null, private val runtimeV2: EditorRuntimeV2? = null, private val uiBitmapLifetime: Boolean = false) : AutoCloseable {
+    internal constructor(root: String, input: InputStream?, bytes: Long, initialCapability: AndroidCapabilitySnapshot?) : this(root, input, bytes, initialCapability, null, null)
     constructor(root: String, input: InputStream? = null, bytes: Long = 0) : this(root, input, bytes, null)
-    companion object { init { System.loadLibrary("pixaura_core"); System.loadLibrary("pixaura_bridge") } }
+    companion object {
+        init { System.loadLibrary("pixaura_core"); System.loadLibrary("pixaura_bridge") }
+        internal fun openV2(root: File, runtime: EditorRuntimeV2, input: ParcelFileDescriptor? = null, bytes: Long = 0, uiBitmapLifetime: Boolean = false, explicitlyMigrateSchema3: Boolean = false): ManualEditor {
+            val owner = EditorContextV2(runtime, root, input, bytes, explicitlyMigrateSchema3)
+            try { return ManualEditor(root.canonicalPath, null, 0, null, owner, runtime, uiBitmapLifetime) }
+            catch (error: Throwable) { owner.close(); throw error }
+        }
+    }
     private val identity = UUID.randomUUID().toString().replace("-", "")
     private val gate = ReentrantLock()
     private val idle = gate.newCondition()
-    private val storage = ByteBuffer.allocateDirect(nativeStorageSize())
+    private val legacyStorage = ByteBuffer.allocateDirect(nativeStorageSize())
+    // Every not-yet-ported legacy method fails explicitly instead of touching
+    // zero v1 storage or reinterpreting a v2 handle.
+    private val storage: ByteBuffer get() {
+        if (versioned != null) throw EditorFailure(5, "Legacy editor capability")
+        return legacyStorage
+    }
+    private val versionedFrames = mutableSetOf<EditorFrameV2>()
+    private val versionedPairs = mutableSetOf<EditorContextV2.ReviewPair>()
     private var closed = false
     private var active = 0
     private var agentCalls = 0
@@ -37,17 +58,48 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     private var applyingReview: AutoReview? = null
     private var applyingApproval: AgentApproval? = null
     private var cancellingReview = false
+    private var attemptedV2Proposal: String? = null
     private var attemptedAutoSerial: Long? = null
     private var stopped = false
     private var destroyed = false
     private var displayed: Bitmap? = null
     private var committed: Bitmap? = null
     private var requestedGeneration = 0L
-    class Request internal constructor(internal val owner: String, internal val bytes: ByteBuffer, internal val approved: Boolean, internal val generation: Long)
-    class Candidate internal constructor(val request: Request, val bitmap: Bitmap)
+    private var previewSerial = 0L
+    class PreparedAdvisory internal constructor(internal val owner: ManualEditor, internal val index: Int, internal val native: EditorContextV2.AdvisoryRequest)
+    private var pendingV2Advisory: PreparedAdvisory? = null
+    private var lastV2Advisory: AdvisoryV2? = null
+    fun prepareAdvisory(index: Int): PreparedAdvisory? = gate.withLock {
+        checked(if (closed) 13 else 0, "AI request")
+        val owner = versioned ?: return@withLock null
+        val task = PreparedAdvisory(this, index, owner.beginAdvisory(index))
+        pendingV2Advisory = task; lastV2Advisory = null; task
+    }
+    private fun runV2Advisory(index: Int, prepared: PreparedAdvisory?): AdvisoryV2 {
+        val owner = versioned ?: throw EditorFailure(5, "Versioned AI")
+        val task = gate.withLock {
+            val chosen = prepared ?: prepareAdvisory(index) ?: throw EditorFailure(5, "Versioned AI")
+            checked(if (chosen.owner === this && chosen.index == index) 0 else 9, "AI request binding"); chosen
+        }
+        try { return owner.runAdvisory(task.native).also { gate.withLock { lastV2Advisory = it } } }
+        finally { gate.withLock { if (pendingV2Advisory === task) pendingV2Advisory = null } }
+    }
+    private fun cancelV2Advisory() {
+        val owner = versioned ?: return
+        val targets = gate.withLock { Pair(pendingV2Advisory, lastV2Advisory).also { pendingV2Advisory = null; lastV2Advisory = null } }
+        fun retire(action: () -> Unit) { try { action() } catch (error: EditorFailure) { if (error.status != 9 && error.status != 13) throw error } }
+        targets.first?.let { task -> retire { owner.cancelAdvisoryRequest(task.native) } }
+        targets.second?.let { advice -> retire { owner.cancelAdvisory(advice) } }
+    }
+
+    class Request internal constructor(internal val owner: String, internal val bytes: ByteBuffer, internal val approved: Boolean, internal val generation: Long, internal val v2State: EditorStateV2? = null, internal val original: Boolean = false, internal val serial: Long = 0)
+    class Candidate internal constructor(val request: Request, val bitmap: Bitmap, internal val v2Frame: EditorFrameV2? = null, private val retire: (() -> Unit)? = null) : AutoCloseable {
+        /** Call only after all display consumers have retired this bitmap. */
+        override fun close() { v2Frame?.close(); retire?.invoke() }
+    }
     val tools: List<ManualTool>
     init {
-        checked(nativeOpen(storage, root.toByteArray(Charsets.UTF_8),
+        if (versioned == null) checked(nativeOpen(storage, root.toByteArray(Charsets.UTF_8),
             identity.toByteArray(Charsets.US_ASCII), input, bytes, initialCapability?.facts?.nativeWords(),
             initialCapability?.observation?.nativeWords()), "Open")
         tools = try {
@@ -59,56 +111,103 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
                     ManualParameter(v.getString("name"), v.getString("unit"), v.getInt("minimum"),
                         v.getInt("maximum"), v.getInt("default"), v.getInt("step")) })
         }
-        } catch (failure: Throwable) { nativeStop(storage); nativeDestroy(storage); throw failure }
+        } catch (failure: Throwable) { if (versioned != null) versioned.close() else { nativeStop(storage); nativeDestroy(storage) }; throw failure }
+    }
+    private fun displayBitmap(frame: EditorFrameV2, pair: EditorContextV2.ReviewPair? = null): Bitmap {
+        if (!uiBitmapLifetime) return frame.bitmap
+        val weak = java.lang.ref.WeakReference(this)
+        return frame.transferToDisplay { weak.get()?.let { owner -> owner.gate.withLock { if (pair == null) owner.versionedFrames.remove(frame) else owner.versionedPairs.remove(pair) } } }
     }
     private fun checked(status: Int, boundary: String) { if (status != 0) throw EditorFailure(status, boundary) }
+    /** Read-only native projection; never an admission or Apply capability. */
+    fun commercialStateV2(): CommercialStateV2? = gate.withLock { checked(if (closed) 13 else 0, "Commercial state"); runtimeV2?.commercialState() }
+    fun recoveryOnlyV2(): Boolean = gate.withLock { checked(if (closed) 13 else 0, "Recovery state"); versioned?.state()?.recoveryOnly ?: false }
+    internal fun versionedState(): EditorStateV2? = gate.withLock { checked(if (closed) 13 else 0, "State"); versioned?.state() }
     fun state(): ManualState = gate.withLock {
         check(!closed)
+        if (versioned != null) {
+            val current = versioned.state()
+            return@withLock ManualState(current.selected >= 0, current.pending, current.canUndo, current.canRedo,
+                current.revisionCount, current.revision, current.selected, versioned.editIdentity(), if (current.selected >= 0) 1 else 0, current.values)
+        }
         val j = JSONObject(checkNotNull(nativeState(storage)))
         val v = j.getJSONArray("values")
         ManualState(j.getBoolean("active"), j.getBoolean("approval_pending"), j.getBoolean("can_undo"),
             j.getBoolean("can_redo"), j.getInt("revision_count"), j.getString("revision_id"), j.getInt("selected"), j.getString("edit_id"), j.getInt("gesture_state"),
             (0 until v.length()).map { v.getInt(it) })
     }
-    fun select(index: Int) = gate.withLock { check(!closed); requestedGeneration = 0; displayed = committed; checked(nativeSelect(storage, index), "Tool") }
+    fun select(index: Int) = gate.withLock { check(!closed); requestedGeneration = 0; displayed = committed; if (versioned != null) versioned.select(index) else checked(nativeSelect(storage, index), "Tool") }
     fun update(values: List<Int>, editId: String? = null) = gate.withLock { check(!closed)
         if (editId != null && state().editId != editId) throw EditorFailure(9, "Parameter")
-        checked(nativeUpdate(storage, values.toIntArray()), "Parameter"); requestedGeneration = 0 }
+        if (versioned != null) versioned.update(values) else checked(nativeUpdate(storage, values.toIntArray()), "Parameter"); requestedGeneration = 0 }
     fun action(action: Int) = gate.withLock { check(!closed)
+        if (versioned != null) {
+            when (action) { 0, 4 -> { versioned.cancel(); displayed = committed }; 1 -> versioned.applyFromHuman(); 2 -> versioned.undo(); 3 -> versioned.redo(); else -> throw EditorFailure(1, "History/cancel") }
+            requestedGeneration = 0; return@withLock
+        }
         val status = nativeAction(storage, action)
         if (status == 0 || status == 9) { requestedGeneration = 0; if (action == 0 || action == 4 || status == 9) displayed = committed }
         checked(status, if (action == 1) "Commit" else "History/cancel") }
-    fun request(): Request = gate.withLock {
-        check(!closed); val request = ByteBuffer.allocateDirect(nativeRequestSize())
+    fun request(): Request = request(false)
+    fun request(original: Boolean): Request = gate.withLock {
+        check(!closed)
+        if (versioned != null) {
+            val current = versioned.state(); requestedGeneration = current.generation
+            if (previewSerial == Long.MAX_VALUE) throw EditorFailure(8, "Preview sequence")
+            previewSerial++
+            return@withLock Request(identity, ByteBuffer.allocate(0), current.selected < 0 && !original, current.generation, current, original, previewSerial)
+        }
+        if (original) throw EditorFailure(5, "Original preview")
+        val request = ByteBuffer.allocateDirect(nativeRequestSize())
         checked(nativeRequest(storage, request), "Preview"); requestedGeneration = nativeGeneration(request)
         Request(identity, request, !state().active, requestedGeneration)
     }
     fun render(request: Request): Candidate? {
         gate.withLock { if (closed || request.owner != identity || active >= 1) return null; active++ }
         try {
+            if (versioned != null) {
+                val expected = request.v2State ?: throw EditorFailure(9, "Preview binding")
+                val current = versioned.state()
+                if (expected.epoch != current.epoch || expected.generation != current.generation) return null
+                val frame = versioned.preview(original = request.original)
+                // Worker-side native copy validates source/epoch/generation
+                // while waiting for short metadata readers. A nonblocking UI
+                // current check here could incorrectly discard the only frame.
+                gate.withLock { versionedFrames.add(frame) }
+                return Candidate(request, displayBitmap(frame), frame) { gate.withLock { versionedFrames.remove(frame) }; Unit }
+            }
             val pixels = nativeRender(storage, request.bytes) ?: throw EditorFailure(8, "Preview")
             checked(pixels[0], "Preview")
             return Candidate(request, Bitmap.createBitmap(pixels, 3, pixels[1], pixels[1], pixels[2], Bitmap.Config.ARGB_8888))
         } finally { gate.withLock { active--; idle.signalAll() } }
     }
-    fun install(candidate: Candidate, replace: (Bitmap) -> Unit = {}): Boolean = gate.withLock {
+    fun install(candidate: Candidate, replace: (Bitmap) -> Unit = {}): Boolean = installChecked(candidate, false, replace)
+    // Shipping publication runs on its serial command worker, never the UI.
+    internal fun installOnWorker(candidate: Candidate, replace: (Bitmap) -> Unit = {}): Boolean = installChecked(candidate, true, replace)
+    private fun installChecked(candidate: Candidate, wait: Boolean, replace: (Bitmap) -> Unit): Boolean = gate.withLock {
+        if (versioned != null) {
+            if (closed || candidate.request.owner != identity || candidate.request.generation != requestedGeneration || candidate.request.serial != previewSerial || candidate.v2Frame?.currency(wait) != FrameCurrencyV2.CURRENT) return@withLock false
+            displayed = candidate.bitmap; if (candidate.request.approved) committed = candidate.bitmap; replace(candidate.bitmap); return@withLock true
+        }
         if (closed || candidate.request.owner != identity || nativeCurrent(storage, candidate.request.bytes) != 0) false
         else { displayed = candidate.bitmap; if (candidate.request.approved) committed = candidate.bitmap; replace(candidate.bitmap); true }
     }
     fun displayedBitmap(): Bitmap? = gate.withLock { displayed }
     internal fun configureCapability(snapshot: AndroidCapabilitySnapshot): ExecutionStrategy = gate.withLock {
         check(!closed)
+        if (runtimeV2 != null) return@withLock runtimeV2.updateCapability(snapshot.observation)
         ExecutionStrategy.fromNative(checkNotNull(nativePolicyConfigure(storage, snapshot.facts.nativeWords(), snapshot.observation.nativeWords())))
     }
     internal fun updateCapability(observation: AndroidObservation): ExecutionStrategy = gate.withLock {
         check(!closed)
+        if (runtimeV2 != null) return@withLock runtimeV2.updateCapability(observation)
         ExecutionStrategy.fromNative(checkNotNull(nativePolicyUpdate(storage, observation.nativeWords())))
     }
     internal fun executionStrategy(): ExecutionStrategy = gate.withLock {
-        check(!closed); ExecutionStrategy.fromNative(checkNotNull(nativePolicyQuery(storage)))
+        check(!closed); if (runtimeV2 != null) runtimeV2.strategy() else ExecutionStrategy.fromNative(checkNotNull(nativePolicyQuery(storage)))
     }
     internal fun hasRequestedPreview(): Boolean = gate.withLock { !closed && requestedGeneration != 0L }
-    fun isRequested(request: Request): Boolean = gate.withLock { !closed && request.owner == identity && request.generation == requestedGeneration }
+    fun isRequested(request: Request): Boolean = gate.withLock { !closed && request.owner == identity && request.generation == requestedGeneration && (request.v2State == null || request.serial == previewSerial) }
     /** Immutable untrusted proposal bytes; the core revalidates at every authority gate. */
     class AgentPlan internal constructor(bytes: ByteArray) {
         private val canonical = bytes.copyOf()
@@ -120,14 +219,16 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
         override fun close() = owner.releaseAgentApproval(this)
     }
     class AgentReceipt internal constructor() {
+        internal var v2Publication: NativePublicationV2? = null
+        internal var v2PlanDigest: String? = null
         internal val buffer: ByteBuffer = ByteBuffer.allocateDirect(144)
         private fun text(offset: Int, length: Int): String {
             val bytes = ByteArray(length); val copy = buffer.duplicate(); copy.position(offset); copy.get(bytes)
             return String(bytes, Charsets.US_ASCII)
         }
-        val planSHA256: String get() = text(16, 64)
-        val sourceRevision: String get() = text(80, 32)
-        val resultingRevision: String get() = text(112, 32)
+        val planSHA256: String get() = v2PlanDigest ?: text(16, 64)
+        val sourceRevision: String get() = v2Publication?.parent ?: text(80, 32)
+        val resultingRevision: String get() = v2Publication?.revision ?: text(112, 32)
         internal fun validate() {
             val b = buffer.duplicate().order(ByteOrder.nativeOrder())
             if (b.getInt(0) != 1 || b.getInt(4) != 144 || b.getInt(8) != 1 || b.getInt(12) != 0 ||
@@ -137,6 +238,7 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     }
     private fun agentBytes(mode: Int, input: ByteArray?): ByteArray = gate.withLock {
         checked(if (closed) 13 else 0, "Agent")
+        if (versioned != null) return@withLock versioned.agentBytes(mode, input)
         val output = ByteBuffer.allocateDirect(8200).order(ByteOrder.nativeOrder())
         checked(nativeAgentBytes(storage, mode, input, output), "Agent")
         val length = output.getLong(0)
@@ -170,7 +272,7 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
         val result = AgentReceipt()
         val bytes = plan.canonicalBytes()
         gate.withLock {
-            checked(if (closed) 13 else if (agentCalls >= 8) 8 else 0, "Agent execution")
+            checked(if (closed) 13 else if (versioned != null) 15 else if (agentCalls >= 8) 8 else 0, "Agent execution")
             agentCalls++
         }
         try {
@@ -184,7 +286,7 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
         checked(if (closed) 13 else nativeAgentCancel(storage), "Agent cancellation")
     }
     class AssistChoice internal constructor(val index: Int, val toolIndex: Int, val values: List<Int>)
-    class AssistAdvice internal constructor(internal val owner: ManualEditor, internal val packet: ByteBuffer, val choice: AssistChoice)
+    class AssistAdvice internal constructor(internal val owner: ManualEditor, internal val packet: ByteBuffer, val choice: AssistChoice, internal val v2Advice: AdvisoryV2? = null)
     private fun assistChoice(packet: ByteBuffer): AssistChoice {
         val data = packet.duplicate().order(ByteOrder.nativeOrder())
         val count = data.getInt(16)
@@ -197,25 +299,37 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
         List(count) { index -> val packet = ByteBuffer.allocateDirect(nativeAssistSize())
             checked(nativeAssistChoice(index, packet), "Advice"); assistChoice(packet) }
     }
-    fun requestAdvice(index: Int): AssistAdvice {
+    fun requestAdvice(index: Int): AssistAdvice = requestAdvice(index, null)
+    fun requestAdvice(index: Int, prepared: PreparedAdvisory?): AssistAdvice {
         val packet = ByteBuffer.allocateDirect(nativeAssistSize())
         gate.withLock { checked(if (closed) 13 else if (assistCalls != 0 || applyingReview != null || cancellingReview) 8 else 0, "Advice"); assistCalls++ }
         try {
+            if (versioned != null) {
+                val advice = runV2Advisory(index, prepared); val proposal = v2Proposal(advice)
+                val first = proposal.actions.firstOrNull() ?: throw EditorFailure(14, "Advice")
+                return AssistAdvice(this, ByteBuffer.allocate(0), AssistChoice(index, first.toolIndex, first.values), advice)
+            }
             checked(nativeAssistRequest(storage, index, packet), "Advice")
             return AssistAdvice(this, packet.asReadOnlyBuffer(), assistChoice(packet))
         } finally { gate.withLock { assistCalls--; idle.signalAll() } }
     }
     fun inspectAdvice(advice: AssistAdvice): AssistChoice = gate.withLock {
+        if (versioned != null && advice.v2Advice != null) {
+            checked(if (closed) 13 else if (advice.owner !== this) 9 else 0, "Advice")
+            versioned.inspectReview(advice.v2Advice); return@withLock advice.choice
+        }
         checked(if (closed) 13 else if (advice.owner !== this) 9 else nativeAssistCurrent(storage, advice.packet), "Advice")
         advice.choice
     }
-    fun cancelAdvice() = gate.withLock { checked(if (closed) 13 else nativeAssistCancel(storage), "Advice") }
-    class AutoProposal internal constructor(internal val owner: ManualEditor, internal val packet: ByteBuffer,
-        val actions: List<AssistChoice>, val proposalId: String, val providerId: String)
-    fun requestAuto(index: Int): AutoProposal {
+    fun cancelAdvice() { if (versioned != null) { cancelV2Advisory(); return }; gate.withLock { checked(if (closed) 13 else nativeAssistCancel(storage), "Advice") } }
+    class AutoProposal @JvmOverloads internal constructor(internal val owner: ManualEditor, internal val packet: ByteBuffer,
+        val actions: List<AssistChoice>, val proposalId: String, val providerId: String, internal val v2Advice: AdvisoryV2? = null)
+    fun requestAuto(index: Int): AutoProposal = requestAuto(index, null)
+    fun requestAuto(index: Int, prepared: PreparedAdvisory?): AutoProposal {
         val packet = ByteBuffer.allocateDirect(nativeAutoSize()).order(ByteOrder.nativeOrder())
         gate.withLock { checked(if (closed) 13 else if (assistCalls != 0 || applyingReview != null || cancellingReview) 8 else 0, "Auto proposal"); assistCalls++ }
         try {
+            if (versioned != null) return v2Proposal(runV2Advisory(index, prepared))
             checked(nativeAutoRequest(storage, index, packet), "Auto proposal")
             val count = packet.getInt(8)
             checked(if (packet.getInt(0) == 1 && packet.getInt(4) == 328 && count in 1..8) 0 else 14, "Auto proposal")
@@ -228,16 +342,35 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     }
     fun inspectAuto(proposal: AutoProposal): ByteArray = gate.withLock {
         checked(if (closed) 13 else if (proposal.owner !== this) 9 else 0, "Auto proposal")
+        if (versioned != null && proposal.v2Advice != null) return@withLock versioned.advisoryContent(proposal.v2Advice, false)
         val bytes = ByteBuffer.allocateDirect(8192); val size = nativeAutoPlan(storage, proposal.packet, bytes)
         checked(if (size < 0) -size else if (size in 1..8192) 0 else 14, "Auto proposal")
         ByteArray(size).also { bytes.get(it) }
     }
-    fun cancelAuto() = gate.withLock { checked(if (closed) 13 else nativeAutoCancel(storage), "Auto proposal") }
+    fun cancelAuto() { if (versioned != null) { cancelV2Advisory(); return }; gate.withLock { checked(if (closed) 13 else nativeAutoCancel(storage), "Auto proposal") } }
     /** Presentation owns this immutable reviewed plan, never an approval token. */
     data class ReviewParameter(val name: String, val unit: String, val raw: Int, val minimum: Int, val maximum: Int, val neutral: Int)
     data class ReviewAction(val index: Int, val toolId: String, val label: String, val operationVersion: Int,
         val parameterVersion: Int, val geometry: Boolean, val parameters: List<ReviewParameter>)
     class PlanInspection internal constructor(internal val packet: ByteBuffer, val actions: List<ReviewAction>, val warnings: Int)
+    private fun v2Proposal(advice: AdvisoryV2): AutoProposal {
+        val owner = versioned ?: throw EditorFailure(5, "Versioned AI")
+        val description = owner.inspectReview(advice)
+        val actions = description.actions.map { action ->
+            checked(if (action.toolIndex in tools.indices && tools[action.toolIndex].id == action.toolId) 0 else 14, "Native inspection tool")
+            AssistChoice(action.index, action.toolIndex, action.parameters.map { it.raw })
+        }
+        return AutoProposal(this, ByteBuffer.allocate(0), actions, advice.id, description.providerId, advice)
+    }
+    private fun v2Review(proposal: AutoProposal): AutoReview {
+        val owner = versioned ?: throw EditorFailure(5, "Versioned AI")
+        val advice = proposal.v2Advice ?: throw EditorFailure(9, "Native review")
+        val described = owner.inspectReview(advice); val bytes = inspectAuto(proposal); val current = owner.state()
+        checked(if (current.epoch == advice.epoch) 0 else 9, "Native review source")
+        val actions = described.actions.map { a -> ReviewAction(a.index, a.toolId, a.label, a.operationVersion, a.parameterVersion, a.geometry,
+            java.util.Collections.unmodifiableList(a.parameters.map { ReviewParameter(it.name, it.unit, it.raw, it.minimum, it.maximum, it.neutral) })) }
+        return AutoReview(this, proposal, AgentPlan(bytes), current.revision, PlanInspection(ByteBuffer.allocate(0), java.util.Collections.unmodifiableList(actions), described.warnings))
+    }
     private fun describeReview(proposal: AutoProposal, plan: AgentPlan): PlanInspection {
         val p = ByteBuffer.allocateDirect(4808).order(ByteOrder.nativeOrder())
         checked(nativeInspection(storage, proposal.packet, plan.canonicalBytes(), p), "Plan inspection")
@@ -262,7 +395,7 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     class AutoReview internal constructor(internal val owner: ManualEditor, internal val proposal: AutoProposal,
         internal val plan: AgentPlan, val sourceRevision: String, val inspection: PlanInspection) {
         /** Immutable native context/request serial, never an object address. */
-        val reviewIdentity: String = proposal.packet.duplicate().order(ByteOrder.nativeOrder()).let { p ->
+        val reviewIdentity: String = proposal.v2Advice?.let { "v2review:" + it.id } ?: proposal.packet.duplicate().order(ByteOrder.nativeOrder()).let { p ->
             "review:" + ByteArray(32) { p.get(24 + it) }.toString(Charsets.US_ASCII) + ":" + p.getLong(56).toULong().toString()
         }
         internal var attempted = false
@@ -272,11 +405,17 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     fun prepareAutoReview(proposal: AutoProposal): AutoReview = gate.withLock {
         checked(if (closed) 13 else if (proposal.owner !== this) 9 else 0, "Auto review")
         checked(if (applyingReview != null || cancellingReview) 8 else 0, "Auto review")
+        if (proposal.v2Advice != null) { checked(if (attemptedV2Proposal == proposal.proposalId) 15 else 0, "Auto review"); return@withLock v2Review(proposal) }
         checked(if (proposal.packet.duplicate().order(ByteOrder.nativeOrder()).getLong(56) == attemptedAutoSerial) 15 else 0, "Auto review")
         val plan = validateAgentPlan(inspectAuto(proposal))
         AutoReview(this, proposal, plan, state().revisionId, describeReview(proposal, plan))
     }
     fun inspectReview(review: AutoReview): PlanInspection = gate.withLock {
+        if (review.proposal.v2Advice != null) {
+            checked(if (closed) 13 else if (review.owner !== this || review.abandoned || review.attempted) 9 else 0, "Plan inspection current")
+            checked(if (inspectAuto(review.proposal).contentEquals(review.canonicalBytes())) 0 else 9, "Plan inspection current")
+            return@withLock review.inspection
+        }
         checked(if (closed) 13 else if (review.owner !== this || review.abandoned || review.attempted) 9 else nativeInspectionCurrent(storage, review.inspection.packet), "Plan inspection current")
         review.inspection
     }
@@ -287,9 +426,10 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
             get() = lock.withLock { field }
             internal set(value) { lock.withLock { field = value } }
         internal var nativeState = state
+        internal var nativeAdvice: AdvisoryV2? = null
         val state get() = lock.withLock { if (review == null && nativeState != 3) 4 else nativeState }
         val bindingIdentity get() = lock.withLock {
-            review?.reviewIdentity ?: packet.duplicate().order(ByteOrder.nativeOrder()).let { p ->
+            review?.reviewIdentity ?: nativeAdvice?.let { "v2edit:" + it.id + ":" + state } ?: packet.duplicate().order(ByteOrder.nativeOrder()).let { p ->
                 "edit:" + ByteArray(32) { p.get(56 + it) }.toString(Charsets.US_ASCII) + ":" + p.getLong(32).toULong().toString() + ":" + state
             }
         }
@@ -305,6 +445,7 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     fun beginReviewEditing(review: AutoReview): ReviewEditSession = editAdmission {
         inspectReview(review)
         checked(if (applyingReview != null || cancellingReview || assistCalls != 0) 8 else 0, "Review edit")
+        if (review.proposal.v2Advice != null) return@editAdmission ReviewEditSession(this, ByteBuffer.allocate(0), review, 1).also { it.nativeAdvice = review.proposal.v2Advice }
         val result = editBuffer(480); checked(nativeEditBegin(storage, review.inspection.packet, result), "Review edit begin")
         checked(if (result.getInt(0) == 1 && result.getInt(4) == 480 && result.getInt(8) == 1) 0 else 14, "Review edit result")
         ReviewEditSession(this, result.asReadOnlyBuffer(), review, 1)
@@ -317,6 +458,15 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
         checked(if (session.bindingIdentity == expectedIdentity) 0 else 9, "Review edit binding")
         val old = session.review
         checked(if (old?.attempted == true || old?.abandoned == true) 9 else 0, "Review edit")
+        if (versioned != null && session.nativeAdvice != null) {
+            try {
+                val advice = requireNotNull(session.nativeAdvice)
+                val next = versioned.editReviewCommand(advice, operation, action, parameter, value, destination)
+                old?.abandoned = true; session.review = null; comparison = null; session.nativeAdvice = next; lastV2Advisory = next
+                if (versioned.inspectReview(next).actions.isEmpty()) { session.nativeState = 3; return@edit null }
+                val review = v2Review(v2Proposal(next)); session.review = review; session.nativeState = if (operation == 4) 1 else 2; return@edit review
+            } catch (error: Throwable) { old?.abandoned = true; session.review = null; session.nativeState = 4; comparison = null; throw error }
+        }
         val request = editBuffer(776); request.putInt(0, 1); request.putInt(4, 776); request.putInt(8, operation)
         request.putInt(12, action); request.putInt(16, parameter); request.putInt(20, destination); request.putInt(24, value)
         copyEditBytes(session.packet, 16, request, 32, 136)
@@ -359,6 +509,23 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     private external fun nativeResultRender(storage: ByteBuffer, review: ByteBuffer, revision: ByteArray): IntArray?
     /** ONLY the explicit review Apply action may invoke this trusted boundary. */
     fun applyAutoFromHuman(review: AutoReview, onExecuting: () -> Unit = {}): AgentReceipt {
+        if (versioned != null && review.proposal.v2Advice != null) {
+            val result = AgentReceipt()
+            result.v2PlanDigest = MessageDigest.getInstance("SHA-256").digest(review.canonicalBytes()).joinToString("") { "%02x".format(it.toInt() and 255) }
+            gate.withLock {
+                checked(if (closed) 13 else if (review.owner !== this) 9 else if (review.attempted || review.abandoned) 15 else if (applyingReview != null || cancellingReview || assistCalls != 0) 8 else 0, "Auto Apply")
+                checked(if (inspectAuto(review.proposal).contentEquals(review.canonicalBytes())) 0 else 9, "Native review")
+                checked(if (attemptedV2Proposal == review.proposal.proposalId) 15 else 0, "Auto Apply")
+                attemptedV2Proposal = review.proposal.proposalId; review.attempted = true; applyingReview = review; agentCalls++
+            }
+            try {
+                onExecuting()
+                gate.withLock { checked(if (closed) 13 else if (review.abandoned) 15 else 0, "Auto Apply") }
+                result.v2Publication = versioned.applyAdvisoryReceiptFromHuman(requireNotNull(review.proposal.v2Advice))
+                checked(if (result.sourceRevision == review.sourceRevision) 0 else 14, "Auto receipt")
+                return result
+            } finally { gate.withLock { applyingReview = null; agentCalls--; idle.signalAll() } }
+        }
         val approval = gate.withLock {
             checked(if (closed) 13 else if (review.owner !== this) 9 else if (review.attempted || review.abandoned) 15
                 else if (applyingReview != null || cancellingReview || assistCalls != 0) 8 else 0, "Auto Apply")
@@ -382,6 +549,10 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
         } }
     }
     fun cancelAutoReview(review: AutoReview) {
+        if (versioned != null && review.proposal.v2Advice != null) {
+            gate.withLock { checked(if (closed) 13 else if (review.owner !== this) 9 else 0, "Auto cancellation"); review.abandoned = true }
+            versioned.cancelAdvisory(requireNotNull(review.proposal.v2Advice)); return
+        }
         val approval = gate.withLock {
             checked(if (closed) 13 else if (review.owner !== this) 9 else 0, "Auto cancellation")
             review.abandoned = true
@@ -395,25 +566,85 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
             cancelAgentExecution()
         } finally { gate.withLock { cancellingReview = false; agentCalls--; idle.signalAll() } }
     }
-    class ResultReview internal constructor(internal val buffer: ByteBuffer) {
+    internal data class VersionedResult(val owner: String, val epoch: Long, val state: Int, val flags: Int,
+        val document: String, val previous: String, val result: String, val live: String, val count: Int, val geometry: Boolean)
+    class ResultReview internal constructor(internal val buffer: ByteBuffer, internal val v2: VersionedResult? = null) {
         private fun ordered() = buffer.duplicate().order(ByteOrder.nativeOrder())
         private fun identity(offset: Int): String {
             val bytes = ByteArray(32); val view = ordered(); view.position(offset); view.get(bytes)
             if (bytes[0] == 0.toByte()) return ""
             return String(bytes, Charsets.US_ASCII)
         }
-        val state: Int get() = ordered().getInt(8)
-        val flags: Int get() = ordered().getInt(12)
-        val documentId: String get() = identity(16)
-        val previousRevision: String get() = identity(48)
-        val resultRevision: String get() = identity(80)
-        val liveRevision: String get() = identity(112)
-        val revisionCount: Int get() = ordered().getInt(144)
-        val geometryChanged: Boolean get() = ordered().getInt(148) != 0
+        val state: Int get() = v2?.state ?: (ordered().getInt(8))
+        val flags: Int get() = v2?.flags ?: (ordered().getInt(12))
+        val documentId: String get() = v2?.document ?: (identity(16))
+        val previousRevision: String get() = v2?.previous ?: (identity(48))
+        val resultRevision: String get() = v2?.result ?: (identity(80))
+        val liveRevision: String get() = v2?.live ?: (identity(112))
+        val revisionCount: Int get() = v2?.count ?: (ordered().getInt(144))
+        val geometryChanged: Boolean get() = v2?.geometry ?: (ordered().getInt(148) != 0)
         val hasPrevious: Boolean get() = flags and 1 != 0
         val canUndo: Boolean get() = flags and 2 != 0
         val canRedo: Boolean get() = flags and 4 != 0
         val publicationVisible: Boolean get() = flags and 8 != 0
+    }
+    /** Call after every UI/display consumer has retired the result bitmap. */
+    fun retireResult(bitmap: Bitmap) = gate.withLock {
+        val frame = versionedFrames.firstOrNull { it.bitmap === bitmap }
+        if (frame != null) { versionedFrames.remove(frame); frame.close() }
+    }
+    class PreparedExport internal constructor(internal val owner: ManualEditor, internal val format: Int,
+        internal val quality: Int, internal val native: EditorContextV2.ExportTask?) : AutoCloseable {
+        internal val closed = java.util.concurrent.atomic.AtomicBoolean(false)
+        override fun close() {
+            if (!closed.compareAndSet(false, true)) return
+            native?.close()
+            owner.gate.withLock { if (owner.activeV2Export === this) owner.activeV2Export = null }
+        }
+    }
+    class StagedExport internal constructor(val file: File, val width: Int, val height: Int,
+        internal val native: NativeExportObservationV2?)
+    private var activeV2Export: PreparedExport? = null
+    fun prepareExport(format: Int, quality: Int): PreparedExport = gate.withLock {
+        checked(if (closed) 13 else if (exportCalls != 0 || activeV2Export != null || assistCalls != 0 || applyingReview != null) 8 else 0, "Begin export")
+        val task = PreparedExport(this, format, quality, versioned?.beginExport(format, quality))
+        if (versioned != null) activeV2Export = task
+        task
+    }
+    /** Creates only an exclusive private staging file. Destination permissions and
+     * stream delivery remain platform-owned; no export is an edit receipt. */
+    fun exportStaged(file: File, format: Int, quality: Int, prepared: PreparedExport? = null): StagedExport {
+        val task = prepared ?: prepareExport(format, quality)
+        checked(if (task.closed.get()) 13 else if (task.owner === this && task.format == format && task.quality == quality) 0 else 9, "Export binding")
+        var created = false
+        var admitted = false
+        try {
+            if (versioned != null) gate.withLock {
+                checked(if (closed) 13 else if (activeV2Export !== task || exportCalls != 0) 9 else 0, "Export binding")
+                exportCalls++; admitted = true
+            }
+            val descriptor = Os.open(file.path, OsConstants.O_RDWR or OsConstants.O_CREAT or OsConstants.O_EXCL or OsConstants.O_NOFOLLOW, 384)
+            created = true
+            try {
+                ParcelFileDescriptor.dup(descriptor).use { fd ->
+                    if (versioned != null) {
+                        val result = requireNotNull(task.native).run(fd)
+                        return StagedExport(file, result.width, result.height, result)
+                    }
+                    val result = exportEncoded(format, quality)
+                    // v1 retains its existing certified bounded encoding contract.
+                    ParcelFileDescriptor.AutoCloseOutputStream(ParcelFileDescriptor.dup(fd.fileDescriptor)).use { it.write(result.bytes) }
+                    return StagedExport(file, result.width, result.height, null)
+                }
+            } finally { Os.close(descriptor) }
+        } catch (error: Throwable) { if (created) file.delete(); throw error }
+        finally {
+            task.close()
+            gate.withLock {
+                if (activeV2Export === task) activeV2Export = null
+                if (admitted) { exportCalls--; idle.signalAll() }
+            }
+        }
     }
     class EncodedExport(val bytes: ByteArray, val width: Int, val height: Int, val state: Int)
     /** Reads one committed revision. Does not approve, execute, or change history. */
@@ -430,6 +661,14 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
         } finally { gate.withLock { exportCalls--; idle.signalAll() } }
     }
     fun exportCancel() {
+        if (versioned != null) {
+            gate.withLock {
+                val task = activeV2Export
+                try { if (task != null && !task.closed.get()) task.native?.cancel() }
+                catch (error: EditorFailure) { if (error.status != 9 && error.status != 13) throw error }
+            }
+            return
+        }
         val status = nativeExportCancel(storage)
         if (status != 0 && status != 1 && status != 3) throw EditorFailure(status, "Export")
     }
@@ -438,6 +677,27 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     /** History observation only. A null receipt cannot invent Apply success. */
     fun resultReview(receipt: AgentReceipt?): ResultReview = gate.withLock {
         checked(if (closed) 13 else 0, "Result review")
+        if (versioned != null) {
+            val history = versioned.history(); val current = versioned.state()
+            checked(if (history.getLong("epoch") == current.epoch && history.getString("current") == current.revision) 0 else 9, "Result history")
+            val revisions = history.getJSONArray("revisions")
+            fun find(id: String): JSONObject? = (0 until revisions.length()).map { revisions.getJSONObject(it) }.firstOrNull { it.getString("id") == id }
+            val live = find(current.revision) ?: throw EditorFailure(14, "Result history")
+            val publication = receipt?.v2Publication
+            checked(if (receipt == null || publication != null) 0 else 9, "Result receipt")
+            if (publication != null) checked(if (publication.document == history.getString("document_id") && publication.source == history.getString("source_sha256")) 0 else 9, "Result source")
+            val result = publication?.let { find(it.revision) }
+            val observed = result ?: live
+            val previous = if (observed.isNull("parent_id")) "" else observed.getString("parent_id")
+            val before = find(previous)
+            val state = if (publication == null) { if (revisions.length() > 1) 3 else 0 }
+                else if (result == null) 4 else if (previous == publication.parent && current.revision == publication.revision) 1 else 2
+            val flags = (if (previous.isNotEmpty()) 1 else 0) or
+                (if (current.selected < 0 && current.canUndo) 2 else 0) or (if (current.selected < 0 && current.canRedo) 4 else 0) or (if (result != null) 8 else 0)
+            return@withLock ResultReview(ByteBuffer.allocate(0), VersionedResult(identity, current.epoch, state, flags,
+                history.getString("document_id"), previous, result?.getString("id") ?: "", current.revision, revisions.length(),
+                result != null && before != null && before.getString("geometry_sha256") != result.getString("geometry_sha256")))
+        }
         val out = ByteBuffer.allocateDirect(152).order(ByteOrder.nativeOrder())
         checked(nativeResultQuery(storage, receipt?.buffer, out), "Result review")
         ResultReview(out)
@@ -445,6 +705,17 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     fun renderResult(review: ResultReview, revision: String): Bitmap {
         val id = revision.toByteArray(Charsets.US_ASCII)
         checked(if (id.size == 32) 0 else 1, "Result review")
+        if (versioned != null) return gate.withLock {
+            checked(if (closed) 13 else 0, "Result review")
+            val binding = review.v2 ?: throw EditorFailure(9, "Result binding")
+            val history = versioned.history()
+            checked(if (binding.owner == identity && binding.epoch == history.getLong("epoch") && binding.live == history.getString("current") && binding.document == history.getString("document_id")) 0 else 9, "Result current")
+            val frame = versioned.preview(256, 256, revision = revision)
+            try {
+                checked(if (frame.isCurrent) 0 else 9, "Result current")
+                versionedFrames.add(frame); displayBitmap(frame)
+            } catch (error: Throwable) { frame.close(); throw error }
+        }
         val pixels = gate.withLock {
             checked(if (closed) 13 else 0, "Result review")
             checkNotNull(nativeResultRender(storage, review.buffer, id))
@@ -455,6 +726,14 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
         return Bitmap.createBitmap(pixels, 3, width, width, height, Bitmap.Config.ARGB_8888)
     }
     override fun close() = gate.withLock {
+        if (versioned != null) {
+            closed = true; versioned.stop()
+            while (active != 0 || agentCalls != 0 || assistCalls != 0 || exportCalls != 0) idle.awaitUninterruptibly()
+            displayed = null; committed = null
+            for (frame in versionedFrames) frame.close(); versionedFrames.clear()
+            for (pair in versionedPairs) pair.close(); versionedPairs.clear(); comparison = null
+            versioned.close(); destroyed = true; stopped = true; return@withLock
+        }
         comparison = null
         closed = true
         if (exportCalls != 0) nativeExportCancel(storage)
@@ -465,15 +744,22 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
     }
     private external fun nativeAgentBytes(storage: ByteBuffer, mode: Int, input: ByteArray?, output: ByteBuffer): Int
     /** Disposable display resources. No approval/candidate is present here. */
-    class ReviewPreviewRequest internal constructor(internal val owner: ManualEditor, internal val ticket: ByteBuffer, internal val review: AutoReview)
+    class ReviewPreviewRequest internal constructor(internal val owner: ManualEditor, internal val ticket: ByteBuffer, internal val review: AutoReview,
+        internal val v2Task: EditorContextV2.ReviewPreview? = null) : AutoCloseable {
+        override fun close() { v2Task?.close() }
+    }
     class ReviewComparison internal constructor(internal val owner: ManualEditor, internal val packet: ByteBuffer,
         internal val request: ReviewPreviewRequest, val before: Bitmap, val after: Bitmap, val geometryChanged: Boolean,
-        val dimensions: String)
+        val dimensions: String, internal val v2Pair: EditorContextV2.ReviewPair? = null, private val retire: (() -> Unit)? = null) : AutoCloseable {
+        /** Retire all display consumers before closing comparison bitmaps. */
+        override fun close() { v2Pair?.close(); request.close(); retire?.invoke() }
+    }
     fun beginReviewPreview(review: AutoReview): ReviewPreviewRequest = gate.withLock {
         checked(if (closed) 13 else if (review.owner !== this || review.attempted || review.abandoned) 9
             else if (assistCalls != 0 || applyingReview != null || cancellingReview) 8 else 0, "Review preview")
         inspectReview(review)
         comparison = null
+        if (versioned != null && review.proposal.v2Advice != null) return@withLock ReviewPreviewRequest(this, ByteBuffer.allocate(0), review, versioned.beginReviewPreview(requireNotNull(review.proposal.v2Advice)))
         val ticket = ByteBuffer.allocateDirect(56).order(ByteOrder.nativeOrder())
         checked(nativeReviewBegin(storage, review.proposal.packet, review.canonicalBytes(), ticket), "Review preview")
         ReviewPreviewRequest(this, ticket.asReadOnlyBuffer(), review)
@@ -487,6 +773,14 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
             assistCalls++; output
         }
         try {
+            if (request.v2Task != null) {
+                val pair = request.v2Task.render()
+                if (!pair.isCurrent) { pair.close(); throw EditorFailure(9, "Review preview current") }
+                gate.withLock { versionedPairs.add(pair) }
+                return ReviewComparison(this, ByteBuffer.allocate(0), request, displayBitmap(pair.before, pair), displayBitmap(pair.after, pair),
+                    request.review.inspection.actions.any { it.geometry },
+                    "Before ${pair.before.sourceWidth} × ${pair.before.sourceHeight}; After ${pair.after.sourceWidth} × ${pair.after.sourceHeight}", pair) { gate.withLock { versionedPairs.remove(pair) }; Unit }
+            }
             checked(nativeReviewRender(storage, request.ticket, packet), "Review preview")
             fun image(side: Int): Bitmap {
                 val words = nativeReviewImage(storage, packet, side) ?: throw EditorFailure(8, "Review preview copy")
@@ -500,19 +794,31 @@ class ManualEditor internal constructor(root: String, input: InputStream?, bytes
             return ReviewComparison(this, packet.asReadOnlyBuffer(), request, before, after, packet.getInt(152) == 1,
                 "Before ${packet.getInt(136)} × ${packet.getInt(140)}; After ${packet.getInt(144)} × ${packet.getInt(148)}")
         } finally {
-            nativeReviewRelease(storage, packet) // may be absent on failure; no publication authority
+            if (request.v2Task == null) nativeReviewRelease(storage, packet) // may be absent on failure; no publication authority
             gate.withLock { assistCalls--; idle.signalAll() }
         }
     }
     /** Check and actual presentation replacement share this lifecycle gate. */
     fun installReviewPreview(value: ReviewComparison, install: () -> Unit): Boolean = gate.withLock {
+        if (value.v2Pair != null) {
+            if (closed || value.owner !== this || value.request.review.attempted || value.request.review.abandoned || !value.v2Pair.isCurrent) return@withLock false
+            if (!inspectAuto(value.request.review.proposal).contentEquals(value.request.review.canonicalBytes())) return@withLock false
+            comparison = value; install(); return@withLock true
+        }
         if (closed || value.owner !== this || nativeReviewCurrent(storage, value.packet) != 0) return false
         if (nativeInspectionPreview(storage, value.request.review.inspection.packet, value.packet) != 0) return false
         comparison = value; install(); true
     }
-    fun cancelReviewPreview(request: ReviewPreviewRequest) = gate.withLock {
+    fun cancelReviewPreview(request: ReviewPreviewRequest) {
+        if (request.v2Task != null) {
+            checked(if (request.owner === this) 0 else 9, "Review preview owner")
+            request.v2Task.cancel(); request.close()
+            gate.withLock { if (comparison?.request === request) comparison = null }; return
+        }
+        gate.withLock {
         checked(if (closed) 13 else if (request.owner !== this) 9 else nativeReviewCancel(storage, request.ticket), "Review preview cancellation")
         if (comparison?.request === request) comparison = null
+        }
     }
     private external fun nativeReviewBegin(storage: ByteBuffer, proposal: ByteBuffer, plan: ByteArray, ticket: ByteBuffer): Int
     private external fun nativeReviewRender(storage: ByteBuffer, ticket: ByteBuffer, pair: ByteBuffer): Int

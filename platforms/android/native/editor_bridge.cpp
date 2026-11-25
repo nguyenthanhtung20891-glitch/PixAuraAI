@@ -285,3 +285,5 @@ extern "C" JNIEXPORT jintArray JNICALL Java_ai_pixaura_bridge_ManualEditor_nativ
 }
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeStop(JNIEnv* env,jobject,jobject buffer){auto* c=storage<pixaura_editor_context>(env,buffer);return c?pixaura_editor_stop(c):1;}
 extern "C" JNIEXPORT jint JNICALL Java_ai_pixaura_bridge_ManualEditor_nativeDestroy(JNIEnv* env,jobject,jobject buffer){auto* c=storage<pixaura_editor_context>(env,buffer);return c?pixaura_editor_destroy(c):1;}
+
+#include "editor_v2_bridge.inc"

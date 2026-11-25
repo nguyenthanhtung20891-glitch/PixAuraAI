@@ -1,5 +1,5 @@
 import test from 'node:test';
-import {phase11PostV18Hash} from './helpers/phase-11-hashes.mjs';
+import {phase11PostV18Hash, phase11PostV19Hash} from './helpers/phase-11-hashes.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
@@ -26,7 +26,7 @@ test('codec layout correction preserves the failed predecessor and all frozen co
   assert.equal(m.assertions_weakened,false);
   assert.equal(m.public_abi_changed,false);
   assert.equal(m.project_schema_changed,false);
-  for(const [p,c] of Object.entries(m.changes)) assert.equal(hash(p),c.after_sha256_lf,p);
-  for(const [p,h] of Object.entries(m.additions)) assert.equal(hash(p),h,p);
-  for(const [p,h] of Object.entries(m.protected_native_fingerprints)) assert.equal(hash(p),h,p);
+  for(const [p,c] of Object.entries(m.changes)) assert.equal(hash(p),phase11PostV19Hash(p,c.after_sha256_lf),p);
+  for(const [p,h] of Object.entries(m.additions)) assert.equal(hash(p),phase11PostV19Hash(p,h),p);
+  for(const [p,h] of Object.entries(m.protected_native_fingerprints)) assert.equal(hash(p),phase11PostV19Hash(p,h),p);
 });

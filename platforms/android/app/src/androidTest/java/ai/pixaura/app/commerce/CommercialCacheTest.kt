@@ -24,6 +24,39 @@ class CommercialCacheTest {
         .put("expires", 0).put("issuedAt", time).put("nonce", nonce).put("tokenSha256", token).toString()
     private fun signed(k: KeyPair, payload: String): String = Base64.getEncoder().encodeToString(Signature.getInstance("SHA256withECDSA").apply { initSign(k.private); update(payload.toByteArray()) }.sign())
     private fun record(k: KeyPair, time: Long = 2000000000): VerifiedGoogleRecord { val p = payload(time); return VerifiedGoogleRecord.verify(p, signed(k, p), k.public, context.packageName, products, "SANDBOX", nonce, token) }
+    @Test fun verifiedRecordRetainsConfiguredVerifierAndSignedScopeForNativeBinding() {
+        val key = keys(); val result = record(key)
+        val digest = java.security.MessageDigest.getInstance("SHA-256").digest(key.public.encoded).joinToString("") { "%02x".format(it.toInt() and 255) }
+        assertEquals(digest, result.verifierKeySha256); assertEquals(context.packageName, result.packageName)
+        assertEquals("SANDBOX", result.environment); assertEquals("lifetime", result.kind)
+        assertEquals(0L, result.expires); assertEquals(nonce, result.nonce)
+        assertNotEquals(record(keys()).verifierKeySha256, result.verifierKeySha256)
+    }
+    @Test fun bitCountAloneDoesNotAdmitDifferentEcParameters() {
+        val key = keys(); val real = key.public as java.security.interfaces.ECPublicKey
+        val wrong = object : java.security.interfaces.ECPublicKey {
+            override fun getAlgorithm(): String = real.algorithm
+            override fun getFormat(): String = real.format
+            override fun getEncoded(): ByteArray = real.encoded
+            override fun getW(): java.security.spec.ECPoint = real.w
+            override fun getParams(): java.security.spec.ECParameterSpec = java.security.spec.ECParameterSpec(real.params.curve, real.params.generator, real.params.order, real.params.cofactor + 1)
+        }
+        val text = payload()
+        try { VerifiedGoogleRecord.verify(text, signed(key, text), wrong, context.packageName, products, "SANDBOX", nonce, token); fail("same-bit-count different curve admitted") } catch (_: IllegalArgumentException) { }
+    }
+    @Test fun keyFingerprintAndSignatureCannotUseDifferentPublicKeys() {
+        val advertised = keys(); val signing = keys()
+        val real = signing.public as java.security.interfaces.ECPublicKey
+        val inconsistent = object : java.security.interfaces.ECPublicKey {
+            override fun getAlgorithm(): String = real.algorithm
+            override fun getFormat(): String = real.format
+            override fun getEncoded(): ByteArray = advertised.public.encoded
+            override fun getW(): java.security.spec.ECPoint = real.w
+            override fun getParams(): java.security.spec.ECParameterSpec = real.params
+        }
+        val text = payload()
+        try { VerifiedGoogleRecord.verify(text, signed(signing, text), inconsistent, context.packageName, products, "SANDBOX", nonce, token); fail("fingerprinted identity differed from signature key") } catch (_: IllegalArgumentException) { }
+    }
     @Test fun actualOsClockHasStableLocalBootAndMonotonicSamples() {
         val source = AndroidCommercialClockSourceV1(context)
         val first = source.sample(); val second = source.sample()

@@ -17,7 +17,8 @@ import org.junit.Test
 class AgentPlatformHooks {
     private external fun nativeControl(context: ByteBuffer, command: Int, point: Int): Int
     fun control(editor: ManualEditor, command: Int, point: Int = 0): Int {
-        val field = ManualEditor::class.java.getDeclaredField("storage").apply { isAccessible = true }
+        VersionedEditorTestHooks.control(editor, 3, command, point)?.let { return it }
+        val field = ManualEditor::class.java.getDeclaredField("legacyStorage").apply { isAccessible = true }
         return nativeControl(field.get(editor) as ByteBuffer, command, point)
     }
 }
@@ -84,7 +85,7 @@ class AgentPlatformTest {
         assertEquals(1, editor.state().revisionCount)
     }
     @Test fun actualJniRejectsInvalidDirectStorageEnumsAndLengths() = fixture { editor, _ ->
-        val field = ManualEditor::class.java.getDeclaredField("storage").apply { isAccessible = true }
+        val field = ManualEditor::class.java.getDeclaredField("legacyStorage").apply { isAccessible = true }
         val context = field.get(editor) as ByteBuffer
         val method = ManualEditor::class.java.getDeclaredMethod("nativeAgentBytes", ByteBuffer::class.java,
             Integer.TYPE, ByteArray::class.java, ByteBuffer::class.java).apply { isAccessible = true }

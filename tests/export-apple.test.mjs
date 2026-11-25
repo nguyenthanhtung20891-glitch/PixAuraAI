@@ -39,7 +39,8 @@ test('Phase 9 Step 4 saves and shares on Apple without changing history', () => 
     if (term === 'NSPhotoLibraryAddUsageDescription') assert.ok(text('platforms/ios/PixAuraAI.xcodeproj/project.pbxproj').includes(term), term);
     else if (term !== 'share_presentation_is_delivery') assert.ok(destination.includes(term), term);
   }
-  assert.equal(destination.includes('URL('), false);
+  // Match Swift URL construction, not ImageIO's local CreateWithURL symbol.
+  assert.doesNotMatch(destination, /\bURL\s*\(|URLSession|https?:\/\//);
   const screen = text('platforms/ios/PixAuraAI/ManualEditorScreen.swift');
   for (const term of ['Save to Photos', 'Save to a file', 'Share', 'Cancel export', 'export-status', 'UIActivityViewController']) assert.ok(screen.includes(term), term);
   for (const p of files) {

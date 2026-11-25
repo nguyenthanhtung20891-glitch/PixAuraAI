@@ -16,7 +16,8 @@ import org.junit.Test
 class AutoTestHooks {
     private external fun nativeControl(context: ByteBuffer, command: Int, value: Int): Int
     fun control(editor: ManualEditor, command: Int, value: Int = 0): Int {
-        val field = ManualEditor::class.java.getDeclaredField("storage").apply { isAccessible = true }
+        VersionedEditorTestHooks.control(editor, 2, command, value)?.let { return it }
+        val field = ManualEditor::class.java.getDeclaredField("legacyStorage").apply { isAccessible = true }
         return nativeControl(field.get(editor) as ByteBuffer, command, value)
     }
 }
@@ -45,7 +46,15 @@ class AutoProposalTest {
     private fun request() { compose.onNodeWithTag("auto-request").performScrollTo().performClick() }
     private fun ready() = waitFor { model.autoProposal.value.status == AutoStatus.REVIEW_READY }
     @Test fun admittedReferenceProviderAllGoalsRepeatWithoutAuthority() {
-        open(); val editor = owner(); val revision = editor.state().revisionId
+        open(); val editor = owner()
+        // Approved commercial policy: repeated provider certification uses an
+        // actual native committed edit to start trial, never a fake entitlement.
+        compose.runOnUiThread { model.select(4) }
+        waitFor { model.state.value.core?.active == true && !model.state.value.busy }
+        compose.runOnUiThread { model.update(listOf(100)); model.action(1) }
+        waitFor { model.state.value.core?.revisionCount == 2 && !model.state.value.busy }
+        val revision = editor.state().revisionId; val revisions = editor.state().revisionCount
+        assertEquals(1, model.state.value.commercial?.access)
         val choices = editor.adviceChoices(); assertEquals(11, choices.size)
         for (choice in choices) {
             val first = editor.requestAuto(choice.index)
@@ -61,7 +70,7 @@ class AutoProposalTest {
             catch (e: EditorFailure) { assertEquals(15, e.status) }
             editor.cancelAuto()
             assertEquals(revision, editor.state().revisionId)
-            assertEquals(1, editor.state().revisionCount)
+            assertEquals(revisions, editor.state().revisionCount)
         }
     }
     @Test fun realProposalSummaryIsInertDismissibleAndNeverAnApprovalControl() {

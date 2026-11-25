@@ -139,5 +139,13 @@ export function phase11PostV18Hash(path, predecessor) {
   const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v19.json', 'utf8'));
   const change = record.changes[path];
   if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase11 codec layout predecessor');
+  return phase11PostV19Hash(path, change?.after_sha256_lf ?? predecessor);
+}
+
+// Approved additive Schema4/editor-v2 integration; historical records remain immutable.
+export function phase11PostV19Hash(path, predecessor) {
+  const record = JSON.parse(fs.readFileSync('docs/reports/phase-11-source-v20.json', 'utf8'));
+  const change = record.changes[path];
+  if (change) assert.equal(change.before_sha256_lf, predecessor, path + ' Phase11 versioned integration predecessor');
   return change?.after_sha256_lf ?? predecessor;
 }

@@ -1,3 +1,4 @@
+import {assertLegacySchema3Boundary} from './helpers/phase-11-versioned-contracts.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -6,7 +7,7 @@ test('Step 6 contract binds one shared ephemeral lifecycle to existing owners', 
   const contract = read('docs/contracts/gesture-lifecycle-integration-v1.md');
   for (const term of ['IDLE', 'ACTIVE', 'COMMITTING', 'COMPLETED', 'CANCELLED', 'INVALIDATED', 'ONE active', 'SHA-256', 'PRV1', 'generation fence', 'explicit retry', 'Schema 3', 'DH-APPLE-METAL-01', 'Step 7 has NOT started']) assert.ok(contract.includes(term), term);
   for (const api of ['manual_edit_begin', 'manual_state', 'manual_preview_ticket', 'manual_preview_current', 'manual_interrupt']) assert.ok(read('packages/core/include/pixaura/manual.h').includes('pixaura_' + api));
-  assert.ok(!fs.existsSync('packages/core/src/storage_schema_v4.hpp'));
+  assertLegacySchema3Boundary();
 });
 test('Step 6 executes native/race/fault and shared platform consumers in required gates', () => {
   assert.ok(read('CMakeLists.txt').includes('NAME gesture_lifecycle_test'));

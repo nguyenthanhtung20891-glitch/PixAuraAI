@@ -1,0 +1,504 @@
+{
+  "version": 20,
+  "status": "ENGINEERING IN PROGRESS / NOT CERTIFIED",
+  "predecessor_commit": "2f823a55c36271b19847fade7134aa9b460b715d",
+  "parent_manifest": "docs/reports/phase-11-source-v19.json",
+  "parent_sha256_lf": "329b647b9c55872d295b85a308ac4c44aa424ff1c2d19fe5f2ae368f5946575a",
+  "public_v1_abi_changed": false,
+  "additive_editor_v2_c_abi_added": true,
+  "schema3_reinterpreted": false,
+  "schema4_opt_in_added": true,
+  "certified_numerical_kernels_changed": false,
+  "gpu_admission_policy_changed": false,
+  "phase_11_closed": false,
+  "application_quota_enforcement_enabled": true,
+  "shipping_12mp_editor_enabled": true,
+  "store_checkout_enabled": false,
+  "approved_protected_changes": [
+    "packages/core/src/storage.cpp",
+    "packages/core/src/storage.hpp"
+  ],
+  "changes": {
+    ".github/workflows/foundation.yml": {
+      "before_sha256_lf": "5d0b399205358af99a4d075c59eef1e13540421e4c8e98ba918ca3b11105e054",
+      "after_sha256_lf": "c82b9d82fa00a2e60eca09adf6df3f4e30b95a5a64d5691ce8c109aab2d21b9a"
+    },
+    ".github/workflows/native-shells.yml": {
+      "before_sha256_lf": "7756900c10b2e181577b3cb3cf06f23b5b4b14089bc3884409a87387c410bcee",
+      "after_sha256_lf": "487212f9a989dc86e58494a6ee6fefa00dd887dee7065c7459d6fa79d747fae0"
+    },
+    "AGENTS.md": {
+      "before_sha256_lf": "39aefd8e307f95c10702fde90a7169f70ca9af0fe4bdca23dff650f03ca1d799",
+      "after_sha256_lf": "2d71a896f16b5cbb4f6384edb453f6670309056c66fa133a0b4ab877c58749bb"
+    },
+    "CMakeLists.txt": {
+      "before_sha256_lf": "c262274678a1b2500bfae1d195883af3ece46552985137a4de9c3f613b98d35b",
+      "after_sha256_lf": "6783d102a3bbcfb7e988a2ad942d463b3beaebb22cbfb8cccc164df5996af019"
+    },
+    "DECISIONS.md": {
+      "before_sha256_lf": "4f6ce424cb0b249d226107fbf327fdfd590459180657eb07d9d66f9c8a29bacd",
+      "after_sha256_lf": "e0ce8101b4895b7bfc0076849b5f5bb081b91a289ff10dbbaf57d85fb75db25e"
+    },
+    "docs/plans/phase-11-final-operator-runbook.md": {
+      "before_sha256_lf": "536c612016bfd47cdc1209a5b150c6cda406f5d01d29092a33b93db7c0b452b0",
+      "after_sha256_lf": "1a45241370bf7a64d8d703ff5facb8a925a195109b4a5abfee09b4fd9dc4f068"
+    },
+    "packages/commerce/quota.cpp": {
+      "before_sha256_lf": "d4aa4a63aa4a56fa8c349d7e633e0a1b1ba35b1e751207ae155f862689d4c0a4",
+      "after_sha256_lf": "f1e38e1f2d12ee732f321360dee51f72bf894065ed7409acebafa597d63c4c99"
+    },
+    "packages/commerce/quota.hpp": {
+      "before_sha256_lf": "9e0d1187dac25506365511af9b76b155db1d2cbff44c0c0be037dc4caae768be",
+      "after_sha256_lf": "e18b0a803759d03ea603e58dcb05feb81c37b59ec038cc275469f2f96db44b11"
+    },
+    "packages/core/Package.swift": {
+      "before_sha256_lf": "529c64c628f084f5673c3b01a9f490526573b634cb5a66d1c6d371cf55c42373",
+      "after_sha256_lf": "069a426046562e0971c885dba18e272d724b6aa234d325fb7996a9263d47c30c"
+    },
+    "packages/core/src/storage.cpp": {
+      "before_sha256_lf": "aadbefc72e3d6be36b35b6e16b2cf7d07c6e7db17f7c2eafd2e46bfcf2af68ce",
+      "after_sha256_lf": "470faed7d8768d458b6ad277f9c352e36a0e91c42d703166a668800d28d3e297"
+    },
+    "packages/core/src/storage.hpp": {
+      "before_sha256_lf": "40f5e56b394b72a936cde97e19ca8c922f201a72401f64a3216632426a0f41e3",
+      "after_sha256_lf": "76fcdb68c316947e4868f1dfe461b93ea54f1056ece8160cd7d22ee7333b9fdb"
+    },
+    "packages/core/swift/Sources/ManualEditor.swift": {
+      "before_sha256_lf": "8fdc95eed155bed5ca671f31b6d947971271b232a9798df1a283b60214e58740",
+      "after_sha256_lf": "ccdba04fe83112a918df4708a6d510df03e347c0d416a15af7e3f709393622b5"
+    },
+    "packages/integration/integration_v18_test.cpp": {
+      "before_sha256_lf": "7ea1bbb27c2abdfe5080d8774a88e7264f7a481299cda647b8fc3d80da433599",
+      "after_sha256_lf": "337fd8c429e0d43aad5b3676dd0b121c5c5e70a63bb2b4db141bfff9b88a7d1d"
+    },
+    "packages/integration/original_reader_v2.cpp": {
+      "before_sha256_lf": "af9527be0c2edf969ac9462063913335241ddd5d5c15c23eb09f15696012906e",
+      "after_sha256_lf": "a71c8832477a959c71f8892202107f676621c0e19d0f07cbc6336278c6636b6d"
+    },
+    "packages/integration/original_reader_v2.hpp": {
+      "before_sha256_lf": "88db9a579dc29b264830e66a19cedf2a53912f574d7c4fb79f9eeda972480fa5",
+      "after_sha256_lf": "71e66c3f85757d5fbb77a289cf1bccc12eea3ebe216ba0cf2fd856bffc32057e"
+    },
+    "packages/integration/preview_v2.cpp": {
+      "before_sha256_lf": "d36a2e1eb2bb5d26135f9689914868060f2ee4553b4c6ee0afa1552bc3baadfb",
+      "after_sha256_lf": "a9fe475047d2b0448bb2b6e27a982c3e7375a81e40b9b5e9aeb9261abd10c2a7"
+    },
+    "packages/integration/preview_v2.hpp": {
+      "before_sha256_lf": "d680649b86cf9dc93c3f06eda0ad71e0670490d20f8a4ebdedc30bfd919ff83f",
+      "after_sha256_lf": "a2638cc55319ab6f15b44f2afb33010e22e9215162471883983ad21aa369a50c"
+    },
+    "packages/integration/revision_projection_v2.cpp": {
+      "before_sha256_lf": "f1b8faec2cda4be2a5a23516facb18be9425b73474eff51585916b45f217f377",
+      "after_sha256_lf": "ffa645006fa78eb20e755cd3e82847a51d8ca5c16237f25363eb796ebb384b38"
+    },
+    "packages/integration/revision_projection_v2.hpp": {
+      "before_sha256_lf": "acd8167644e68c53eea3f257db6dffd64957737a3b287cd7972777b0ff7936e8",
+      "after_sha256_lf": "07593123024a64af84172ab16b39e3831c045a57e7cfd72dc78b8281f90239ab"
+    },
+    "packages/integration/stage_plan_v2.cpp": {
+      "before_sha256_lf": "f0f5247e3b691566be0326d70d2a79bdbc49a093c231470d595cf02d72d8e401",
+      "after_sha256_lf": "a3a6047086a8b2b7419d67d1614da8a228ff52c49927a552dc5c5bbc07f618fc"
+    },
+    "packages/integration/stage_plan_v2.hpp": {
+      "before_sha256_lf": "43a4f1831e571b9b45b6b79c3bc4377f60171d294930424f8be53e84f1050df1",
+      "after_sha256_lf": "4a9b547bca7da012edd8b85b1ff3c052b9267cd863889962dc757b269ceec613"
+    },
+    "packages/integration/stream_codec_v2.c": {
+      "before_sha256_lf": "a212d03b1cc25dc852f52ad4e8d1a04551443228d771de4763d7d4e872a61267",
+      "after_sha256_lf": "6089db4d8c585f58bde6462bb249cadd92e57d994f7adefb1d478ef1dde0c1a6"
+    },
+    "packages/integration/stream_codec_v2.h": {
+      "before_sha256_lf": "79a38dfa92e732a686fc4d941712cf70f35df2e61dcdade72e8cf1385306008e",
+      "after_sha256_lf": "16ad91511729b506ab7503e8714600ca765f0312ed72179a4dc1e3b174ccda18"
+    },
+    "packages/integration/stream_writer_v2.cpp": {
+      "before_sha256_lf": "7223fd8ce1dbef0562b71e34e38d3f2a2f49e0f4ef2c78d21dbecf640984f8ba",
+      "after_sha256_lf": "092f9ceb4a5d92d52dec057f42c1a64fd2b32edddfd2edc8523ca734cd2488e8"
+    },
+    "packages/integration/stream_writer_v2.hpp": {
+      "before_sha256_lf": "1f822780c3a4e13409cfd699380e12486487de66d90b7fca4dab18f92ee1c706",
+      "after_sha256_lf": "fc0b0403068732b19d1552f64f45c7722c93d41f6a23cf7d78dc12f361af50c4"
+    },
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/AgentPlatformTest.kt": {
+      "before_sha256_lf": "fc97f4a1eb6d124febdff6ea32f66495e57a1ae0b1d29f538773139f6402c8b9",
+      "after_sha256_lf": "079bb17a2ccb3925331b5146f6323ecccfc01b4f0b0000cafb94fe61a1ebd110"
+    },
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/AndroidCapabilityIntegrationTest.kt": {
+      "before_sha256_lf": "69961431e5a52a4266f25fa55a9531805d52e20f8447a84923c1731e0667b859",
+      "after_sha256_lf": "7a517739275e30f353659c4f6c12f97aaa7b5f4ce6c018cd552c30cb214a3120"
+    },
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/AssistExperienceTest.kt": {
+      "before_sha256_lf": "b6286c75884800e1a1325205edf188a5ba6595d0080e6548cd88c9797c92fe26",
+      "after_sha256_lf": "7db775a6da638b6b71135df6ea179f0a8f051d5779e0c1767a18325b804aaea4"
+    },
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/AutoProposalTest.kt": {
+      "before_sha256_lf": "5a693a310bbb443435b685f44650ddc82ddc8dcf386edd4364c64d7aa8c4f1ae",
+      "after_sha256_lf": "7f4c68fc276592e003534b5491a01b17711f5cf7d86c54078cfe0981ea50b21a"
+    },
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/ExportDestinationTest.kt": {
+      "before_sha256_lf": "581be377ccfed4bfa6ecb5a96b28e28b378a88d654a9f08358ff526ba135badb",
+      "after_sha256_lf": "136c4efe4f3318b497dc5f0e4ff770065edf9f43fc2990e2478332064acbd252"
+    },
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/ManualEditorTest.kt": {
+      "before_sha256_lf": "6102b4ef2b8521851bc03f8db1e3155bd956244efdf9261b0f8b49193bd34d08",
+      "after_sha256_lf": "1bb0394b6954ec4086f05c11b6b318cb1cece01493945cc8647eacb484718e5c"
+    },
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/PlanInspectionTest.kt": {
+      "before_sha256_lf": "e68c5ccfb2c57683a53ae59123aab5399496227937c22ba4a1cdfc1ea6aef925",
+      "after_sha256_lf": "6aab06df3136e038acdd5012e1483ca83fd48a047edd359f8dbbfbdec3e819cf"
+    },
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/ReviewPreviewTest.kt": {
+      "before_sha256_lf": "19fc08df12062ecb429fb7e9cc9127c66432122f8db209c89cabf00922f3ee87",
+      "after_sha256_lf": "dc58f2b2ce60a889f35a32d34785d5f8f99b827bd037986c3bdbe832270a0906"
+    },
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/commerce/CommercialCacheTest.kt": {
+      "before_sha256_lf": "22edf924ef13d907e937916b2624f9482b8bbc764f91d30432fb75257f76cec8",
+      "after_sha256_lf": "53589b0ee53553c4a1709d279d2444c4173e2787e6a43a0e57a986dbd1faa34a"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/AndroidCapabilityOwner.kt": {
+      "before_sha256_lf": "88ebf33dd69c403b711af1603ac6f2bb3c987d02911c8396428dca40c52fd16a",
+      "after_sha256_lf": "d156e405b4bec15f92732c1b5c36a498c22bd30ca8d8441a43a2815885fa8155"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/ExportDestination.kt": {
+      "before_sha256_lf": "ba23405a8a561614be63bb0ed3d6a96991a2614a19e2bbd1887679190d8c1de1",
+      "after_sha256_lf": "c292f38549b71314ba55d720f18061d5c4e7f318f1821971908ecb781895e1d7"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt": {
+      "before_sha256_lf": "938f2296ed814d2045a9bf9f87e8720ea0e2b8ee8e1151edfeea9479410d8831",
+      "after_sha256_lf": "5b55b9374019da70df2f9c1de8bfdd552f62f008d45d50ece1289fbb559277c4"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorScreen.kt": {
+      "before_sha256_lf": "2ac6a000fc140e4d9780f1aa93669cc57f0d4422db8239de5877787b0f5c01c2",
+      "after_sha256_lf": "c1a56cc75ff82f75daba977beee4c95215b92c0196c136cef54360ae0f8d2b23"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/Presentation.kt": {
+      "before_sha256_lf": "f5e6777cd7f3f3656159b8770645dac2566ba06f191cd5caf58995d16916b157",
+      "after_sha256_lf": "cb06a3c7def365fde12f3f84a90bb8eba5e2f8fbd9d6eebcd0f445e26ecfcac2"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/commerce/ProtectedCommercialCache.kt": {
+      "before_sha256_lf": "13014344bfd37e043c68f9f0f765633a82652d8534a0500fb4b5a93046bcb6e9",
+      "after_sha256_lf": "550f5d3f2b27ee69fce70292c4169d39ff8a72bb4f2eff7908fa1d9208543f3d"
+    },
+    "platforms/android/app/src/main/java/ai/pixaura/app/commerce/VerifiedGoogleRecord.kt": {
+      "before_sha256_lf": "f923847c4e6c33d256f5aba6d5d44e678a6f995595f33a9d26c147a920d1c157",
+      "after_sha256_lf": "a6d0ff0d754239cb14adce8c0b59d3c19e6cb11557c16964186fa21d2fefd294"
+    },
+    "platforms/android/app/src/main/res/values-vi/strings.xml": {
+      "before_sha256_lf": "2bb6a50a8dca0574d56659a0851a7f123b34e56e86d6ba517df2b53fc7469f45",
+      "after_sha256_lf": "8f7af6a8e2db7bfe08dc9a6248348aa738bed5d1c62ba00fa110a6353dbd84ce"
+    },
+    "platforms/android/app/src/main/res/values/strings.xml": {
+      "before_sha256_lf": "31ed9f0d53d7f7ae8a37307bf605b6da03d602795f133b4d06019ddfca36353e",
+      "after_sha256_lf": "cfe0e65b0315330cc154be75416cbaaaeb6228a58da4990303a52d3c457a7426"
+    },
+    "platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt": {
+      "before_sha256_lf": "b1a47cca4bfc624967b4300596e18ee47bf5fba75b23cc697cee4d32705e1829",
+      "after_sha256_lf": "eef2c9d5363001fca9eb7e048c9378de172cd59fc8c622ec65f1484e0e997eb2"
+    },
+    "platforms/android/native/editor_bridge.cpp": {
+      "before_sha256_lf": "e3b5a5e502c4909625d901ca5f2991d20e0b09cd517c3925077dd41d26ca0772",
+      "after_sha256_lf": "21c9b61d8684112d0d43db97004b1e3679d70f8abbda293e244bb0bf099c6641"
+    },
+    "platforms/ios/PixAuraAI/ManualEditorModel.swift": {
+      "before_sha256_lf": "c3e3d608430f7b948bcfb44176f1dcfe31f05dc7c5b834710183426ec33d00d9",
+      "after_sha256_lf": "1a98bdccc6cd16a6e1ed399b6ebcc015d8e667e9b8aedab979e1d0d48546b6b7"
+    },
+    "platforms/ios/PixAuraAI/ManualEditorScreen.swift": {
+      "before_sha256_lf": "c983d5d248b5cddb4a0d7367b70991538ee7f43b39097b07e7fd288198f5ebbc",
+      "after_sha256_lf": "3376483be7f3c7425d58d17334a2718392af753ae186469cfcf8a0c267643ec4"
+    },
+    "platforms/ios/PixAuraAI/ShellModel.swift": {
+      "before_sha256_lf": "173a74779b23dd997a98c5c7f7338051bcb5359da6b25d91817362d208a35880",
+      "after_sha256_lf": "76e788b899632f85b18b7d03021eee7461cad74c4bb6e3995f597623f808f980"
+    },
+    "platforms/ios/PixAuraAI/en.lproj/Localizable.strings": {
+      "before_sha256_lf": "df52030ced62b054c6b9be35368df06109b8c93a70b96362393bb40788346c32",
+      "after_sha256_lf": "fbe9aaf357c72eddc51e39f502f667b5019362d1b9e8f60b6201fce30fb890e4"
+    },
+    "platforms/ios/PixAuraAI/vi.lproj/Localizable.strings": {
+      "before_sha256_lf": "080bb887f21081a915ba2c3f3a14b852ab545f93be24203ac3579d28a2779069",
+      "after_sha256_lf": "a6eb2e803503c44f3f0e0c41a156157a2b24d02f7135f9c4b589b3e4e423fa95"
+    },
+    "platforms/ios/PixAuraAITests/ShellTests.swift": {
+      "before_sha256_lf": "497b9b878d980104ede434e21dd4df3300aa13257c936d136731e73005ea88ee",
+      "after_sha256_lf": "2629dc29397723222d644cdd2d930e5dc788c59b8d36f69d6d9c818bd8433dc8"
+    },
+    "platforms/ios/PixAuraAIUITests/ShellUITests.swift": {
+      "before_sha256_lf": "3fc4eaf16d4dbfaeca07b3e7920c3b431de2628b9f0310f3624dfb28d9d01ec3",
+      "after_sha256_lf": "0484fab6b8b18474b00dae9d150ba1a523d7fcfeddcdb54421817c95dd21607f"
+    },
+    "tests/capability.test.mjs": {
+      "before_sha256_lf": "a7ddc6d860720705745584eae1e4618215d4f5c44b6ad1044c73ebfa98a23f4c",
+      "after_sha256_lf": "79a0eb5fce2f2fb2bc0290c0d6ec372647cfb8a14a2ea040bb45a2be4bd54dcd"
+    },
+    "tests/deterministic-admission.test.mjs": {
+      "before_sha256_lf": "45b219ad67e8f2528d24e4c6b513d177a62e3827e9a9862047ebfde845e77440",
+      "after_sha256_lf": "e49d0c1b9b0ab87d01213106e276231f60ceca0b1fb311b613b3d685661aa825"
+    },
+    "tests/export-apple.test.mjs": {
+      "before_sha256_lf": "9ba43f2c7df905f891b1881ae8ceac335e82e35bc980e3ea47d812a808cd6c61",
+      "after_sha256_lf": "58ae8616f0f52acf3fdd3319241cd6aef8954144d36d0e97f85c52000f122c8c"
+    },
+    "tests/export-e2e.test.mjs": {
+      "before_sha256_lf": "294c79ecf936c700c0f5636d0cd1c5e3699f7921757ee2b7875d9af79ea8a207",
+      "after_sha256_lf": "18eaf31036b857081d94d7be08f2a484dbbd550f5eb4c21af74be509ddd59e66"
+    },
+    "tests/gesture-lifecycle.test.mjs": {
+      "before_sha256_lf": "d1738f0eea0bcb0a1ce60136217f2738b8295e7b1acd37ceed14eeb7db931108",
+      "after_sha256_lf": "5c62571febd60e158b4616f4bb45d15386124ee0dabce4089a25c3bd5dc113da"
+    },
+    "tests/helpers/phase-11-hashes.mjs": {
+      "before_sha256_lf": "eb8848cfc8fe8a5aff1d7dbb33612b4344a4e4c05834e8d670ffd6b4f5e07ff9",
+      "after_sha256_lf": "29306e2c2d41344f81f1835c7a06fc3d272340e4a05fbf52089abffd948c1292"
+    },
+    "tests/jpeg-quant-compat.test.mjs": {
+      "before_sha256_lf": "07d45bcc5b240518914b1984a5d7d438a7f383ca688b3f0b621618b93a373b25",
+      "after_sha256_lf": "6790226a87ed67547d79c47da2c28971052ec0466ded878d2ee742a2b2dccaeb"
+    },
+    "tests/manual-editor.test.mjs": {
+      "before_sha256_lf": "05b4ce54f9049373a14713d3255d170c80d3ebfd6fe6daa6a20aa199b27e9bc0",
+      "after_sha256_lf": "b35492b3216bbd31acdeff1fa35462d82ba67ce9437141fa7f233d707fcf7d6b"
+    },
+    "tests/phase-11-g8-g10.test.mjs": {
+      "before_sha256_lf": "c151cd0d1be8cb4f1b35af2236b07125886c8922e30f6371ba24750715bdf800",
+      "after_sha256_lf": "f0689052aa033d8bfd266aba9e0fa70edcdcb799810325c65219bb6acd7cd5e1"
+    },
+    "tests/phase-11-v18.test.mjs": {
+      "before_sha256_lf": "7416e4e060720625022192ddf0b663945caa8f19c4e4310079b0a479a6ab9e0f",
+      "after_sha256_lf": "0af0a17f93cb2ec1b926ac1302d3e63ec36464b9f99e593a024fda6f2489619b"
+    },
+    "tests/presets.test.mjs": {
+      "before_sha256_lf": "4a00b3c56ea52cc2bfcfab7418c373395ad9b757cf90dddadc0b5e0d9fb8d0ba",
+      "after_sha256_lf": "e8dd591ca21037da6920f37eb26b677778f4861fc686bea7bf94191d34e779a7"
+    },
+    "tests/product-ux-empty.test.mjs": {
+      "before_sha256_lf": "fb2419c470c6d41a0563cae28c017de97851df8587a2feaf1b0f0246f6ee277f",
+      "after_sha256_lf": "f8174dccc3393d346c4a9cc10c68b965bb60d19944eca43dfbae2e13663e48ef"
+    },
+    "tests/result-review.test.mjs": {
+      "before_sha256_lf": "01cb320d4eb12313206d24f67ea17268e78ef82e7e1f1335864bc0710f8fda68",
+      "after_sha256_lf": "33daed8db42ccf41947c23b764f553c26e98119eeff1c87c23f7e801f578872b"
+    },
+    "tests/review-edit.test.mjs": {
+      "before_sha256_lf": "d851f22b16eff75958f2200486e345b1027c44d176ff411bbdd05f95eb8e7741",
+      "after_sha256_lf": "b7412c09d0da613cc1bf4a5a60a1f5320122bea6ee391f2b4165f11a0efa7688"
+    },
+    "tests/uitest-locale.test.mjs": {
+      "before_sha256_lf": "4894e04fb3663c8df3525c5fe9e020e4ff297fc38d91be3a155189ac69e4df44",
+      "after_sha256_lf": "c0626f869f8db2020186e0e72ce396d02587c19f8badc5218b8ab229697c7b2a"
+    }
+  },
+  "additions": {
+    "docs/contracts/commercial-store-ingress-v2.md": "1316a5632af784f5fe790c3c6083e0711f6efaacf13f1e8122e93867e0b2ac61",
+    "docs/contracts/decoded-row-store-v2.md": "fed4c47a4d7d15ab6f19aef9773fcc01264058c6157f107941dd5e9773a581f1",
+    "docs/contracts/preview-frame-probe-v2.md": "04cfb3ef294cdcd05b7777a97abd3ffb2c974cbf867c9791dc3a13248282d132",
+    "docs/plans/phase-11-final-completion.md": "08e486e9bf69ab572edb22353f7c2f240690616bb411598542f4cf8fa79b1820",
+    "docs/reports/phase-11-12mp-input-memory-gap.md": "8b378d3d8a3ba4cdc4414449ff290a878c178fd42441de98f6e60537d27f1ca4",
+    "docs/reports/phase-11-final-acceptance-matrix.md": "0df87b17a191b49d2fbda95ccd51249cd3e762d0cac07190676e6e160ee3d168",
+    "docs/reports/phase-11-final-checkpoint.md": "14c02afd26424be411b6f82836a2a79e6a71be21494eeb4bb008e9d58488bb92",
+    "packages/commerce/coordinator_v2.cpp": "ccdd3f658892521def3f8a3b93ad3d28646e31debb38702e988760e0b14c5d1c",
+    "packages/commerce/coordinator_v2.hpp": "91e5f6172162947494c9b13a75ed9ca8ab253679806119d807a6b50835203299",
+    "packages/commerce/coordinator_v2_crash.py": "a2196784fb8c6a0e0afb5ddb91508489035dd2bff13e672b73d94df1b9ffae00",
+    "packages/commerce/coordinator_v2_test.cpp": "8b310f05b89238c14c538b9a84ec5769cf96ac00a80f830c08fadad26caf9eaf",
+    "packages/commerce/receipt_key_v2.cpp": "2457e90e4832cd83e2bc07b20fff218a96ce5da23739ea11440b584d0117c0a7",
+    "packages/commerce/receipt_key_v2.hpp": "02f9b05164d01f75d247ddbe42110bcdae3aab5a284e40b11e2246099c7dd069",
+    "packages/commerce/store_journal_v3_crash.py": "1100428b5b3bd8d3bbfeeb80c379300649c18e7a7ed505df6793d0aab46697e0",
+    "packages/commerce/store_record_v2_test.cpp": "93955f5032bf8054360de8ca1ab47f97abaa72a3288ba32fad51df2a725828c5",
+    "packages/core/include/pixaura/editor_v2.h": "dc6d4c2eab93a074be2f10e15358f8266b1113bc06a17e0b5049746913acb6b0",
+    "packages/core/include/pixaura/store_ingress_v3.h": "769cecfc6056faa455d1e37ecfd8b49ed4785605a065cac763cb918d6e5c46c2",
+    "packages/core/src/publication_v2.hpp": "3c63afc868515074cfc9da05268bcedbbe5aaa4822b39229810d496171365003",
+    "packages/core/src/storage_schema_v4.hpp": "ef5ee8cc96eca1294feee130c50f53df8a75dd62a51cda29b2316f185b11b5c6",
+    "packages/core/src/v2/commerce/coordinator_v2.cpp": "37dcbc7c88422ebc9504dbeeb7365baf36e8c0adcd8ba48e1d06fff0d22f9f2a",
+    "packages/core/src/v2/commerce/coordinator_v2.hpp": "94f77360f97e5f34efd099535691bf970d37df768d7f7cc81553ae29e377144f",
+    "packages/core/src/v2/commerce/quota.cpp": "6a67befb33086a4c6b30579615c45c14952aedb37391dd855db62d0969fe9114",
+    "packages/core/src/v2/commerce/quota.hpp": "fb04943b6a876d9a462291e741a50212d81cf476192a1cca5c393bdb7f96561f",
+    "packages/core/src/v2/commerce/receipt_key_v2.cpp": "800bd76d39defd82a0aaff71b86c78e4b7ee558ef8f5343a2045cf9e1f6a0a6c",
+    "packages/core/src/v2/commerce/receipt_key_v2.hpp": "a5039cc5f9a04ef208172d42a671f760823c1d6e1cd514706d952b99cff196cb",
+    "packages/core/src/v2/commerce/store_journal_v3.hpp": "da08a362c2d2e952c048a6e53e0a3ac7f33deffabd34b82726964d20438f0b30",
+    "packages/core/src/v2/commerce/store_journal_v3.inc": "f35a455cf3cdfe987fd9e5235bb7a2a18b37cbf669b1c495df53607421d7fff1",
+    "packages/core/src/v2/commerce/store_record_v2.hpp": "74596d8aa20b50c2851618d484ae097d48ca5eec53472802eb90ac7972ba1939",
+    "packages/core/src/v2/commerce/verified_store_v3.hpp": "35eea81632960888ff93fba32dc883e0040764db0828f288844354e184383f59",
+    "packages/core/src/v2/editor/api_v2.cpp": "6a17b6a3f2948776e0ee1c5bfc41e641306a4b103639177862b289d60ed0e5dd",
+    "packages/core/src/v2/editor/certification_v2.hpp": "b6f85e082ee6f456fd36d9c2ce51b883d005278057861b31e864d6c5d5cac229",
+    "packages/core/src/v2/editor/context_v2.cpp": "b5de2765518f4dac995d78c90f53c739e0fcf6935f6267108b0f16daf3528a3e",
+    "packages/core/src/v2/editor/context_v2.hpp": "ff1438706ab5c470f008c9ac70be57d6a7374f3e1e4046dc528a6058522dee45",
+    "packages/core/src/v2/editor/resource_admission_v2.hpp": "c6bb427ef2358326782c9d9dbea054fba4f9e7e48e45fbb5aa6f9871533564f5",
+    "packages/core/src/v2/editor/store_ingress_v3.inc": "0df100a7d7c164c6149b26d2c73ff15e2983c6893242a7af7e49bca088884d7b",
+    "packages/core/src/v2/integration/decoded_rows_v2.hpp": "bba1cd8cf2c30e4656dd6bcd70b2f549201930d378828a141b0da6b2641df064",
+    "packages/core/src/v2/integration/original_reader_v2.cpp": "9746885ed816a6ab0d39ddd53aecbb175681dce268a59eb788b42f15ce7a4919",
+    "packages/core/src/v2/integration/original_reader_v2.hpp": "9ce7faf02fce742be2b864254f4a08df5a31db56d82396c392056a9a9798928c",
+    "packages/core/src/v2/integration/preview_v2.cpp": "068a4c8fe6f27ab845139108c86ecbbae8dea31ea570f09a269eb41898c64934",
+    "packages/core/src/v2/integration/preview_v2.hpp": "d680649b86cf9dc93c3f06eda0ad71e0670490d20f8a4ebdedc30bfd919ff83f",
+    "packages/core/src/v2/integration/revision_projection_v2.cpp": "f1b8faec2cda4be2a5a23516facb18be9425b73474eff51585916b45f217f377",
+    "packages/core/src/v2/integration/revision_projection_v2.hpp": "acd8167644e68c53eea3f257db6dffd64957737a3b287cd7972777b0ff7936e8",
+    "packages/core/src/v2/integration/stage_plan_v2.cpp": "80e77042b3a0ac9f08158e3c277c85af33f3d71091a08343f2590cee7385a562",
+    "packages/core/src/v2/integration/stage_plan_v2.hpp": "94d4a2688ca497728548ad819d728d7461754456f1ff452fc14558da376e1602",
+    "packages/core/src/v2/integration/stream_codec_v2.c": "4469d4970c57bd4dca7fc7dfb23f692911e7c66952337efe244969ca860e9c06",
+    "packages/core/src/v2/integration/stream_codec_v2.h": "334aae578f16dfdbfdb017ee3007105802c54a4c881bb389ebcc7faee2897c5c",
+    "packages/core/src/v2/integration/stream_writer_v2.cpp": "8c80a9d8ea5d3a6bd0faa92190df50aa12b9dff7524f42e8b48ff300a4f99920",
+    "packages/core/src/v2/integration/stream_writer_v2.hpp": "1f822780c3a4e13409cfd699380e12486487de66d90b7fca4dab18f92ee1c706",
+    "packages/core/swift/Sources/EditorV2.swift": "d725b46fa41ffc2a1efa8ee6b06b2747fa941aba61b0978d5da6e3840af0174b",
+    "packages/core/swift/Sources/StoreIngressV3.swift": "8b93a4115ad95e9cc4d091f1eb5cd07c40785dc991bd998a2f18e6d127b4e64f",
+    "packages/core/swift/Tests/EditorV2Tests.swift": "1097bdfab21a71e5fdef4ca8fd882c681c9892e7d7777226c4c937f14ac4943b",
+    "packages/core/tests/editor_v2_c_consumer.c": "58c0ab85fadf5d6fd170ddaa41600164b18376b780b3aee86124c19dbda70986",
+    "packages/core/tests/publication_v2_crash.py": "479665b2f53193d0d442ba757e18660a91683f85cc1607c49be90eb13a30dbe0",
+    "packages/core/tests/publication_v2_test.cpp": "e39169deb78bee806306273b04c59f897fc56718ee3550715df5a781ce4a6a9e",
+    "packages/editor/context_v2.cpp": "f0ba8ecb850558689c2aab4e13822543a201e81e7c4b48d2d5296ec2c247c3b9",
+    "packages/editor/context_v2.hpp": "9d7305f336271a2fd49986e7737202e5652fc2c354f83f6bb169a1d3b72b621d",
+    "packages/editor/context_v2_test.cpp": "e5b8caa1f57cd6c3479d758fcd0c175c1ab1271b06306e37f5865baf886c1f53",
+    "packages/editor/decoded_rows_v2_test.cpp": "462643d9f022a854f3e235e411943eb9f2532416d54ef8622eeeac45dc165adf",
+    "packages/editor/generate_adversarial_source_v2.py": "8d7a5631caf547b15735e1f0b1c81374c4a558fc48aefd2402af30e26e48e2af",
+    "packages/editor/low_tier_application_v2_test.cpp": "28c8e1456646277639c04eb14a9274b4fe21e6b9892b7ba35ba2361ff11e520b",
+    "packages/editor/original_reader_v2_budget_test.cpp": "4f28c0711e5b00a97faa5f8299a4dd8ecf21a0e31d6a5fc4972eeee4012e56ce",
+    "packages/editor/resource_admission_runtime_test.cpp": "47a684e075814ca9060ea5209e23d956b3a3e1b0555a322c459aadc4e112c1e4",
+    "packages/editor/resource_admission_v2_test.cpp": "87c08162c1e42117cd7781bfc687429a92b5fa32de525104a479579cb5a923d5",
+    "packages/editor/row_codec_v2_test.cpp": "7cab8e998db54c7e4f3b76538fbb41fa25ab92d8071cad0ceff18f017dca5730",
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/EditorV2Test.kt": "acc853da418371b176e65ee757fd37d283d0b702c9f2bbf5b036716e1f4f155d",
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/NativeEditorRuntimePoolV2Test.kt": "a817e093f3754ac590e6249758c79859f1a5362a09e70fe37bd59c939c8f8d67",
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/NativeStoreIngressV3Test.kt": "a5e51175214b9912a003640507f5004e356a7df07bb9ee689f3bef429f93d0b0",
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/VersionedEditorTestHooks.kt": "87880f5595c24b19cd99193f6997a1f17c449fe43189421ea4a2776f24b4f3ee",
+    "platforms/android/app/src/androidTest/java/ai/pixaura/app/commerce/NativeEditorInstallationKeyV2Test.kt": "fd3073c891987ade7d2e2829a46bd48818a15358dd875d64e74cd6f775199f1d",
+    "platforms/android/app/src/main/java/ai/pixaura/app/NativeEditorRuntimePoolV2.kt": "3ea99c17407b90e2b59ed5a590693227b1eeb4841e8d50c16c79c8b65e3bc5b7",
+    "platforms/android/app/src/main/java/ai/pixaura/app/commerce/GoogleNativeStoreOwnerV3.kt": "cbecd641a66f1616fdaf7cdb31cf12ff3abbdc46396a2453820ed0f72be5ca0f",
+    "platforms/android/app/src/main/java/ai/pixaura/app/commerce/GoogleNativeStoreVerifierV3.kt": "00477d9713738ed073d73d1cd2b2ba0fe642b563d3680f8d9c7b0eef145f230e",
+    "platforms/android/app/src/main/java/ai/pixaura/app/commerce/NativeEditorInstallationKeyV2.kt": "b21d04dc85bae3a7696ddb577cdec5befb2ed5898158eac955760c8116865927",
+    "platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/BitmapLifetimeV2.kt": "a3acc7e878ab4da2b312291770c9d73200d12d6847d3a1264be2b0c371c76f26",
+    "platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/EditorV2.kt": "b00262f50c438098daf592003484bd1ab93b42d63520e2ef1fbda2773773ee13",
+    "platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/StoreIngressV3.kt": "ded9bf0d510f96cf041b606194412eda8f8cbfd57bd5a8d597944e34a30e36f2",
+    "platforms/android/native/editor_v2_bridge.inc": "0e0d65718acc1db6d2bc070aa8ce69b3d7913d55712146ad9aec7aefb99e1920",
+    "platforms/android/native/store_ingress_v3_bridge.inc": "482a627913bafa1f8bae194a9fbe8615af0063a772ccb617a7ee3ced38db324b",
+    "scripts/codex-gh.py": "a889d030486a57e885c6e744ebfd70d5bf6e40bb05fc17d81db1af0f5949d75f",
+    "tests/codex-gh-portable.test.mjs": "8e618e47e8ec7808141af583b92e8f109e601ef555656affbe825509e77d9ef3",
+    "tests/helpers/phase-11-versioned-contracts.mjs": "c2ce2ea5654c7ba752dba652e16dc9a0e7c25c1c4bd4e58b261ef66230d63f87",
+    "tests/phase-11-final-integration.test.mjs": "b37b2dfd51f8371a3fc25ce708b676b8f6c0d19804aec928185c7eb9b3d9601d"
+  },
+  "protected_native_fingerprints": {
+    "packages/core/include/pixaura/agent.h": "437b2596e1befd3650597320a93e3cf999569f8f8ab0aa6fee02389793294ddf",
+    "packages/core/include/pixaura/agent_execution.h": "e6f701449d1598d2efeb1bfdf5f1e5fd88b8d60700dfb2848bd9f5d85d53301a",
+    "packages/core/include/pixaura/agent_schema.h": "1544645e61e7b1a093e1fcd4e8a398aaef9e6b0b3e3a1a73dd37237d3dd464d5",
+    "packages/core/include/pixaura/agent_tools.h": "465ebe7a773719b19d066eb8f9bd2f2079832c1dc0d3748c643855e20ed104d0",
+    "packages/core/include/pixaura/assist.h": "aba67540e19823f166f3eaa4cedc69ed7df249e72aac7929000bc85d147c726e",
+    "packages/core/include/pixaura/auto_proposal.h": "1988a5c3bde572bf6253c85f73b17c2f539ff6bc158a6d95730e89c09d01d2fb",
+    "packages/core/include/pixaura/budget.h": "f756cef172c344efd69a3b975f5766f8980bbf85ca8e67e162143b92357ddf30",
+    "packages/core/include/pixaura/capability.h": "26f231d2e88eebc7fc40bf57c402c12d97e43eee0a043abb842273b27ce86fa1",
+    "packages/core/include/pixaura/core.h": "3a63ab259e7b537e6b283be3f92d994d894fb00ec2c3cb486ce797fb8c311347",
+    "packages/core/include/pixaura/decode.h": "5440705f89030388c3045195d55ed71df11b6940dc79e9d14a330ee72f39e801",
+    "packages/core/include/pixaura/document.h": "ec23bb46437091d3934c4f4b5d8111d68be9fbf98f4e8161f709e620180a6ba7",
+    "packages/core/include/pixaura/dynamic_policy.h": "7ac74c7d7dfe1912cfa0d6c9456803d892517a0721febc0f5f9f22703abf01c1",
+    "packages/core/include/pixaura/editor.h": "5bca40c64c5244abf82b97015b22016326c638c8b5a9435564c298ffce49264c",
+    "packages/core/include/pixaura/evaluation.h": "9f62fbee31955f1f7586c8a1765060502f7ba0ec92ab98261fcbaa6502ff3118",
+    "packages/core/include/pixaura/export.h": "e994484943f77435f19c0ab4c9ddac5fc114ce2819e56bdb896c5d54bb309c10",
+    "packages/core/include/pixaura/geometry.h": "f46e4134857687702d97c90478e911654c41341926d1dca3bf2e16ffc4edd309",
+    "packages/core/include/pixaura/gpu.h": "c21fc8c336185d3cb55d9cc36cccdb4849ef629318bd8423891d358de2219cd8",
+    "packages/core/include/pixaura/inference.h": "f2be1c7e97ead3229f2c5929ebd9229bceae7f2bd0a2aa9f997051bca068b320",
+    "packages/core/include/pixaura/inference_admission.h": "f1cfdbce12380b0c0bbc25d88d29b678f16db8ee43cdc08abfbec615fd5b8672",
+    "packages/core/include/pixaura/manual.h": "0d341f2d567ab1e087ccd874c940d954a4be738d778caffa9465d4e274250148",
+    "packages/core/include/pixaura/metal_exposure.h": "e56e5e365c5cb948ec9e00bbb8838f22627f9961939c62cc7ba01e675af99be5",
+    "packages/core/include/pixaura/model_package.h": "e94cd5f6d563e9ca76491bc1f075354f8bf59f6f2650d73dc4b727d2ee71dc66",
+    "packages/core/include/pixaura/preset.h": "2edc50279e6927d8db480f464b83fea713957434424400efb77d81e19c6eb2a2",
+    "packages/core/include/pixaura/preview.h": "e88c1cdb7908c8a864310295f4d1b6aba29a6661ac02578a163b9fff4542f27b",
+    "packages/core/include/pixaura/reference_planner.h": "252da1c027a678c96284a0da3f3e8ffe3f1fff2bbab39e89c790d0e887dead02",
+    "packages/core/include/pixaura/result_review.h": "c704225cc0a23ad8ddd8c47640998e0a9b602e02eb7d0ae4367192ee0e2a24bf",
+    "packages/core/include/pixaura/review_edit.h": "40bd6278d8c4ab194147f179a820a7d0ba7c14b4067b6958fcb9aa2e95c34e07",
+    "packages/core/include/pixaura/review_inspection.h": "12d16f287920f9d29d92396c015789e05408c9fde1a9940d924e6073533775bb",
+    "packages/core/include/pixaura/review_preview.h": "532f98c2ff4a176b211f5db6ab72cee5cc04994987d4ec243adb300e6952c2af",
+    "packages/core/include/pixaura/storage.h": "2a9959d744adf2b6657b2919fbbd0ad59922f378f5378ea9ca470b22b4e1939b",
+    "packages/core/include/pixaura/working.h": "f09ad24de1d18a8486b03ee1ded110e5467301a1b27437c1887a9b85a5c85db7",
+    "packages/core/src/agent_boundary.hpp": "4620d4a9b5a5d318aba29f61f983da2c2ec754a0d64bdbe0bbf8181f3f9873c0",
+    "packages/core/src/agent_execution_boundary.hpp": "57a28634a15ab28532af14f013ba605b1bbfd7db9b1d04fbe7a2a0ef185460c8",
+    "packages/core/src/agent_schema_boundary.hpp": "69f82f6e125250edefa1f12148d42056797f67892b164e3df2cc3da1c0255e48",
+    "packages/core/src/agent_schema_testing.hpp": "1d8a67b53ac7945b02f7f3fd342f3b29c8f6f731f4a3c47bf35f55978cb8b491",
+    "packages/core/src/android_asset_publication.hpp": "df485bd520378a1be8cc6f3ac3c2dc3fa7539a14cc933e5dfb0c1754b85d2ccb",
+    "packages/core/src/apple/include/metal_hardware.h": "1403431ae2eb2969f303643e8e85a7e5539adca67d2c03af3542d491726e3545",
+    "packages/core/src/apple/metal_worker.mm": "2c83d50ffa72fb5ae7019afb77f97b3220271b4d1ce227e3900e46f24e4c2031",
+    "packages/core/src/assist_experience.hpp": "838eadc61a92186f5a5307b4ad826905839138e8d08629bca692ce1c295502aa",
+    "packages/core/src/assist_experience_boundary.hpp": "b2201e6b69d697f7460f1a8e5b55aa1a2d653eb1df6d8a5f2b1f930a0f0d7d4f",
+    "packages/core/src/assist_request_codec.hpp": "baf950b836807019b3e9df14a97e8bd02fb2425ff58e7833367e1a4c824b6ed6",
+    "packages/core/src/assistance.hpp": "333738bececa253758aba4eafa65f01e3796927c855c935192e386c827ecd238",
+    "packages/core/src/auto_proposal_boundary.hpp": "6ea369361a1a4d97b1157f7cce4efc5e83a10fe083abdc5233e409556c4b2c61",
+    "packages/core/src/budget.cpp": "5b391740e5559f3fcf2d54cee642d7a3477a449a6b3065f0839e900c2aae2826",
+    "packages/core/src/capability.cpp": "9a884d60907c1c4692052da3f4518a511ee1955d84feddacfb3762507ff32b2b",
+    "packages/core/src/core.cpp": "a36cc55722622c981fe43d57e967e61687650ce83e2870df8f9cfdac431a9b2a",
+    "packages/core/src/decode.cpp": "42d478795137a56978927ffcc01ff23d0f893b6e529f04638acc073850fae119",
+    "packages/core/src/decode.hpp": "dfade1ebdb632d9d23f9117d37de3488016bff5beb0a90b88b1a71050261af99",
+    "packages/core/src/decode_api.cpp": "15df3f0b1ed7587ee37d7bda91a0fec8b79f632320154a3cc440e92fa6184e98",
+    "packages/core/src/decode_codec.h": "13438c605dd9d5f5567d8e4454d3fc4da016a3b17f34805eb770ce088141f48d",
+    "packages/core/src/detail.hpp": "3e54b12450db95658897d4c7904de6510b1c88ebc583b8b605684a7fdf3a0f0f",
+    "packages/core/src/detail_math.hpp": "7e486fd0fc0db15f241b7e8f93abaa7d131b39413d447010064fe237a1d2884e",
+    "packages/core/src/document.cpp": "8bd84b0943f66b70f34b79b2de49e46f3b3690ae7425b73506fb53e499f29119",
+    "packages/core/src/document.hpp": "8249e0557ff731e0fc488412c779454d273b328d9b1aa20f7a8ae1c385efb1cb",
+    "packages/core/src/document_api.cpp": "8976b72413a890cd641b9a22ee5217260d2ee4d7c39e0017377765df29a4194c",
+    "packages/core/src/document_containers.hpp": "d3841c3ab71347ad54c6a22c3da82ca009b05df1a04d20c30cc956ff96cc2d84",
+    "packages/core/src/dynamic_policy.cpp": "e017536700e7dfbcf5409da305d08a0d4266bc3474bd0add23f7e75951e4344d",
+    "packages/core/src/dynamic_policy.hpp": "c3449ade2aea92e22959237dd3eed1b38f201f29d82975de5881a57d610f7a97",
+    "packages/core/src/editor_api.cpp": "a266ae01a27fba950156827478f94a00405ac2bd0ec7d178e1898ab41beae55c",
+    "packages/core/src/evaluation.cpp": "cadf4776dea1f28e469ab58c374fece5cddb47b7dec366ff5be057f6ec8ab819",
+    "packages/core/src/evaluation.hpp": "54dcd564b5de514521ad1b64506cb3f762458e0f9465d4cf1d76db374a178a37",
+    "packages/core/src/export_boundary.hpp": "8879d0437f24852b1879b8a81f720657625a63d396a9c672ed8e80d0192bf795",
+    "packages/core/src/exposure_gain.hpp": "516a1b24be7f76af5b82730068909513d5504ad717b64a55de40c0748ae73bf4",
+    "packages/core/src/exposure_table.hpp": "1bf68916dfecef66cb1e4a7b7ffe1648485bbcdf6eacf13fc3c2ad445b7b8e89",
+    "packages/core/src/geometry.cpp": "d703855ab428e121ee09cd0d2be30fa46f7d6f4d624c0b0fa2da890651d88cc2",
+    "packages/core/src/geometry.hpp": "86a5ed4dbe39284395b630a7958b9890e0b2280cd75728a3133ebb1c7e12198f",
+    "packages/core/src/gpu.cpp": "3e48c9dd569d729fb486b2daac7eb8e5cf394d0edeaedb3ab150ed379e3d84b3",
+    "packages/core/src/inference.cpp": "0b05d93b868d12579d7281db338b51efd363f9e326493867d98d0e29b13565c2",
+    "packages/core/src/inference_admission.hpp": "b5ce45347addd9f5f98b21e7048dfb988a10df8bae9d8081a6f736c900053aa3",
+    "packages/core/src/inference_metal.hpp": "845e9137632cf84257a17fede724d3492e64d09747e3642357b97273de809aad",
+    "packages/core/src/inference_parity.hpp": "336a1dc217163d13318a8185bd585c7e8e24c509b51cc09a341c35db603a0f64",
+    "packages/core/src/intelligence_resources.cpp": "fb919194703a7e38130f3912af666fcf872c9b07abf5a3eda458a1cade08b4d4",
+    "packages/core/src/intelligence_resources.hpp": "bab1a8fe3fd0f6c9b85216862f252748bfefca9fd04a6cc5dbfbee9104780624",
+    "packages/core/src/manual_geometry_preview.cpp": "27ac2042cb62ed0c820944f046e32f22345708c1f667e58eff33d126c29ca7e2",
+    "packages/core/src/manual_preview_binding.hpp": "08e9afdef996c75018f41faed5c5edd16ae42eb0e7b37f91b146411823f69f1b",
+    "packages/core/src/manual_tools.cpp": "8db1c86fa4e8f7a145771f7a91ec3fabc950d191566cb57d8d76e0c9002a938c",
+    "packages/core/src/manual_tools.hpp": "72c5e77b2aa02922c4af96efbe54f0812e017e3dac6344379205eb4d57f2fbaf",
+    "packages/core/src/metal_shaders.hpp": "134a2cecb8a1dc8cd6f47ec5f25bea34291aa8c1772d5b13c0907f15a7d7690b",
+    "packages/core/src/metal_worker.hpp": "702064ce711f672c8118cce0af12c643a9df81181fa043371e6ddb41fb1fac0a",
+    "packages/core/src/model_files.cpp": "9d461265dc1bb83aac7851217b84270f9d4595ae6aeb511f388a13845cb3b3fa",
+    "packages/core/src/model_package.cpp": "d4906a7dd73561571920e15b79550bae23dc2df63b70fc31822ffc3d00fc0331",
+    "packages/core/src/model_package_internal.hpp": "d6bdd594fbb8e45cc6889f56770a6f51a03bd84168e50f703c558f749c0e63d2",
+    "packages/core/src/onnx_profile.cpp": "3b3458a75d768a59d97482e8e8c5c30dd564a0faa6f1a25b514d7089052329d6",
+    "packages/core/src/onnx_profile.hpp": "6b908e316e1b41d38710c7d9b46ece9ae96292c598362cd885fc7d66e4f42617",
+    "packages/core/src/preset.hpp": "33044a82673d0eb1116a20f236d351b118bd0af4fdd91d87023b5238221118f6",
+    "packages/core/src/preview.cpp": "03141d216361b8377df9dcb723b75dd7a20eeaf6b1274399fae217b1fdb90501",
+    "packages/core/src/preview.hpp": "fda5e1164a76650830743215901fc5a6984b196d24afcd22c7ea5188de10c585",
+    "packages/core/src/preview_thresholds.hpp": "00b52bcbb413c3eca1173efd87c09b4e36251282724dad91e1477bedbb0c137a",
+    "packages/core/src/reference_planner_boundary.hpp": "0a9eab2f91474d1b95612f22183a84ada9856723ff089761e569fcbfcda5429f",
+    "packages/core/src/result_review_boundary.hpp": "6821107bc0aaef5bd62e4f4b3614a7f14d6d97f874628b7c478f7cfe0c05e933",
+    "packages/core/src/review_edit_boundary.hpp": "431ce730ed619ec4485bc04b1c99ca1e01e754c1efe1b32d36d0a12b4ff739df",
+    "packages/core/src/review_edit_state.hpp": "5b71d3b72a2b0f2b0f47fb8acb204c1205a0f1e9930c24c9fd9586177a61bb9a",
+    "packages/core/src/review_inspection_boundary.hpp": "444eb9d89dc3c38cf7059f6c171cf539b75b5b2b14c52fcc1ab6ff04d7b0a862",
+    "packages/core/src/review_preview_boundary.hpp": "6fcc8ba05f2d9dec576336d3805425dde5f9faddac05ca3288cc8345ff3e1331",
+    "packages/core/src/review_preview_state.hpp": "f2bb9ee4557263da84d5bbcfd91bfcc5e3b2eb7b0fce2a1653cfacccf030e6e2",
+    "packages/core/src/review_raster.hpp": "878caa93b976234be031886c44a862964d679096148ca7a73e0f6e782467c1ac",
+    "packages/core/src/sha256.cpp": "4e689990ca4acfc7aca72911fb279cb55da0b1c4dcf89415fa21ed83e9003e3c",
+    "packages/core/src/sha256.hpp": "56d8ad106b5bab028fa5c2d34763a149c5d87cb57a1edc6528990e9c00be27bc",
+    "packages/core/src/srgb_table.hpp": "604c13eb6949a65b0bbe4fdb8bc86c8283a085f49422fdd3f11ca4bc86c8a136",
+    "packages/core/src/storage.cpp": "470faed7d8768d458b6ad277f9c352e36a0e91c42d703166a668800d28d3e297",
+    "packages/core/src/storage.hpp": "76fcdb68c316947e4868f1dfe461b93ea54f1056ece8160cd7d22ee7333b9fdb",
+    "packages/core/src/storage_api.cpp": "14e5ecdffe9d248f8bcda58f58c17d2ba301eba72b4083f618bab64715923149",
+    "packages/core/src/storage_files.cpp": "01842a61aa10e0a5032b8c89bb08583a482b3e95883d1b6cc9ccc99ff5d30131",
+    "packages/core/src/storage_files.hpp": "bc7705eede01249b1b008e1524cde41b19ba0808f6bcfbf87da61b71cbad8ea5",
+    "packages/core/src/storage_schema.hpp": "b3a43dae7e25d8efea564a8f6eeebfab29ea45cfe355d4ba99879e3e1ed84e86",
+    "packages/core/src/storage_schema_v2.hpp": "7408aa00c2324d0d35d674a5799ac20372eae179dc27c918dd36cad9947a5d75",
+    "packages/core/src/storage_schema_v3.hpp": "ce1a3995998cb224dc5c17309fff1e21096adbaf0d16cd0967bd257980c1e797",
+    "packages/core/src/structured_goals.hpp": "1c2b2228add976daf9d934f43bfb8ac375d41680a6d9090a885734eea801fc2f",
+    "packages/core/src/tone.hpp": "53885b5b281aa301f034375be5b57143f28ab8838fbdc7a4ed883fe752466f3c",
+    "packages/core/src/tone_constants.hpp": "546f4dfe0b87f228e343975facaadd7d0b2a92c85e7fe05636f73bf2c9bf4ae4",
+    "packages/core/src/tone_math.hpp": "aa1b43d3ae91ccba229f6bdcfe4187fdfd08093122b7b5281b56fe14c695d5b7",
+    "packages/core/src/working.cpp": "51562bb35186026574225e1b27ddf8ab59578a7a4bce081e1e984a08b6020116",
+    "packages/core/src/working.hpp": "a9a649ae750aa3b3615cf23929c4558b110c0c2e80d6e40d47bf9e01ae34d2fc"
+  },
+  "fragment_changes": {
+    "packages/core/swift/Sources/ManualEditor.swift#human-apply": {
+      "before_sha256_lf": "57df1a95499612687359244feed94c940c3762225fb63bc41f9cdde011337909",
+      "after_sha256_lf": "bcc179c215570ad329f3265ca7d29c7b4d7d3a6716b49c2d595ef783be249320",
+      "before_body_lf": "    public func applyAutoFromHuman(_ review: AutoReview, onExecuting: () -> Void = {}) throws -> AgentReceipt {\n        var approval: AgentApproval?\n        gate.lock()\n        do {\n            try checked(closed ? 13 : review.owner != identity ? 9 : review.attempted || review.abandoned ? 15 : applyingReview != nil || cancellingReview ? 8 : 0, \"Auto Apply\")\n            idle.lock(); let busy = assistCalls != 0; idle.unlock()\n            try checked(busy ? 8 : 0, \"Auto Apply\")\n            try checked(inspectAutoLocked(review.proposal) == review.plan.canonicalBytes ? 0 : 9, \"Auto review\")\n            try checked(agentBytesLocked(2, review.plan.canonicalBytes) == review.plan.canonicalBytes ? 0 : 9, \"Auto review\")\n            try checked(attemptedAutoSerial == review.proposal.packet.request_serial ? 15 : 0, \"Auto Apply\")\n            review.attempted = true; attemptedAutoSerial = review.proposal.packet.request_serial\n            approval = try approveAgentPlanLocked(review.plan); applyingApproval = approval\n            applyingReview = review; idle.lock(); agentCalls += 1; idle.unlock()\n        } catch { gate.unlock(); throw error }\n        gate.unlock()\n        defer {\n            approval?.close()\n            gate.lock(); applyingApproval = nil; applyingReview = nil; gate.unlock()\n            idle.lock(); agentCalls -= 1; idle.broadcast(); idle.unlock()\n        }\n        onExecuting() // transport notification only; carries no approval issuer\n        let result = try executeAgentPlan(review.plan, approval: approval)\n        try checked(result.sourceRevision == review.sourceRevision ? 0 : 14, \"Auto receipt\")\n        return result\n    }\n",
+      "approval": "CR18-02"
+    },
+    "platforms/android/bridge/src/main/kotlin/ai/pixaura/bridge/ManualEditor.kt#human-apply": {
+      "before_sha256_lf": "5dfee7c6a7907e455e0bdfdde5346b3c2ed55faa72a8bc3e715a8e5598945313",
+      "after_sha256_lf": "259dfab2d13101cb149fb26b18bfcf5e8b4460e76367d3b6b2966d632b393a3e",
+      "before_body_lf": "    fun applyAutoFromHuman(review: AutoReview, onExecuting: () -> Unit = {}): AgentReceipt {\n        val approval = gate.withLock {\n            checked(if (closed) 13 else if (review.owner !== this) 9 else if (review.attempted || review.abandoned) 15\n                else if (applyingReview != null || cancellingReview || assistCalls != 0) 8 else 0, \"Auto Apply\")\n            checked(if (inspectAuto(review.proposal).contentEquals(review.plan.canonicalBytes())) 0 else 9, \"Auto review\")\n            checked(if (validateAgentPlan(review.plan.canonicalBytes()).canonicalBytes().contentEquals(review.plan.canonicalBytes())) 0 else 9, \"Auto review\")\n            checked(if (attemptedAutoSerial == review.proposal.packet.duplicate().order(ByteOrder.nativeOrder()).getLong(56)) 15 else 0, \"Auto Apply\")\n            review.attempted = true; attemptedAutoSerial = review.proposal.packet.duplicate().order(ByteOrder.nativeOrder()).getLong(56)\n            val issued = approveAgentPlanFromHuman(review.plan); applyingApproval = issued\n            applyingReview = review; agentCalls++ // includes approval cleanup and callback; close must join all of it\n            issued\n        }\n        try {\n            onExecuting() // notification only, never an approval issuer\n            val receipt = executeAgentPlan(review.plan, approval)\n            checked(if (receipt.sourceRevision == review.sourceRevision) 0 else 14, \"Auto receipt\")\n            return receipt\n        } finally { gate.withLock {\n            try { approval.close() } finally {\n                applyingApproval = null; applyingReview = null; agentCalls--; idle.signalAll()\n            }\n        } }\n    }\n",
+      "approval": "CR18-02"
+    }
+  }
+}

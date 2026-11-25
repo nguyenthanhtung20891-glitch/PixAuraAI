@@ -1,3 +1,4 @@
+import {phase11HumanApplyHash} from './helpers/phase-11-versioned-contracts.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import crypto from 'node:crypto';
 import {resultReviewHash,withoutReviewEditIntegration} from './helpers/review-edit-hashes.mjs';
 const text=p=>fs.readFileSync(p,'utf8').replaceAll('\r\n','\n'),read=p=>JSON.parse(text(p)),hash=s=>crypto.createHash('sha256').update(s).digest('hex');
@@ -12,7 +13,7 @@ test('Step 4 permits only exact bounded review-layer changes and freezes all pri
  assert.equal(hash(withoutReviewEditIntegration(text('packages/core/src/editor_api.cpp'))),m.changes['packages/core/src/editor_api.cpp'].before_sha256_lf);
  const old=read('docs/reports/phase-8-step-3-v1.json');for(const p of ['packages/core/include/pixaura/review_inspection.h','packages/core/src/review_inspection_boundary.hpp','docs/contracts/plan-inspection-action-review-v1.md'])assert.equal(hash(text(p)),old.additions[p],p);
  assert.equal(Object.keys(m.human_apply_bodies).length,2);
- for(const [p,b] of Object.entries(m.human_apply_bodies)){const source=text(p);assert.equal(hash(source.slice(source.indexOf(b.start),source.indexOf(b.end))),b.sha256_lf,p+' HUMAN Apply unchanged');}
+ for(const [p,b] of Object.entries(m.human_apply_bodies)){const source=text(p);assert.equal(hash(source.slice(source.indexOf(b.start),source.indexOf(b.end))),phase11HumanApplyHash(p,b.sha256_lf),p+' HUMAN Apply versioned successor');}
 });
 test('native edit is typed bounded new-candidate validation with irreversible old eligibility retirement',()=>{
  const s=text('packages/core/src/review_edit_boundary.hpp');

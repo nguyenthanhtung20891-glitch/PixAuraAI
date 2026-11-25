@@ -21,7 +21,8 @@ import org.junit.Test
 class InspectionTestHooks {
     private external fun nativeCandidate(context: ByteBuffer, plan: ByteArray, output: ByteBuffer): Int
     fun candidate(editor: ManualEditor, bytes: ByteArray): ManualEditor.AutoProposal {
-        val storage = ManualEditor::class.java.getDeclaredField("storage").apply { isAccessible = true }.get(editor) as ByteBuffer
+        VersionedEditorTestHooks.candidate(editor, bytes)?.let { return it }
+        val storage = ManualEditor::class.java.getDeclaredField("legacyStorage").apply { isAccessible = true }.get(editor) as ByteBuffer
         val packet = ByteBuffer.allocateDirect(328).order(ByteOrder.nativeOrder())
         assertEquals(0, nativeCandidate(storage, bytes, packet))
         fun id(at: Int) = ByteArray(32) { packet.get(at + it) }.takeWhile { it != 0.toByte() }.toByteArray().toString(Charsets.US_ASCII)

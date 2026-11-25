@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import androidx.lifecycle.AndroidViewModel
 import androidx.core.content.edit
 import ai.pixaura.bridge.EditorFailure
@@ -26,8 +27,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 data class EditorUiState(val tools: List<ManualTool> = emptyList(), val core: ManualState? = null,
-    val image: Bitmap? = null, val busy: Boolean = false, val previewLoading: Boolean = false, val error: String? = null,
-    val exporting: Boolean = false, val exportStatus: String? = null)
+    val image: Bitmap? = null, val showingOriginal: Boolean = false, val busy: Boolean = false, val previewLoading: Boolean = false, val error: String? = null,
+    val exporting: Boolean = false, val exportStatus: String? = null,
+    val commercial: ai.pixaura.bridge.CommercialStateV2? = null, val recoveryOnly: Boolean = false)
 enum class AssistStatus { IDLE, REQUESTING, PROPOSAL_AVAILABLE, FAILED, STALE, CANCELLED, REJECTED }
 data class AssistUiState(val enabled: Boolean = false, val status: AssistStatus = AssistStatus.IDLE,
     val choices: List<ManualEditor.AssistChoice> = emptyList(), val selected: Int = -1,
@@ -54,12 +56,15 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     private val reviewEditing = AtomicBoolean(false)
     private val commands = Executors.newSingleThreadExecutor()
     private val exportAdmission = AtomicBoolean(false)
+    private val exportCancelled = AtomicBoolean(false)
     private val shareRequest = AtomicReference<Intent?>(null)
     private val shareMutable = MutableStateFlow(0)
     val shareGeneration = shareMutable.asStateFlow()
     private val rendering = Executors.newSingleThreadExecutor()
     private val advising = Executors.newSingleThreadExecutor()
     @Volatile private var owner: ManualEditor? = null
+    private var ownerLease: NativeEditorRuntimePoolV2.Lease? = null
+    private var storeSubscriptionV3: AutoCloseable? = null
     private val assistMutable = MutableStateFlow(AssistUiState())
     val assistance = assistMutable.asStateFlow()
     private val autoMutable = MutableStateFlow(AutoUiState())
@@ -87,6 +92,8 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     private val disposed = AtomicBoolean(false)
     private val mutable = MutableStateFlow(EditorUiState())
     val state = mutable.asStateFlow()
+    private var runtimes = (application as PixAuraApplication).editorRuntimes
+    internal constructor(application: Application, runtimes: NativeEditorRuntimePoolV2) : this(application) { this.runtimes = runtimes }
     private val app = application
     private val preferences = app.getSharedPreferences("manual-editor", 0)
     private val capabilities = (app as PixAuraApplication).capabilityOwner
@@ -108,12 +115,39 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
             drainCapabilities()
         }
     } }
-    private fun configured(root: String, input: InputStream? = null, bytes: Long = 0): ManualEditor {
+    private fun closeOwner() {
+        val previous = owner
+        // Teardown can join a paused native worker. Withdraw the old display/
+        // facts BEFORE clearing ownership, not after that potentially long join.
+        // A recreation observer must not mistake retained pixels for a reopened
+        // editor while owner is null.
+        mutable.value = mutable.value.copy(image = null, core = null, tools = emptyList(),
+            commercial = null, recoveryOnly = false, previewLoading = false, busy = true)
+        storeSubscriptionV3?.close(); storeSubscriptionV3 = null
+        owner = null
+        try { previous?.close() } finally { ownerLease?.close(); ownerLease = null }
+    }
+    private fun configured(path: String, input: File? = null): ManualEditor {
+        check(owner == null && ownerLease == null)
         val sampled = capabilities.sample()
         val snapshot = pendingCapability.getAndSet(null) ?: sampled
-        val editor = ManualEditor(root, input, bytes, snapshot)
-        try { capabilityStrategy.value = editor.executionStrategy(); appliedCapabilitySequence = snapshot.observation.sequence; return editor }
-        catch (failure: Throwable) { editor.close(); throw failure }
+        val lease = runtimes.acquire(snapshot)
+        var prepared: ManualEditor? = null
+        try {
+            if (input != null) ParcelFileDescriptor.open(input, ParcelFileDescriptor.MODE_READ_ONLY).use {
+                prepared = ManualEditor.openV2(File(path), lease.runtime, it, input.length(), uiBitmapLifetime = true, explicitlyMigrateSchema3 = true)
+            } else prepared = ManualEditor.openV2(File(path), lease.runtime, uiBitmapLifetime = true, explicitlyMigrateSchema3 = true)
+            val editor = checkNotNull(prepared)
+            capabilityStrategy.value = editor.executionStrategy(); appliedCapabilitySequence = snapshot.observation.sequence
+            val weak = java.lang.ref.WeakReference(this); val weakEditor = java.lang.ref.WeakReference(editor)
+            storeSubscriptionV3 = runCatching { lease.runtime.observeStoreChangesV3 {
+                val model=weak.get(); val current=weakEditor.get()
+                if(model!=null && current!=null && !model.disposed.get())model.commands.execute { model.refreshCommercial(current) }
+            } }.getOrNull() // Optional observation cannot reject a successful import.
+            ownerLease = lease; return editor
+        } catch (failure: Throwable) {
+            try { prepared?.close() } finally { lease.close() }; throw failure
+        }
     }
     private fun applyPendingCapability(): Boolean {
         val editor = owner ?: return false
@@ -143,6 +177,9 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     private fun root() = File(app.noBackupFilesDir, "manual-projects").apply { mkdirs() }
     private fun message(e: Throwable): String = if (e is EditorFailure) {
         val meaning = when (e.status) {
+            3001 -> "Daily photo limit reached. Saved photos remain recoverable."
+            3002 -> "Daily AI proposal limit reached. Manual editing remains available."
+            3003 -> "Editing admission unavailable. Inspect or export your saved revision."
             7 -> "Invalid parameter"
             9, 3 -> "Stale edit; reopen the committed project"
             8, 15 -> "Resource/admission failure"
@@ -155,9 +192,16 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     private fun refresh(error: String? = null) {
         val editor = owner
         mutable.value = mutable.value.copy(tools = editor?.tools ?: emptyList(), core = editor?.state(),
-            image = editor?.displayedBitmap(), busy = false, error = error)
+            image = editor?.displayedBitmap(), busy = false, error = error,
+            commercial = runCatching { editor?.commercialStateV2() }.getOrNull(),
+            recoveryOnly = runCatching { editor?.recoveryOnlyV2() ?: false }.getOrDefault(true))
         if (assistMutable.value.enabled && assistMutable.value.choices.isEmpty()) loadAdviceChoices()
         if (autoMutable.value.enabled && autoMutable.value.choices.isEmpty()) loadAutoChoices()
+    }
+    private fun refreshCommercial(editor: ManualEditor) {
+        if (disposed.get() || owner !== editor) return
+        val commercial = runCatching { editor.commercialStateV2() }.getOrNull()
+        mutable.update { it.copy(commercial = commercial) }
     }
     private fun nextAssistEpoch(): Long? {
         while (true) { val previous = assistEpoch.get()
@@ -196,6 +240,9 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         invalidateAdvice(); assistMutable.update { it.copy(selected = index, status = AssistStatus.IDLE) }
     }
     private fun adviceFailure(failure: Throwable): Pair<AssistStatus, String> = when ((failure as? EditorFailure)?.status) {
+        3001 -> AssistStatus.FAILED to "Daily photo limit reached. Saved photos remain recoverable."
+        3002 -> AssistStatus.FAILED to "Daily AI proposal limit reached. Manual editing remains available."
+        3003 -> AssistStatus.FAILED to "Editing admission unavailable. Inspect or export your saved revision."
         3, 9 -> AssistStatus.STALE to "This advice has expired. Request new guidance for the current image."
         13 -> AssistStatus.CANCELLED to "Advice cancelled or stopped. Manual editing is available."
         8 -> AssistStatus.FAILED to "Advice is busy or resources are limited. You can keep editing manually."
@@ -212,9 +259,20 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         val epoch = nextAssistEpoch()
         if (editor == null || epoch == null) { assistActive.set(false); providerActive.set(false); return }
         assistMutable.update { it.copy(status = AssistStatus.REQUESTING, advice = null, error = null, notice = null, inFlight = true) }
+        commands.execute prepare@{
+            if (disposed.get() || owner !== editor || assistEpoch.get() != epoch) {
+                assistActive.set(false); providerActive.set(false)
+                assistMutable.update { it.copy(inFlight = false) }; return@prepare
+            }
+            val prepared = try { editor.prepareAdvisory(ui.choices[ui.selected].index) }
+            catch (failure: Throwable) {
+                val error = adviceFailure(failure); assistMutable.update { it.copy(status = error.first, error = error.second, advice = null) }
+                assistMutable.update { it.copy(inFlight = false) }
+                assistActive.set(false); providerActive.set(false); return@prepare
+            }
         advising.execute {
             try {
-                val advice = editor.requestAdvice(ui.choices[ui.selected].index)
+                val advice = editor.requestAdvice(ui.choices[ui.selected].index, prepared)
                 if (!disposed.get()) commands.execute {
                     if (!disposed.get() && owner === editor && assistEpoch.get() == epoch && assistMutable.value.enabled) {
                         try { editor.inspectAdvice(advice); assistMutable.update { it.copy(status = AssistStatus.PROPOSAL_AVAILABLE, advice = advice, error = null) } }
@@ -229,12 +287,14 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
                 }
             } finally {
                 if (!disposed.get()) commands.execute {
+                    refreshCommercial(editor)
                     // Keep admission occupied through native validation/presentation.
                     // An old completion must not clear a newer request's loading state.
                     assistMutable.update { it.copy(inFlight = false) }
                     assistActive.set(false); providerActive.set(false)
                 } else { assistActive.set(false); providerActive.set(false) }
             }
+        }
         }
     }
     fun cancelAdvice() { invalidateAdvice(AssistStatus.CANCELLED); assistMutable.update { it.copy(status = if (it.enabled) AssistStatus.CANCELLED else AssistStatus.IDLE) } }
@@ -301,6 +361,9 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     private fun autoFailure(failure: Throwable) {
         val state = when ((failure as? EditorFailure)?.status) { 3, 9 -> AutoStatus.STALE; 13 -> AutoStatus.CANCELLED; else -> AutoStatus.FAILED }
         val text = when ((failure as? EditorFailure)?.status) {
+            3001 -> "Daily photo limit reached. Saved photos remain recoverable."
+            3002 -> "Daily AI proposal limit reached. Manual editing remains available."
+            3003 -> "Editing admission unavailable. Inspect or export your saved revision."
             3, 9 -> "Proposal expired after an editing change. Request a new proposal."
             13 -> "Proposal cancelled or stopped. Nothing was applied."
             8 -> "Provider busy or resources limited. Manual editing is available."
@@ -317,9 +380,20 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         if (editor == null || stamp == null) { autoActive.set(false); providerActive.set(false); return }
         resultReceipt.set(null)
         autoMutable.update { it.copy(status = AutoStatus.REQUESTING, proposal = null, review = null, editSession = null, receipt = null, result = null, error = null, inFlight = true) }
+        commands.execute prepare@{
+            if (disposed.get() || owner !== editor || autoEpoch.get() != stamp) {
+                autoActive.set(false); providerActive.set(false)
+                autoMutable.update { it.copy(inFlight = false) }; return@prepare
+            }
+            val prepared = try { editor.prepareAdvisory(ui.choices[ui.selected].index) }
+            catch (failure: Throwable) {
+                autoFailure(failure)
+                autoMutable.update { it.copy(inFlight = false) }
+                autoActive.set(false); providerActive.set(false); return@prepare
+            }
         advising.execute {
             try {
-                val proposal = editor.requestAuto(ui.choices[ui.selected].index)
+                val proposal = editor.requestAuto(ui.choices[ui.selected].index, prepared)
                 if (!disposed.get()) commands.execute {
                     if (!disposed.get() && owner === editor && autoEpoch.get() == stamp && autoMutable.value.enabled) {
                         autoMutable.update { it.copy(status = AutoStatus.PROPOSAL_RECEIVED) }
@@ -336,10 +410,12 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
                 }
             } finally {
                 if (!disposed.get()) commands.execute {
+                    refreshCommercial(editor)
                     autoMutable.update { it.copy(inFlight = false) }
                     autoActive.set(false); providerActive.set(false)
                 } else { autoActive.set(false); providerActive.set(false) }
             }
+        }
         }
     }
     fun requestReviewPreview() {
@@ -517,7 +593,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
             }
         }
     }
-    fun reopenProject() { invalidateAdvice(); command { pendingValues.set(null); pendingPreview.set(null); owner?.close(); owner = null
+    fun reopenProject() { invalidateAdvice(); command { pendingValues.set(null); pendingPreview.set(null); closeOwner()
         val name = preferences.getString("project", null)
         if (name != null && name.matches(Regex("[0-9a-f-]{36}"))) { owner = configured(File(root(), name).canonicalPath); preview() }
     } }
@@ -545,21 +621,26 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     internal fun importFile(file: File) { invalidateAdvice(); command { importFileOnWorker(file) } }
     private fun importFileOnWorker(file: File) {
         pendingPreview.set(null); pendingValues.set(null)
+        val previous = preferences.getString("project", null)?.takeIf { it.matches(Regex("[0-9a-f-]{36}")) }
         val name = UUID.randomUUID().toString(); val directory = File(root(), name).apply { check(mkdir()) }
-        var prepared: ManualEditor? = null
+        // Saved history is already durable. Retire the old decoded owner before
+        // allocating a second 12 MP source; UI Bitmap reservations remain owned.
+        closeOwner()
         try {
-            file.inputStream().use { prepared = configured(directory.canonicalPath, it, file.length()) }
+            owner = configured(directory.canonicalPath, file)
         } catch (failure: Throwable) {
-            // Includes a stream-close failure after native preparation. This
-            // fresh root is unpublished; the current project/source is intact.
-            runCatching { prepared?.close() }
-            directory.deleteRecursively()
+            directory.deleteRecursively() // Only this new, unpublished root.
+            if (previous != null) {
+                try { owner = configured(File(root(), previous).canonicalPath); preview() }
+                catch (recovery: Throwable) { failure.addSuppressed(recovery) }
+            }
             throw failure
         }
-        val replacement = checkNotNull(prepared)
-        owner?.close(); owner = replacement
         preferences.edit { putString("project", name) }; preview()
     }
+    fun toggleOriginalPreview() { command {
+        if (owner != null) { mutable.value = mutable.value.copy(showingOriginal = !mutable.value.showingOriginal); preview() }
+    } }
     fun select(index: Int) { invalidateAdvice(); command { pendingValues.set(null); owner?.select(index); pendingPreview.set(null); mutable.value = mutable.value.copy(previewLoading = false) } }
     fun update(values: List<Int>) {
         invalidateAdvice()
@@ -589,13 +670,13 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     fun retryPreview() = command { val editor = owner ?: return@command
         val core = editor.state(); if (core.active && !core.approvalPending) editor.update(core.values); preview() }
     fun interrupt() { invalidateAdvice(AssistStatus.CANCELLED); command { pendingValues.set(null); pendingPreview.set(null); owner?.action(4); mutable.value = mutable.value.copy(previewLoading = false) } }
-    fun closeEditor() { setAutoMode(false); setAssistMode(false); command { pendingValues.set(null); pendingPreview.set(null); owner?.close(); owner = null; mutable.value = mutable.value.copy(previewLoading = false) } }
+    fun closeEditor() { setAutoMode(false); setAssistMode(false); command { pendingValues.set(null); pendingPreview.set(null); closeOwner(); mutable.value = mutable.value.copy(previewLoading = false) } }
     private fun preview() {
         val editor = owner ?: return
         applyPendingCapability()
         capabilities.sample()
         applyPendingCapability()
-        pendingPreview.set(editor to editor.request())
+        pendingPreview.set(editor to editor.request(original = mutable.value.showingOriginal))
         mutable.value = mutable.value.copy(previewLoading = true)
         if (!renderingNow.compareAndSet(false, true)) return
         rendering.execute {
@@ -605,7 +686,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
                     val candidate = work.first.render(work.second)
                     if (!disposed.get()) commands.execute {
                         if (owner === work.first && candidate != null) {
-                            work.first.install(candidate) { bitmap -> mutable.value = mutable.value.copy(image = bitmap, previewLoading = false,
+                            work.first.installOnWorker(candidate) { bitmap -> mutable.value = mutable.value.copy(image = bitmap, previewLoading = false,
                                 error = mutable.value.error?.takeUnless { it.startsWith("Preview failure") }) }
                         }
                     }
@@ -623,6 +704,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     fun takeShareIntent(): Intent? = shareRequest.getAndSet(null)
     fun reserveExport(): Boolean {
         if (!exportAdmission.compareAndSet(false, true)) return false
+        exportCancelled.set(false)
         mutable.value = mutable.value.copy(exporting = true, exportStatus = "Choose a destination", error = null)
         return true
     }
@@ -630,7 +712,7 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         exportAdmission.set(false)
         mutable.value = mutable.value.copy(exporting = false, busy = false, exportStatus = "Save cancelled")
     }
-    fun cancelExport() { try { owner?.exportCancel() } catch (_: Throwable) { } }
+    fun cancelExport() { exportCancelled.set(true); try { owner?.exportCancel() } catch (_: Throwable) { } }
     fun finishShare(resultCode: Int) {
         shareRequest.set(null)
         exportAdmission.set(false)
@@ -655,23 +737,31 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         }
         else -> error.message ?: "Export failed. Nothing was saved."
     }
-    private fun projectExport(format: Int, quality: Int): ManualEditor.EncodedExport {
+    private fun projectExport(format: Int, quality: Int): ManualEditor.StagedExport {
+        if (exportCancelled.get()) throw EditorFailure(13, "Export")
         val editor = owner ?: error("Open an image before export")
         val jpeg = exportQuality(format, quality)
         val before = editor.state()
-        val encoded = editor.exportEncoded(format, jpeg)
-        val after = editor.state()
-        if (before.revisionCount != after.revisionCount || before.revisionId != after.revisionId) error("Export changed history")
-        return encoded
+        val staging = File.createTempFile("export-", ".stage", app.cacheDir)
+        check(staging.delete()) // The native writer exclusively creates an empty private file.
+        try {
+            val encoded = editor.exportStaged(staging, format, jpeg)
+            if (exportCancelled.get()) throw EditorFailure(13, "Export")
+            val after = editor.state()
+            if (before.revisionCount != after.revisionCount || before.revisionId != after.revisionId) error("Export changed history")
+            return encoded
+        } catch (failure: Throwable) { staging.delete(); throw failure }
     }
     fun saveToPhotos(format: Int, quality: Int) {
         if (!exportAdmission.compareAndSet(false, true)) return
+        exportCancelled.set(false)
         mutable.value = mutable.value.copy(exporting = true, exportStatus = "Exporting", error = null)
         commands.execute {
             try {
                 if (android.os.Build.VERSION.SDK_INT < 29) error("Use Save to a file on this Android version")
                 val encoded = projectExport(format, quality)
-                ExportDestination.saveToPhotos(getApplication<Application>().contentResolver, exportName(format), exportMime(format), encoded.bytes)
+                try { ExportDestination.saveToPhotos(getApplication<Application>().contentResolver, exportName(format), exportMime(format), encoded.file) }
+                finally { encoded.file.delete() }
                 refresh(); mutable.value = mutable.value.copy(exportStatus = "Saved")
             } catch (e: Throwable) { refresh(exportMessage(e)); mutable.value = mutable.value.copy(exportStatus = "Export failed") }
             finally { exportAdmission.set(false); mutable.value = mutable.value.copy(exporting = false, busy = false) }
@@ -684,7 +774,8 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         commands.execute {
             try {
                 val encoded = projectExport(format, quality)
-                ExportDestination.writeDocument(getApplication<Application>().contentResolver, uri, encoded.bytes)
+                try { ExportDestination.writeDocument(getApplication<Application>().contentResolver, uri, encoded.file) }
+                finally { encoded.file.delete() }
                 refresh(); mutable.value = mutable.value.copy(exportStatus = "Saved")
             } catch (e: Throwable) { refresh(exportMessage(e)); mutable.value = mutable.value.copy(exportStatus = "Export failed") }
             finally { exportAdmission.set(false); mutable.value = mutable.value.copy(exporting = false, busy = false) }
@@ -692,11 +783,13 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
     }
     fun shareExport(format: Int, quality: Int) {
         if (!exportAdmission.compareAndSet(false, true)) return
+        exportCancelled.set(false)
         mutable.value = mutable.value.copy(exporting = true, exportStatus = "Exporting", error = null)
         commands.execute {
             try {
                 val encoded = projectExport(format, quality)
-                val uri = ExportDestination.cacheUri(getApplication(), exportName(format), encoded.bytes)
+                val uri = try { ExportDestination.cacheUri(getApplication(), exportName(format), encoded.file) }
+                    finally { encoded.file.delete() }
                 shareRequest.set(ExportDestination.shareIntent(uri, exportMime(format)))
                 shareMutable.value = shareMutable.value + 1
                 refresh(); mutable.value = mutable.value.copy(exportStatus = "Opening the share sheet. Delivery is not confirmed.")
@@ -710,8 +803,10 @@ class ManualEditorModel(application: Application) : AndroidViewModel(application
         nextAutoEpoch()
         nextAssistEpoch()
         disposed.set(true)
+        mutable.value = mutable.value.copy(image = null, core = null)
+        autoMutable.value = AutoUiState()
         pendingValues.set(null); pendingPreview.set(null)
         commands.execute { capabilitySubscription?.close(); capabilitySubscription = null
-            pendingCapability.set(null); owner?.close(); owner = null; rendering.shutdown(); advising.shutdown(); commands.shutdown() }
+            pendingCapability.set(null); closeOwner(); rendering.shutdown(); advising.shutdown(); commands.shutdown() }
     }
 }

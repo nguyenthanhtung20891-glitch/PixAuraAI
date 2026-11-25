@@ -186,3 +186,20 @@
 "Reviewed source: %@. Apply rechecks the current source." = "Nguồn đã xem xét: %@. Áp dụng sẽ kiểm tra lại nguồn hiện tại.";
 "Edit applied. Ordinary revision %@. Undo is available in Manual." = "Đã áp dụng chỉnh sửa. Bản sửa thông thường %@. Có thể Hoàn tác trong chế độ Thủ công.";
 "Shared view zoom: %.1f×" = "Tỷ lệ phóng to chung: %.1f×";
+
+"Recovery mode. Inspect and export your last approved saved revision. New editing is unavailable." = "Chế độ khôi phục. Xem và xuất bản sửa đã lưu được duyệt gần nhất. Hiện không thể sửa mới.";
+"Free: %1$lld of 5 photos and %2$lld of 3 AI proposals used today. Resets at 00:00 UTC." = "Miễn phí: hôm nay đã dùng %1$lld/5 ảnh và %2$lld/3 đề xuất AI. Đặt lại lúc 00:00 UTC.";
+"Trial active. Daily photo and AI limits do not apply." = "Đang dùng thử. Không áp dụng giới hạn ảnh và AI hằng ngày.";
+"Verified subscription active. Daily limits do not apply." = "Gói đăng ký đã xác minh đang có hiệu lực. Không áp dụng giới hạn hằng ngày.";
+"Verified lifetime access. Daily limits do not apply." = "Quyền trọn đời đã xác minh. Không áp dụng giới hạn hằng ngày.";
+"Device clock is uncertain. Daily limits use protected local time." = "Đồng hồ thiết bị chưa chắc chắn. Giới hạn hằng ngày dùng thời gian cục bộ được bảo vệ.";
+"Daily photo limit reached. Saved photos remain recoverable." = "Đã đạt giới hạn ảnh hằng ngày. Ảnh đã lưu vẫn có thể khôi phục.";
+"Daily AI proposal limit reached. Manual editing remains available." = "Đã đạt giới hạn đề xuất AI hằng ngày. Bạn vẫn có thể sửa thủ công.";
+"Editing admission unavailable. Inspect or export your saved revision." = "Chưa thể cho phép sửa. Hãy xem hoặc xuất bản sửa đã lưu.";
+
+"Show Original" = "Xem ảnh gốc";
+"Show Edited Preview" = "Xem bản chỉnh sửa xem trước";
+"Original source" = "Nguồn ảnh gốc";
+"Edited preview" = "Bản chỉnh sửa xem trước";
+
+"Next reset locally: %@." = "Lần đặt lại tiếp theo theo giờ địa phương: %@.";

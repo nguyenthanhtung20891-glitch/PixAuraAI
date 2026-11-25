@@ -64,6 +64,9 @@ final class ShellUITests: XCTestCase {
         if !rowID.isEmpty {
             let row = app.scrollViews[rowID]
             if row.exists {
+                // Largest text can put this nested row below the viewport.
+                // Reveal its vertical owner before attempting horizontal input.
+                revealReview(row, in: app)
                 for _ in 0..<8 where element.frame.midX > row.frame.minX + row.frame.width * 0.7 { row.swipeLeft() }
                 for _ in 0..<8 where element.frame.minX < row.frame.minX { row.swipeRight() }
             }
@@ -142,6 +145,42 @@ final class ShellUITests: XCTestCase {
             app.terminate()
         }
     }
+    func testProductionTwelveMegapixelManualHumanApplyUndoRedoAndAccessStatus() {
+        let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image", "--editor-test-12mp"])
+        app.buttons["Open Manual editor"].tap()
+        XCTAssertTrue(app.staticTexts["Committed revisions: 1"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.staticTexts["commercial-access"].exists)
+        let category = app.buttons["Tone/Color"]; revealReview(category, in: app); category.tap()
+        let exposure = app.buttons["pixaura.exposure"]; revealReview(exposure, in: app); exposure.tap()
+        let slider = app.sliders["manual-slider"]
+        XCTAssertTrue(slider.waitForExistence(timeout: 20)); revealReview(slider, in: app)
+        slider.adjust(toNormalizedSliderPosition: 0.75)
+        let received = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            let value = app.staticTexts["parameter-value"]
+            return value.exists && value.label.hasPrefix("Exposure: ") && value.label != "Exposure: 0.0 EV" && app.buttons["Apply"].isEnabled
+        }, object: nil)
+        XCTAssertEqual(XCTWaiter.wait(for: [received], timeout: 20), .completed)
+        let apply = app.buttons["Apply"]; revealReview(apply, in: app); apply.tap()
+        XCTAssertTrue(app.staticTexts["Committed revisions: 2"].waitForExistence(timeout: 20))
+        let undo = app.buttons["Undo"]; revealReview(undo, in: app); undo.tap()
+        let redo = app.buttons["Redo"]
+        let undoReady = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in redo.exists && redo.isEnabled }, object: nil)
+        XCTAssertEqual(XCTWaiter.wait(for: [undoReady], timeout: 20), .completed)
+        revealReview(redo, in: app); redo.tap()
+        let redoReady = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in !redo.isEnabled && undo.isEnabled }, object: nil)
+        XCTAssertEqual(XCTWaiter.wait(for: [redoReady], timeout: 20), .completed)
+        XCTAssertTrue(app.staticTexts["Committed revisions: 2"].exists)
+        let comparison = app.buttons["manual-before-after"]
+        revealReview(comparison, in: app); comparison.tap()
+        XCTAssertEqual(comparison.value as? String, "Original source")
+        XCTAssertTrue(app.staticTexts["Committed revisions: 2"].exists)
+        let comparisonReady = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: comparison)
+        XCTAssertEqual(XCTWaiter.wait(for: [comparisonReady], timeout: 20), .completed)
+        comparison.tap(); XCTAssertEqual(comparison.value as? String, "Edited preview")
+        XCTAssertTrue(app.staticTexts["Committed revisions: 2"].exists)
+        XCTAssertTrue(app.buttons["export-open"].isEnabled)
+    }
+
     func testExportControlsStayAvailableInManualMode() {
         let app = launchEnglish(["--reset-shell-navigation", "--editor-test-image"])
         let open = app.buttons["Open Manual editor"]
@@ -471,6 +510,10 @@ final class ShellUITests: XCTestCase {
             guard XCTWaiter.wait(for: [ready], timeout: 20) == .completed else { XCTFail("Not actionable: \(id)"); return }
             // The matched button is already the single enabled control. A second
             // full-tree query inside tap() timed out on a loaded simulator.
+            // Enabled alone does not imply visibility in a compact viewport.
+            // Bring the actual target fully into view before coordinate delivery.
+            revealReview(query.firstMatch, in: app)
+            XCTAssertTrue(query.firstMatch.isHittable)
             query.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         }
         tap("Open Manual editor")

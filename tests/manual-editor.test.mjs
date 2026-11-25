@@ -1,3 +1,4 @@
+import {assertLegacySchema3Boundary} from './helpers/phase-11-versioned-contracts.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -27,7 +28,7 @@ test('manual screens consume descriptor metadata, never duplicate native tool co
 test('application service composes frozen owners and authority without schema expansion', () => {
   const service = read('packages/core/src/editor_api.cpp');
   for (const call of ['pixaura_manual_edit_begin', 'pixaura_manual_update', 'pixaura_manual_commit', 'pixaura_manual_interrupt', 'pixaura_manual_render', 'repository->apply', 'open_session']) assert.ok(service.includes(call));
-  assert.ok(!fs.existsSync('packages/core/src/storage_schema_v4.hpp'));
+  assertLegacySchema3Boundary();
   assert.ok(read('CMakeLists.txt').includes('NAME editor_test'));
   assert.ok(read('packages/core/Package.swift').includes('src/editor_api.cpp'));
 });

@@ -157,6 +157,9 @@ internal fun presentationId(canonical: String): Int = when (canonical) {
     "AI Assist recommendation" -> R.string.phase11_failure_a104c698e6
     "Apply this exact reviewed plan with human approval" -> R.string.phase11_failure_83bd0db3ca
     "Invalid parameter" -> R.string.phase11_failure_2480e9750d
+    "Daily photo limit reached. Saved photos remain recoverable." -> R.string.access_photo_denied
+    "Daily AI proposal limit reached. Manual editing remains available." -> R.string.access_ai_denied
+    "Editing admission unavailable. Inspect or export your saved revision." -> R.string.access_unavailable
     "Resource/admission failure" -> R.string.phase11_failure_0660b4337f
     "Tool or image capability unavailable" -> R.string.phase11_failure_cc3ce9611d
     "Human approval required" -> R.string.phase11_failure_de0f0706e4
@@ -189,3 +192,15 @@ internal fun presented(canonical: String): String {
 /** Presentation-only formatting; native identifiers and raw values stay verbatim. */
 @Composable
 internal fun presentedFormat(id: Int, vararg values: Any): String = stringResource(id, *values)
+
+// Presentation only: the native quota day defines UTC midnight. No wall-clock
+// reading or timezone change can create quota capacity through this formatter.
+internal fun localQuotaReset(day: Long, timeZone: java.util.TimeZone = java.util.TimeZone.getDefault(),
+    locale: java.util.Locale = java.util.Locale.getDefault()): String? {
+    if (day < 0 || day >= Long.MAX_VALUE / 86_400_000L) return null
+    val milliseconds = (day + 1) * 86_400_000L
+    val formatter = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", locale)
+    formatter.calendar = java.util.GregorianCalendar(timeZone, locale)
+    formatter.timeZone = timeZone
+    return formatter.format(java.util.Date(milliseconds)) + " (" + timeZone.id + ")"
+}

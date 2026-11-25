@@ -17,7 +17,8 @@ import org.junit.Test
 class ReviewPreviewTestHooks {
     private external fun nativeControl(context: ByteBuffer, command: Int, value: Int): Int
     fun control(editor: ManualEditor, command: Int, value: Int = 0): Int {
-        val field = ManualEditor::class.java.getDeclaredField("storage").apply { isAccessible = true }
+        VersionedEditorTestHooks.control(editor, 4, command, value)?.let { return it }
+        val field = ManualEditor::class.java.getDeclaredField("legacyStorage").apply { isAccessible = true }
         return nativeControl(field.get(editor) as ByteBuffer, command, value)
     }
 }
@@ -26,7 +27,8 @@ class ReviewPreviewTest {
     private val model get() = compose.activity.manualModel
     private val hooks = ReviewPreviewTestHooks()
     private fun waitFor(test: () -> Boolean) = compose.waitUntil(20_000, test)
-    private fun owner(): ManualEditor = ManualEditorModel::class.java.getDeclaredField("owner").apply { isAccessible = true }.get(model) as ManualEditor
+    private fun owner(): ManualEditor = (ManualEditorModel::class.java.getDeclaredField("owner").apply { isAccessible = true }.get(model) as? ManualEditor)
+        ?: throw AssertionError("No native owner: busy=${model.state.value.busy}; image=${model.state.value.image != null}; core=${model.state.value.core}; error=${model.state.value.error}")
     private fun tap(tag: String) {
         // Chips live inside a horizontal scroller, itself inside the editor's
         // vertical viewport. Resolve the containing row first, as in the retained
@@ -61,7 +63,9 @@ class ReviewPreviewTest {
         tap("review-reset"); compose.onNodeWithTag("review-before").assertExists()
         val pair = requireNotNull(model.autoProposal.value.preview.comparison)
         assertFalse(pair.geometryChanged); assertEquals(2, pair.before.width); assertEquals(3, pair.before.height)
-        assertEquals(0, hooks.control(editor, 5)) // native pair released after bounded platform copy
+        val retained = VersionedEditorTestHooks.control(editor, 4, 5, 0)
+        if (retained != null) assertEquals(2, retained) // v2 keeps BOTH display reservations until actual Bitmap retirement.
+        else assertEquals(0, hooks.control(editor, 5)) // v1 native pair released after bounded platform copy.
         tap("auto-apply")
         waitFor { model.autoProposal.value.status == AutoStatus.COMPLETED && !model.autoProposal.value.inFlight }
         assertEquals(2, editor.state().revisionCount)
@@ -99,11 +103,13 @@ class ReviewPreviewTest {
         assertFalse(editor.installReviewPreview(pair) {})
         // The pre-copy current check must preserve the native status, rather
         // than turning a stale/cancelled record into an allocation failure.
+        if (VersionedEditorTestHooks.staleComparisonCopy(editor, pair) == null) {
         val native = ManualEditor::class.java.getDeclaredMethod("nativeReviewImage", ByteBuffer::class.java, ByteBuffer::class.java, Integer.TYPE).apply { isAccessible = true }
-        val storage = ManualEditor::class.java.getDeclaredField("storage").apply { isAccessible = true }.get(editor)
+        val storage = ManualEditor::class.java.getDeclaredField("legacyStorage").apply { isAccessible = true }.get(editor)
         val packet = ManualEditor.ReviewComparison::class.java.getDeclaredField("packet").apply { isAccessible = true }.get(pair)
         val failure = native.invoke(editor, storage, packet, 0) as IntArray
         assertEquals(13, failure[0]); assertEquals(3, failure.size)
+        }
         val rotated = editor.prepareAutoReview(editor.requestAuto(10))
         val rotation = editor.renderReviewPreview(editor.beginReviewPreview(rotated))
         assertTrue(rotation.geometryChanged); assertTrue(editor.installReviewPreview(rotation) {})
@@ -112,6 +118,29 @@ class ReviewPreviewTest {
         waitFor { model.state.value.image != null && !model.state.value.busy }
         assertNull(model.autoProposal.value.preview.comparison)
         assertFalse(owner().installReviewPreview(pair) {})
+    }
+    @Test fun legacyJniPreCopyPreservesCancelledStatus() {
+        val app = InstrumentationRegistry.getInstrumentation().targetContext
+        val fixtures = InstrumentationRegistry.getInstrumentation().context.assets.open("decode/fixtures.json").bufferedReader().use { JSONObject(it.readText()) }
+        val bytes = fixtures.getJSONObject("png").getJSONArray("bytes")
+        val input = File(app.cacheDir, "legacy-comparison-${UUID.randomUUID()}.png").apply { writeBytes(ByteArray(bytes.length()) { bytes.getInt(it).toByte() }) }
+        val root = File(app.noBackupFilesDir, "legacy-comparison-${UUID.randomUUID()}").apply { assertTrue(mkdir()) }
+        try {
+            // The frozen v1 Agent guard requires an explicitly configured OS
+            // policy. Use the same labelled synthetic profile as AgentPlatformTest.
+            val snapshot = AndroidCapabilitySnapshot(AndroidStaticFacts(8, 36, 8L shl 30, 512L shl 20, 2), AndroidObservation(1, 1, false, 2, 512L shl 20, 1))
+            val editor = input.inputStream().use { ManualEditor(root.canonicalPath, it, input.length(), snapshot) }
+            editor.use {
+                val proposal = editor.requestAuto(2)
+                val review = editor.prepareAutoReview(proposal); val pair = editor.renderReviewPreview(editor.beginReviewPreview(review))
+                editor.select(4); editor.update(listOf(100)); editor.action(1)
+                val native = ManualEditor::class.java.getDeclaredMethod("nativeReviewImage", ByteBuffer::class.java, ByteBuffer::class.java, Integer.TYPE).apply { isAccessible = true }
+                val storage = ManualEditor::class.java.getDeclaredField("legacyStorage").apply { isAccessible = true }.get(editor)
+                val packet = ManualEditor.ReviewComparison::class.java.getDeclaredField("packet").apply { isAccessible = true }.get(pair)
+                val failure = native.invoke(editor, storage, packet, 0) as IntArray
+                assertEquals(13, failure[0]); assertEquals(3, failure.size)
+            }
+        } finally { input.delete(); root.walkBottomUp().forEach { it.setWritable(true); it.delete() } }
     }
     @Test fun recreationStopsAndJoinsPreviewBeforeDestroyWithoutRestoringPixels() {
         open(); val editor = owner(); val source = editor.state().revisionId

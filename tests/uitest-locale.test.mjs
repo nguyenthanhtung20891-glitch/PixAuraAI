@@ -12,7 +12,8 @@ test('iOS UI tests launch the English catalog without changing device language',
   assert.equal(launches.length, 2);
   assert.match(launches[1], /AppleLanguages.*language.*AppleLocale.*locale/);
   assert.match(tests, /\("en", "en_US", "Share"\).*\("vi", "vi_VN", "Chia sẻ"\)/);
-  assert.equal(tests.match(/let app = launchEnglish\(/g).length, 18);
+  // The additive real12MP workflow is the nineteenth English launch site.
+  assert.equal(tests.match(/let app = launchEnglish\(/g).length, 19);
   assert.equal(tests.match(/startEnglish\(app,/g).length, 3);
   assert.doesNotMatch(tests.slice(tests.indexOf('func selectControl')), /coordinate\(withNormalizedOffset/);
   assert.match(tests, /identifier == %@ OR label == %@/);

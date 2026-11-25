@@ -79,7 +79,11 @@ test('Phase 10 Step 2 explains an empty editor without changing import authority
   assert.ok(text('platforms/ios/PixAuraAI/ManualEditorScreen.swift').includes('String(localized: "Open Photo")'));
   assert.ok(text('platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt').includes('Import cancelled. Open JPEG or PNG to try again.'));
   assert.ok(text('platforms/ios/PixAuraAI/ManualEditorModel.swift').includes('Import cancelled. Open JPEG or PNG to try again.'));
-  assert.ok(text('platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt').includes('owner?.close()'));
+  const teardown = text('platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt').split('private fun closeOwner()')[1].split('private fun configured(')[0];
+  assert.match(teardown, /val previous = owner/);
+  assert.match(teardown, /image = null, core = null/);
+  assert.ok(teardown.indexOf('image = null') < teardown.indexOf('owner = null'));
+  assert.match(teardown, /previous\?\.close\(\).*finally.*ownerLease\?\.close\(\)/s);
   const cancelled = text('platforms/android/app/src/main/java/ai/pixaura/app/ManualEditorModel.kt').split('fun noteImportCancelled()')[1].split('fun importImage')[0];
   assert.equal(cancelled.includes('owner'), false);
   for (const p of files) {

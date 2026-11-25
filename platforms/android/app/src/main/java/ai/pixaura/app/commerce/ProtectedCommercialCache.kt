@@ -1,6 +1,7 @@
 package ai.pixaura.app.commerce
 
 import android.content.Context
+import ai.pixaura.bridge.StoreAcknowledgmentV3
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.AtomicFile
@@ -62,6 +63,15 @@ class ProtectedCommercialCache(context: Context, namespace: String = "commercial
     @Synchronized fun repairAfterStoreVerification(record: VerifiedGoogleRecord) {
         val damaged = if (file.baseFile.exists()) try { envelopes(); false } catch (_: Exception) { true } else false
         if (damaged) clear()
+        write(record)
+    }
+    // Used by the isolated per-product v3 cache only. A typed receipt can be
+    // obtained only from the actual native COMMIT path, never decoded from a blob.
+    @Synchronized internal fun repairAfterNativeCommit(record: VerifiedGoogleRecord, receipt: StoreAcknowledgmentV3, proofDigest: String) {
+        require(receipt.product==record.productId && receipt.proofDigest==proofDigest && receipt.identity.matches(Regex("[a-f0-9]{64}")))
+        if(file.baseFile.exists()) {
+            try { envelopes() } catch (_: Exception) { file.delete() } // Preserve existing AES key, installation key and other product caches.
+        }
         write(record)
     }
     private fun envelopes(): List<JSONObject> {

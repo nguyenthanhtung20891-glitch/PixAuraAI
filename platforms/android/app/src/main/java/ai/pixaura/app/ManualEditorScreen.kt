@@ -53,7 +53,7 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
         onDispose { lifecycle.lifecycle.removeObserver(observer); model.closeEditor() }
     }
     val previewDescription = presented("Image preview")
-    val currentPreviewDescription = presented("Current manual preview")
+    val currentPreviewDescription = if (ui.showingOriginal) stringResource(R.string.original_source) else presented("Current manual preview")
     val photosDescription = presented("Save the committed revision to Photos")
     val fileDescription = presented("Save the committed revision to a file")
     val shareDescription = presented("Share the committed revision")
@@ -62,6 +62,21 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
             FilterChip(selected = !assist.enabled && !auto.enabled, onClick = { model.setAutoMode(false); model.setAssistMode(false) }, label = { Text(presented("Manual")) }, modifier = Modifier.testTag("mode-manual"))
             FilterChip(selected = assist.enabled, onClick = { model.setAssistMode(true) }, label = { Text(presented("AI Assist")) }, modifier = Modifier.testTag("mode-assist"))
             FilterChip(selected = auto.enabled, onClick = { model.setAutoMode(true) }, label = { Text(presented("AI Auto-Edit")) }, modifier = Modifier.testTag("mode-auto"))
+        }
+        if (ui.core != null) {
+            val access = if (ui.recoveryOnly) stringResource(R.string.access_recovery) else ui.commercial?.let { state ->
+                when (state.access) {
+                    1 -> stringResource(R.string.access_trial)
+                    2 -> stringResource(R.string.access_subscription)
+                    3 -> stringResource(R.string.access_lifetime)
+                    else -> {
+                        val usage = stringResource(R.string.access_free, state.photos, state.ai)
+                        localQuotaReset(state.day)?.let { usage + " " + stringResource(R.string.access_reset_local, it) } ?: usage
+                    }
+                }
+            } ?: stringResource(R.string.access_unavailable)
+            Text(access, Modifier.testTag("commercial-access").semantics { liveRegion = LiveRegionMode.Polite })
+            if (ui.commercial?.clockUncertain == true) Text(stringResource(R.string.access_clock), Modifier.testTag("commercial-clock"))
         }
         if (assist.enabled) AssistPanel(model, ui, assist)
         if (auto.enabled) AutoProposalPanel(model, ui, auto)
@@ -74,6 +89,13 @@ fun ManualEditorScreen(model: ManualEditorModel, assistInitially: Boolean = fals
             if (ui.image == null) Column {
                 Text(stringResource(R.string.empty_purpose), Modifier.testTag("empty-purpose"))
                 Text(stringResource(R.string.empty_instruction))
+            }
+        }
+        if (ui.core != null && !auto.enabled) {
+            val comparisonState = stringResource(if (ui.showingOriginal) R.string.original_source else R.string.edited_preview)
+            OutlinedButton(onClick = model::toggleOriginalPreview, enabled = !ui.busy,
+                modifier = Modifier.testTag("manual-before-after").defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).semantics { stateDescription = comparisonState }) {
+                Text(stringResource(if (ui.showingOriginal) R.string.show_edited_preview else R.string.show_original))
             }
         }
         if (ui.busy) Text(presented("Loading or saving…"), Modifier.semantics { liveRegion = LiveRegionMode.Polite })
