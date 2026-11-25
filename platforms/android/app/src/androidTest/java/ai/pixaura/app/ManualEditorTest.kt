@@ -30,11 +30,21 @@ class ManualEditorTest {
         compose.onNode(hasText(category) and isEnabled()).performScrollTo().performClick()
         compose.waitUntil(20_000) { compose.onAllNodesWithText(tool).fetchSemanticsNodes().isNotEmpty() }
     }
+    /** The comparison control is disabled while native work is busy; click it only once it is enabled. */
+    private fun toggleComparison() {
+        compose.waitUntil(20_000) { compose.onAllNodes(hasTestTag("manual-before-after") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNode(hasTestTag("manual-before-after") and isEnabled()).performScrollTo().performClick()
+    }
+    /** Native work disables most controls; wait until the control is enabled so a click is never silently dropped. */
+    private fun clickEnabled(text: String) {
+        compose.waitUntil(20_000) { compose.onAllNodes(hasText(text) and isEnabled()).fetchSemanticsNodes().size == 1 }
+        compose.onNode(hasText(text) and isEnabled()).performScrollTo().performClick()
+    }
     private fun waitFor(predicate: () -> Boolean) {
         try { compose.waitUntil(20_000, predicate) }
         catch (failure: androidx.compose.ui.test.ComposeTimeoutException) {
             val state = compose.activity.manualModel.state.value
-            throw AssertionError("Editor wait failed: error=${state.error}; busy=${state.busy}; preview=${state.previewLoading}; core=${state.core}; image=${state.image?.width}x${state.image?.height}", failure)
+            throw AssertionError("Editor wait failed: error=${state.error}; busy=${state.busy}; preview=${state.previewLoading}; original=${state.showingOriginal}; core=${state.core}; image=${state.image?.width}x${state.image?.height}", failure)
         }
     }
     private fun openFixture(): File {
@@ -64,20 +74,20 @@ class ManualEditorTest {
             compose.onNodeWithTag("commercial-access").assertExists()
             val original = requireNotNull(model.state.value.core).revisionId
             selectCategoryAndAwaitTool("Tone/Color", "Exposure")
-            compose.onNodeWithText("Exposure").performScrollTo().performClick()
+            clickEnabled("Exposure")
             waitFor { model.state.value.core?.active == true && !model.state.value.busy }
             compose.onNodeWithContentDescription("Exposure value").performSemanticsAction(SemanticsActions.SetProgress) { it(1000f) }
             waitFor { model.state.value.core?.values == listOf(1000) && !model.state.value.previewLoading }
-            compose.onNodeWithText("Apply").performScrollTo().performClick()
+            clickEnabled("Apply")
             waitFor { model.state.value.core?.revisionCount == 2 && !model.state.value.previewLoading }
             val committed = requireNotNull(model.state.value.core).revisionId
             assertNotEquals(original, committed); assertEquals(1, model.state.value.commercial?.access)
             assertTrue(requireNotNull(model.state.value.commercial).trialStart >= 0)
-            compose.onNodeWithTag("manual-before-after").performScrollTo().performClick()
+            toggleComparison()
             waitFor { model.state.value.showingOriginal && !model.state.value.previewLoading }
             compose.onNodeWithTag("manual-before-after").assert(SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.StateDescription, "Original source"))
             assertEquals(committed, model.state.value.core?.revisionId); assertEquals(2, model.state.value.core?.revisionCount)
-            compose.onNodeWithTag("manual-before-after").performScrollTo().performClick()
+            toggleComparison()
             waitFor { !model.state.value.showingOriginal && !model.state.value.previewLoading }
             compose.onNodeWithTag("manual-before-after").assert(SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.StateDescription, "Edited preview"))
             assertEquals(committed, model.state.value.core?.revisionId); assertEquals(2, model.state.value.core?.revisionCount)
@@ -104,9 +114,9 @@ class ManualEditorTest {
                     assertEquals(committed, model.state.value.core?.revisionId); assertEquals(2, model.state.value.core?.revisionCount)
                 } finally { output.delete(); directory.delete() }
             }
-            compose.onNodeWithText("Undo").performScrollTo().performClick()
+            clickEnabled("Undo")
             waitFor { model.state.value.core?.revisionId == original && !model.state.value.previewLoading }
-            compose.onNodeWithText("Redo").performScrollTo().performClick()
+            clickEnabled("Redo")
             waitFor { model.state.value.core?.revisionId == committed && !model.state.value.previewLoading }
             compose.activityRule.scenario.recreate()
             waitFor { compose.activity.manualModel.state.value.core?.revisionId == committed && compose.activity.manualModel.state.value.image != null && !compose.activity.manualModel.state.value.previewLoading }
@@ -194,38 +204,38 @@ class ManualEditorTest {
         val model = compose.activity.manualModel
         val original = requireNotNull(model.state.value.image)
         selectCategoryAndAwaitTool("Tone/Color", "Exposure")
-        compose.onNodeWithText("Exposure").performScrollTo().performClick()
+        clickEnabled("Exposure")
         waitFor { model.state.value.core?.active == true && !model.state.value.busy }
         compose.onNodeWithContentDescription("Exposure value").performSemanticsAction(SemanticsActions.SetProgress) { it(1000f) }
         waitFor { model.state.value.core?.values == listOf(1000) && !model.state.value.previewLoading }
         assertFalse(requireNotNull(model.state.value.image).sameAs(original))
         compose.onNodeWithText("Undo").assertIsNotEnabled()
-        compose.onNodeWithText("Apply").performScrollTo().performClick()
+        clickEnabled("Apply")
         waitFor { model.state.value.core?.revisionCount == 2 && !model.state.value.previewLoading }
         val committed = requireNotNull(model.state.value.image)
-        compose.onNodeWithText("Undo").performScrollTo().performClick()
+        clickEnabled("Undo")
         waitFor { model.state.value.core?.canRedo == true && !model.state.value.previewLoading }
         assertTrue(requireNotNull(model.state.value.image).sameAs(original))
-        compose.onNodeWithText("Redo").performScrollTo().performClick()
+        clickEnabled("Redo")
         waitFor { model.state.value.core?.canRedo == false && !model.state.value.previewLoading }
         assertTrue(requireNotNull(model.state.value.image).sameAs(committed))
-        compose.onNodeWithText("Exposure").performScrollTo().performClick()
+        clickEnabled("Exposure")
         waitFor { model.state.value.core?.active == true && !model.state.value.busy }
         compose.onNodeWithContentDescription("Exposure value").performSemanticsAction(SemanticsActions.SetProgress) { it(-1000f) }
         waitFor { model.state.value.core?.values == listOf(-1000) && !model.state.value.previewLoading }
-        compose.onNodeWithText("Cancel").performScrollTo().performClick()
+        clickEnabled("Cancel")
         waitFor { model.state.value.core?.active == false && !model.state.value.previewLoading }
         assertEquals(2, model.state.value.core?.revisionCount); assertTrue(requireNotNull(model.state.value.image).sameAs(committed))
-        compose.onNodeWithText("Geometry").performScrollTo().performClick()
-        compose.onNodeWithText("Rotate").performScrollTo().performClick()
+        clickEnabled("Geometry")
+        clickEnabled("Rotate")
         waitFor { model.state.value.core?.active == true && !model.state.value.busy }
-        compose.onNodeWithText("90°").performScrollTo().performClick()
+        clickEnabled("90°")
         waitFor { model.state.value.core?.values == listOf(1) && !model.state.value.previewLoading }
         compose.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
         compose.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
         waitFor { model.state.value.core?.active == false && !model.state.value.busy }
         assertEquals(2, model.state.value.core?.revisionCount)
-        compose.onNodeWithText("Filters/Presets").performScrollTo().performClick()
+        clickEnabled("Filters/Presets")
         compose.onNodeWithText("No presets available. The shipping catalog is empty.").performScrollTo().assertIsDisplayed()
         repeat(3) {
             val previousDisplay = compose.activity.manualModel.state.value.image

@@ -141,11 +141,11 @@
     },
     "platforms/android/app/src/androidTest/java/ai/pixaura/app/ManualEditorTest.kt": {
       "before_sha256_lf": "6102b4ef2b8521851bc03f8db1e3155bd956244efdf9261b0f8b49193bd34d08",
-      "after_sha256_lf": "0c9cbcd312d874d32a5d90eaa83cb4978540cdfb85a0498c96a1c1bfc5c92ce5"
+      "after_sha256_lf": "aa9a5fba428ced733648d8e530805a7174726cb7ada75a0dc50d0741e149ce8d"
     },
     "platforms/android/app/src/androidTest/java/ai/pixaura/app/Phase11AccessibilityTest.kt": {
       "before_sha256_lf": "8a6bde67060ec54a404dededbd65a69877f88ff03d3409f881aa6a704d26dc0c",
-      "after_sha256_lf": "b6ab898fd4a473de6c53c8a35ae27685f2ebfc90ba7f59a0025aa13e31ef8925"
+      "after_sha256_lf": "ea865157ac94672b6be0cdfe95fae19d65de39d49c4d27b0302cd942be1131f7"
     },
     "platforms/android/app/src/androidTest/java/ai/pixaura/app/PlanInspectionTest.kt": {
       "before_sha256_lf": "e68c5ccfb2c57683a53ae59123aab5399496227937c22ba4a1cdfc1ea6aef925",

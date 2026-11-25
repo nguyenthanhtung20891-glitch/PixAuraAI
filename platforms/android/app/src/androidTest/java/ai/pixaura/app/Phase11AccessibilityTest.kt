@@ -59,7 +59,8 @@ class Phase11AccessibilityTest {
             compose.runOnUiThread { model.importFile(input) }
             compose.waitUntil(20_000) { !model.state.value.busy && model.state.value.core?.revisionCount == 1 }
             selectCategoryAndAwaitTool(if (language == "vi") "Tông/Màu" else "Tone/Color", exposure)
-            compose.onNodeWithText(exposure).performScrollTo().performClick()
+            compose.waitUntil(20_000) { compose.onAllNodes(hasText(exposure) and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
+            compose.onNode(hasText(exposure) and isEnabled()).performScrollTo().performClick()
             compose.waitUntil(20_000) { model.state.value.core?.selected == 4 && !model.state.value.busy }
             compose.onNodeWithContentDescription(sliderLabel).performScrollTo().performSemanticsAction(SemanticsActions.SetProgress) { it(100f) }
             compose.waitUntil(20_000) { model.state.value.core?.values == listOf(100) }
