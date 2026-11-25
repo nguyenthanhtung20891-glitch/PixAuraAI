@@ -25,7 +25,7 @@
     },
     ".github/workflows/native-shells.yml": {
       "before_sha256_lf": "7756900c10b2e181577b3cb3cf06f23b5b4b14089bc3884409a87387c410bcee",
-      "after_sha256_lf": "487212f9a989dc86e58494a6ee6fefa00dd887dee7065c7459d6fa79d747fae0"
+      "after_sha256_lf": "4315b423f8b7a777eae72704c6e09455e6f374fd0a00ff7b4f444957cb9f1ea8"
     },
     "AGENTS.md": {
       "before_sha256_lf": "39aefd8e307f95c10702fde90a7169f70ca9af0fe4bdca23dff650f03ca1d799",
@@ -270,6 +270,10 @@
     "tests/phase-11-g8-g10.test.mjs": {
       "before_sha256_lf": "c151cd0d1be8cb4f1b35af2236b07125886c8922e30f6371ba24750715bdf800",
       "after_sha256_lf": "f0689052aa033d8bfd266aba9e0fa70edcdcb799810325c65219bb6acd7cd5e1"
+    },
+    "tests/phase-11-hardening.test.mjs": {
+      "before_sha256_lf": "9d737b7bf604ebd59d5b530bd41c5f733c4fcf1283a6e9034ba44b3feec5b648",
+      "after_sha256_lf": "eeddef56b7bde1258c4e801e793ac2cb8d0af530da3c27e3e39577733774d883"
     },
     "tests/phase-11-v18.test.mjs": {
       "before_sha256_lf": "7416e4e060720625022192ddf0b663945caa8f19c4e4310079b0a479a6ab9e0f",

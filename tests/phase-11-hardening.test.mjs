@@ -150,7 +150,7 @@ test('Phase 11 does not turn software success into mandatory hardware or commerc
 
 test('hosted iOS job budget preserves the complete package and app suites', () => {
   const ios = read('.github/workflows/native-shells.yml').split('  ios-app:')[1];
-  assert.match(ios, /timeout-minutes: 60/);
+  assert.match(ios, /timeout-minutes: 120/);
   assert.match(ios, /run: bash scripts\/check-apple\.sh/);
   assert.match(ios, /run: bash scripts\/check-ios-shell\.sh/);
   assert.match(ios, /if: always\(\)/);
