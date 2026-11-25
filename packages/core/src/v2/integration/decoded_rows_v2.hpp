@@ -127,7 +127,7 @@ public:
                     try{tile.bytes.resize(128u*128*4);need(tile.bytes.capacity()==128u*128*4,8);}
                     catch(...){std::vector<uint8_t>().swap(tile.bytes);tile.lease.reset();throw;}
                 }
-                std::fill(tile.bytes.begin(),tile.bytes.end(),0);
+                std::fill(tile.bytes.begin(),tile.bytes.end(),static_cast<unsigned char>(0));
                 const auto start_x=tx*128,start_y=ty*128,count_x=std::min(128u,width_-start_x),count_y=std::min(128u,height_-start_y);
                 for(uint32_t row=0;row<count_y;++row)transfer((uint64_t(start_y+row)*width_+start_x)*4,tile.bytes.data()+size_t(row)*128*4,size_t(count_x)*4,false);
                 tile.x=tx;tile.y=ty;tile.valid=true;

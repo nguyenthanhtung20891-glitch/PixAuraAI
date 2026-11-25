@@ -54,7 +54,7 @@ void CommercialCoordinatorV2::configure_store(std::shared_ptr<StoreProofAuthorit
     std::lock_guard<std::mutex> lock(gate_);need(store&&ledger_.format_version_==3&&!store_authority_&&!store_journal_);
     auto journal=std::make_unique<StoreJournalV3>(ledger_,authority_,*store);
     auto paid=journal->restore();
-    {std::lock_guard<std::mutex> lock(ledger_.mutex_);ledger_.paid_=std::move(paid);}
+    {std::lock_guard<std::mutex> ledger_lock(ledger_.mutex_);ledger_.paid_=std::move(paid);}
     store_authority_=std::move(store);store_journal_=std::move(journal);
 }
 std::string CommercialCoordinatorV2::begin_store_request(){

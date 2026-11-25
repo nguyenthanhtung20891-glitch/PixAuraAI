@@ -107,12 +107,14 @@ std::string Ledger::clock_canonical(){
     return "PIXAURA_NATIVE_CLOCK_V2:"+std::to_string(utc)+":"+std::to_string(mono)+":"+std::to_string(trial)+":"+std::to_string(uncertain)+":"+boot;
 }
 void Ledger::verify_clock(){
-    if(format_version_<2)return;need(clock_authority_);const auto canonical=clock_canonical();Query row(db_,"SELECT seal FROM clock_auth_v2 WHERE singleton=1");
+    if(format_version_<2)return;
+    need(clock_authority_);const auto canonical=clock_canonical();Query row(db_,"SELECT seal FROM clock_auth_v2 WHERE singleton=1");
     if(canonical.empty()){need(!row.row());return;}if(!row.row())throw document::Failure{6};const auto actual=row.s(0);if(!hex(actual,64)||row.row())throw document::Failure{6};
     const auto expected=clock_authority_->authenticate(canonical);if(expected.size()!=64)throw document::Failure{6};unsigned difference=0;for(size_t i=0;i<64;++i)difference|=static_cast<unsigned char>(actual[i])^static_cast<unsigned char>(expected[i]);if(difference)throw document::Failure{6};
 }
 void Ledger::seal_clock(){
-    if(format_version_<2)return;need(clock_authority_);const auto canonical=clock_canonical();if(canonical.empty()){Query row(db_,"SELECT count(*) FROM clock_auth_v2");need(row.row()&&row.n(0)==0);return;}
+    if(format_version_<2)return;
+    need(clock_authority_);const auto canonical=clock_canonical();if(canonical.empty()){Query row(db_,"SELECT count(*) FROM clock_auth_v2");need(row.row()&&row.n(0)==0);return;}
     const auto seal=clock_authority_->authenticate(canonical);need(hex(std::string(seal),64));Query row(db_,"INSERT INTO clock_auth_v2 VALUES(1,?) ON CONFLICT(singleton) DO UPDATE SET seal=excluded.seal");row.text(1,std::string(seal));need(!row.row());
 }
 int64_t Ledger::tick(const Clock& c){
