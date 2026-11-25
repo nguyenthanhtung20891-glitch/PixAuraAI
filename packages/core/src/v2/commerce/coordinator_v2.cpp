@@ -98,12 +98,14 @@ bool CommercialCoordinatorV2::acknowledge(const storage::NativeCommitReceiptV2& 
     Query q(ledger_.db_,"INSERT INTO native_trial_origin VALUES(1,?,?,?,?,?,?,?,?,?) ON CONFLICT(singleton) DO UPDATE SET event=excluded.event,logical_utc=excluded.logical_utc,source=excluded.source,project=excluded.project,document=excluded.document,revision=excluded.revision,receipt_digest=excluded.receipt_digest,uncertain=excluded.uncertain,seal=excluded.seal");
     q.text(1,r.event());q.integer(2,t.logical_utc);q.text(3,r.source());q.text(4,r.project());q.text(5,r.document());q.text(6,r.revision());q.text(7,digest);q.integer(8,t.uncertain);q.text(9,seal);need(!q.row());
     ledger_.value("trial",t.logical_utc);if(t.uncertain||t.logical_utc>ledger_.value("utc"))ledger_.value("uncertain",1);
-    if(t.logical_utc>ledger_.value("utc"))ledger_.value("utc",t.logical_utc);ledger_.seal_clock();
+    if(t.logical_utc>ledger_.value("utc"))ledger_.value("utc",t.logical_utc);
+    ledger_.seal_clock();
     tx.commit();ledger_.trial_verified_=true;return true;
 }
 unsigned CommercialCoordinatorV2::reconcile(storage::Repository& repo){
     const auto receipts=repo.receipts_v2(authority_);unsigned changed=0;
-    for(const auto& r:receipts)if(acknowledge(r))++changed;return changed;
+    for(const auto& r:receipts)if(acknowledge(r))++changed;
+    return changed;
 }
 State CommercialCoordinatorV2::state(){std::lock_guard<std::mutex> lock(gate_);validate_origin();auto os=clock_.sample_os();os.trusted=false;return ledger_.state(os);}
 Admission CommercialCoordinatorV2::reserve(const std::string& id,const std::string& source,bool ai){std::lock_guard<std::mutex> lock(gate_);validate_origin();auto os=clock_.sample_os();os.trusted=false;return ledger_.reserve(id,source,ai,os);}
@@ -135,7 +137,8 @@ std::vector<std::string> CommercialCoordinatorV2::deliveries(){
     std::lock_guard<std::mutex> lock(gate_);Query rows(ledger_.db_,"SELECT token FROM request WHERE done=1 AND ai=1 AND payload<>'' ORDER BY token LIMIT 65");
     std::vector<std::string> values;values.reserve(64);while(rows.row()){
         auto token=rows.text(0);need(values.size()<64&&token.size()<=64);const auto colon=token.find(':');need(colon>0&&colon<=19&&colon+33==token.size());
-        for(size_t i=0;i<colon;++i)need(token[i]>='0'&&token[i]<='9');(void)document::Id::parse(token.substr(colon+1));values.push_back(std::move(token));
+        for(size_t i=0;i<colon;++i)need(token[i]>='0'&&token[i]<='9');
+        (void)document::Id::parse(token.substr(colon+1));values.push_back(std::move(token));
     }return values;
 }
 void CommercialCoordinatorV2::dismiss_delivery(const std::string& token){std::lock_guard<std::mutex> lock(gate_);ledger_.acknowledge_delivery(token);}

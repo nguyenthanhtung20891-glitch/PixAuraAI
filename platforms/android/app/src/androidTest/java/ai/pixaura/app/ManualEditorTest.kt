@@ -24,6 +24,12 @@ class ManualEditorTest {
         val values = json.getJSONObject("png").getJSONArray("bytes")
         return File(app.cacheDir, "editor-test-${UUID.randomUUID()}.png").apply { writeBytes(ByteArray(values.length()) { values.getInt(it).toByte() }) }
     }
+    /** Waits for the (busy-disabled) category chip, selects it, then waits for its tool chip. */
+    private fun selectCategoryAndAwaitTool(category: String, tool: String) {
+        compose.waitUntil(20_000) { compose.onAllNodes(hasText(category) and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNode(hasText(category) and isEnabled()).performScrollTo().performClick()
+        compose.waitUntil(20_000) { compose.onAllNodesWithText(tool).fetchSemanticsNodes().isNotEmpty() }
+    }
     private fun waitFor(predicate: () -> Boolean) {
         try { compose.waitUntil(20_000, predicate) }
         catch (failure: androidx.compose.ui.test.ComposeTimeoutException) {
@@ -57,7 +63,7 @@ class ManualEditorTest {
             assertNotNull(model.state.value.commercial)
             compose.onNodeWithTag("commercial-access").assertExists()
             val original = requireNotNull(model.state.value.core).revisionId
-            compose.onNodeWithText("Tone/Color").performClick()
+            selectCategoryAndAwaitTool("Tone/Color", "Exposure")
             compose.onNodeWithText("Exposure").performScrollTo().performClick()
             waitFor { model.state.value.core?.active == true && !model.state.value.busy }
             compose.onNodeWithContentDescription("Exposure value").performSemanticsAction(SemanticsActions.SetProgress) { it(1000f) }
@@ -187,7 +193,7 @@ class ManualEditorTest {
         val file = openFixture()
         val model = compose.activity.manualModel
         val original = requireNotNull(model.state.value.image)
-        compose.onNodeWithText("Tone/Color").performClick()
+        selectCategoryAndAwaitTool("Tone/Color", "Exposure")
         compose.onNodeWithText("Exposure").performScrollTo().performClick()
         waitFor { model.state.value.core?.active == true && !model.state.value.busy }
         compose.onNodeWithContentDescription("Exposure value").performSemanticsAction(SemanticsActions.SetProgress) { it(1000f) }

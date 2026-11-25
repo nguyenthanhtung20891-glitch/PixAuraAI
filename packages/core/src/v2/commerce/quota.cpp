@@ -29,9 +29,11 @@ void columns(sqlite3* db,const char* table,std::initializer_list<std::pair<const
 }
 void recognized_schema(sqlite3* db,int64_t version){
     Query tables(db,"SELECT name FROM sqlite_schema WHERE name NOT GLOB 'sqlite_*' AND type='table' ORDER BY name");
-    const auto names=version==1?std::initializer_list<const char*>{"clock","format","photos","request","session"}:
-        version==2?std::initializer_list<const char*>{"clock","clock_auth_v2","format","native_trial_origin","photos","request","session"}:
-        std::initializer_list<const char*>{"clock","clock_auth_v2","format","native_trial_origin","photos","request","session","store_config_v3","store_fact_v3","store_manifest_v3"};
+    // Owning vectors: an initializer_list selected through ?: would point at temporaries
+    // destroyed before the loop below runs.
+    const std::vector<const char*> names=version==1?std::vector<const char*>{"clock","format","photos","request","session"}:
+        version==2?std::vector<const char*>{"clock","clock_auth_v2","format","native_trial_origin","photos","request","session"}:
+        std::vector<const char*>{"clock","clock_auth_v2","format","native_trial_origin","photos","request","session","store_config_v3","store_fact_v3","store_manifest_v3"};
     for(const auto* name:names)need(tables.row()&&tables.s(0)==name);
     need(!tables.row());
     columns(db,"format",{{"version","INTEGER"},{"magic","TEXT"}});

@@ -31,7 +31,8 @@ struct SyntheticStoreVerifier final:commerce::StoreSignatureVerifierV3 {
     uint32_t store()const override{return 1;}
     std::string key_identity()const override{
         if(!declared_pin.empty())return declared_pin;
-        if(rotated)return std::string(64,'f');storage::Sha256 hash;hash.update(pub.data(),pub.size());return hash.finish();
+        if(rotated)return std::string(64,'f');
+        storage::Sha256 hash;hash.update(pub.data(),pub.size());return hash.finish();
     }
     std::string sign(const commerce::StoreCatalogV2& catalog,const commerce::StoreObservationV2& value,const std::string& nonce){
         const auto body=commerce::store_v2::canonical(catalog,value)+nonce;
@@ -134,7 +135,7 @@ int main(int argc,char** argv){try{
     rejects([&]{authority.verify(signed_proof,StoreProofOriginV3::cached,nonce);});
     rejects([&]{authority.verify(signed_proof,static_cast<StoreProofOriginV3>(3));});
     rejects([&]{authority.verify(std::string(16385,'x'),StoreProofOriginV3::cached);});
-    for(size_t i=0;i<signed_proof.size();++i){auto changed=signed_proof;changed[i]^=1;rejects([&]{authority.verify(changed,StoreProofOriginV3::cached);});}
+    for(size_t i=0;i<signed_proof.size();++i){auto tampered=signed_proof;tampered[i]^=1;rejects([&]{authority.verify(tampered,StoreProofOriginV3::cached);});}
     auto wrong_pin=pin;wrong_pin[0]=pin[0]=='0'?'1':'0';rejects([&]{StoreProofAuthorityV3 wrong(catalog,wrong_pin,signer);});
     auto other_signer=std::make_shared<SyntheticStoreVerifier>(2);rejects([&]{authority.verify(other_signer->sign(catalog,record,nonce),StoreProofOriginV3::cached);});
     // Even a caller's verifier that CLAIMS the real pin cannot mint evidence
@@ -245,8 +246,8 @@ int main(int argc,char** argv){try{
         rejects([&]{unconfigured.begin_store_request();});
     }
     {
-        auto scope=catalog;scope.environment=2;auto foreign=std::make_shared<StoreProofAuthorityV3>(scope,pin,signer);
-        CommercialCoordinatorV2 unconfigured(owner_path,fixture_clock,key,3,foreign);
+        auto scope=catalog;scope.environment=2;auto foreign_authority=std::make_shared<StoreProofAuthorityV3>(scope,pin,signer);
+        CommercialCoordinatorV2 unconfigured(owner_path,fixture_clock,key,3,foreign_authority);
         CHECK(unconfigured.state().access==0);rejects([&]{unconfigured.begin_store_request();});
     }
     // Exercise the actual exported runtime ingress, not a second publisher.

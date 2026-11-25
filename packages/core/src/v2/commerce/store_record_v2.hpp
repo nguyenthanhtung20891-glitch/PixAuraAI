@@ -35,8 +35,10 @@ inline void observation(const StoreCatalogV2& c,const StoreObservationV2& o){
     need(o.kind==1?o.expires>0:o.expires==0);need(!(o.kind==2&&o.status==2));
 }
 inline bool same_seal(std::string_view a,std::string_view b){
-    if(a.size()!=64||b.size()!=64)return false;unsigned difference=0;
-    for(size_t i=0;i<64;++i)difference|=static_cast<unsigned char>(a[i])^static_cast<unsigned char>(b[i]);return difference==0;
+    if(a.size()!=64||b.size()!=64)return false;
+    unsigned difference=0;
+    for(size_t i=0;i<64;++i)difference|=static_cast<unsigned char>(a[i])^static_cast<unsigned char>(b[i]);
+    return difference==0;
 }
 inline std::string canonical(const StoreCatalogV2& c,const StoreObservationV2& o){
     observation(c,o);

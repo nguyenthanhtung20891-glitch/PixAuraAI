@@ -103,9 +103,9 @@ int main(){fs::path root;uint64_t runtime=0,editor=0;std::vector<pixaura_v2_prev
     for(uint32_t choice=0;choice<11;++choice){
         pixaura_v2_advisory result{};OK(pixaura_v2_advisory_request(2,editor,choice,&result));
         pixaura_v2_review_inspection inspected{};OK(pixaura_v2_advisory_inspect(2,editor,result.id,32,&inspected));CHECK(inspected.action_count==1&&inspected.struct_size==4640);
-        const auto& expected=pixaura::assist_experience::choice(choice);const auto& descriptor=pixaura::manual::registry()[expected.tool_index];const auto& action=inspected.actions[0];
-        CHECK(action.tool_index==expected.tool_index&&action.parameter_count==descriptor.parameter_count);
-        for(uint32_t p=0;p<action.parameter_count;++p){CHECK(std::string(action.parameters[p].name)==descriptor.parameters[p].name);CHECK(std::string(action.parameters[p].unit)==descriptor.parameters[p].unit);CHECK(action.parameters[p].raw==expected.values[p]);}
+        const auto& choice_expected=pixaura::assist_experience::choice(choice);const auto& descriptor=pixaura::manual::registry()[choice_expected.tool_index];const auto& action=inspected.actions[0];
+        CHECK(action.tool_index==choice_expected.tool_index&&action.parameter_count==descriptor.parameter_count);
+        for(uint32_t p=0;p<action.parameter_count;++p){CHECK(std::string(action.parameters[p].name)==descriptor.parameters[p].name);CHECK(std::string(action.parameters[p].unit)==descriptor.parameters[p].unit);CHECK(action.parameters[p].raw==choice_expected.values[p]);}
         OK(pixaura_v2_advisory_cancel(2,editor,result.id,32));
     }
     observation.memory_pressure=PIXAURA_POLICY_NORMAL;
@@ -117,7 +117,8 @@ int main(){fs::path root;uint64_t runtime=0,editor=0;std::vector<pixaura_v2_prev
     changed=777;CHECK(pixaura_v2_advisory_apply(2,editor,advice.id,32,approval,32,&changed)==8&&changed==777);
     CHECK(pixaura_v2_advisory_apply(2,editor,advice.id,32,approval,32,&changed)==15);
     OK(pixaura_v2_editor_state(2,editor,&state));CHECK(state.revisions==2);
-    for(const auto& frame:held)OK(pixaura_v2_frame_release(2,frame.frame));held.clear();
+    for(const auto& frame:held)OK(pixaura_v2_frame_release(2,frame.frame));
+    held.clear();
     OK(pixaura_v2_advisory_approve(2,editor,advice.id,32,approval,33));OK(pixaura_v2_advisory_apply(2,editor,advice.id,32,approval,32,&changed));CHECK(changed==1);
     OK(pixaura_v2_editor_state(2,editor,&state));CHECK(state.revisions==3);
     pixaura_v2_advisory comparison{};OK(pixaura_v2_advisory_request(2,editor,2,&comparison));

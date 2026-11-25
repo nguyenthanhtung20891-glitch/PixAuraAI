@@ -32,6 +32,13 @@ class Phase11AccessibilityTest {
     @Test fun englishLargeTextAndAdjustableInput() = checkJourney("en", "Exposure", "Exposure value", "Share the committed revision")
     @Test fun vietnameseLargeTextAndAdjustableInput() = checkJourney("vi", "Phơi sáng", "Giá trị Phơi sáng", "Chia sẻ bản sửa đã lưu")
 
+    /** Waits for the (busy-disabled) category chip, selects it, then waits for its tool chip. */
+    private fun selectCategoryAndAwaitTool(category: String, tool: String) {
+        compose.waitUntil(20_000) { compose.onAllNodes(hasText(category) and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNode(hasText(category) and isEnabled()).performScrollTo().performClick()
+        compose.waitUntil(20_000) { compose.onAllNodesWithText(tool).fetchSemanticsNodes().isNotEmpty() }
+    }
+
     private fun checkJourney(language: String, exposure: String, sliderLabel: String, shareLabel: String) {
         val app = InstrumentationRegistry.getInstrumentation().targetContext
         val config = Configuration(app.resources.configuration).apply { setLocale(Locale.forLanguageTag(language)); fontScale = 2f }
@@ -51,7 +58,7 @@ class Phase11AccessibilityTest {
         try {
             compose.runOnUiThread { model.importFile(input) }
             compose.waitUntil(20_000) { !model.state.value.busy && model.state.value.core?.revisionCount == 1 }
-            compose.onNodeWithText(if (language == "vi") "Tông/Màu" else "Tone/Color").performScrollTo().performClick()
+            selectCategoryAndAwaitTool(if (language == "vi") "Tông/Màu" else "Tone/Color", exposure)
             compose.onNodeWithText(exposure).performScrollTo().performClick()
             compose.waitUntil(20_000) { model.state.value.core?.selected == 4 && !model.state.value.busy }
             compose.onNodeWithContentDescription(sliderLabel).performScrollTo().performSemanticsAction(SemanticsActions.SetProgress) { it(100f) }

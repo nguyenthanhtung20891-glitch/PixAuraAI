@@ -45,7 +45,8 @@ class DecodedRowsV2 final {
 #else
             const auto chunk=std::min<size_t>(count,65536);
             const auto done=writing?::pwrite(file_,data,chunk,static_cast<off_t>(offset)) : ::pread(file_,data,chunk,static_cast<off_t>(offset));
-            if(done<0&&errno==EINTR)continue;need(done>0);const auto n=static_cast<size_t>(done);
+            if(done<0&&errno==EINTR)continue;
+            need(done>0);const auto n=static_cast<size_t>(done);
 #endif
             data+=n;count-=n;offset+=n;
         }

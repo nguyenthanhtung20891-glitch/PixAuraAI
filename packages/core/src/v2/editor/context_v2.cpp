@@ -143,7 +143,8 @@ document::String EditorContextV2::history_json(){
     bool first=true;for(const auto& id:doc.redo()){if(!first)json+=',';first=false;json+='"';json.append(id.text());json+='"';}
     json.append("],\"revisions\":[");first=true;
     for(const auto& revision:doc.revisions()){
-        if(!first)json+=',';first=false;json.append("{\"actor\":\"");json.append(revision.actor);json.append("\",\"id\":\"");json.append(revision.id.text());json.append("\",\"parent_id\":");
+        if(!first)json+=',';
+        first=false;json.append("{\"actor\":\"");json.append(revision.actor);json.append("\",\"id\":\"");json.append(revision.id.text());json.append("\",\"parent_id\":");
         if(revision.parent){json+='"';json.append(revision.parent->text());json+='"';}else json.append("null");
         json.append(",\"plan_id\":");if(revision.plan){json+='"';json.append(revision.plan->text());json+='"';}else json.append("null");
         // Read-only geometry identity follows the accepted ordinary-history
@@ -223,7 +224,8 @@ document::String EditorContextV2::test_provider(assistance::Request input){
     const auto family=advisory_test_family_.load();auto& test=certification_[family-1];
     test.checkpoint(0);const auto fault=test.fault.load();
     if(fault==1)provider_.stop();
-    if(fault==4)throw document::Failure{8};if(fault==5)throw document::Failure{14};
+    if(fault==4)throw document::Failure{8};
+    if(fault==5)throw document::Failure{14};
     if(fault==3)input.payload="{}\n";
     if(fault==6)input.registry_version=2;
     if(fault==7)input.payload="{}\n";
@@ -267,7 +269,7 @@ EditorContextV2::Review EditorContextV2::plan_advisory(uint32_t choice,const std
 }
 EditorContextV2::Review EditorContextV2::decoded_review(assistance::Decoded&& decoded,const std::string& delivery,uint32_t choice,uint32_t tool,const std::vector<int32_t>& values){
     need(!decoded.operations.empty()&&decoded.operations.size()<=8,7);
-    auto stack=good(document::replay(*loaded_.snapshot,loaded_.snapshot->current()));for(auto& op:decoded.operations){const auto* tool=manual::find(op.type,op.operation_version,op.parameter_version);need(tool&&manual::agent_exposable(*tool),5);
+    auto stack=good(document::replay(*loaded_.snapshot,loaded_.snapshot->current()));for(auto& op:decoded.operations){const auto* registered=manual::find(op.type,op.operation_version,op.parameter_version);need(registered&&manual::agent_exposable(*registered),5);
         // Planner identities are temporary validator positions. Native ownership
         // supplies fresh operation identities before review or publication.
         op.id=document::Id::parse(fresh());stack.push_back(op);}
@@ -412,7 +414,8 @@ AdvisoryViewV2 EditorContextV2::restore_advisory(const std::string& delivery){
 }
 void EditorContextV2::review_current(std::string_view id,bool allow_failed){ready();stale();need(review_&&review_->view.id==id&&review_->view.epoch==loaded_.epoch&&review_->generation==generation_,9);need(review_->cancellation&&!review_->cancellation->requested&&(allow_failed||!review_->edit_failed),13);}
 document::String EditorContextV2::canonical_review_plan(const document::Vector<document::EditOperation>& operations){
-    if(operations.empty())return {};document::String plan="{\"actions\":[";
+    if(operations.empty())return {};
+    document::String plan="{\"actions\":[";
     for(size_t i=0;i<operations.size();++i){const auto& op=operations[i];const auto* tool=manual::find(op.type,op.operation_version,op.parameter_version);need(tool&&manual::agent_exposable(*tool),5);
         std::map<std::string,int64_t> values;
         if(const auto* crop=std::get_if<document::Crop>(&op.parameters))values={{"x_ppm",crop->x_ppm},{"y_ppm",crop->y_ppm},{"width_ppm",crop->width_ppm},{"height_ppm",crop->height_ppm}};
@@ -421,9 +424,11 @@ document::String EditorContextV2::canonical_review_plan(const document::Vector<d
             else if(const auto* rotate=std::get_if<document::Rotate>(&op.parameters))value=rotate->quarter_turns;
             else if(const auto* tone=std::get_if<document::Tone>(&op.parameters))value=tone->value;
             else if(const auto* detail=std::get_if<document::Detail>(&op.parameters))value=detail->value;
-            else throw document::Failure{7};values.emplace(std::string(tool->parameters[0].name),value);
+            else throw document::Failure{7};
+            values.emplace(std::string(tool->parameters[0].name),value);
         }
-        if(i)plan+=',';plan.append("{\"action_index\":");plan.append(std::to_string(i));plan.append(",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{");
+        if(i)plan+=',';
+        plan.append("{\"action_index\":");plan.append(std::to_string(i));plan.append(",\"operation_version\":1,\"parameter_version\":1,\"parameters\":{");
         bool first=true;for(const auto& entry:values){if(!first)plan+=',';first=false;plan+='"';plan.append(entry.first);plan.append("\":");plan.append(std::to_string(entry.second));}
         plan.append("},\"tool_id\":\"");plan.append(tool->tool_id);plan.append("\"}");
     }

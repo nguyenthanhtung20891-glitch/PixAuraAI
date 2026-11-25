@@ -87,7 +87,8 @@ void OriginalReaderV2::decode_owned(std::unique_ptr<decode::Vector<uint8_t>> enc
         } target{*row_store_,cancel};
         const auto code=pixaura_private_stream_decode_v2(m.format,source_->encoded().data(),source_->encoded().size(),m.width,m.height,
             static_cast<size_t>(row_scratch.bytes),Target::exchange,&target);
-        if(code)throw document::Failure{code};row_store_->seal();
+        if(code)throw document::Failure{code};
+        row_store_->seal();
     }
     evaluation::checkpoint(cancel,evaluation::Checkpoint::publication);
     // Managed immutable encoded bytes remain in the native asset store. Once

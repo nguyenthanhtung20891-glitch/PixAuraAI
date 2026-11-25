@@ -113,7 +113,8 @@ CHECK(before.pixels.source.width==4000&&before.pixels.source.height==3000&&owner
     // Test-only replay attack material, never a product advisory record. The
     // next PROCESS must reject this abandoned approval and restore no capability.
     std::ofstream marker("editor-v2-recovery-state",std::ios::trunc);CHECK(marker);
-    for(const auto* value:{&root,&committed,&delivery,&old_approval,&old_proposal})marker<<*value<<'\n';marker.close();CHECK(marker);
+    for(const auto* value:{&root,&committed,&delivery,&old_approval,&old_proposal})marker<<*value<<'\n';
+    marker.close();CHECK(marker);
     std::puts("Native real12MP publication, quotas, trial, single-use review authority and lease release PASS");return 0;
     }
     {

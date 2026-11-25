@@ -20,7 +20,8 @@ struct CertificationV2 {
         return 1;
     }
     void checkpoint(uint32_t where,unsigned seconds=15){
-        if(point!=where)return;reached=1;
+        if(point!=where)return;
+        reached=1;
         const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(seconds);
         while(!resume){if(std::chrono::steady_clock::now()>=deadline)throw document::Failure{14};std::this_thread::yield();}
     }

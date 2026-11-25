@@ -577,9 +577,15 @@ private final class EditorWorker {
         if result == .busy, latestCandidate == nil { latestCandidate = work }
         let more = latestCandidate != nil; installing = more; lock.unlock()
         if more {
-            commands.async {
-                DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(16)) { self.installLatest() }
+            // One-shot main-queue timer: the handler holds self weakly and the timer
+            // cancels itself, so no non-Sendable worker crosses a @Sendable closure.
+            let retry = DispatchSource.makeTimerSource(queue: .main)
+            retry.schedule(deadline: .now() + .milliseconds(16))
+            retry.setEventHandler { [weak self, retry] in
+                retry.cancel()
+                MainActor.assumeIsolated { self?.installLatest() }
             }
+            retry.resume()
         }
     }
 }
