@@ -103,3 +103,58 @@ evidence was fabricated. No purchase flow or GPU provider was enabled. The owner
 signing project was not committed. No Phase 12 work was started.
 
 Next action: independent Principal Architect review.
+
+## Addendum — conditional acceptance disposition (2026-11-26)
+
+This addendum does not declare Phase 11 closed and does not authorize Phases 12–14.
+The conditionally accepted source remains `a3551b2e0fb21896ae80fb6ae8fb7fa195cc2f14`.
+A later documentation commit that contains this addendum is not a new certification SHA.
+
+### 1. Exact SHA and CI disposition
+
+| Workflow | `phase-11-integration` | `main` |
+| --- | --- | --- |
+| Foundation boundaries | run 45719539195, attempt 1, 7/7 success | run 45719547963, attempt 1, 7/7 success |
+| Native application shells | run 45719539432, attempt 1, 3/3 success | run 45719547130, attempt 1, 2/3; attempt 2, 3/3 success |
+
+Attempt 2 is not attempt 1. It re-ran only the failed `android-app` job. `source` and `ios-app` stayed the original attempt-1 successes.
+
+### 2. Dependency verification failure and retry
+
+Attempt 1 `android-app` on `main` failed in 23 seconds, before any app test, on strict Gradle verification of `org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:2.2.21` POM, reported from the Gradle Plugin Portal. Trusted SHA-256 in `platforms/android/gradle/verification-metadata.xml` is `8b4103cc1412eb838a33c36b0e5c6e63bd0cace4c30ab9658f3861e41fc08389`. Verification was not disabled and the trusted hash was not regenerated.
+
+Independent checks after the failure:
+
+- Maven Central serves that exact POM, SHA-256 `8b4103cc…08389`, matching the trusted metadata and the copy Gradle cached locally on 2026-11-16.
+- The implementation artifact `kotlin-gradle-plugin-2.2.21-gradle813.jar` from Maven Central is SHA-256 `b7a52865c6a5e160d2cf61e4d423ce44a6a20de0a6b23d03404b6d01a2811737`, matching the trusted metadata. That jar was not the rejected artifact.
+- The Plugin Portal stably serves a shorter marker POM, SHA-256 `45c2d0d6f1f62b1f724900693d48a68f58be3d73602e29f9167489d2332a5fb6`. It has the same single dependency, `org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.21`. It adds no repository, plugin, or version.
+- `pluginManagement` searches `google()`, then `mavenCentral()`, then `gradlePluginPortal()`. The concurrent integration run on this same SHA passed strict verification, which is what resolving the Maven Central body does. The failed job named the portal, which is the fallback that serves the non-matching marker.
+
+No dependency compromise is indicated. One controlled retry was then run.
+
+Attempt 2 `android-app` (job 139709527743, 2026-11-26 05:17:41Z–05:30:33Z) succeeded: release/unit/lint build, then `Finished 90 tests` on `emulator-5554 - 15`. Original attempt-1 failure evidence remains on run 45719547130.
+
+### 3. Small-screen AVD
+
+`ShellTest` failing to display `Settings` was reproduced only on the local hand-made arm64 `pixaura-ci-like` AVD. That AVD is not the hosted image (`google_apis` x86_64, 320×640 at 160 dpi). Its content origin was y=152 on a 640-px screen, and Pixel Launcher posted an ANR over the app. The hosted 320×640 job on this SHA executes the same assertion and passed all 90 instrumentation tests. The assertion was not changed. This is a malfunctioning local emulator configuration, not a layout defect on the qualified 320×640 configuration.
+
+### 4. Product performance targets
+
+`QUALITY_GATES.md` is unchanged from `2f823a5` to `a3551b2`. G8 remains physical low/mid/high cohort evidence: p50/p95, peak RSS, and thermal data. The sanitizer job budget (15 to 45 minutes), the iOS job budget (60 to 120 minutes), and the sanitized 12 MP ctest timeouts (120 to 600 seconds) are harness limits so those runs can finish. They are not product latency or resource acceptance criteria, and no resource-admission cap was raised to make them pass.
+
+### 5. Remaining engineering blockers
+
+None in the executable software scope. Checkout stays off. `cpu.reference.v1` stays VALIDATED; Metal and Vulkan stay UNKNOWN. The owner signing project remains local and unstaged.
+
+### 6. External operator tasks
+
+- **G7.** On physical devices: permission grant and denial, airplane-mode and traffic observation, backup exclusion, private storage, and recovery of the last approved revision.
+- **G8.** On real LOW, MID, and HIGH Apple and Android devices: latency distribution, peak memory, memory-pressure, and thermal samples for the final 12 MP workflows. Host and emulator timings are not this gate.
+- **G10.** Real App Store Connect and Play Console products, tax and contract setup, authorized signing, authentic sandbox purchase, restore, refund, and revocation. Android Billing dependency privacy admission. No live checkout until that exists.
+- **G11.** Human VoiceOver, TalkBack, contrast, focus order, large text, and keyboard or switch-input walkthroughs on devices. Automated checks are not this gate.
+
+### 7. Disposition
+
+ENGINEERING COMPLETE — EXTERNAL ACCEPTANCE PENDING.
+
+Phase 11 is not closed. Phases 12, 13, and 14 are not started.
