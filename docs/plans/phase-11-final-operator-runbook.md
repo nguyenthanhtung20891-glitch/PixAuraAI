@@ -1,3 +1,14 @@
+## External acceptance successor — 2026-11-26
+
+Phase 11 engineering is accepted at `a3551b2e0fb21896ae80fb6ae8fb7fa195cc2f14`.
+Status: ENGINEERING COMPLETE — EXTERNAL ACCEPTANCE PENDING. Phase 11 is not
+closed. Use `docs/plans/phase-11-external-acceptance-support.md` for signed test
+builds, measurement, and evidence collection. The ledger is
+`docs/reports/phase-11-external-acceptance-ledger.md`; every item is NOT OBSERVED.
+Sentences below that call this implementation uncommitted, or the 12 MP editor
+unimplemented, are earlier freeze text. Checkout stays off. Automated results
+are not physical, sandbox, or human evidence.
+
 ## Full integration successor — 2026-11-19
 
 CR18-01/CR18-02 are approved. Schema 4, editor-v2, shared native ownership and

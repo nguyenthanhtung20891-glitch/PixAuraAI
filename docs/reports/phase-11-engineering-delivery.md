@@ -158,3 +158,12 @@ None in the executable software scope. Checkout stays off. `cpu.reference.v1` st
 ENGINEERING COMPLETE — EXTERNAL ACCEPTANCE PENDING.
 
 Phase 11 is not closed. Phases 12, 13, and 14 are not started.
+
+
+## External acceptance support
+
+Engineering acceptance is recorded. No G7, G8, G10, or G11 external item has
+been observed. The operator entry is
+`docs/plans/phase-11-external-acceptance-support.md`. The empty ledger is
+`docs/reports/phase-11-external-acceptance-ledger.md`. Phase 11 remains
+ENGINEERING COMPLETE — EXTERNAL ACCEPTANCE PENDING and is not closed.

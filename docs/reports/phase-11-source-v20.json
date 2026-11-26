@@ -29,7 +29,7 @@
     },
     "AGENTS.md": {
       "before_sha256_lf": "39aefd8e307f95c10702fde90a7169f70ca9af0fe4bdca23dff650f03ca1d799",
-      "after_sha256_lf": "2d71a896f16b5cbb4f6384edb453f6670309056c66fa133a0b4ab877c58749bb"
+      "after_sha256_lf": "ca40f147a465b80d1edbfc02bd517bbbb7e0cff1417d2cdbd349eca0d103c2f9"
     },
     "CMakeLists.txt": {
       "before_sha256_lf": "c262274678a1b2500bfae1d195883af3ece46552985137a4de9c3f613b98d35b",
@@ -39,9 +39,13 @@
       "before_sha256_lf": "4f6ce424cb0b249d226107fbf327fdfd590459180657eb07d9d66f9c8a29bacd",
       "after_sha256_lf": "e0ce8101b4895b7bfc0076849b5f5bb081b91a289ff10dbbaf57d85fb75db25e"
     },
+    "QUALITY_GATES.md": {
+      "before_sha256_lf": "566c61ed858bd79f308d1d702c29b0789f39aee28cf08a5c5dde9186fdb1e086",
+      "after_sha256_lf": "1afca91a299a9aed4eaf74a7b32303f23a163e2ee5178bfb8fd8d56df22026a4"
+    },
     "docs/plans/phase-11-final-operator-runbook.md": {
       "before_sha256_lf": "536c612016bfd47cdc1209a5b150c6cda406f5d01d29092a33b93db7c0b452b0",
-      "after_sha256_lf": "1a45241370bf7a64d8d703ff5facb8a925a195109b4a5abfee09b4fd9dc4f068"
+      "after_sha256_lf": "13fb9f1c1c74c781bf51d3ec3c51fab823f7f870320e1d2dcff00ed2ae5dfd86"
     },
     "packages/commerce/quota.cpp": {
       "before_sha256_lf": "d4aa4a63aa4a56fa8c349d7e633e0a1b1ba35b1e751207ae155f862689d4c0a4",
@@ -304,9 +308,11 @@
     "docs/contracts/commercial-store-ingress-v2.md": "c720a2affde9943724306d37876255724e3220210d7458c958dafd29ffc8259b",
     "docs/contracts/decoded-row-store-v2.md": "fed4c47a4d7d15ab6f19aef9773fcc01264058c6157f107941dd5e9773a581f1",
     "docs/contracts/preview-frame-probe-v2.md": "04cfb3ef294cdcd05b7777a97abd3ffb2c974cbf867c9791dc3a13248282d132",
+    "docs/plans/phase-11-external-acceptance-support.md": "44d0692e3fa58865aff6535b7c4f304958bfffdbf723edaed36122b2d1ed45ae",
     "docs/plans/phase-11-final-completion.md": "08e486e9bf69ab572edb22353f7c2f240690616bb411598542f4cf8fa79b1820",
     "docs/reports/phase-11-12mp-input-memory-gap.md": "8b378d3d8a3ba4cdc4414449ff290a878c178fd42441de98f6e60537d27f1ca4",
-    "docs/reports/phase-11-engineering-delivery.md": "45218e1b04ea8e646b4c143ddfed8c4c4c867f65023876601e48a5d679bc9571",
+    "docs/reports/phase-11-engineering-delivery.md": "c73f54ce106e4d82c70376bbee6894f164f28b640c1098a4d0bd11928c9ed8e1",
+    "docs/reports/phase-11-external-acceptance-ledger.md": "9b22e02106b5f103d64cfdc8886c630298e97d1509180f4117d457bb384e9887",
     "docs/reports/phase-11-final-acceptance-matrix.md": "0df87b17a191b49d2fbda95ccd51249cd3e762d0cac07190676e6e160ee3d168",
     "docs/reports/phase-11-final-checkpoint.md": "30eca4bfb9365dc0d8582b4eb6209627e8e4a6c1277865aaf4b378a96e8c8016",
     "packages/commerce/coordinator_v2.cpp": "ccdd3f658892521def3f8a3b93ad3d28646e31debb38702e988760e0b14c5d1c",
@@ -382,6 +388,7 @@
     "platforms/android/native/store_ingress_v3_bridge.inc": "482a627913bafa1f8bae194a9fbe8615af0063a772ccb617a7ee3ced38db324b",
     "scripts/benchmarks/phase-11-editor-v2-host.py": "275d15f9eeb3b306602e32d42cbf9f5edb898a4e5faafc3cad936bd39ed927d3",
     "scripts/codex-gh.py": "a889d030486a57e885c6e744ebfd70d5bf6e40bb05fc17d81db1af0f5949d75f",
+    "scripts/phase-11-external-evidence.py": "248f63f8b67cd6d6a3ef10cbf246d9b890c22b7bf959f51db15648ce3c22e092",
     "tests/codex-gh-portable.test.mjs": "8e618e47e8ec7808141af583b92e8f109e601ef555656affbe825509e77d9ef3",
     "tests/helpers/phase-11-versioned-contracts.mjs": "c2ce2ea5654c7ba752dba652e16dc9a0e7c25c1c4bd4e58b261ef66230d63f87",
     "tests/phase-11-final-integration.test.mjs": "b37b2dfd51f8371a3fc25ce708b676b8f6c0d19804aec928185c7eb9b3d9601d"

@@ -1,5 +1,18 @@
 # Quality gates and promotion policy
 
+<!-- phase11-external-acceptance-current -->
+## Current successor — Phase 11 engineering accepted, external gates pending (2026-11-26)
+
+Phase 11 engineering is ACCEPTED at a3551b2e0fb21896ae80fb6ae8fb7fa195cc2f14.
+Status: ENGINEERING COMPLETE — EXTERNAL ACCEPTANCE PENDING. Phase 11 is not
+closed. Phases 12–14 are not authorized. G7, G8, G10, and G11 physical, sandbox,
+and human evidence remain mandatory and NOT OBSERVED. Automated CI does not
+satisfy them. Budgets and cohort rules below are unchanged. cpu.reference.v1
+VALIDATED; apple.metal.v1 UNKNOWN; android.vulkan.v1 UNKNOWN.
+DH-APPLE-METAL-01 remains its historical iPhone XR pass and is not provider
+admission. Checkout stays off.
+<!-- phase11-external-acceptance-end -->
+
 <!-- phase11-metal-acceptance-current -->
 ## Current successor — independently accepted Apple hardware gate (2026-11-14)
 

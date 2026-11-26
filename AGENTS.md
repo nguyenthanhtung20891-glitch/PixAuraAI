@@ -1,5 +1,18 @@
 # PixAuraAI Autonomous Engineering Contract
 
+## Current successor — Phase 11 external acceptance support (2026-11-26)
+
+Principal Architect independently ACCEPTED Phase 11 engineering at
+a3551b2e0fb21896ae80fb6ae8fb7fa195cc2f14. Official status: ENGINEERING COMPLETE —
+EXTERNAL ACCEPTANCE PENDING. Phase 11 is NOT formally closed. Phases 12–14 are
+NOT AUTHORIZED. Stop speculative engineering and new feature development.
+External support uses the existing G7/G8/G10/G11 runbooks and
+docs/plans/phase-11-external-acceptance-support.md. Record completed external
+items only in docs/reports/phase-11-external-acceptance-ledger.md with physical,
+authentic-sandbox, or human provenance. Do not fabricate evidence, relax gates,
+enable live checkout, or promote GPU providers. Owner signing assets stay local.
+Historical engineering successors below remain freeze-time authority.
+
 ## Tool-portability successor — read-only CI inspection (2026-11-24)
 
 PowerShell is unavailable on the current Mac. When `pwsh` is unavailable, use
